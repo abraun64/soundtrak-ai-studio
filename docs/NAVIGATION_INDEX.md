@@ -47,7 +47,7 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **Pitch Deck spec** | 7-act canonical pitch deck narrative arc. 11-13 slides. | `docs/specs/pitch-deck.md` |
 | **Cookbook spec** | Operator-facing deploy/verify cookbook schema. | `docs/specs/cookbook.md` |
 | **Render pipeline spec** | Inventory of the 5 render scripts + consolidation proposal (deferred). | `docs/specs/render-pipeline.md` |
-| **Operator Playbook spec** | What goes in an operator playbook + how agents use it. | `docs/specs/operator-playbook.md` |
+| **Practitioner frameworks** | The embedded practitioner playbook (the full 53 principles) + how agents use it. | `craft/frameworks/README.md` |
 | **Tenant Playbook spec** | Per-tenant tactical learnings record — the campaign-to-campaign inheritance vehicle (graduate-then-cite, three-layer model). | `docs/specs/tenant-playbook.md` |
 | **Phase 0 — Tenant Baseline spec** | The per-tenant baseline every campaign inherits: Brand Context · Compliance Profile · segment map · market landscape · playbook · research library · audience-truths · integrations. | `docs/specs/phase-0-tenant-baseline.md` |
 | **Insight Brief spec** | Phase-1 Insights Manager artifact: per-segment human+market insight (§1) · routes to market (§2, channels + GTM partnerships) · restorable kill register (§3) · source sweep · durable updates · freshness. | `docs/specs/insight-brief.md` |

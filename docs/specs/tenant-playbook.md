@@ -9,7 +9,7 @@ The **Tenant Playbook** is the durable per-tenant record of **tactical learnings
 | Artifact | Holds | This playbook's relation |
 |---|---|---|
 | **Brand Context** (`tenant-brand/<tenant>.md`) | Voice / visual identity / positioning | Playbook holds *tactics*, not brand |
-| **Operator Playbook** (`operator/the operator/`) | The operator's practitioner discipline across ALL tenants | Playbook is tenant-specific |
+| **Practitioner frameworks** (`craft/frameworks/`) | The practitioner discipline / principles that apply across ALL tenants | This playbook is tenant-specific |
 | **Recommendations queue** (`tenant-brand/_recommendations-queue.md`) | Brand Manager's *proposed* Brand Context changes awaiting verdict | Playbook entries are already operator-approved |
 | **`tenant/library/`** | Reference pieces / gold standards (whole artifacts) | Playbook holds *learnings about* what works, not the artifacts themselves |
 

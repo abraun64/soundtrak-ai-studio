@@ -50,6 +50,6 @@ How the system itself is built and run.
 | [render-pipeline](render-pipeline.md) | The render-scripts inventory + contract |
 | [data-architecture](data-architecture.md) | Storage model — markdown-authoritative, dual-backed |
 | [research-library](research-library.md) | The shared, faceted research corpus |
-| [operator-playbook](operator-playbook.md) | What goes in an operator playbook |
+| [practitioner frameworks](../../craft/frameworks/README.md) | The embedded practitioner playbook (53 principles) + how agents use it |
 | [system-manager](system-manager.md) | The System-layer owner (backlog / inbox / audit) |
 | [standalone-deployment](standalone-deployment.md) | Retro-5 Seed packaging + safety model |

@@ -645,8 +645,8 @@ def _resolve_copy_file(copy_file_val: str, asset_dir: Path, campaign_dir: Path) 
 
 def _gallery_open_uri(p: Path) -> str:
     """gallery-open:<encoded-abs-path> — custom protocol registered via
-    .claude/skills/asset-gallery/protocol/gallery-open.reg (one-time operator setup).
-    Handler opens folders in File Explorer and files in VS Code/Notepad,
+    .claude/skills/asset-gallery/protocol/setup-protocol.ps1 (one-time, auto-detects the
+    install path). Handler opens folders in File Explorer and files in VS Code/Notepad,
     refusing paths outside the system root. See protocol/setup-cookbook.md."""
     from urllib.parse import quote
     return "gallery-open:" + quote(str(p.resolve()).replace("\\", "/"))

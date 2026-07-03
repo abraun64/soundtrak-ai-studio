@@ -79,9 +79,9 @@ What this CAMPAIGN is trying to make them do, think, or feel — one sentence. S
 ## Brand context
 - **Tenant Brand Context record**: link to durable Brand Context page (voice + visual identity + positioning)
 - **Tenant playbook §0 (value proposition + positioning)**: cited as FIXED INPUT where it exists — value prop, gate-survived lines, competitive claim map, only-we lines, segment-map pointer. Style / tone / target market are NEVER re-asked at campaign level.
-- **Operator Playbook reference**: link to `operator/the operator/index.md` — the durable practitioner-level layer. Brief authoring MUST cite specific playbook principles being applied or tested in this campaign (e.g. *"Tests principle 11 — Research Is a Competitive Content Moat"*).
+- **Practitioner frameworks reference**: link to the playbook (`craft/frameworks/Soundtrak_Playbook.md`) — the durable practitioner-level layer. Brief authoring MUST cite specific playbook principles being applied or tested in this campaign (e.g. *"Tests principle 11 — Research Is a Competitive Content Moat"*).
 - **Stretch tolerance for this campaign**: Tight / Standard / Loose
-- **Anything campaign-specific that diverges from the durable Brand Context OR the Operator Playbook**: <if any — capture as `operator/the operator/overrides/<campaign-slug>.md` for material deviations>
+- **Anything campaign-specific that diverges from the durable Brand Context OR the practitioner frameworks**: <if any — capture in the campaign's own notes for material deviations>
 
 ## Mandatories
 Legal, compliance, accessibility, region, brand mandatories. "None known" is valid; silence isn't.

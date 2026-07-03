@@ -29,14 +29,14 @@ Pull only what this asset needs. Typically:
 - Why this asset exists in the sequence (what came before, what comes after)
 - **Tenant playbook slice** (tenants with prior campaigns): 1–3 most-relevant tactical learnings from `tenant-brand/<tenant>-playbook.md`, quoted verbatim with evidence tag (FINDING / HYPOTHESIS) + `Playbook §N` citation. Omit entirely for first-campaign tenants. See [`tenant-playbook.md`](tenant-playbook.md).
 
-## 3. Voice slice (from Operator Playbook + tenant Brand Context — layered)
-The voice rules that apply to THIS asset. CM is the librarian — pulls relevant slices from both sources and cites inline:
+## 3. Voice slice (from the tenant Brand Context)
+The voice rules that apply to THIS asset. CM is the librarian — pulls the relevant slices from the tenant Brand Context and cites inline:
 - Tonal calibration (Direct/Provocative/Concise/Casual/Expert positions) — from tenant Brand Context §2
-- 5–8 most-relevant voice principles — citing whether each is from Operator Playbook `Tone of voice_v2.md` (the operator's practitioner-level voice) or from tenant Brand Context (tenant-specific). Producer reads only the slice; does not load source files.
-- Avoid-list applicable to this form — banned words from Operator Playbook `Tone of voice_v2.md §2` + tenant-specific additions from Brand Context
+- 5–8 most-relevant voice principles — from tenant Brand Context §2 (voice) and, where the tenant's positioning bears on tone, tenant playbook §0. Producer reads only the slice; does not load source files.
+- Avoid-list applicable to this form — banned words from tenant Brand Context §2 + any tenant-specific additions
 - 1 gold-standard reference link (closest published sibling) — from tenant Brand Context §5
 
-Operator Playbook + tenant Brand Context don't conflict; they layer. Playbook covers the operator's practitioner-level voice (applies across all his campaigns); tenant Brand Context covers tenant-specific voice/visual/positioning (this campaign's tenant only).
+Voice is tenant-specific: every tenant's voice/visual/positioning comes from its own Brand Context (built at Phase 0), not from any cross-tenant source.
 
 ## 4. Visual identity slice (from Brand Context)
 Only if the asset has a visual component:

@@ -8,7 +8,9 @@ param([string]$Uri)
 $raw = $Uri -replace '^gallery-open:/*', ''
 $path = [Uri]::UnescapeDataString($raw) -replace '/', '\'
 
-$root = 'C:/Users/<you>\OneDrive\Claude\Marketing AI System'
+# This script lives at <root>\.claude\skills\asset-gallery\protocol\gallery-open.ps1,
+# so the install root is four levels up — auto-detected, works wherever installed.
+$root = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..\..')).Path
 if (-not $path.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) {
     exit 1
 }

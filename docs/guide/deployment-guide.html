@@ -103,6 +103,11 @@
     <p>That's it — you're set up. You're now ready for your first campaign: press <b>+ New Session</b> (name it for the campaign, e.g. "Q3 launch") and type <b>"start a campaign: &lt;what it's for&gt;"</b>. The <a href="operator-guide.html">Operator guide</a> walks you through it, stage by stage.</p>
   </div>
 
+  <h2>Optional — make the gallery buttons open natively</h2>
+  <p>In the asset gallery, the <b>📁 Open folder</b> and <b>✏️ Edit copy</b> buttons open in your browser by default. To make them open File Explorer / your text editor instead, run this one-time setup (Windows, no admin rights) from your project folder:</p>
+  <pre><code>powershell -ExecutionPolicy Bypass -File ".\.claude\skills\asset-gallery\protocol\setup-protocol.ps1"</code></pre>
+  <p>It auto-detects your install path — nothing to edit. Full details + how to undo are in <code>.claude/skills/asset-gallery/protocol/setup-cookbook.md</code>. Skip it and the buttons still work, just in the browser.</p>
+
   <h2>If the health check shows red</h2>
   <p>Step 4 runs a "doctor" that checks your setup. A red <code>[FAIL]</code> line always prints the exact fix. The usual culprits:</p>
   <table>

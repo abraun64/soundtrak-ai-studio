@@ -11,6 +11,15 @@ System Manager; see "Cutting a release" at the foot of this file.
 ## [Unreleased]
 
 ### Fixed
+- **Gallery "Open folder" / "Edit copy" buttons work on any machine.** The one-time setup for the
+  gallery's native-open protocol now auto-detects the install path (a small `setup-protocol.ps1`)
+  instead of a `.reg` file hardcoded to the original author's folder — so it works wherever a
+  downloader unzips the system, not just on the machine it was built on. (The buttons already fall
+  back to plain browser behaviour if the setup isn't run, so nothing breaks either way.)
+- **Scheduled-cadence setup works on any machine.** The `Register-ScheduledTask` commands for the
+  weekly cadences no longer hardcode the author's Python interpreter + install folder — they
+  auto-detect both (`python -c sys.executable` + the current folder), so a downloader's paste just
+  works. (Found in a full public-codebase sweep for hardcoded paths.)
 - **Early-phase campaigns work fully before they have assets.** A campaign now appears on the
   All-Campaigns index and its tenant home as soon as it has a `campaign.yaml` (previously it stayed
   hidden until asset production began), the stage pill correctly skips the inherited Phase-0
@@ -55,6 +64,12 @@ System Manager; see "Cutting a release" at the foot of this file.
   board reflects reality during long working sessions instead of silently lagging.
 
 ### Added
+- **The practitioner playbook ships with the product.** The 53-principle strategic playbook — the
+  discipline the system is "configured on" — is now embedded at `craft/frameworks/` and read by the
+  Campaign Manager and Creative Director as fixed strategic input, so every campaign is shaped by the
+  same frameworks. Your *own* voice, positioning, and proof still come from your tenant baseline
+  (Phase 0); these are the transferable *frameworks*, not one operator's specifics. (The old external,
+  author-specific knowledge-base pointer is retired.)
 - **Fresh-install validation.** A new `validate_seed` step cold-clones a cut Seed into a
   throwaway dir (exactly as a downloader receives it) and gates the release on three checks
   passing — install doctor reports READY, the Phase-0 gate correctly blocks with no tenant,

@@ -86,16 +86,15 @@ Thresholds are constants at the top of each script (`STALE_AFTER_DAYS`,
 
 Mirror the SYS-005 task: run by the **REAL pythoncore interpreter**, not the
 WindowsApps `python` alias (that stub fails in non-interactive scheduled tasks).
-The real interpreter on this machine is
-`C:/Users/<you>\AppData\Local\Python\pythoncore-3.14-64\python.exe`
-(find on any machine via `python -c "import sys;print(sys.executable)"`).
+Find the real interpreter on your machine via `python -c "import sys;print(sys.executable)"`
+(NOT the WindowsApps `python` alias). The setup block below captures it automatically.
 
 These are a LOCAL step — run each block in an elevated PowerShell. They are not
 auto-registered by this skill.
 
 ```powershell
-$py   = "C:/Users/<you>\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-$root = "C:/Users/<you>\OneDrive\Claude\Marketing AI System"
+$py   = (python -c "import sys; print(sys.executable)")   # the REAL interpreter (verify it's not a WindowsApps stub)
+$root = (Get-Location).Path                                # run this block from your Marketing AI System folder
 
 # (1) Competitor / library scan — weekly, Mondays 08:15
 Register-ScheduledTask -TaskName "AI Marketing System - Competitor Library Scan" `
