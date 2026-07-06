@@ -27,6 +27,20 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / ".claude" / "lib"))
 import tenant_paths as _tp  # noqa: E402  — W4 dual-path: also find business-rooted tenants
 
+sys.path.insert(0, str(REPO_ROOT / ".claude" / "skills" / "render-html"))
+try:
+    import plan_model  # noqa: E402 — shared v3 plan parser; Plan is the source of truth for channel/name
+except Exception:  # pragma: no cover
+    plan_model = None
+
+# Windows-safe stdout: plan channel/name values carry em-dashes etc. — don't let the
+# cp1252 console crash the report (mirrors build-gallery.py's reconfigure).
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:  # pragma: no cover
+        pass
+
 # Pull the same status detection logic the gallery uses, so drift reports are
 # consistent with what the gallery actually surfaces.
 STATUS_PATTERNS = [
@@ -455,6 +469,63 @@ def check_close_report_drift(campaign_dir: Path) -> list[str]:
     return issues
 
 
+def check_channel_name_drift(campaign_dir: Path, asset_folders: list[Path]) -> list[str]:
+    """Layer K (2026-07): for a v3 plan, each asset.yaml's `default_channel` + `asset_name`
+    MUST equal its Plan row's Channel + name. The Plan is the source of truth for the asset
+    catalog; an off-Plan channel is EXACTLY how an asset silently drops from the gallery (the
+    render loop skips a channel it doesn't know). Legacy plans (no Type/Channel column —
+    plan_model returns []) are not enforced. Per docs/specs/plan.md §'living source of truth'."""
+    issues: list[str] = []
+    plan_path = campaign_dir / "plan.md"
+    if plan_model is None or not plan_path.exists():
+        return issues
+    try:
+        rows = plan_model.parse_plan_markdown(plan_path.read_text(encoding="utf-8"))
+    except Exception:
+        return issues
+    if not rows:
+        return issues  # legacy plan — channel/name not enforced against the Plan
+    idx = plan_model.index_by_id(rows)
+
+    def _val(text: str, key: str):
+        m = re.search(rf"(?m)^\s*{key}:\s*(.+?)\s*$", text)
+        if not m:
+            return None
+        v = m.group(1).strip()
+        if v[:1] in ('"', "'"):                              # quoted -> quoted content
+            end = v.find(v[0], 1)
+            return v[1:end] if end > 0 else v[1:].strip("\"'")
+        return re.split(r"\s+#", v, maxsplit=1)[0].strip()   # unquoted -> drop ' # comment'
+
+    for af in asset_folders:
+        m = re.match(r"^(\d+[a-z]?)", af.name)
+        if not m:
+            continue
+        key = m.group(1)
+        row = idx.get(key) or idx.get(key.lstrip("0") or "0")
+        if not row:
+            continue  # a missing plan row is Layer E's job, not this one's
+        ay = af / "asset.yaml"
+        if not ay.exists():
+            continue
+        try:
+            text = ay.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        dc, an = _val(text, "default_channel"), _val(text, "asset_name")
+        plan_ch, plan_nm = (row.get("channel") or "").strip(), (row.get("name") or "").strip()
+        if dc and plan_ch and dc != plan_ch:
+            issues.append(
+                f"  {af.name}: asset.yaml default_channel='{dc}' != Plan Channel='{plan_ch}' — "
+                f"the Plan is the source of truth; set default_channel to the Plan channel "
+                f"(an off-Plan channel silently drops the asset from the gallery)")
+        if an and plan_nm and an != plan_nm:
+            issues.append(
+                f"  {af.name}: asset.yaml asset_name='{an}' != Plan name='{plan_nm}' — "
+                f"align the name to the Plan (name drift rots the catalog)")
+    return issues
+
+
 def report_campaign(campaign_dir: Path) -> int:
     """Print drift report for one campaign. Returns number of drift issues found."""
     assets_dir = campaign_dir / "assets"
@@ -520,6 +591,16 @@ def report_campaign(campaign_dir: Path) -> int:
         print("  (asset.yaml ship-flags consistent with the plan Ships contract)")
     else:
         for line in ships_issues:
+            print(line)
+            issue_count += 1
+
+    # Channel + name ↔ Plan sweep (Layer K — the v3 one-vocabulary gate)
+    print(f"\n--- plan channel/name cross-check ---")
+    chan_issues = check_channel_name_drift(campaign_dir, asset_folders)
+    if not chan_issues:
+        print("  (asset.yaml default_channel + asset_name match the Plan, or legacy plan)")
+    else:
+        for line in chan_issues:
             print(line)
             issue_count += 1
 

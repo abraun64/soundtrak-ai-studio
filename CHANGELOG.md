@@ -10,7 +10,18 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-07-06
+
 ### Fixed
+- **Assets can no longer silently vanish from the gallery.** The root cause was two channel
+  vocabularies drifting apart with nothing to catch it: the Producer picked a channel from a
+  hard-coded generic list that didn't match the campaign's actual channels, so the gallery's render
+  loop skipped it — the asset was built but never drawn, with no warning. Fixed by collapsing to **one
+  vocabulary — the Plan's channels**: the fossil list is deleted; the CM injects each asset's channel +
+  name from its Plan row and the Producer derives `asset.yaml` from it (never invents); the gallery
+  groups by the Plan's channels; and `check-state` now **hard-fails** if any `asset.yaml`
+  `default_channel`/`asset_name` doesn't match its Plan row. The Plan is the single source of truth for
+  the asset catalog.
 - **Gallery "Open folder" / "Edit copy" buttons work on any machine.** The one-time setup for the
   gallery's native-open protocol now auto-detects the install path (a small `setup-protocol.ps1`)
   instead of a `.reg` file hardcoded to the original author's folder — so it works wherever a
@@ -47,6 +58,21 @@ System Manager; see "Cutting a release" at the foot of this file.
   drift instead of dozens of false positives from a sibling file's timestamp.
 
 ### Changed
+- **Plan (Phase 3) — one asset list, grouped by channel or wave.** The plan's asset list
+  is now a single table you can flip between grouping **by channel** (what / where) and **by
+  wave** (what's parallel), split into **Launch** vs **Ongoing** work. Every row is typed as a
+  **marketing asset** or a **setup / deploy task** (create the account, deploy the page, drop the
+  tracking tags), carries a plain-English description of what it is, and shows its dependency.
+  **Waves are derived from the dependency column** — Wave 1 is everything with nothing to wait on —
+  so the Campaign Manager produces a whole wave in parallel instead of one asset at a time. Existing
+  plans keep their card view until migrated (the new format switches on when a plan declares a Type
+  column).
+- **The asset gallery mirrors the plan.** The Phase-4 gallery now derives its channels, names,
+  descriptions, dependency waves, and Launch/Ongoing split from the plan — via one shared parser both
+  surfaces read, so the plan and gallery can't drift — with the same channel⇄wave toggle. A produced
+  asset that has no plan row shows in a visible "not in the plan yet" bucket instead of hiding, so the
+  plan stays the single source of truth. Legacy campaigns are untouched until their plan adopts the
+  new format.
 - **Campaign dashboard — one authoritative link per phase.** The Phases & Artifacts
   table now shows a single primary link per phase (the gate document to review), with
   earlier/supporting/superseded docs moved to a collapsed "Earlier & supporting

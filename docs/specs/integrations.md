@@ -41,13 +41,16 @@ platforms:
 # Channel → Platform mapping. Drives asset.yaml deployment block inheritance.
 # Producer reads asset.default_channel → looks up channel_defaults[<channel>]
 # → gets the platform name → looks up platforms[<platform>] for the rest.
+# The KEYS MUST match this tenant's Plan channel vocabulary VERBATIM — an asset's
+# `default_channel` equals its Plan `Channel` (v3 one-vocabulary), so an off-Plan key
+# here silently fails to route the asset at deploy time. Keep in sync with the Plan channels.
 channel_defaults:
-  Email: { platform: "mailchimp" }
-  "Adviser Pack": { platform: "sharepoint" }
-  LinkedIn: { platform: "linkedin" }
-  YouTube: { platform: "youtube" }
-  Audio: { platform: "spotify-podcast-host" }
-  # ... add per-campaign channels as needed
+  Substack: { platform: "substack" }
+  Website: { platform: "your-website" }
+  "LinkedIn + social": { platform: "linkedin" }
+  "Email — <list name>": { platform: "mailchimp" }
+  # ... one key per PUBLISHING Plan channel; internal channels (Brand foundation,
+  #     Measurement, Ads & paid) need no entry — they don't deploy.
 
 # Escalation paths displayed in per-campaign operations.html §4
 escalation:

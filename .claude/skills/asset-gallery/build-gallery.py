@@ -45,6 +45,17 @@ try:
 except Exception:
     operator_nav = None
 
+# Shared Phase-3 plan model (single source of truth for channels / plain-language
+# names + descriptions / Launch-Ongoing stage / dependency waves). Lives beside the
+# render-html skill so the plan renderer + this gallery can never disagree. When a
+# campaign's plan is LEGACY (no `type` column) parse_plan_markdown() returns [] and
+# every v3 feature below stays dormant — legacy galleries render byte-identically.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "render-html"))
+try:
+    import plan_model
+except Exception:
+    plan_model = None
+
 THUMB_W, THUMB_H = 560, 560
 THUMB_W_VERTICAL, THUMB_H_VERTICAL = 360, 640
 
@@ -301,6 +312,112 @@ def parse_plan_asset_table(plan_md_path: Path) -> dict[str, dict]:
             i += 1
     return result
 
+def _plan_ships_count(ships_val: str) -> int | None:
+    """Best-effort count of how many outputs a Plan `Ships` cell declares. Returns None
+    when the cell is `—`/empty (no ships declared) so callers can distinguish 'no ships'
+    from 'zero counted'. Counts leading `N × ` multipliers and `+`/`·`-separated items;
+    falls back to 1 for a single named output."""
+    s = re.sub(r"\*+", "", str(ships_val or "")).strip()
+    if not s or s in ("—", "-", "none", "n/a"):
+        return None
+    total = 0
+    # Split on top-level separators the Plan uses between distinct outputs.
+    parts = re.split(r"\s*[+·]\s*|,\s*", s)
+    for part in parts:
+        part = part.strip()
+        if not part:
+            continue
+        # Copy/text outputs surface as the copy-review md + related docs, NOT as gallery
+        # TILES (the 1:1 contract is tiles = VISUAL ship files). Exclude a copy-tagged
+        # output from the tile count unless it also names a tiling format.
+        if re.search(r"\bcopy\b|\bsnippet\b", part, re.I) and not re.search(
+                r"png|svg|jpe?g|gif|html|mp4|pdf|tile|storyboard|deck|carousel", part, re.I):
+            continue
+        m = re.search(r"(\d+)\s*[×x]\s*", part)      # "2 × MP4", "6 PNG"
+        if m:
+            total += int(m.group(1))
+            continue
+        m2 = re.match(r"(\d+)\s+\w", part)            # "3 launch tiles"
+        total += int(m2.group(1)) if m2 else 1
+    return total or 1
+
+
+def compute_plan_reconciliation(plan_table: dict[str, dict], tiles: list[dict],
+                                foundation_docs: list[dict]) -> dict:
+    """Change 5 — reconcile Plan `Ships` vs produced gallery tiles (the 1:1 contract:
+    Plan Ships = asset.yaml ship:true = gallery tiles). Returns a dict with a list of
+    deviations (each: {kind, asset, detail}) + an ok flag. Pure/read-only.
+
+    Deviation kinds:
+      not-in-plan       — a produced asset id has no matching Plan row
+      not-produced      — a Plan row (Ships != —) has no produced tiles
+      ship-count        — Plan Ships count != actual produced tile count for an asset
+      renamed           — asset_name doesn't match the Plan row's Asset name
+    """
+    deviations: list[dict] = []
+
+    # Group produced tiles + foundation ships by normalised asset id.
+    produced: dict[str, dict] = {}
+    for t in tiles + foundation_docs:
+        nid = _normalize_asset_id(t.get("asset_id"))
+        if not nid:
+            continue
+        g = produced.setdefault(nid, {"count": 0, "names": set(), "raw_id": t.get("asset_id")})
+        g["count"] += 1
+        if t.get("asset_name"):
+            g["names"].add(t["asset_name"])
+
+    plan_norm = {_normalize_asset_id(k): (k, v) for k, v in plan_table.items() if _normalize_asset_id(k)}
+
+    # 1. produced assets with no matching Plan row
+    for nid, g in sorted(produced.items()):
+        if nid not in plan_norm:
+            label = next(iter(g["names"]), None) or f"asset #{g['raw_id']}"
+            deviations.append({
+                "kind": "not-in-plan",
+                "asset": f"#{g['raw_id']} · {label}",
+                "detail": f"{g['count']} produced tile(s) trace to no approved Plan row — not in the approved Plan.",
+            })
+
+    # 2/3/4. walk the Plan rows
+    for nid, (raw_key, row) in sorted(plan_norm.items(), key=lambda kv: kv[0]):
+        plan_name = str(row.get("Asset") or "").strip()
+        ships_val = row.get("Ships", "")
+        planned = _plan_ships_count(ships_val)
+        g = produced.get(nid)
+
+        if planned is not None and not g:
+            deviations.append({
+                "kind": "not-produced",
+                "asset": f"#{raw_key} · {plan_name}",
+                "detail": f"Plan declares Ships ('{str(ships_val).strip()[:60]}') but no tiles were produced — planned, not produced.",
+            })
+            continue
+
+        if g and planned is not None and g["count"] != planned:
+            deviations.append({
+                "kind": "ship-count",
+                "asset": f"#{raw_key} · {plan_name}",
+                "detail": f"Plan Ships count = {planned}, produced ship tiles = {g['count']} — reconcile the Plan or the asset.yaml ship flags.",
+            })
+
+        # 4. renamed vs Plan (compare on a loose normalised form)
+        if g and plan_name and g["names"]:
+            def _norm_name(x: str) -> str:
+                return re.sub(r"[^a-z0-9]+", "", x.lower())
+            plan_n = _norm_name(plan_name)
+            if not any(_norm_name(n) and (_norm_name(n) in plan_n or plan_n in _norm_name(n)) for n in g["names"]):
+                shown = next(iter(g["names"]))
+                deviations.append({
+                    "kind": "renamed",
+                    "asset": f"#{raw_key}",
+                    "detail": f"asset_name '{shown}' doesn't match the Plan asset '{plan_name}' — renamed vs Plan.",
+                })
+
+    return {"ok": len(deviations) == 0, "deviations": deviations,
+            "n_plan_rows": len(plan_norm), "n_produced_assets": len(produced)}
+
+
 def classify_type(rel_path: str, file_path: Path) -> str:
     """Heuristic — does this file represent a parametric template, a concrete instance, or foundation material?"""
     lower = rel_path.lower()
@@ -445,16 +562,30 @@ def thumb_for_html(playwright_page, html_path: Path, out_path: Path, full_out_pa
     a full-page screenshot (for lightbox review).
     """
     w, h = (THUMB_W_VERTICAL, THUMB_H_VERTICAL) if vertical else (THUMB_W, THUMB_H)
+    def _goto(uri):
+        # networkidle is ideal, but a page with a form / web-font / keep-alive never idles
+        # (e.g. hub.html) → hang + failed thumb. Cascade to progressively-earlier signals so a
+        # thumbnail ALWAYS generates: networkidle → load → domcontentloaded → plain goto.
+        for wu, to in (("networkidle", 6000), ("load", 8000), ("domcontentloaded", 8000)):
+            try:
+                playwright_page.goto(uri, wait_until=wu, timeout=to)
+                return
+            except Exception:
+                continue
+        try:
+            playwright_page.goto(uri, timeout=8000)
+        except Exception:
+            pass
     try:
         playwright_page.set_viewport_size({"width": w * 2, "height": h * 2})
-        playwright_page.goto(html_path.as_uri(), wait_until="networkidle", timeout=15000)
+        _goto(html_path.as_uri())
         # Thumb: clipped to viewport-size square/rect (top of page)
         playwright_page.screenshot(path=str(out_path), clip={"x": 0, "y": 0, "width": w * 2, "height": h * 2})
         # Full-page: capture entire scroll-height for the lightbox
         if full_out_path is not None:
             # Use a more email-like viewport width for full render
             playwright_page.set_viewport_size({"width": 1200, "height": 900})
-            playwright_page.goto(html_path.as_uri(), wait_until="networkidle", timeout=15000)
+            _goto(html_path.as_uri())
             playwright_page.screenshot(path=str(full_out_path), full_page=True)
         return True
     except Exception as e:
@@ -580,6 +711,29 @@ html,body{{margin:0;padding:0;width:{w*2}px;height:{h*2}px;
 def humanize_slug(slug: str) -> str:
     return " ".join(w.capitalize() for w in re.split(r"[-_]", slug) if w)
 
+def humanize_filename(name: str) -> str:
+    """A clean human label for a bare filename — drop the extension, strip a leading
+    numeric/`0a`-style folder prefix, humanise the stem. Never returns a `_`-prefixed
+    scaffolding name (leading underscores are stripped). Used as the LAST-RESORT
+    lightbox subtitle when a per-file `title:` is absent."""
+    stem = Path(name).stem.lstrip("_")
+    stem = re.sub(r"^(0[a-e]|\d+[a-z]?)[-_]", "", stem)  # drop "01-", "0a-", "3b_" prefixes
+    label = humanize_slug(stem)
+    return label or Path(name).stem
+
+def _normalize_asset_id(raw) -> str:
+    """Canonicalise an asset id for Plan<->folder matching. Folders/asset.yaml use a
+    zero-padded form ("01", "0a"); the Plan asset table keys are un-padded ("1").
+    Normalise both sides to a comparable key: lowercase, strip a single leading zero
+    from a purely-numeric id ("01"->"1", "10" stays "10"), leave alpha-suffixed ids
+    ("0a", "3b") intact. Empty/placeholder -> ""."""
+    s = re.sub(r"\*+", "", str(raw or "")).strip().lower()
+    if not s or s in ("#", "—", "-"):
+        return ""
+    if re.fullmatch(r"\d+", s):
+        return str(int(s))  # "01" -> "1", "007" -> "7"
+    return s
+
 def build_breadcrumb(campaign_slug: str) -> str:
     """Match the breadcrumb pattern used by render-html templates."""
     campaign_label = humanize_slug(campaign_slug)
@@ -602,28 +756,76 @@ def load_system_css() -> str:
         print(f"  WARN system.css load fail: {e}", file=sys.stderr)
         return ""
 
-def _resolve_copy_file(copy_file_val: str, asset_dir: Path, campaign_dir: Path) -> dict | None:
-    """Resolve a copy_file declaration from asset.yaml into a gallery-ready dict.
+# Record / mirror / scaffolding MD names that are NOT the operator's copy-review surface.
+# Used by the copy-file fallback chain so a `NN-asset.md` record or a render source is
+# never mistaken for the reviewable copy.
+_NON_COPY_MD_RE = re.compile(
+    r"(^_)|(asset[-_]?record)|(-record)|(^readme)|(^index)|(^design)|(^setup)|(cookbook)|(deploy)|(verify)",
+    re.IGNORECASE,
+)
 
-    copy_file in asset.yaml can be:
-      - a bare filename:  "copy.md"
-      - a relative path:  "step-02-variants/variants.csv"
+def _resolve_copy_file(copy_file_val: str, asset_dir: Path, campaign_dir: Path,
+                       files_block: dict | None = None, plan_row: dict | None = None) -> dict | None:
+    """Resolve the operator's copy-review surface for an asset into a gallery-ready dict.
 
-    Auto-detect (2026-06-04): if copy_file_val is empty BUT a sibling copy.md
-    exists in the asset folder, treat as if the asset declared `copy_file: copy.md`.
-    Operators don't need to remember to declare the convention; the system honours
-    it by default.
+    copy_file in asset.yaml can be a bare filename ("copy.md") or a relative path
+    ("step-02-variants/variants.csv"). When asset.yaml declares NO top-level copy_file
+    AND no literal `copy.md` exists, fall back (in order) so a copy-review md is ALWAYS
+    attached when any copy exists (the mandatory View+Source contract):
 
-    Returns {path: <relative-from-campaign-root>, label: <human label>, format: <ext>}
-    or None if not declared and no sibling copy.md found.
+      1. the asset's ship:true `.md` deliverable (from files_block)
+      2. the Plan row's `Copy file` name (if it names a real filename)
+      3. the largest non-record prose `.md` in the folder
+
+    Returns {path, label, format, open_uri} or None if genuinely no copy surface exists.
     """
+    files_block = files_block or {}
+    plan_row = plan_row or {}
+
+    # Treat an explicit "none" / placeholder as UNSET so the fallback chain still fires
+    # (a copy-review md gets attached whenever real copy exists).
+    if isinstance(copy_file_val, str) and copy_file_val.strip().lower() in ("none", "—", "-"):
+        copy_file_val = ""
+
     if not copy_file_val:
-        # Auto-detect sibling copy.md
         sibling_copy = asset_dir / "copy.md"
         if sibling_copy.exists():
             copy_file_val = "copy.md"
         else:
-            return None
+            # --- FALLBACK CHAIN (Change 4) ------------------------------------
+            candidate: Path | None = None
+
+            # 1. a ship:true .md deliverable declared in asset.yaml files:
+            for rel, fmeta in (files_block.items() if isinstance(files_block, dict) else []):
+                fmeta = fmeta or {}
+                if fmeta.get("ship") is True and str(rel).lower().endswith(".md") \
+                        and not _NON_COPY_MD_RE.search(Path(rel).name):
+                    p = asset_dir / rel
+                    if p.exists():
+                        candidate = p
+                        break
+
+            # 2. the Plan row's `Copy file` value, if it names an actual file on disk
+            #    (the column often carries a format token like "md" — only useful when
+            #    it's a real filename, e.g. "variants.csv").
+            if candidate is None:
+                cf = str(plan_row.get("Copy file") or "").strip()
+                if cf and cf.lower() not in ("none", "—", "-", "md", "csv", "pptx", "docx", "xlsx"):
+                    p = asset_dir / cf
+                    if p.exists():
+                        candidate = p
+
+            # 3. the largest non-record prose .md in the folder
+            if candidate is None:
+                prose = [p for p in asset_dir.glob("*.md")
+                         if not _NON_COPY_MD_RE.search(p.name)]
+                if prose:
+                    candidate = max(prose, key=lambda p: p.stat().st_size)
+
+            if candidate is None:
+                return None
+            copy_file_val = str(candidate.relative_to(asset_dir)).replace("\\", "/")
+
     full_path = asset_dir / copy_file_val
     if not full_path.exists():
         return None
@@ -653,7 +855,8 @@ def _gallery_open_uri(p: Path) -> str:
 
 
 def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict],
-               channel_summaries: dict[str, str], campaign_dna: dict, out_path: Path) -> None:
+               channel_summaries: dict[str, str], campaign_dna: dict, out_path: Path,
+               reconciliation: dict | None = None, plan_rows: list | None = None) -> None:
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     n_total = len(tiles)
     by_status = defaultdict(int)
@@ -663,8 +866,65 @@ def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict
     for t in tiles:
         by_channel_count[t["channel"]] += 1
 
+    # === Channel order — v3 plan-derived when available, else the config order ===
+    # For a v3 plan the plan IS the channel spec: channels appear in plan order,
+    # Launch stage first (plan_model.channels_in_order). We then append any channel a
+    # tile/foundation-doc carries that the plan omitted, and fold both "Foundation" and
+    # the plan's "Brand foundation" name in as the same foundation section. For a legacy
+    # plan (plan_rows empty) effective_channel_order == CHANNEL_ORDER — unchanged.
+    _FND_NAMES = ("Foundation", "Brand foundation")
+    if plan_rows and plan_model is not None:
+        effective_channel_order = list(plan_model.channels_in_order(plan_rows))
+        _present = {t["channel"] for t in tiles} | {f.get("channel") for f in foundation_docs}
+        for ch in sorted(_present):
+            if ch and ch not in effective_channel_order:
+                effective_channel_order.append(ch)
+        # Ensure a foundation section exists if foundation_docs were produced but the
+        # plan named no foundation channel.
+        if foundation_docs and not any(c in _FND_NAMES for c in effective_channel_order):
+            effective_channel_order.insert(0, "Foundation")
+    else:
+        effective_channel_order = list(CHANNEL_ORDER)
+
+    # Guardrail: an asset routed to a channel NOT in the effective order is BUILT but never
+    # rendered (the render loop only walks these channels), so the asset silently vanishes
+    # from the operator surface. Warn loudly so it's caught here, not by the operator.
+    _bad = sorted({t["channel"] for t in tiles if t["channel"] not in effective_channel_order})
+    for ch in _bad:
+        names = sorted({t.get("asset_name") or Path(t["rel_path"]).parts[1]
+                        for t in tiles if t["channel"] == ch})
+        print(f"  ⚠️  CHANNEL WARNING: default_channel='{ch}' is NOT in the channel order "
+              f"{effective_channel_order} — {len(names)} asset(s) will NOT render: "
+              f"{', '.join(names)}. Fix default_channel or add the channel to the config/plan.",
+              file=sys.stderr)
+
     all_statuses = [s for s in STATUS_ORDER if s in {t["status"] for t in tiles}]
-    all_channels = [c for c in CHANNEL_ORDER if c in {t["channel"] for t in tiles} or c == "Foundation" and foundation_docs]
+    _fnd_channels_present = {f.get("channel") for f in foundation_docs}
+    all_channels = [c for c in effective_channel_order
+                    if c in {t["channel"] for t in tiles}
+                    or (foundation_docs and (c in _FND_NAMES or c in _fnd_channels_present))]
+
+    # v3 gate: do ANY tiles carry a Launch/Ongoing stage? Only then do we render the
+    # stage headers + the Channel⇄Wave group-by toggle. On a legacy plan every tile's
+    # stage is "" so has_stage is False and the gallery renders channel-only, as today.
+    has_stage = any(t.get("stage") for t in tiles) or any(f.get("stage") for f in foundation_docs)
+    STAGE_ORDER = ["Launch", "Ongoing", "Unplanned"]
+    STAGE_LABELS = {"Launch": "Launch activities", "Ongoing": "Ongoing management",
+                    "Unplanned": "⚠ Not in the plan yet"}
+
+    # Group-by toggle — only shown for a v3 plan (has_stage). Pill buttons mirror the
+    # plan's toggle loosely. Default = Channel.
+    if has_stage:
+        groupby_toggle_html = (
+            '<div class="filter-group groupby-group">'
+            '<strong>Group by</strong>'
+            '<div class="groupby-pills" role="group" aria-label="Group by">'
+            '<button type="button" class="groupby-pill is-active" data-mode="channel" onclick="setGroupMode(\'channel\')">Channel</button>'
+            '<button type="button" class="groupby-pill" data-mode="wave" onclick="setGroupMode(\'wave\')">Wave</button>'
+            '</div></div>'
+        )
+    else:
+        groupby_toggle_html = ""
 
     tiles_json = json.dumps(tiles, ensure_ascii=False)
     foundation_json = json.dumps(foundation_docs, ensure_ascii=False)
@@ -708,6 +968,51 @@ def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict
 </div>"""
     else:
         strategy_banner_html = ""
+
+    # Change 5 — Plan reconciliation banner. Green when the gallery reflects the approved
+    # Plan 1:1; otherwise an amber banner naming each deviation so the operator can
+    # reconcile the Plan or the asset.
+    _rec = reconciliation or {}
+    _devs = _rec.get("deviations") or []
+    _KIND_LABEL = {
+        "not-in-plan":  "Not in the approved Plan",
+        "not-produced": "Planned, not produced",
+        "ship-count":   "Ship-count mismatch",
+        "renamed":      "Renamed vs Plan",
+    }
+    if not reconciliation:
+        reconciliation_banner_html = ""
+    elif _rec.get("ok"):
+        reconciliation_banner_html = (
+            '<div class="plan-reconciliation plan-reconciliation--ok" '
+            'style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #16a34a;'
+            'border-radius:6px;margin:14px 24px 0;padding:10px 16px;font-size:13px;color:var(--text);">'
+            '<strong style="color:#16a34a;">✓ Reflects the approved Plan</strong>'
+            f'<span style="color:var(--text-muted);"> — {_rec.get("n_produced_assets", 0)} produced asset(s) '
+            f'match {_rec.get("n_plan_rows", 0)} Plan row(s), no deviations.</span></div>'
+        )
+    else:
+        _rows = "".join(
+            f'<li style="margin:4px 0;line-height:1.5;">'
+            f'<span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:0.04em;'
+            f'text-transform:uppercase;color:#b45309;background:rgba(245,158,11,0.12);'
+            f'border-radius:3px;padding:1px 6px;margin-right:6px;">{_KIND_LABEL.get(d["kind"], d["kind"])}</span>'
+            f'<strong style="color:var(--text);">{d["asset"]}</strong> '
+            f'<span style="color:var(--text-muted);">— {d["detail"]}</span></li>'
+            for d in _devs
+        )
+        reconciliation_banner_html = (
+            '<div class="plan-reconciliation plan-reconciliation--warn" '
+            'style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #f59e0b;'
+            'border-radius:6px;margin:14px 24px 0;padding:12px 16px;">'
+            '<div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#b45309;'
+            'font-weight:700;margin-bottom:6px;">⚠️ Plan reconciliation — '
+            f'{len(_devs)} deviation(s) from the approved Plan</div>'
+            '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">'
+            'The contract: Plan <code>Ships</code> = asset.yaml <code>ship:true</code> = gallery tiles, 1:1. '
+            'Reconcile by updating the Plan or the asset.</div>'
+            f'<ul style="margin:0;padding-left:2px;list-style:none;font-size:13px;">{_rows}</ul></div>'
+        )
 
     html = f"""<!DOCTYPE html>
 <html lang="en-AU">
@@ -761,6 +1066,30 @@ def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict
 }}
 .filter-group input {{ display: none; }}
 .filter-group input:checked + span {{ background: var(--accent); color: var(--surface); padding: 1px 7px; border-radius: 10px; }}
+
+/* Group-by toggle — pill buttons (v3 plans only). Loosely mirrors the plan's toggle. */
+.groupby-group {{ margin-left: auto; }}
+.groupby-pills {{ display: inline-flex; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: var(--bg); }}
+.groupby-pill {{
+  font-family: inherit; font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  padding: 4px 12px; border: none; background: transparent; color: var(--text-muted);
+  cursor: pointer; user-select: none; transition: background 0.12s, color 0.12s;
+}}
+.groupby-pill + .groupby-pill {{ border-left: 1px solid var(--border); }}
+.groupby-pill.is-active {{ background: var(--accent); color: var(--surface); }}
+
+/* Stage headers (v3 plans only) — outer grouping above channel/wave groups. */
+.stage-section {{ margin-top: 34px; }}
+.stage-section:first-child {{ margin-top: 8px; }}
+.stage-head {{
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin: 0 0 4px; padding: 8px 0 6px; border-bottom: 2px solid var(--text);
+}}
+.stage-head h2 {{ font-size: 20px; font-weight: 700; color: var(--text); margin: 0; letter-spacing: -0.01em; }}
+.stage-head .stage-count {{ font-size: 12px; color: var(--text-subtle); font-weight: 500; }}
+/* Unplanned bucket — a produced asset with no plan row; flag it, don't hide it. */
+.stage-section.stage-unplanned .stage-head {{ border-bottom-color: #b45309; }}
+.stage-section.stage-unplanned .stage-head h2 {{ color: #b45309; }}
 
 .channel-section {{ margin-top: 28px; }}
 .channel-head {{
@@ -912,6 +1241,8 @@ def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict
   background: var(--surface);
 }}
 .lightbox-header h2 {{ margin: 0; font-size: 16px; font-weight: 600; color: var(--text); }}
+.lb-title-group {{ min-width: 0; }}
+.lb-subtitle {{ margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--text-muted); line-height: 1.35; }}
 .lightbox-header .actions {{ display: flex; gap: 6px; align-items: center; }}
 .lightbox-header a, .lightbox-close {{
   font-size: 12px; padding: 6px 12px; border-radius: 4px;
@@ -1060,7 +1391,10 @@ main.page-main {{ padding: 24px 24px 64px; }}
     <strong>Channel</strong>
     {''.join(f'<label><input type="checkbox" class="f-channel" value="{c}" checked><span>{c}</span></label>' for c in all_channels)}
   </div>
+  {groupby_toggle_html}
 </div>
+
+{reconciliation_banner_html}
 
 {strategy_banner_html}
 
@@ -1070,7 +1404,10 @@ main.page-main {{ padding: 24px 24px 64px; }}
   <button class="nav-arrow prev" onclick="event.stopPropagation(); navigateLightbox(-1);" aria-label="Previous">‹</button>
   <div class="lightbox-inner" onclick="event.stopPropagation()">
     <div class="lightbox-header">
-      <h2 id="lb-title">—</h2>
+      <div class="lb-title-group">
+        <h2 id="lb-title">—</h2>
+        <div id="lb-subtitle" class="lb-subtitle" style="display:none;"></div>
+      </div>
       <div class="actions">
         <a id="lb-source" href="#" target="_blank">View in full</a>
         <a id="lb-copy" href="#" target="_blank" style="display:none;">✏️ Edit copy</a>
@@ -1099,8 +1436,181 @@ const CHANNEL_ORDER = {json.dumps(all_channels)};
 const TYPE_ORDER = {json.dumps(TYPE_ORDER)};
 const TYPE_META = {json.dumps(TYPE_META, ensure_ascii=False)};
 const CAMPAIGN_DNA = {json.dumps(campaign_dna, ensure_ascii=False)};
+// v3 plan-mirror flags (all inert when HAS_STAGE is false — legacy behaviour).
+const HAS_STAGE = {json.dumps(has_stage)};
+const STAGE_ORDER = {json.dumps(STAGE_ORDER)};
+const STAGE_LABELS = {json.dumps(STAGE_LABELS, ensure_ascii=False)};
+const FND_NAMES = {json.dumps(list(_FND_NAMES))};
+let groupMode = 'channel';   // 'channel' | 'wave' — only used when HAS_STAGE
 let lightboxIdx = -1;
 let visibleIndices = [];  // refreshed by render() — global indices into TILES that pass the active filters
+
+// A tile/foundation-doc is a foundation item when its channel is Foundation / Brand foundation.
+function isFoundationChannel(ch) {{ return FND_NAMES.indexOf(ch) !== -1; }}
+
+// Group-by toggle handler (v3 only). Re-renders and repaints the active pill.
+function setGroupMode(mode) {{
+  groupMode = mode;
+  document.querySelectorAll('.groupby-pill').forEach(b => {{
+    b.classList.toggle('is-active', b.getAttribute('data-mode') === mode);
+  }});
+  render();
+}}
+
+// Render ONE channel/wave group (tiles + optional foundation items) → HTML string.
+// Extracted so both the channel and wave grouping paths reuse identical card markup.
+function renderTileCard(t) {{
+  const globalIdx = TILES.indexOf(t);
+  const ty = t.type || 'Instance';
+  const meta = TYPE_META[ty] || TYPE_META['Instance'];
+  const vClass = t.vertical ? 'vertical' : '';
+  const statusKey = t.status.replace(/\\s/g, '-');
+  const docsBadge = t.related_docs && t.related_docs.length > 0 ? `<span class="badge badge-docs">${{t.related_docs.length}} doc${{t.related_docs.length === 1 ? '' : 's'}}</span>` : '';
+  const questionsBadge = t.open_question_count > 0 ? `<span class="badge badge-questions">🟠 ${{t.open_question_count}} question${{t.open_question_count === 1 ? '' : 's'}}</span>` : '';
+  const reviewShapeRaw = (t.plan_row && t.plan_row["Review shape"]) || '';
+  const reviewShapeBadge = reviewShapeRaw ? (() => {{
+    const icon = reviewShapeRaw.startsWith('template') ? '📋' :
+                 reviewShapeRaw.startsWith('variant-comp') ? '🎨' : '🖼';
+    const short = reviewShapeRaw.replace(/\\s*\\[.*\\]/, '').trim();
+    return `<span class="badge badge-review-shape" title="${{reviewShapeRaw}}">${{icon}} ${{short}}</span>`;
+  }})() : '';
+  const typeClass = `tile-type-${{ty}}`;
+  const videoOverlay = t.is_video ? '<span class="tile-video-overlay" aria-hidden="true"></span><span class="tile-duration-badge">▶ video</span>' : '';
+  // v3: name line = plain plan name; subtitle = plain plan description (fallback to file title).
+  const nameCore = t.asset_name || t.file_title || t.title || t.name;
+  const nameLine = (t.asset_id ? '#' + t.asset_id + ' · ' : '') + nameCore;
+  const sub = t.plan_desc || t.file_title || t.title || '';
+  const subLine = (sub && sub !== nameCore) ? sub : '';
+  return `
+    <div class="tile ${{typeClass}}" onclick="openLightbox(${{globalIdx}})">
+      <div class="tile-img ${{vClass}}">
+        <img src="${{t.thumb}}" alt="${{t.title || t.asset_name || t.name}}" loading="lazy">
+        <span class="tile-type-badge" title="${{meta.label}}">${{meta.icon}}</span>
+        ${{videoOverlay}}
+      </div>
+      <div class="tile-meta">
+        <div class="tile-name">${{nameLine}}</div>
+        ${{subLine ? `<div class="tile-subtitle">${{subLine}}</div>` : ''}}
+        <div class="tile-class">${{meta.label}}</div>
+        <div class="tile-badges">
+          <span class="badge badge-status-${{statusKey}}">${{t.status}}</span>
+          ${{reviewShapeBadge}}
+          ${{questionsBadge}}
+          ${{docsBadge}}
+        </div>
+      </div>
+    </div>`;
+}}
+
+// Render the foundation-docs cluster (grouped by asset) for a set of foundation items.
+function renderFoundationItems(foundationItems) {{
+  let html = '';
+  const byAsset = {{}};
+  foundationItems.forEach(f => {{
+    const aid = f.asset_id || 'misc';
+    byAsset[aid] = byAsset[aid] || {{ items: [], asset_name: f.asset_name, asset_summary: f.asset_summary }};
+    byAsset[aid].items.push(f);
+  }});
+  Object.entries(byAsset).forEach(([aid, group]) => {{
+    group.items.sort((a, b) => (a.role_priority || 5) - (b.role_priority || 5));
+    html += `<div class="foundation-asset-group">
+      <div class="foundation-asset-head">
+        <span class="asset-id">${{aid}}</span>
+        <span class="asset-name">${{group.asset_name || 'Unattributed foundation docs'}}</span>
+      </div>
+      ${{group.asset_summary ? `<div class="foundation-asset-summary">${{group.asset_summary}}</div>` : ''}}`;
+    group.items.forEach(f => {{
+      const roleLabel = (f.role || 'reference').replace(/_/g, ' ');
+      html += `<div class="foundation-doc role-${{f.role || 'reference'}}">
+        <div class="foundation-doc-head">
+          <a href="${{f.source}}" target="_blank">${{f.title || f.name}}</a>
+          <span class="role-badge role-${{f.role || 'reference'}}">${{roleLabel}}</span>
+          <span class="doc-name">${{f.name}}</span>
+        </div>
+        ${{f.review ? `<div class="foundation-doc-review">${{f.review}}</div>` : ''}}
+      </div>`;
+    }});
+    html += '</div>';
+  }});
+  return html;
+}}
+
+// Render a single channel section (its type-subsectioned tiles + foundation cluster).
+// Used by BOTH the legacy channel-only path and the v3 per-stage channel grouping.
+function renderChannelSection(ch, items, foundationItems, opts) {{
+  opts = opts || {{}};
+  const isFoundation = isFoundationChannel(ch);
+  if (items.length === 0 && foundationItems.length === 0) return '';
+  const count = items.length + foundationItems.length;
+  // Legacy count label reads "asset(s)" (unchanged); v3 reads "item(s)".
+  const noun = HAS_STAGE ? (count === 1 ? 'item' : 'items') : (count === 1 ? 'asset' : 'assets');
+  let html = `<section class="channel-section ${{isFoundation ? 'foundation-section' : ''}}">
+    <div class="channel-head">
+      <h2>${{ch}} <span class="count">${{count}} ${{noun}}</span></h2>
+      <p class="summary">${{CHANNEL_SUMMARIES[ch] || ''}}</p>
+    </div>`;
+
+  if (items.length > 0) {{
+    const byType = {{}};
+    items.forEach(t => {{
+      // v3 (opts.includeFoundationType): a VISUAL tile typed "Foundation" (e.g. the
+      // plan's brand design kit) is a real deliverable — fold it into the Instance
+      // subsection so it isn't dropped. Legacy path leaves opts unset → Foundation-type
+      // tiles are skipped below, exactly as before (they belong to the docs section).
+      let ty = t.type || 'Instance';
+      if (ty === 'Foundation' && opts.includeFoundationType) ty = 'Instance';
+      byType[ty] = byType[ty] || [];
+      byType[ty].push(t);
+    }});
+    TYPE_ORDER.forEach(ty => {{
+      if (ty === 'Foundation') return;
+      const list = byType[ty];
+      if (!list || list.length === 0) return;
+      const meta = TYPE_META[ty];
+      html += `<div class="type-subsection">
+        <div class="type-head">
+          <span class="type-icon">${{meta.icon}}</span>
+          <strong>${{meta.label}}s</strong>
+          <span class="type-count">${{list.length}}</span>
+          <span class="type-prompt">${{meta.review_prompt.split('.')[0]}}.</span>
+        </div>`;
+      html += '<div class="grid">';
+      list.forEach(t => {{ html += renderTileCard(t); }});
+      html += '</div></div>';
+    }});
+  }}
+
+  if (foundationItems.length > 0) html += renderFoundationItems(foundationItems);
+  html += '</section>';
+  return html;
+}}
+
+// Render a wave group (v3 only) — no type-subsections, a flat grid + foundation cluster.
+function renderWaveSection(label, items, foundationItems) {{
+  if (items.length === 0 && foundationItems.length === 0) return '';
+  const count = items.length + foundationItems.length;
+  let html = `<section class="channel-section">
+    <div class="channel-head">
+      <h2>${{label}} <span class="count">${{count}} ${{count === 1 ? 'item' : 'items'}}</span></h2>
+    </div>`;
+  if (items.length > 0) {{
+    html += '<div class="grid">';
+    items.forEach(t => {{ html += renderTileCard(t); }});
+    html += '</div>';
+  }}
+  if (foundationItems.length > 0) html += renderFoundationItems(foundationItems);
+  html += '</section>';
+  return html;
+}}
+
+// Build an ordered channel list for the visible items — CHANNEL_ORDER first, then any
+// straggler channel not in it (stable, alphabetical) so nothing is silently dropped.
+function orderedChannels(itemChannels) {{
+  const out = [];
+  CHANNEL_ORDER.forEach(c => {{ if (itemChannels.has(c)) out.push(c); }});
+  [...itemChannels].sort().forEach(c => {{ if (out.indexOf(c) === -1) out.push(c); }});
+  return out;
+}}
 
 function render() {{
   const statuses = [...document.querySelectorAll('.f-status:checked')].map(e => e.value);
@@ -1108,124 +1618,62 @@ function render() {{
 
   const filteredTiles = TILES.filter(t => statuses.includes(t.status) && channels.includes(t.channel));
   visibleIndices = filteredTiles.map(t => TILES.indexOf(t));
-  const filteredFoundation = channels.includes('Foundation') ? FOUNDATION : [];
-
-  const byChannel = {{}};
-  filteredTiles.forEach(t => {{
-    byChannel[t.channel] = byChannel[t.channel] || [];
-    byChannel[t.channel].push(t);
-  }});
+  // Foundation docs show when their (plan or default) channel passes the channel filter.
+  const filteredFoundation = FOUNDATION.filter(f => channels.includes(f.channel)
+    || (isFoundationChannel(f.channel) && channels.some(isFoundationChannel)));
 
   let html = '';
-  CHANNEL_ORDER.forEach(ch => {{
-    const items = byChannel[ch] || [];
-    const isFoundation = ch === 'Foundation';
-    const foundationItems = isFoundation ? filteredFoundation : [];
 
-    if (items.length === 0 && foundationItems.length === 0) return;
+  if (!HAS_STAGE) {{
+    // ===== LEGACY PATH — channel-only grouping, exactly as before =====
+    const byChannel = {{}};
+    filteredTiles.forEach(t => {{
+      byChannel[t.channel] = byChannel[t.channel] || [];
+      byChannel[t.channel].push(t);
+    }});
+    CHANNEL_ORDER.forEach(ch => {{
+      const items = byChannel[ch] || [];
+      const foundationItems = isFoundationChannel(ch) ? filteredFoundation : [];
+      html += renderChannelSection(ch, items, foundationItems);
+    }});
+  }} else {{
+    // ===== v3 PATH — outer grouping by stage, inner by Channel or Wave =====
+    STAGE_ORDER.forEach(stage => {{
+      const stageTiles = filteredTiles.filter(t => (t.stage || 'Launch') === stage);
+      const stageFoundation = filteredFoundation.filter(f => (f.stage || 'Launch') === stage);
+      if (stageTiles.length === 0 && stageFoundation.length === 0) return;
 
-    html += `<section class="channel-section ${{isFoundation ? 'foundation-section' : ''}}">
-      <div class="channel-head">
-        <h2>${{ch}} <span class="count">${{items.length + foundationItems.length}} ${{items.length + foundationItems.length === 1 ? 'asset' : 'assets'}}</span></h2>
-        <p class="summary">${{CHANNEL_SUMMARIES[ch] || ''}}</p>
-      </div>`;
+      const stageCount = stageTiles.length + stageFoundation.length;
+      let inner = '';
 
-    if (items.length > 0) {{
-      // Subsection by Type within channel
-      const byType = {{}};
-      items.forEach(t => {{
-        const ty = t.type || 'Instance';
-        byType[ty] = byType[ty] || [];
-        byType[ty].push(t);
-      }});
-
-      TYPE_ORDER.forEach(ty => {{
-        if (ty === 'Foundation') return;  // Foundation MDs render in their own dedicated section, not in channel subsections
-        const list = byType[ty];
-        if (!list || list.length === 0) return;
-        const meta = TYPE_META[ty];
-        html += `<div class="type-subsection">
-          <div class="type-head">
-            <span class="type-icon">${{meta.icon}}</span>
-            <strong>${{meta.label}}s</strong>
-            <span class="type-count">${{list.length}}</span>
-            <span class="type-prompt">${{meta.review_prompt.split('.')[0]}}.</span>
-          </div>`;
-        html += '<div class="grid">';
-        list.forEach((t) => {{
-          const globalIdx = TILES.indexOf(t);
-          const vClass = t.vertical ? 'vertical' : '';
-          const statusKey = t.status.replace(/\\s/g, '-');
-          const docsBadge = t.related_docs && t.related_docs.length > 0 ? `<span class="badge badge-docs">${{t.related_docs.length}} doc${{t.related_docs.length === 1 ? '' : 's'}}</span>` : '';
-          const questionsBadge = t.open_question_count > 0 ? `<span class="badge badge-questions">🟠 ${{t.open_question_count}} question${{t.open_question_count === 1 ? '' : 's'}}</span>` : '';
-          const reviewShapeRaw = (t.plan_row && t.plan_row["Review shape"]) || '';
-          const reviewShapeBadge = reviewShapeRaw ? (() => {{
-            const icon = reviewShapeRaw.startsWith('template') ? '📋' :
-                         reviewShapeRaw.startsWith('variant-comp') ? '🎨' : '🖼';
-            // Short label: strip bracket details for badge display
-            const short = reviewShapeRaw.replace(/\\s*\\[.*\\]/, '').trim();
-            return `<span class="badge badge-review-shape" title="${{reviewShapeRaw}}">${{icon}} ${{short}}</span>`;
-          }})() : '';
-          const typeClass = `tile-type-${{ty}}`;
-          const videoOverlay = t.is_video ? '<span class="tile-video-overlay" aria-hidden="true"></span><span class="tile-duration-badge">▶ video</span>' : '';
-          html += `
-            <div class="tile ${{typeClass}}" onclick="openLightbox(${{globalIdx}})">
-              <div class="tile-img ${{vClass}}">
-                <img src="${{t.thumb}}" alt="${{t.title || t.asset_name || t.name}}" loading="lazy">
-                <span class="tile-type-badge" title="${{meta.label}}">${{meta.icon}}</span>
-                ${{videoOverlay}}
-              </div>
-              <div class="tile-meta">
-                <div class="tile-name">${{t.asset_name || t.title || t.name}}</div>
-                <div class="tile-subtitle">${{t.asset_name && t.title ? t.title : (t.asset_name ? t.name : '')}}</div>
-                <div class="tile-class">${{meta.label}}</div>
-                <div class="tile-badges">
-                  <span class="badge badge-status-${{statusKey}}">${{t.status}}</span>
-                  ${{reviewShapeBadge}}
-                  ${{questionsBadge}}
-                  ${{docsBadge}}
-                </div>
-              </div>
-            </div>`;
+      if (groupMode === 'wave') {{
+        // Group by dependency wave (ascending). Items with no wave fall into "Wave 1".
+        const byWave = {{}};
+        stageTiles.forEach(t => {{ const w = t.wave || 1; (byWave[w] = byWave[w] || {{tiles: [], fnd: []}}).tiles.push(t); }});
+        stageFoundation.forEach(f => {{ const w = f.wave || 1; (byWave[w] = byWave[w] || {{tiles: [], fnd: []}}).fnd.push(f); }});
+        Object.keys(byWave).map(Number).sort((a, b) => a - b).forEach(w => {{
+          inner += renderWaveSection('Wave ' + w, byWave[w].tiles, byWave[w].fnd);
         }});
-        html += '</div></div>';
-      }});
-    }}
-
-    if (foundationItems.length > 0) {{
-      // Group foundation items by asset_id (so all 0d MDs cluster under one asset header)
-      const byAsset = {{}};
-      foundationItems.forEach(f => {{
-        const aid = f.asset_id || 'misc';
-        byAsset[aid] = byAsset[aid] || {{ items: [], asset_name: f.asset_name, asset_summary: f.asset_summary }};
-        byAsset[aid].items.push(f);
-      }});
-      Object.entries(byAsset).forEach(([aid, group]) => {{
-        // Sort by role_priority (primary docs first, asset_records last)
-        group.items.sort((a, b) => (a.role_priority || 5) - (b.role_priority || 5));
-        html += `<div class="foundation-asset-group">
-          <div class="foundation-asset-head">
-            <span class="asset-id">${{aid}}</span>
-            <span class="asset-name">${{group.asset_name || 'Unattributed foundation docs'}}</span>
-          </div>
-          ${{group.asset_summary ? `<div class="foundation-asset-summary">${{group.asset_summary}}</div>` : ''}}`;
-        group.items.forEach(f => {{
-          const roleLabel = (f.role || 'reference').replace(/_/g, ' ');
-          html += `<div class="foundation-doc role-${{f.role || 'reference'}}">
-            <div class="foundation-doc-head">
-              <a href="${{f.source}}" target="_blank">${{f.title || f.name}}</a>
-              <span class="role-badge role-${{f.role || 'reference'}}">${{roleLabel}}</span>
-              <span class="doc-name">${{f.name}}</span>
-            </div>
-            ${{f.review ? `<div class="foundation-doc-review">${{f.review}}</div>` : ''}}
-          </div>`;
+      }} else {{
+        // Group by channel (CHANNEL_ORDER, then stragglers).
+        const chSet = new Set();
+        stageTiles.forEach(t => chSet.add(t.channel));
+        stageFoundation.forEach(f => chSet.add(f.channel));
+        orderedChannels(chSet).forEach(ch => {{
+          const items = stageTiles.filter(t => t.channel === ch);
+          const foundationItems = stageFoundation.filter(f => f.channel === ch);
+          inner += renderChannelSection(ch, items, foundationItems, {{ includeFoundationType: true }});
         }});
-        html += '</div>';
-      }});
-    }}
+      }}
 
-    html += '</section>';
-  }});
+      if (!inner) return;
+      html += `<div class="stage-section ${{stage === 'Unplanned' ? 'stage-unplanned' : ''}}">
+        <div class="stage-head">
+          <h2>${{STAGE_LABELS[stage] || stage}}</h2>
+          <span class="stage-count">${{stageCount}} ${{stageCount === 1 ? 'item' : 'items'}}</span>
+        </div>${{inner}}</div>`;
+    }});
+  }}
 
   document.getElementById('gallery').innerHTML = html || '<p style="color:var(--slate6); padding:24px;">No assets match current filters.</p>';
 }}
@@ -1254,7 +1702,22 @@ function openLightbox(idx) {{
   // "View in full" — use view_source override if set (e.g. preview.html thumbnails
   // but "View in full" opens the actual production HTML)
   document.getElementById('lb-source').href = (t.view_source || t.source) || '#';
-  document.getElementById('lb-title').textContent = t.title || t.name;
+  // Change 1 — standardised naming: primary title = "#<id> · <asset_name>" (never a raw
+  // filename or a _scaffolding name); the specific file is a smaller subtitle line.
+  const idPart = t.asset_id ? ('#' + t.asset_id) : '';
+  const namePart = t.asset_name || t.title || t.file_title || t.name;
+  document.getElementById('lb-title').textContent = idPart ? (idPart + ' · ' + namePart) : namePart;
+  const subEl = document.getElementById('lb-subtitle');
+  // Subtitle = the per-file title if present, else a humanised filename. Suppress when it
+  // would merely echo the primary name.
+  const fileLabel = t.file_title || t.title || '';
+  if (fileLabel && fileLabel !== namePart) {{
+    subEl.textContent = fileLabel;
+    subEl.style.display = '';
+  }} else {{
+    subEl.textContent = '';
+    subEl.style.display = 'none';
+  }}
 
   // Copy file button — header, shown only when asset declares copy_file
   const copyEl = document.getElementById('lb-copy');
@@ -1318,20 +1781,60 @@ function openLightbox(idx) {{
   //   All other sections (plan metadata, related docs, type metadata, footer) excluded.
   let metaHtml = '';
 
-  // Block 1 — What this is (lead sentence prominent; the rest collapsed so the
-  // rationale is scannable, not a wall of production history)
-  const rationale = t.rationale || t.summary || '';
-  if (rationale) {{
-    const dot = rationale.indexOf('. ');
-    const lead = dot > 0 ? rationale.slice(0, dot + 1) : rationale;
-    const rest = dot > 0 ? rationale.slice(dot + 2).trim() : '';
-    const moreHtml = rest
-      ? `<details style="margin-top:6px;"><summary style="font-size:11px;color:var(--text-subtle);cursor:pointer;user-select:none;">More detail</summary><p style="margin:6px 0 0;color:var(--text-muted);">${{rest}}</p></details>`
-      : '';
+  // Change 3 — From the Plan (Phase 3): trace every asset to the Plan row that authorised
+  // it. Whole block links through to plan.html (relative from the gallery). No matching
+  // row → an explicit "not in the approved Plan" deviation flag.
+  {{
+    const pr = t.plan_row || {{}};
+    const hasPlan = pr && Object.keys(pr).length > 0;
+    if (hasPlan) {{
+      const num = t.asset_id || (pr['#'] || '?');
+      // Plain-language Plan context — WHERE it sits + WHAT you're approving. No raw
+      // Ships file-list / "Review shape" codes (jargon): the operator already sees the
+      // produced tiles, and the plain description is in "What this is" below.
+      const where = [t.channel, (t.wave ? 'Wave ' + t.wave : ''), (t.stage === 'Ongoing' ? 'Ongoing' : (t.stage ? 'Launch' : ''))].filter(Boolean).join(' · ');
+      const sh = String(pr['Review shape'] || '').toLowerCase();
+      const approve = sh.startsWith('template') ? 'You approve the template; each weekly issue follows it.'
+                    : sh.startsWith('variant-comp') ? 'You approve one version; the other sizes follow automatically.'
+                    : sh.startsWith('output') ? 'You approve this finished item as-is.'
+                    : '';
+      metaHtml += `<a href="plan.html" target="_blank" class="lb-plan-link" style="display:block;text-decoration:none;background:rgba(99,102,241,0.06);border:1px solid var(--border);border-left:3px solid #6366f1;border-radius:5px;padding:9px 12px;margin-bottom:10px;">
+        <div style="font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:#4f46e5;font-weight:700;margin-bottom:3px;">📋 From the Plan (Phase 3) →</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.5;"><strong>Asset #${{num}}</strong>${{where ? ' · ' + where : ''}}</div>
+        ${{approve ? `<div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${{approve}}</div>` : ''}}
+      </a>`;
+    }} else {{
+      metaHtml += `<a href="plan.html" target="_blank" class="lb-plan-link" style="display:block;text-decoration:none;background:rgba(245,158,11,0.08);border:1px solid var(--border);border-left:3px solid #f59e0b;border-radius:5px;padding:9px 12px;margin-bottom:10px;">
+        <div style="font-size:11px;color:#b45309;font-weight:700;">⚠️ Not in the approved Plan</div>
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-top:2px;">This asset traces to no Plan row — a deviation. See the Plan reconciliation banner; reconcile the Plan or the asset.</div>
+      </a>`;
+    }}
+  }}
+
+  // Block 1 — What this is (ALWAYS present; Change 2). Lead sentence prominent; the rest
+  // collapsed. Resolved server-side: per-file review → asset rationale/summary → Plan
+  // Notes/Form → type-based default — never empty.
+  {{
+    // Prefer the plain-language PLAN description (the operator-facing source of truth).
+    // Plan descriptions are concise by design → show them IN FULL (no lead/"More detail"
+    // split). Fall back to the server-resolved rationale (with the split) only when there
+    // is no Plan description (e.g. a legacy campaign / an unplanned tile).
+    const rationale = t.plan_desc || t.what_this_is || t.rationale || t.summary || 'A produced campaign asset — review it against the Plan and brand.';
+    let bodyHtml;
+    if (t.plan_desc) {{
+      bodyHtml = `<p style="margin:0;">${{rationale}}</p>`;
+    }} else {{
+      const dot = rationale.indexOf('. ');
+      const lead = dot > 0 ? rationale.slice(0, dot + 1) : rationale;
+      const rest = dot > 0 ? rationale.slice(dot + 2).trim() : '';
+      const moreHtml = rest
+        ? `<details style="margin-top:6px;"><summary style="font-size:11px;color:var(--text-subtle);cursor:pointer;user-select:none;">More detail</summary><p style="margin:6px 0 0;color:var(--text-muted);">${{rest}}</p></details>`
+        : '';
+      bodyHtml = `<p style="margin:0;">${{lead}}</p>${{moreHtml}}`;
+    }}
     metaHtml += `<div class="lb-operator-block kind-info">
       <div class="lb-op-head">What this is</div>
-      <p style="margin:0;">${{lead}}</p>
-      ${{moreHtml}}
+      ${{bodyHtml}}
     </div>`;
   }}
 
@@ -1350,16 +1853,15 @@ function openLightbox(idx) {{
     }}
   }}
 
-  // Review shape + Copy file row (from Plan)
-  const rsRaw = (t.plan_row && t.plan_row["Review shape"]) || '';
-  const cfRaw = (t.plan_row && t.plan_row["Copy file"]) || '';
-  if (rsRaw || cfRaw) {{
-    const rsIcon = rsRaw.startsWith('template') ? '📋' : rsRaw.startsWith('variant-comp') ? '🎨' : '🖼';
+  // Copy file row (from Plan) — Review shape now lives in the "From the Plan" block above.
+  {{
+    const cfRaw = (t.plan_row && t.plan_row["Copy file"]) || '';
     const cfIcon = cfRaw === 'csv' ? '📊' : cfRaw === 'pptx' ? '📊' : cfRaw === 'docx' ? '📝' : cfRaw === 'md' ? '✏️' : '';
-    metaHtml += `<div style="display:flex;gap:16px;flex-wrap:wrap;padding:8px 12px;background:var(--bg);border-radius:4px;margin-bottom:10px;font-size:11px;color:var(--text-muted);">
-      ${{rsRaw ? `<span><strong style="color:var(--text);">${{rsIcon}} Review shape:</strong> ${{rsRaw}}</span>` : ''}}
-      ${{cfRaw && cfRaw !== 'none' ? `<span><strong style="color:var(--text);">${{cfIcon}} Copy file:</strong> ${{cfRaw}}</span>` : ''}}
-    </div>`;
+    if (cfRaw && cfRaw !== 'none') {{
+      metaHtml += `<div style="display:flex;gap:16px;flex-wrap:wrap;padding:8px 12px;background:var(--bg);border-radius:4px;margin-bottom:10px;font-size:11px;color:var(--text-muted);">
+        <span><strong style="color:var(--text);">${{cfIcon}} Copy file:</strong> ${{cfRaw}}</span>
+      </div>`;
+    }}
   }}
 
   // Open gate questions inline; RESOLVED/answered questions → audit history (collapsed,
@@ -1521,11 +2023,14 @@ def run_check(campaign_dir: Path) -> int:
                         newest_ship_mtime = max(newest_ship_mtime, fp.stat().st_mtime)
                 for key in ("production_file", "view_source", "copy_file"):
                     v = fmeta.get(key)
-                    if v and not (d / v).exists():
+                    # Only STRING values name a file to path-check. A per-file
+                    # `copy_file: true` is a boolean flag ("this file IS the copy
+                    # surface"), not a path — skip it (don't crash on Path / bool).
+                    if isinstance(v, str) and v and not (d / v).exists():
                         failures.append(f"{d.name}: {rel} {key} -> missing file {v}")
         for key in ("copy_file", "production_file", "view_source"):
             v = meta.get(key)
-            if v and not (d / v).exists():
+            if isinstance(v, str) and v and not (d / v).exists():
                 failures.append(f"{d.name}: {key} -> missing file {v}")
 
     print(f"=== GALLERY QA CHECK — {campaign_dir.name} ===")
@@ -1558,6 +2063,14 @@ def run_check(campaign_dir: Path) -> int:
 
 def main():
     global VIEW_MODE
+    # Windows-safe stdout: the reconciliation banner + warnings print emoji (⚠️ ✓ …).
+    # On a cp1252 console (Windows default) that raises UnicodeEncodeError and crashes the
+    # build — including the Stop-hook auto-rebuild. Force UTF-8 with a replace fallback.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
     parser = argparse.ArgumentParser()
     parser.add_argument("--campaign", required=True)
     parser.add_argument("--view", choices=["ship", "all"], default="ship",
@@ -1687,8 +2200,42 @@ def main():
                 + "=" * 78 + "\n",
                 file=sys.stderr,
             )
-    plan_table = parse_plan_asset_table(campaign_dir / "plan.md")
+    plan_md_path = campaign_dir / "plan.md"
+    plan_table = parse_plan_asset_table(plan_md_path)
+    # Normalised lookup so zero-padded folder/asset ids ("01") match un-padded Plan
+    # keys ("1"). Keep the raw table for reporting; match through the normalised map.
+    plan_by_norm = {_normalize_asset_id(k): v for k, v in plan_table.items() if _normalize_asset_id(k)}
     print(f"Parsed {len(plan_table)} rows from plan.md asset list.")
+
+    # v3 plan model — the shared parser that also feeds plan.html. Non-empty ONLY for
+    # the new v3 plan format (a `type` column). [] for a legacy plan → every v3 gallery
+    # feature (stage headers, channel⇄wave toggle, plan-derived channels/names) stays
+    # off and the gallery renders exactly as it did before. This is THE feature gate.
+    plan_rows = []
+    if plan_model is not None and plan_md_path.exists():
+        try:
+            plan_rows = plan_model.parse_plan_markdown(plan_md_path.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"  WARN plan_model.parse_plan_markdown failed: {e}", file=sys.stderr)
+            plan_rows = []
+    plan_idx = plan_model.index_by_id(plan_rows) if (plan_model is not None and plan_rows) else {}
+    # Re-key the plan index by the gallery's own id normaliser so a ZERO-PADDED folder/
+    # asset.yaml id ("01".."09") joins the plan model's un-padded row id ("1".."9").
+    # plan_model.index_by_id already aliases "09b"->"9" etc., but not "07"->"7"; this
+    # closes that gap using the same _normalize_asset_id the reconciliation join uses.
+    if plan_idx:
+        for _rid, _row in list(plan_idx.items()):
+            _norm = _normalize_asset_id(_rid)
+            if _norm:
+                plan_idx.setdefault(_norm, _row)
+    if plan_rows:
+        print(f"Plan model: v3 plan detected — {len(plan_rows)} rows "
+              f"({sum(1 for r in plan_rows if r['stage'] == 'Ongoing')} Ongoing). "
+              f"Gallery will mirror the plan (stage split + channel/wave toggle).")
+
+    # Change 4 — track copy-bearing assets that resolve NO copy surface (warned to stdout).
+    copy_warnings: list[str] = []
+    _copy_checked_dirs: set = set()
 
     # Extract operator-facing sections from each asset record MD
     operator_sections_by_dir: dict[Path, list[dict]] = {}
@@ -2008,10 +2555,13 @@ def main():
                     if not any(d["source"] == tpl_rel for d in related_docs):
                         related_docs.insert(0, {"name": f"{Path(template_source_yaml).name} (source template)", "source": tpl_rel})
 
-            # Pull Plan metadata if this asset_id appears in the Plan table
+            # Pull Plan metadata if this asset_id appears in the Plan table.
+            # Match through the NORMALISED lookup so zero-padded ids ("01") find the
+            # un-padded Plan key ("1"). Fall back to the folder prefix if asset.yaml
+            # omits asset_id.
             asset_id = asset_meta.get("asset_id") or re.match(r"^(0[a-e]|\d+[a-z]?)", asset_folder_name)
             asset_id_str = asset_id.group(1) if hasattr(asset_id, "group") else str(asset_id) if asset_id else ""
-            plan_row = plan_table.get(asset_id_str) if asset_id_str else None
+            plan_row = plan_by_norm.get(_normalize_asset_id(asset_id_str)) if asset_id_str else None
 
             operator_sections = operator_sections_by_dir.get(asset_dir, [])
             # SYS-013: gate questions count ONLY while the asset is pre-approval. Once it's
@@ -2026,6 +2576,73 @@ def main():
             )
 
             is_video = f.suffix.lower() == ".mp4"
+
+            # Change 4 — resolve the copy-review surface with the full fallback chain,
+            # then warn ONCE per asset if a copy-bearing asset has no copy surface.
+            copy_file_resolved = _resolve_copy_file(
+                asset_meta.get("copy_file", ""), asset_dir, campaign_dir,
+                files_block=files_block, plan_row=plan_row)
+            if asset_dir not in _copy_checked_dirs:
+                _copy_checked_dirs.add(asset_dir)
+                plan_cf = str((plan_row or {}).get("Copy file") or "").strip().lower()
+                has_prose_md = any(
+                    not _NON_COPY_MD_RE.search(p.name) for p in asset_dir.glob("*.md"))
+                copy_expected = (plan_cf not in ("", "none", "—", "-")) or has_prose_md
+                if copy_expected and not copy_file_resolved:
+                    copy_warnings.append(
+                        f"{asset_dir.name}: copy-bearing (Plan Copy file='{plan_cf or '?'}'"
+                        f"{', prose md present' if has_prose_md else ''}) but NO copy surface resolved"
+                    )
+
+            # Change 1 subtitle + Change 2 what-this-is — resolve here so the tile carries
+            # a clean per-file label and an ALWAYS-present lead.
+            file_title_resolved = tile_title_yaml or humanize_filename(f.name)
+            # what-this-is order: per-file review → asset rationale/summary → Plan
+            #   Notes/Form → type-based default. Never empty.
+            plan_notes = str((plan_row or {}).get("Notes") or "").strip()
+            plan_form = str((plan_row or {}).get("Form") or "").strip()
+            type_default = {
+                "Template": "A reusable template — review the chrome, slot placement and structural integrity.",
+                "Instance": "A produced deliverable for this campaign — review the copy and visual against brand.",
+                "Foundation": "A foundation/reference artifact the downstream assets build on.",
+            }.get(tile_type, "A produced campaign asset — review it against the Plan and brand.")
+            what_this_is = (
+                (review_prompt_yaml or "").strip()
+                or (asset_meta.get("rationale") or "").strip()
+                or (asset_meta.get("summary") or "").strip()
+                or plan_notes
+                or plan_form
+                or type_default
+            )
+
+            # === v3 plan-model override (feature-gated on plan_rows non-empty) ===
+            # When the campaign runs the new v3 plan, the plan is authoritative for a
+            # tile's plain-language channel + name + description + Launch/Ongoing stage
+            # + dependency wave. plan_idx is empty for a legacy plan, so this whole block
+            # is a no-op there and every field below keeps its pre-v3 value.
+            model_row = None
+            if plan_idx and asset_id_str:
+                model_row = plan_idx.get(asset_id_str) or plan_idx.get(_normalize_asset_id(asset_id_str))
+            plan_desc = ""
+            tile_wave = None
+            tile_stage = ""
+            if model_row:
+                if model_row.get("channel"):
+                    channel = model_row["channel"]          # plain-language plan channel
+                if model_row.get("name"):
+                    asset_meta = dict(asset_meta)           # don't mutate the shared cache
+                    asset_meta["asset_name"] = model_row["name"]
+                plan_desc = model_row.get("desc") or ""     # plain-language plan description
+                tile_wave = model_row.get("wave")
+                tile_stage = model_row.get("stage") or ""
+            elif plan_idx and asset_id_str:
+                # v3 plan, but this produced asset has NO plan row — surface it LOUDLY in a
+                # dedicated "not in the plan yet" bucket instead of hiding it among the
+                # planned work. The CM reconciles by adding the plan row (docs/specs/plan.md
+                # §"living source of truth"); check-state Layer E flags it too.
+                tile_stage = "Unplanned"
+                channel = "Not in the plan yet"
+
             tiles.append({
                 "name": f.name,
                 "rel_path": rel_str,
@@ -2044,10 +2661,12 @@ def main():
                 "asset_id": asset_id_str,
                 "asset_name": asset_meta.get("asset_name", ""),
                 "title": tile_title_yaml,
+                "file_title": file_title_resolved,   # clean per-file label (never a bare/_ filename)
                 "review_prompt": review_prompt_yaml,
+                "what_this_is": what_this_is,         # ALWAYS non-empty (Change 2)
                 "rationale": asset_meta.get("rationale", ""),   # preferred field (v2)
                 "summary": asset_meta.get("summary", ""),       # legacy alias — rationale takes priority
-                "copy_file": _resolve_copy_file(asset_meta.get("copy_file", ""), asset_dir, campaign_dir),
+                "copy_file": copy_file_resolved,
                 "folder_uri": _gallery_open_uri(asset_dir),
                 "folder_abs": str(asset_dir.resolve()),
                 "view_source": view_source_rel,       # overrides "View in full" URL when set
@@ -2056,6 +2675,10 @@ def main():
                 "operator_sections": operator_sections,
                 "open_question_count": total_questions,
                 "resonance": asset_meta.get("resonance") or {},
+                # v3 plan-model fields — empty/None on a legacy plan (feature gate).
+                "plan_desc": plan_desc,               # plain-language plan description
+                "wave": tile_wave,                    # dependency wave (int) or None
+                "stage": tile_stage,                  # "Launch" | "Ongoing" | ""
             })
 
         browser.close()
@@ -2087,7 +2710,24 @@ def main():
             asset_meta = asset_yamls.get(asset_dir, {})
             files_meta = asset_meta.get("files") or {}
             asset_id_str = asset_meta.get("asset_id", "")
-            plan_row = plan_table.get(asset_id_str) if asset_id_str else None
+            plan_row = plan_by_norm.get(_normalize_asset_id(asset_id_str)) if asset_id_str else None
+
+            # v3 plan-model override for foundation docs — so a plan-listed foundation
+            # asset groups under the plan's channel name (e.g. "Brand foundation") and
+            # carries the plan's plain-language name. plan_idx is empty on a legacy plan,
+            # so fnd_channel stays "Foundation" and nothing changes there.
+            fnd_model_row = None
+            if plan_idx and asset_id_str:
+                fnd_model_row = plan_idx.get(asset_id_str) or plan_idx.get(_normalize_asset_id(asset_id_str))
+            fnd_channel = "Foundation"
+            fnd_asset_name = asset_meta.get("asset_name", "")
+            fnd_stage = ""
+            fnd_wave = None
+            if fnd_model_row:
+                fnd_channel = fnd_model_row.get("channel") or "Foundation"
+                fnd_asset_name = fnd_model_row.get("name") or fnd_asset_name
+                fnd_stage = fnd_model_row.get("stage") or ""
+                fnd_wave = fnd_model_row.get("wave")
 
             for md in mds:
                 rel = md.relative_to(campaign_dir)
@@ -2126,23 +2766,43 @@ def main():
                     "rel_path": rel_str,
                     "source": rel_str,
                     "status": status,
-                    "channel": "Foundation",
+                    "channel": fnd_channel,           # plan channel when v3, else "Foundation"
                     "cls": cls,
                     "title": file_meta.get("title", ""),
                     "review": file_meta.get("review", ""),
                     "role": role,
                     "role_priority": ROLE_PRIORITY.get(role, 5),
                     "asset_id": asset_id_str,
-                    "asset_name": asset_meta.get("asset_name", ""),
+                    "asset_name": fnd_asset_name,
                     "asset_summary": asset_meta.get("summary", ""),
                     "asset_dir": asset_dir.name,
                     "plan_row": plan_row or {},
+                    "stage": fnd_stage,               # v3 plan-model (empty on legacy)
+                    "wave": fnd_wave,
                 })
 
     tiles.sort(key=lambda x: (CHANNEL_ORDER.index(x["channel"]) if x["channel"] in CHANNEL_ORDER else 99, x["rel_path"]))
     foundation_docs.sort(key=lambda x: x["rel_path"])
 
-    build_html(args.campaign, tiles, foundation_docs, channel_summaries, campaign_dna, out_path)
+    # Change 4 — surface copy-review resolution gaps to stdout.
+    if copy_warnings:
+        print(f"\n⚠️  COPY-REVIEW WARNINGS ({len(copy_warnings)}) — copy-bearing assets with no resolvable copy surface:")
+        for w in copy_warnings:
+            print(f"  WARNING: {w}")
+
+    # Change 5 — Plan reconciliation (Plan Ships = ship:true tiles = gallery tiles, 1:1).
+    reconciliation = compute_plan_reconciliation(plan_table, tiles, foundation_docs)
+    print(f"\n=== PLAN RECONCILIATION — {args.campaign} ===")
+    if reconciliation["ok"]:
+        print(f"✓ Reflects the approved Plan — {reconciliation['n_produced_assets']} produced asset(s) "
+              f"match {reconciliation['n_plan_rows']} Plan row(s), no deviations.")
+    else:
+        print(f"⚠️  {len(reconciliation['deviations'])} deviation(s) between the gallery and the approved Plan:")
+        for d in reconciliation["deviations"]:
+            print(f"  [{d['kind']}] {d['asset']} — {d['detail']}")
+
+    build_html(args.campaign, tiles, foundation_docs, channel_summaries, campaign_dna, out_path,
+               reconciliation=reconciliation, plan_rows=plan_rows)
     print(f"OK  {out_path}  ({len(tiles)} tiles + {len(foundation_docs)} foundation docs)")
 
 if __name__ == "__main__":

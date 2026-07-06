@@ -429,6 +429,8 @@ html, body {
   gap: 6px;
   font-size: 13px;
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 .crumb {
   color: var(--text-muted);
@@ -463,6 +465,17 @@ html, body {
   font-size: 11px;
   opacity: 0.6;
 }
+/* Refresh control (SYS-014) — top-right of every operator surface; reloads the page
+   so the operator doesn't reach for the browser refresh. */
+.refresh-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); font-size: 14px; line-height: 1;
+  cursor: pointer; padding: 0; font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.refresh-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
 .page-header__right {
   display: flex;
   align-items: center;
@@ -472,7 +485,7 @@ html, body {
 .library-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
 }
 .lib-link {
@@ -1353,6 +1366,29 @@ body.template-tasks .task-group__dash {
   white-space: nowrap;
 }
 body.template-tasks .task-group__dash:hover { color: var(--accent); }
+/* SYS-012 — per-campaign collapse: each task group is a <details>, header is its <summary> */
+body.template-tasks details.task-group > summary.task-group__head { cursor: pointer; list-style: none; }
+body.template-tasks details.task-group > summary.task-group__head::-webkit-details-marker { display: none; }
+body.template-tasks details.task-group > summary.task-group__head::before {
+  content: "\25B8"; /* chevron */
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.15s ease;
+}
+body.template-tasks details.task-group[open] > summary.task-group__head::before { transform: rotate(90deg); }
+body.template-tasks .task-tools { display: flex; justify-content: flex-end; margin: 0 0 14px; }
+body.template-tasks .task-toggle-all {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-tasks .task-toggle-all:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
 .content .task-table {
   width: 100%;
   border-collapse: collapse;
@@ -1620,6 +1656,36 @@ body.template-plan .pill--queued  { background: var(--code-bg);     color: var(-
 body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
 body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
 
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 4px; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
 /* Cut & transferred — collapsed audit group below the live build */
 body.template-plan .asset-cards-archived {
   margin: 4px 0 28px;
@@ -1847,7 +1913,8 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link" href="../tenant/library/INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../tenant/library/INDEX.html" title="Unified reference library">📚 Library</a></nav>
+        <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
         <span class="page-header__template" aria-hidden="true">base</span>
       </div>
     </div>
@@ -1863,7 +1930,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 1. <strong>Extract the operator's knowledge before extending it</strong> — the strategy phases (1–3) ask good questions, draw on the operator's durable Playbook, attribute "operator's read" vs "AI extension" vs "AI synthesis" in every Brief
 2. <strong>Recognise the operator's knowledge gaps</strong> — distinguish marketing decisions the operator owns (frame the choice; trust the call) from technical execution the operator may not know (deliver a cookbook recipe with verification step)
 3. <strong>Ship assets complete</strong> — every asset bundles everything needed to ship it: copy + visuals + technical-setup cookbook + deploy cookbook + verify cookbook. No "go figure out the technical bit" handoffs.
-4. <strong>Render decision-first, reference-collapsed</strong> — every operator surface puts the next action at the top; history, audit trails, deliberation rationale, version notes go below the fold in expand/collapse. Cold-start safe.
+4. <strong>Render decision-first, reference-collapsed, in plain language</strong> — every operator surface puts the next action at the top; history, audit trails, deliberation rationale, version notes go below the fold in expand/collapse. Cold-start safe. And it reads in <strong>plain language a person with zero context can act on</strong> — no internal jargon, every acronym spelled out, no cryptic codes (the test: could a non-marketer act on it without asking?). Names + descriptions especially. Per <code>docs/specs/plan.md</code> §"Name + Description".
 5. <strong>Keep the operator-trio coherent</strong> — dashboard / tasks / index must read meaningfully after a week of context-switching (tasks include one-sentence context + why-it-matters + what's-needed; not just summarised names)</p>
 <p>The work runs as <strong>six phases in two stages</strong>. <strong>Strategy (Phases 1–3)</strong> is operator-led with three approvals — but each approval is informed by the operator's Q&amp;A-extracted read, not by AI's synthesis alone. <strong>Production (Phases 4–6)</strong> is CM-orchestrated with one approval per finished asset. Everything else happens behind the scenes. (Before a tenant's first campaign, <strong>Phase 0 — Tenant Baseline</strong> establishes the durable per-tenant compound every campaign inherits — see <a href="specs/phase-0-tenant-baseline.md"><code>docs/specs/phase-0-tenant-baseline.md</code></a>.)</p>
 <p><strong>Positioning alignment</strong>: this is the same product Soundtrak sells externally — <em>"Generic AI gives you generic marketing; bespoke AI configured on practitioner discipline gives you a senior practitioner's marketing at scale."</em> The system embodies what it claims to be.</p>
@@ -1999,10 +2066,10 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <p><strong>Operating discipline (post-Retro-001 — <em>extract before extend</em>)</strong>:</p>
 <p>Before AI synthesises anything, Phase 1 MUST:</p>
 <ol>
-<li><strong>Read the Operator Playbook index</strong> at <code>operator/the operator/index.md</code> — surface which playbook principles are relevant to this campaign's strategic intent.</li>
-<li><strong>Ask the operator good questions</strong> — the operator IS the CMO; their read trumps AI's first guess. CM authors a small set of focused discovery questions (drawn from a question library + the Playbook's relevant principles) BEFORE drafting the Brief.</li>
+<li><strong>Read the practitioner frameworks</strong> at <code>craft/frameworks/</code> — surface which framework principles are relevant to this campaign's strategic intent.</li>
+<li><strong>Ask the operator good questions</strong> — the operator IS the CMO; their read trumps AI's first guess. CM authors a small set of focused discovery questions (drawn from a question library + the frameworks' relevant principles) BEFORE drafting the Brief.</li>
 <li><strong>Synthesise the Brief with attribution markers</strong> — every section tagged <code>[the operator's read]</code>, <code>[AI extension]</code>, or <code>[AI synthesis]</code>. Future readers (the operator and the agents) can see what came from where.</li>
-<li><strong>Cite Playbook principles</strong> in the Brief when a principle is being applied or tested (e.g. <em>"This campaign tests principle 11 — Research Is a Competitive Content Moat"</em>).</li>
+<li><strong>Cite framework principles</strong> in the Brief when a principle is being applied or tested (e.g. <em>"This campaign tests principle 11 — Research Is a Competitive Content Moat"</em>).</li>
 </ol>
 <p>This is the foundational discipline that makes the system a <em>force multiplier</em> rather than a <em>replacement</em>. AI extends the operator's judgment; it never substitutes for it.</p>
 <p><strong>What CM collects</strong>:
@@ -2021,12 +2088,11 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 - If absent — authored in <strong>Phase 0 (tenant baseline)</strong> before the first campaign (<code>docs/specs/phase-0-tenant-baseline.md</code>), not during the campaign. Phase 1 inherits it.
 - <strong>Canva brand kit</strong>: set up in Phase 0 (palette + fonts + logos) so Producer can use it in Mode B for all subsequent assets. Captured as <code>canva_brand_kit_id</code> in the Brand Context record.
 - Brand Context is durable per-tenant — reused on subsequent campaigns for the same business, updated as needed.</p>
-<p><strong>Operator Playbook layering</strong>:
-- The Operator Playbook (<code>operator/the operator/index.md</code>) and the tenant Brand Context don't conflict — they layer.
-- Playbook = the operator's practitioner-level discipline (voice principles, banned words, marketing philosophy). Applies across ALL his campaigns.
+<p><strong>Practitioner frameworks layering</strong>:
+- The practitioner frameworks (<code>craft/frameworks/</code>) and the tenant Brand Context don't conflict — they layer.
+- Frameworks = the practitioner-level discipline (the strategic playbook + marketing philosophy). Applies across ALL campaigns.
 - Tenant Brand Context = THIS tenant's brand voice/visual/positioning. Applies to this campaign only.
-- Per-step briefs cite both sources inline when pulling voice/principle slices. See <a href="specs/operator-playbook.md"><code>docs/specs/operator-playbook.md</code></a> for the full schema + ingestion patterns.
-- For campaigns where the operator wants to deviate from his Playbook (rare), the deviation lands in <code>operator/the operator/overrides/&lt;campaign-slug&gt;.md</code> and is referenced from the Brief.</p>
+- Per-step briefs cite both sources inline when pulling voice/principle slices. See <a href="../craft/frameworks/README.md"><code>craft/frameworks/README.md</code></a> for how the frameworks are used.</p>
 <p><strong>Insight Brief (Insights Manager)</strong>: once the objective + target segment(s) are set, CM dispatches the <strong>Insights Manager</strong>, which runs a disciplined multi-source web sweep (<code>insight-scan</code>) and authors the <strong>Insight Brief</strong> (<code>docs/specs/insight-brief.md</code>) — the <em>human</em> insight that fuels the big idea (identity / motivation / fear / aspiration), paired with its <em>market</em> context, <strong>per segment</strong>, every claim evidence-backed, plus a restorable "considered &amp; cut" kill register. It cites the shared <strong>research library</strong> (<code>tenant/research-library/</code>) and the durable tenant <strong>audience-truths</strong> first. The distilled insights surface on the Brief; §1 for the selected segment becomes a fixed input to the CD's concept.</p>
 <p><strong>Output</strong>: a 1-page <strong>Brief</strong> (<code>docs/specs/brief.md</code>, including the "insights that matter" sections) + the <strong>Insight Brief</strong> + a normalised <strong>Brand Context</strong> record (<code>docs/specs/brand-context.md</code>). All rendered to HTML for operator review.</p>
 <p><strong>Operator approval</strong>: opens <code>brief.html</code> (and <code>brand-context.html</code> if newly created) in browser; confirms facts + insights are right; replies in chat with verdict.</p>

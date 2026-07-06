@@ -173,7 +173,6 @@ def _newest_mtime(paths: list[Path]) -> tuple[float, Path | None]:
 
 def scan_staleness() -> list[str]:
     problems: list[str] = []
-    roster = list(AGENTS.glob("*/AGENT.md")) if AGENTS.is_dir() else []
     # Master-internal specs (excluded from the Seed, not prospect-relevant) must not trigger a
     # "public docs behind" alarm — mirror build_seed's docs/specs excludes + folder indexes.
     _INTERNAL_SPEC = ("standalone-deployment", "download-gate", "pitch-deck", "README", "INDEX")
@@ -182,21 +181,21 @@ def scan_staleness() -> list[str]:
     publicfiles = list(PUBLIC.glob("*.md")) if PUBLIC.is_dir() else []
     if not publicfiles:
         return ["docs/public/ — no *.md files found"]
+    # SYS-055 tune: compare ONLY against product specs, NOT the agent roster — an AGENT.md edit is
+    # internal machinery that doesn't change the prospect story, so the roster comparison was pure
+    # noise (reddened on every agent tweak). And require a REAL gap (a full window, not same-day)
+    # so routine spec churn doesn't flag — only a genuinely-behind prospect doc does. (Was SYS-027's
+    # 1-day threshold, still too twitchy; the count-of-agents story is covered by scan_counts.)
+    STALE_DAYS = 30
     pub_m, _pub_who = _newest_mtime(publicfiles)
-    for label, group in (("roster (.claude/agents/)", roster),
-                         ("specs (docs/specs/)", specfiles)):
-        src_m, src_who = _newest_mtime(group)
-        if src_who is None:
-            continue
-        # Same-day edits aren't drift — only flag when public is a full day+ behind, so a
-        # routine spec/agent tweak doesn't redden the board the moment it's saved (SYS-027 tune).
-        if datetime.date.fromtimestamp(src_m) > datetime.date.fromtimestamp(pub_m):
-            d_src = datetime.date.fromtimestamp(src_m).isoformat()
-            d_pub = datetime.date.fromtimestamp(pub_m).isoformat()
-            problems.append(
-                f"docs/public/ (newest {d_pub}) is OLDER than {label} "
-                f"(newest {d_src} — {src_who.relative_to(ROOT)}); "
-                f"prospect docs may be behind the system")
+    src_m, src_who = _newest_mtime(specfiles)
+    if src_who is not None and (src_m - pub_m) > STALE_DAYS * 86400:
+        d_src = datetime.date.fromtimestamp(src_m).isoformat()
+        d_pub = datetime.date.fromtimestamp(pub_m).isoformat()
+        problems.append(
+            f"docs/public/ (newest {d_pub}) is >{STALE_DAYS} days behind the specs "
+            f"(newest {d_src} — {src_who.relative_to(ROOT)}); the prospect docs may be behind the "
+            f"product — consider a marketing-copy refresh")
     return problems
 
 

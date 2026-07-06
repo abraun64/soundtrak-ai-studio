@@ -183,9 +183,11 @@ When dispatched on a cadenced campaign's Wave 0 / Phase 4 assets:
 CM checks (against the Plan's Ships, Review shape, and Copy file columns):
 - **`ship: true` set on EXACTLY the files named in the Plan's `Ships` column — one tile each, 1:1.** This is the plan-dictates-the-assets contract: the plan declares the outputs, you build exactly those, the gallery tiles exactly those. A sales deck whose Ships = `HTML + PPTX` → both `ship: true` (two tiles). A video whose Ships = `storyboards + MP4s` → both gated outputs `ship: true`. **Everything else is `ship: false`**: the asset record (`asset.html`), render-pipeline sources (`slide.html`, `build-pptx.py`, `remotion/*`), embedded component images (`images/*`), deploy wrappers (`modal-embed.html`), copy mirrors (`copy.md`). ⚠️ **GOTCHA**: a file declared in the `files:` block with NO `ship` flag + `type: Instance` **defaults to SHOWN** — so a captioned-but-not-shipped component will wrongly tile. Be explicit: set `ship: false` on every non-output. (Enforced by `check-state` Layer G; per `feedback_plan_ships_column_is_gallery_contract.md`.)
 - `status: "For Human Review"` set at asset level
-- `rationale:` written — operator-facing, not a production summary
+- **`asset_name` + `asset_id` set** — the gallery lightbox titles every asset `#<asset_id> · <asset_name>` (never a raw filename). Missing `asset_name` degrades the title to a filename. `asset_id` matches the Plan `#` (zero-padding fine: `"01"` matches Plan `1`).
+- `rationale:` written — operator-facing, not a production summary. The lightbox "What this is" block ALWAYS renders; a real `rationale:` is its intended source (the fallback chain — per-file `review:` → Plan Notes/Form → type default — is a safety net, not a substitute).
+- **per-file `title:` on every `ship: true` file** — it's the lightbox subtitle + the clean tile subtitle. Absent → a humanised filename is used.
 - Files declared match the review shape — `type: Template/Instance/Foundation` + `ship: false` on all instances for `variant-comp` assets
-- `copy_file:` declared if Plan's Copy file ≠ `none`
+- **Copy-review surface on every copy-bearing asset** — declare a top-level `copy_file:` (a `copy.md`, or the primary prose `.md`: `about.md`, `edition-01.md`, `reveal-post.md`). **HTML-only assets ship a plain-text extract as `copy.md`** so a View + Source copy surface always exists. The builder falls back (ship:true `.md` → Plan `Copy file` → largest non-record prose `.md`) and prints a **COPY-REVIEW WARNING** to stdout when it resolves none — that warning is a contract breach. `copy_file: none` is only for genuinely copy-free visual primitives (a bare logo/stamp).
 - `production_file:` declared on the tile entry if the deliverable is a binary the operator must download (PDF, PPTX, DOCX). (A `ship: true` binary also auto-tiles directly as a format-card — use `production_file` to attach a binary download to a *separate* visual tile.)
 - `view_source:` declared on the thumbnail entry if it differs from the actual production file (e.g. `preview.html` thumbnails but the real deliverable is `full-html-preview/index.html`)
 
@@ -197,8 +199,8 @@ Write this file at `campaigns/<slug>/assets/<asset-slug>/asset.yaml`. It tells t
 
 ```yaml
 asset_id: "0a"                              # matches your folder prefix (0a, 0b, 1, 2, etc.)
-asset_name: "Email template uplift"         # human label, matches Plan asset list
-default_channel: Email                      # one of: Email, LinkedIn, YouTube, Audio, Adviser Pack, Foundation
+asset_name: "Welcome page + first email"    # = the Plan row's name, VERBATIM. The CM injects it in the Per-Step Brief — never invent or rename (name drift rots the Plan).
+default_channel: Substack                    # = the Plan row's Channel, VERBATIM. The CM injects THIS campaign's valid channels in the Per-Step Brief. NEVER guess or use a generic list — an invalid channel silently drops the asset from the gallery.
 rationale: >
   One paragraph combining (a) what this asset is and (b) why it exists / what problem it solves.
   This is the ONLY context shown in the gallery modal alongside gate questions and next steps —
@@ -233,7 +235,7 @@ files:
 ```yaml
 files:
   templates-preview/T1-sb-talks-episode-card.png:
-    channel: LinkedIn                       # overrides default_channel
+    channel: "LinkedIn + social"            # overrides default_channel for THIS file — still one of the campaign's valid Plan channels
     type: Instance
     template_source: "templates-html/T1-sb-talks-episode-card.html"   # if PNG is a sample render of a source template
     title: "T1 — Acme Co Talks episode card (sample render)"

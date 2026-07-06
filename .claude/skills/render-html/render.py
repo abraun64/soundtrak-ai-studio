@@ -27,6 +27,9 @@ except ImportError:
 
 import html as html_lib
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import plan_model  # shared canonical plan parser — also read by build-gallery.py
+
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 STYLES_DIR = Path(__file__).parent / "templates" / "styles"
@@ -120,8 +123,50 @@ def stylize_brief(body_html: str) -> str:
 # small phasing / pre-flight / status-snapshot / showcase tables are left alone.
 _PLAN_COLS = {
     "review shape", "form", "ships", "copy file", "owner", "owner agent",
-    "phase", "target", "target date", "depends on", "notes",
+    "phase", "target", "target date", "depends on", "depends", "notes",
+    # v3 (2026-07): asset-list gains Type / Channel / Description. Their presence
+    # (specifically a `type` column) switches the render to the v3 table below.
+    "type", "channel", "description", "item",
 }
+
+# v3 plan table — the group-by (channel <-> wave) toggle. Runs at parse time (the
+# <script> is emitted right after the table), so rows group before first paint;
+# with JS off the table still shows every row + column, just ungrouped.
+_PLAN_V3_JS = """<script>
+(function(){
+function build(root){
+ var tb=root.querySelector('tbody'), btns=root.querySelectorAll('.pt-btn');
+ var rows=[].slice.call(tb.querySelectorAll('tr[data-stage]'));
+ var STAGES=['Launch','Ongoing'], NAMES={Launch:'Launch activities',Ongoing:'Ongoing management'};
+ function render(key){
+  btns.forEach(function(b){b.classList.toggle('is-on',b.dataset.group===key);});
+  root.setAttribute('data-by',key); tb.innerHTML='';
+  STAGES.forEach(function(stage){
+   var sr=rows.filter(function(r){return r.dataset.stage===stage;});
+   if(!sr.length)return;
+   var sh=document.createElement('tr');sh.className='pv3-stage';
+   sh.innerHTML='<td colspan="8">'+NAMES[stage]+'</td>';tb.appendChild(sh);
+   var g={},ord=[];
+   sr.forEach(function(r){
+    var k=key==='wave'?('Wave '+(r.dataset.wave!=='0'?r.dataset.wave:'—')):(r.dataset.channel||'Other');
+    if(!(k in g)){g[k]=[];ord.push(k);}g[k].push(r);
+   });
+   if(key==='wave')ord.sort(function(a,b){return (parseInt(a.replace(/\\D/g,''))||0)-(parseInt(b.replace(/\\D/g,''))||0);});
+   ord.forEach(function(k){
+    var gh=document.createElement('tr');gh.className='pv3-grp';
+    var n=g[k].length,nl=(key==='wave'&&n>1)?(n+' in parallel'):(n+' item'+(n===1?'':'s'));
+    gh.innerHTML='<td colspan="8">'+k+' <span class="pv3-grp__n">'+nl+'</span></td>';tb.appendChild(gh);
+    g[k].sort(function(a,b){return (parseInt(a.dataset.wave)||0)-(parseInt(b.dataset.wave)||0);});
+    g[k].forEach(function(r){tb.appendChild(r);});
+   });
+  });
+ }
+ btns.forEach(function(b){b.addEventListener('click',function(){render(b.dataset.group);});});
+ render('channel');
+}
+document.querySelectorAll('.plan-v3').forEach(build);
+})();
+</script>"""
 
 
 def _plan_text(frag: str) -> str:
@@ -409,6 +454,109 @@ def transform_plan(body_html: str) -> str:
                  "name": _text(name_html)})
         return kind, type_label, card
 
+    # ---- v3 asset table (2026-07): one list, Type/Channel/Wave, group-by toggle ----
+    # Wave (dependency tier) + stage (Launch/Ongoing) come from the shared
+    # `plan_model` — the single source of truth this renderer and the asset
+    # gallery both read, so the two surfaces can never disagree.
+    def _render_v3(idx, rows_cells):
+        def cell(cells, *names):
+            for n in names:
+                if n in idx and idx[n] < len(cells):
+                    return cells[idx[n]]
+            return ""
+
+        rows, seq = [], 0
+        for cells in rows_cells:
+            typ = _text(cell(cells, "type")).lower()
+            is_setup = typ.startswith("setup") or typ.startswith("task") or typ == "s"
+            rid = _text(cell(cells, "#")).lstrip("#").strip()
+            if rid in ("", "—", "-", "–"):
+                seq += 1
+                rid = f"S{seq}"
+            name = cell(cells, "asset", "item").replace("~~", "").strip()
+            deps_txt = _text(cell(cells, "depends on", "depends", "deps"))
+            deps = plan_model.parse_deps(deps_txt)
+            phase = _text(cell(cells, "phase"))
+            notes = cell(cells, "notes")
+            notes_txt = _text(notes)
+            # Stage classified from the PHASE cell only (Notes can say "weekly
+            # template" on a Launch asset) — via the shared plan_model.
+            stage = plan_model.classify_stage(phase)
+            ships = cell(cells, "ships")
+            channel = _text(cell(cells, "channel")) or _plan_asset_type(
+                " ".join((name, _text(cell(cells, "form")), _text(ships))))
+            rows.append({
+                "id": rid, "is_setup": is_setup, "name": name,
+                "desc": _text(cell(cells, "description", "desc")),
+                "ships": ships, "owner": _text(cell(cells, "owner", "owner agent")),
+                "channel": channel, "stage": stage, "deps": deps, "deps_txt": deps_txt,
+                "form": _text(cell(cells, "form")), "review": _text(cell(cells, "review shape")),
+                "copyf": _text(cell(cells, "copy file")),
+                "target": _text(cell(cells, "target", "target date")),
+                "phase": phase, "notes": notes, "notes_txt": notes_txt,
+            })
+        plan_model.compute_waves(rows)
+
+        def _status(r):
+            info = smap.get(r["id"]) if r["id"].isdigit() else None
+            if info:
+                cls, lbl = info[0], info[1]
+            else:
+                cls, lbl = "queued", "Queued"
+                b = r["notes_txt"].lower()
+                for k, c, l in (("approv", "ok", "Approved"), ("brand-pass", "ok", "Approved"),
+                                ("in review", "review", "In review"), ("produced", "review", "In review"),
+                                ("in prod", "prog", "In production"), ("production", "prog", "In production"),
+                                ("in progress", "prog", "In production"), ("shipped", "shipped", "Shipped"),
+                                ("live", "shipped", "Live"), ("pending", "queued", "Pending")):
+                    if k in b:
+                        cls, lbl = c, l
+                        break
+            return f'<span class="pill pill--{cls}">{lbl}</span>'
+
+        body = []
+        for r in rows:
+            tp = ('<span class="tpill tpill--setup">Setup</span>' if r["is_setup"]
+                  else '<span class="tpill tpill--asset">Asset</span>')
+            rid_l = f' <span class="rid">#{r["id"]}</span>' if r["id"].isdigit() else ""
+            item = f'<span class="rnm">{r["name"]}</span>{rid_l}'
+            if r["desc"]:
+                item += f'<span class="rds">{html_lib.escape(r["desc"])}</span>'
+            extra = []
+            for lab, val in (("Form", r["form"]), ("Review", r["review"]),
+                             ("Copy file", r["copyf"]), ("Target", r["target"]),
+                             ("Phase", r["phase"])):
+                if val and val not in ("—", "-", "–", ""):
+                    extra.append(f'<b>{lab}:</b> {html_lib.escape(val)}')
+            if r["notes_txt"]:
+                extra.append(f'<b>Notes:</b> {r["notes"]}')
+            if extra:
+                item += ('<details class="row-more"><summary>details</summary>'
+                         f'<div>{" · ".join(extra)}</div></details>')
+            out = r["ships"] if not _is_dash(r["ships"]) else "—"
+            wv = f'Wave {r["wave"]}' if r["wave"] else "—"
+            body.append(
+                f'<tr data-stage="{r["stage"]}" data-channel="{html_lib.escape(r["channel"])}" '
+                f'data-wave="{r["wave"] or 0}" data-type="{"setup" if r["is_setup"] else "asset"}" '
+                f'data-id="{html_lib.escape(r["id"])}">'
+                f'<td class="c-type">{tp}</td>'
+                f'<td class="c-item">{item}</td>'
+                f'<td class="c-out">{out}</td>'
+                f'<td class="c-own">{html_lib.escape(r["owner"]) or "—"}</td>'
+                f'<td class="c-chan">{html_lib.escape(r["channel"])}</td>'
+                f'<td class="c-wave">{wv}</td>'
+                f'<td class="c-dep">{html_lib.escape(r["deps_txt"]) or "—"}</td>'
+                f'<td class="c-stat">{_status(r)}</td></tr>')
+
+        head = ('<tr><th>Type</th><th>Item</th><th>Output</th><th>Owner</th>'
+                '<th>Channel</th><th>Wave</th><th>Depends</th><th>Status</th></tr>')
+        toggle = ('<div class="plan-toggle"><span class="plan-toggle__lbl">Group by</span>'
+                  '<button type="button" class="pt-btn is-on" data-group="channel">Channel</button>'
+                  '<button type="button" class="pt-btn" data-group="wave">Wave</button></div>')
+        return (f'<div class="plan-v3" data-by="channel">{toggle}'
+                f'<table class="pv3"><thead>{head}</thead>'
+                f'<tbody>{"".join(body)}</tbody></table></div>{_PLAN_V3_JS}')
+
     def _transform_table(table, group_label=None):
         thead = re.search(r"<thead>(.*?)</thead>", table, re.DOTALL)
         if not thead:
@@ -420,6 +568,12 @@ def transform_plan(body_html: str) -> str:
         tbody = re.search(r"<tbody>(.*?)</tbody>", table, re.DOTALL)
         if not tbody:
             return table
+        # v3: a `type` column opts the plan into the one-list channel/wave table.
+        # Legacy plans (no type column) keep the phase-grouped card view below.
+        if "type" in idx:
+            rc = [re.findall(r"<td[^>]*>(.*?)</td>", row, re.DOTALL)
+                  for row in re.findall(r"<tr[^>]*>(.*?)</tr>", tbody.group(1), re.DOTALL)]
+            return _render_v3(idx, [c for c in rc if c])
         archived = []
         groups = {}  # type_label -> [cards]
         for row in re.findall(r"<tr[^>]*>(.*?)</tr>", tbody.group(1), re.DOTALL):

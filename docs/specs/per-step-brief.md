@@ -63,6 +63,7 @@ Default audience for cookbooks: B2B-marketer baseline (knows UTM / pixel / event
 
 List what Producer MUST bundle into this asset for it to be operator-shippable without handoffs:
 - Copy (verbatim, ready to publish)
+- **Gallery-surface data (MANDATORY — populates the lightbox)**: `asset.yaml` carries `asset_id` + `asset_name` (= the Plan row's name, VERBATIM) + `default_channel` (= the Plan row's `Channel`, VERBATIM — one of THIS campaign's valid channels; never invented, since an off-list channel silently drops the asset) + `rationale` (the "What this is"), a per-file `title:` on every `ship: true` file, and a **copy-review surface** — a top-level `copy_file:` (a `copy.md` or the primary prose `.md`; HTML-only assets ship a text extract as `copy.md`). Every asset must trace to its Plan `#` row — **the Plan is the source of truth for the asset catalog** (`#` · name · type · channel · ships · copy-file); `asset.yaml` derives from it and `check-state` enforces the match. See [`asset.md`](asset.md) §Gallery-surface data contract.
 - Visual(s) (downloadable file OR pastable image prompt the operator can run themselves)
 - Setup cookbook(s) (e.g. GA event wiring, schema markup, form embeds, OG cards — one cookbook per technical-execution step)
 - Deploy cookbook (how the operator gets it live — CMS publish steps, file uploads, link insertion)

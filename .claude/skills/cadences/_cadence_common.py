@@ -106,6 +106,18 @@ def file_new_ideas(new_titles: list[str], raised_by: str, today: str,
     nums = [int(str(i.get("id", "IDEA-0")).split("-")[-1]) for i in ideas
             if str(i.get("id", "")).startswith("IDEA-")
             and str(i.get("id", "")).split("-")[-1].isdigit()]
+    # SYS-057: next-IDEA must respect the FULL guard view — the MAX id across ideas + backlog +
+    # audit-log ref: fields — not just ideas.yaml. Otherwise a promoted+removed cadence id (whose
+    # only remaining trace is an audit ref:) gets re-minted. Scan the other two stores for IDEA ids
+    # too; combined with the `captured` audit write below, the cadence can never re-mint a used id.
+    import re as _re_id
+    for _store in ("audit-log.yaml", "backlog.yaml"):
+        _p = SYSTEM_DIR / _store
+        if _p.exists():
+            try:
+                nums += [int(n) for n in _re_id.findall(r"IDEA-(\d+)", _p.read_text(encoding="utf-8"))]
+            except Exception:  # noqa: BLE001
+                pass
     nxt = (max(nums) + 1) if nums else 1
 
     default_summary = summary or "Auto-filed by a scheduled cadence; triage to confirm or kill."
@@ -143,6 +155,34 @@ def file_new_ideas(new_titles: list[str], raised_by: str, today: str,
     except Exception:  # noqa: BLE001
         ideas_path.write_text(existing, encoding="utf-8")
         return []
+
+    # SYS-057: also write a guard-visible `captured` audit entry per filed idea. The SYS-025 id
+    # guard derives next-IDEA from the MAX id across id:/ref: in ALL THREE stores; without a ref:
+    # entry a cadence-filed id lives only in ideas.yaml, so once it's promoted + removed the id
+    # vanishes from the guard's view and can be re-minted. Prepend (newest-first), TEXT-only +
+    # rollback-safe, exactly like the Capture job and the ideas append above.
+    audit_path = SYSTEM_DIR / "audit-log.yaml"
+    if audit_path.exists():
+        aud = audit_path.read_text(encoding="utf-8")
+        ki = aud.find("entries:")
+        nl = aud.find("\n", ki) if ki != -1 else -1
+        if nl != -1:
+            block = "".join(
+                f"  - date: {today}\n"
+                f"    ref: {iid}\n"
+                f"    event: captured\n"
+                f'    detail: "Auto-filed by the {source} cadence; triage the inbox (SYS-057 guard-visible capture)."\n'
+                for iid in filed
+            )
+            insert_at = nl + 1
+            new_aud = aud[:insert_at] + block + aud[insert_at:]
+            audit_path.write_text(new_aud, encoding="utf-8")
+            try:
+                import yaml as _y2
+
+                _y2.safe_load(audit_path.read_text(encoding="utf-8"))
+            except Exception:  # noqa: BLE001 — never leave audit-log unparseable
+                audit_path.write_text(aud, encoding="utf-8")
     return filed
 
 

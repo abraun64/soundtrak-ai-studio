@@ -1,6 +1,6 @@
-# Plan — Phase 3 Schema (v2)
+# Plan — Phase 3 Schema (v3)
 
-**Spec version**: v2 · Extended 2026-06-03 to include §N "Phase 5 + 6 readiness" end-of-Phase-4 gate per Rollout Architecture v2 (`docs/specs/rollout-architecture.md` §4).
+**Spec version**: v3 · 2026-07 — the asset list gains **Type** (marketing asset vs setup/deploy task), **Channel**, and **Description** columns, and renders as **one table with a channel ⇄ wave group-by toggle**, split Launch / Ongoing. Waves are *derived* from the Depends column (no hand-authored tiers). Legacy v2 plans (no Type column) keep rendering as the phase-grouped cards until migrated. · v2 · 2026-06-03 added §N "Phase 5 + 6 readiness" end-of-Phase-4 gate per Rollout Architecture v2 (`docs/specs/rollout-architecture.md` §4).
 
 The **Plan** is the operational map for the campaign. CM authors it after the operator picks a Concept. It's the asset list + agent assignments + sequencing the operator approves before Phase 4 fires. **v2 extension**: at end of Phase 4 (asset production), CM updates the Plan with a new §N "Phase 5 + 6 readiness" section that summarises what setup + training + cadence-runbook the campaign needs based on what was actually built. This is the end-of-Phase-3 gate before Phase 6 (Day 1 Rollout) work fires.
 
@@ -26,12 +26,30 @@ Brief paragraph naming the campaign's phases (pre-launch / launch / sustain / wr
 
 ## Asset list
 
-| # | Asset | Review shape | Form | Ships | Copy file | Owner agent | Phase | Target date | Depends on | Notes |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | Wk 0 anchor post | `output` | LinkedIn organic post + 1:1 PNG tile | LinkedIn post + 1:1 tile (PNG) | `md` | Producer | Pre-launch | Fri YYYY-MM-DD | — | Brand-gated |
-| 2 | Wk 1 issue + companion | `template [+1 weekly exemplar]` | Substack issue + LinkedIn partial-essay post + 1:1 tile | Substack issue + LinkedIn post + tile (PNG) | `md` | Producer | Launch | Tue YYYY-MM-DD | #1 | Recurring template — fast-lane after pattern-lock |
-| 3 | Wk 1 paid LI A/B | `variant-comp [2 variants × 2 sizes: 16:9 + 1:1]` | LinkedIn paid creative + PNG tiles | 4 paid creative tiles (PNG) | `csv` | Producer | Launch | Mon YYYY-MM-DD | #1, #2 | Brand-gated, paid budget on the line |
-| ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+The asset list is **one table** — every marketing asset AND every setup/deploy task, as rows. It renders as a single grouped table with a **Group by: Channel | Wave** toggle (see "The two views" below), split Launch / Ongoing. Keep `# | Asset` as the first two columns — the gallery + `check-state` contract keys on them.
+
+| # | Asset | Description | Type | Channel | Review shape | Form | Ships | Copy file | Owner agent | Phase | Target date | Depends on | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | Visual identity kit | The masthead + templates every other asset is built from | asset | Brand foundation | `output` | Brand mini-guide (HTML) + masthead + templates | Masthead (SVG) + tile template + edition template | `none` | Producer | Pre-launch | YYYY-MM-DD | — | The dependency for every visual below |
+| S1 | Create the Substack + lock handle | Stand up the publication so every asset can link to it | setup | Substack | — | Operator action (account) | — | `none` | Operator | Pre-launch | YYYY-MM-DD | — | CM can't create accounts |
+| 2 | Publication setup | The about page + welcome email a new subscriber first meets | asset | Substack | `output` | Substack config + about + welcome (Mode C) | About-page copy + welcome-email copy | `md` | Producer | Launch | YYYY-MM-DD | #1, S1 | — |
+| S2 | Deploy site placements | Push the placements live — the HTML itself going public | setup | Website | — | Publish → Netlify | — | `none` | Operator | Launch | YYYY-MM-DD | #7 | Operator's Netlify push |
+| ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
+**Type values (v3):**
+- `asset` — a **marketing deliverable** (web page, post, tile, video, email). Gets an asset folder, a per-asset gate, and a gallery tile — everything the old asset list held.
+- `setup` — a **setup / deploy / config task** (create the Substack, deploy the HTML, drop GA4 tags, compliance fills). **Plan-only**: `Ships` is `—`, and it gets NO asset folder and NO gallery tile. It sits beside the assets it belongs to so a channel reads as a complete unit ("here's the page AND what it takes to get it live"). Give it an `S<n>` id in the `#` column so other rows can depend on it.
+
+**Channel values (v3):** the surface the work lives on — `Brand foundation` · `Substack` · `Website` · `LinkedIn + social` · `Email — <list>` · `Video` · `Ads & paid` · `Measurement` · etc. Drives the default grouping. If omitted, the renderer falls back to the keyword heuristic (`_plan_asset_type`).
+
+**Name + Description (v3) — write for a human with ZERO context.** Both the `Asset` name and the `Description` are the operator's decision surface: a smart operator who has never seen this campaign must read them and know *exactly* what the thing is and what it's for — **no interpretation**. This is a hard bar, not a nicety (operator directive 2026-07-06 — the first v3 draft failed it). Rules:
+
+- **No internal jargon.** Ban words like *tile · masthead · cadence · fast-lane · build-diary · flagship · cross-promo · unit · per-tenant · editorial backlog · lock the pattern*. Say the plain thing: *social share-image · logo · the weekly-issue tool · auto-approved · launch issue · promo block*.
+- **Spell out every acronym on first use** — *business number (ABN) · Google Analytics · tagged links (UTM) · the goal (KPI) · button (CTA)*. Never a bare acronym.
+- **No cross-references** — never `§3`, `A2`, `#1–#3`, a raw file path, or "the X unit / kit / surface". Name the actual thing.
+- **No cryptic codes** — an issue's description says what it is *about* ("how the AI system went from a dozen agents to seven"), never "learning A2".
+- **The test:** could someone *outside* marketing read the Name + Description and act with zero interpretation? If not, rewrite. The Description is the *purpose / what distinguishes it* — the deliverable format lives in `Form` / `Ships`.
+- **Plain language everywhere** — including the collapsed `Notes` and the change log, not just the name + description. `Notes` may carry finer production detail (status, file paths, gate state) but stays interpretable: no cryptic codes (say what an issue is *about*, never "A2"), acronyms spelled out. The bar relaxes on *depth* in Notes, never on *clarity*.
 
 **Review shape values:**
 - `output` — the specific deliverable; operator approves it as-is
@@ -60,6 +78,35 @@ This column is **load-bearing**, not documentation:
 - **`check-state` validates the chain** Plan `Ships` ↔ asset.yaml `ship:true` ↔ gallery tiles; a mismatch is drift.
 
 Write `Ships` concretely and tersely: name the format + the file kind, e.g. `Case study (HTML) + deck slide (PNG)` · `3-touch email sequence (HTML + copy)` · `8 × MP4 (4 videos × 4:5 + 9:16)` · `Landing page (HTML)`. If an asset ships nothing reviewable (a process checkpoint, a CUT row), use `—`. **If you can't fill `Ships` cleanly, the asset isn't specified yet — that is the signal to tighten the Form/scope before production, not to let the Producer improvise it.**
+
+### The two views (rendered, v3) — channel ⇄ wave
+
+One list, two group-bys. The operator flips a **Group by: Channel | Wave** toggle:
+- **By channel** (default) — rows grouped by the surface they live on; the `Wave` column shows, per channel, what fires when.
+- **By wave** — rows grouped by production wave; the `Channel` column shows, per wave, which surfaces are in play.
+
+Both are the SAME rows with both columns present — no second table, nothing hand-synced. Above both sits the **Launch / Ongoing** split (classified from the Phase column): Launch = one-time stand-up; Ongoing = the recurring engine (cadence, weekly editions, paid boost, KPI monitoring). Every per-row detail is preserved — the key columns sit inline; Form / Review shape / Copy file / Target / Notes fold into a per-row **details** expander so nothing is dropped.
+
+### Waves — derived, never authored (v3)
+
+A **Wave** is a row's dependency tier, computed from the `Depends on` column:
+- **Wave 1** = every row with no unmet dependency → the agents produce these **at once, in parallel**.
+- **Wave N** = rows whose dependencies all sit in earlier waves.
+
+The wave count auto-sizes to the graph: everything-needs-only-the-identity-kit → 2 waves; a chain (kit → Substack → edition → cadence) → more; nothing depends on anything → 1 wave (build it all at once). Waves are the ordering *within* Launch/Ongoing — a different axis from that lifecycle split. **Never hand-author a tier column** — it would drift from the dependencies; the renderer derives it. A dependency cycle is broken defensively (the offending node is treated as a root); a cycle means the Plan is malformed — fix the deps.
+
+### CM dispatch — fire each wave as a parallel batch (v3)
+
+The wave structure is executable, not decorative. In Phase 4, **CM dispatches all of a wave's `asset` rows as one parallel Producer batch** — multiple concurrent Producer dispatches (one Producer role, many simultaneous jobs; NOT different agent types, which would conflate *who does the work* with *when it can start*). The operator gate is at the **wave boundary**: approve Wave 1, and Wave 2's assets fire together the moment it clears — not asset-by-asset within a wave, except where a specific asset is flagged NOT fast-lane. `setup` rows the operator owns (create the account, provision keys, deploy) are the roots that gate the first asset wave — surface them as operator actions up front.
+
+### The plan is the living source of truth — the gallery mirrors it (v3)
+
+The Phase-4 asset gallery **derives** its channels, names, descriptions, dependency waves, and Launch/Ongoing split from THIS plan (via the shared `plan_model`) — the gallery is a *view* of the plan, never a separate list. Two consequences:
+
+- **Any change to the asset set, in ANY phase, updates this plan first — in the same turn.** A new asset surfaced during Phase-4 review, an asset dropped, or one re-scoped: CM adds/edits its row here (plain-language name + description, `Type`, `Channel`, `Depends on`) *before/as* it produces it, then re-renders `plan.html` and rebuilds the gallery. A material scope change bumps the plan version + re-approval; a like-for-like swap or dependency reshuffle doesn't.
+- **Waves re-derive automatically.** Because `Wave` comes from `Depends on` and is recomputed on every render, adding or removing a row re-waves BOTH surfaces at once — no manual wave bookkeeping, and the two can't disagree.
+
+`check-state` enforces the floor: any asset folder on disk with no plan row is flagged as drift (Layer E), and the gallery shows an unmatched tile in a visible "not in the plan yet" group rather than hiding it — so an unreconciled addition surfaces immediately instead of rotting the plan.
 
 ### Asset list discipline — cadence-skill rule (v2 addition)
 

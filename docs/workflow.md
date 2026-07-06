@@ -10,7 +10,7 @@ This means the system must:
 1. **Extract the operator's knowledge before extending it** — the strategy phases (1–3) ask good questions, draw on the operator's durable Playbook, attribute "operator's read" vs "AI extension" vs "AI synthesis" in every Brief
 2. **Recognise the operator's knowledge gaps** — distinguish marketing decisions the operator owns (frame the choice; trust the call) from technical execution the operator may not know (deliver a cookbook recipe with verification step)
 3. **Ship assets complete** — every asset bundles everything needed to ship it: copy + visuals + technical-setup cookbook + deploy cookbook + verify cookbook. No "go figure out the technical bit" handoffs.
-4. **Render decision-first, reference-collapsed** — every operator surface puts the next action at the top; history, audit trails, deliberation rationale, version notes go below the fold in expand/collapse. Cold-start safe.
+4. **Render decision-first, reference-collapsed, in plain language** — every operator surface puts the next action at the top; history, audit trails, deliberation rationale, version notes go below the fold in expand/collapse. Cold-start safe. And it reads in **plain language a person with zero context can act on** — no internal jargon, every acronym spelled out, no cryptic codes (the test: could a non-marketer act on it without asking?). Names + descriptions especially. Per `docs/specs/plan.md` §"Name + Description".
 5. **Keep the operator-trio coherent** — dashboard / tasks / index must read meaningfully after a week of context-switching (tasks include one-sentence context + why-it-matters + what's-needed; not just summarised names)
 
 The work runs as **six phases in two stages**. **Strategy (Phases 1–3)** is operator-led with three approvals — but each approval is informed by the operator's Q&A-extracted read, not by AI's synthesis alone. **Production (Phases 4–6)** is CM-orchestrated with one approval per finished asset. Everything else happens behind the scenes. (Before a tenant's first campaign, **Phase 0 — Tenant Baseline** establishes the durable per-tenant compound every campaign inherits — see [`docs/specs/phase-0-tenant-baseline.md`](specs/phase-0-tenant-baseline.md).)
@@ -104,10 +104,10 @@ CM gathers everything needed to brief the campaign. Inputs accepted in any shape
 
 Before AI synthesises anything, Phase 1 MUST:
 
-1. **Read the Operator Playbook index** at `operator/the operator/index.md` — surface which playbook principles are relevant to this campaign's strategic intent.
-2. **Ask the operator good questions** — the operator IS the CMO; their read trumps AI's first guess. CM authors a small set of focused discovery questions (drawn from a question library + the Playbook's relevant principles) BEFORE drafting the Brief.
+1. **Read the practitioner frameworks** at `craft/frameworks/` — surface which framework principles are relevant to this campaign's strategic intent.
+2. **Ask the operator good questions** — the operator IS the CMO; their read trumps AI's first guess. CM authors a small set of focused discovery questions (drawn from a question library + the frameworks' relevant principles) BEFORE drafting the Brief.
 3. **Synthesise the Brief with attribution markers** — every section tagged `[the operator's read]`, `[AI extension]`, or `[AI synthesis]`. Future readers (the operator and the agents) can see what came from where.
-4. **Cite Playbook principles** in the Brief when a principle is being applied or tested (e.g. *"This campaign tests principle 11 — Research Is a Competitive Content Moat"*).
+4. **Cite framework principles** in the Brief when a principle is being applied or tested (e.g. *"This campaign tests principle 11 — Research Is a Competitive Content Moat"*).
 
 This is the foundational discipline that makes the system a *force multiplier* rather than a *replacement*. AI extends the operator's judgment; it never substitutes for it.
 
@@ -129,12 +129,11 @@ This is the foundational discipline that makes the system a *force multiplier* r
 - **Canva brand kit**: set up in Phase 0 (palette + fonts + logos) so Producer can use it in Mode B for all subsequent assets. Captured as `canva_brand_kit_id` in the Brand Context record.
 - Brand Context is durable per-tenant — reused on subsequent campaigns for the same business, updated as needed.
 
-**Operator Playbook layering**:
-- The Operator Playbook (`operator/the operator/index.md`) and the tenant Brand Context don't conflict — they layer.
-- Playbook = the operator's practitioner-level discipline (voice principles, banned words, marketing philosophy). Applies across ALL his campaigns.
+**Practitioner frameworks layering**:
+- The practitioner frameworks (`craft/frameworks/`) and the tenant Brand Context don't conflict — they layer.
+- Frameworks = the practitioner-level discipline (the strategic playbook + marketing philosophy). Applies across ALL campaigns.
 - Tenant Brand Context = THIS tenant's brand voice/visual/positioning. Applies to this campaign only.
-- Per-step briefs cite both sources inline when pulling voice/principle slices. See [`docs/specs/operator-playbook.md`](specs/operator-playbook.md) for the full schema + ingestion patterns.
-- For campaigns where the operator wants to deviate from his Playbook (rare), the deviation lands in `operator/the operator/overrides/<campaign-slug>.md` and is referenced from the Brief.
+- Per-step briefs cite both sources inline when pulling voice/principle slices. See [`craft/frameworks/README.md`](../craft/frameworks/README.md) for how the frameworks are used.
 
 **Insight Brief (Insights Manager)**: once the objective + target segment(s) are set, CM dispatches the **Insights Manager**, which runs a disciplined multi-source web sweep (`insight-scan`) and authors the **Insight Brief** (`docs/specs/insight-brief.md`) — the *human* insight that fuels the big idea (identity / motivation / fear / aspiration), paired with its *market* context, **per segment**, every claim evidence-backed, plus a restorable "considered & cut" kill register. It cites the shared **research library** (`tenant/research-library/`) and the durable tenant **audience-truths** first. The distilled insights surface on the Brief; §1 for the selected segment becomes a fixed input to the CD's concept.
 

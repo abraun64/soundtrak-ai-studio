@@ -139,6 +139,8 @@ Social / card / email fields carry inline **character limits**; everything else 
 
 **Applies to**: landing pages · long-form articles · whitepaper sections · pricing/About pages · email single + sequences · social tiles · OG/share cards. **Does NOT apply to**: ad headline batches, social-post single bodies <500 chars, microcopy, taglines (operator edits in chat).
 
+**Copy-review contract (v3, 2026-07-03) — MANDATORY.** Every asset that carries ANY copy MUST expose a copy-review surface the gallery can attach as the View + Source edit action. Declare it explicitly via top-level `copy_file:` (the `copy.md`, or the asset's primary prose `.md` — `about.md`, `edition-01.md`, `reveal-post.md`, etc.). **HTML-only assets ship a plain-text extract as `copy.md`** so the reviewer can read + edit the copy without opening the rendered page. The builder auto-falls-back (ship:true `.md` → Plan `Copy file` → largest non-record prose `.md`) and prints a **WARNING** when a copy-bearing asset resolves NO copy surface — that warning is a contract breach, not noise. `copy_file: none` is honoured only for genuinely copy-free visual primitives (a bare logo/stamp); anything with words attaches a copy surface.
+
 ### Setup cookbook(s) — REQUIRED for any asset with technical setup
 Bundled into the asset, not as a separate Pre-flight item (unless cross-asset). Examples:
 - Web page asset → GA event-wiring cookbook + schema.org markup cookbook + OG cards cookbook
@@ -233,6 +235,14 @@ Alongside the asset record markdown, Producer authors `asset.yaml` in the same f
 
 **HTML / MD sibling inheritance (gallery convenience)**: when an asset has `cookbook.md` declared in the asset.yaml `files:` block AND a rendered `cookbook.html` sibling exists on disk, the gallery treats the HTML as the rendered preview of the same artifact — it inherits visibility (ship) AND metadata (title + asset_name) from the MD's declaration, and the type auto-promotes from `Foundation` (right for the source MD) to `Instance` (right for the rendered preview that operator reviews). Producers don't need to dual-declare the source + render pair in asset.yaml; just declare the source.
 
+**Gallery-surface data contract — ALWAYS-POPULATED FIELDS (v3, 2026-07-03)**: the gallery lightbox standardises its naming, its "What this is" lead, its copy-review action, and its Plan trace from `asset.yaml` — so every asset MUST carry the data that populates them. Non-negotiable per asset:
+
+- **`asset_name`** — REQUIRED. The lightbox primary title is `#<asset_id> · <asset_name>` (never a raw filename or a `_`-scaffolding name). Omit it and the title degrades to a filename.
+- **`asset_id`** — REQUIRED, matches the Plan `#` (zero-padding is fine: `"01"` matches Plan `1`). Drives the `#id · name` title AND the Plan-row trace.
+- **`rationale`** — REQUIRED. The "What this is" block ALWAYS renders; it resolves per-file `review:` → asset `rationale:`/`summary:` → the Plan row's `Notes`/`Form` → a type-based default — but a written `rationale:` is the intended source. Do not rely on the fallback.
+- **per-file `title:`** — REQUIRED on every `ship: true` file. It's the lightbox subtitle (the specific file under the `#id · name` heading) and the clean tile subtitle. Absent → a humanised filename is used as a last resort.
+- **A copy-review surface** — REQUIRED for every asset that carries any copy. Declare a top-level `copy_file:` (a `copy.md`, or the primary prose `.md` — e.g. `about.md`, `edition-01.md`). HTML-only assets ship a short **text extract** as `copy.md` so a View + Source copy surface always exists. If you declare nothing, the builder falls back (ship:true `.md` → Plan `Copy file` name → largest non-record prose `.md`) and WARNS to stdout if it still finds none — a build WARNING here means the copy-review contract is unmet; fix it.
+
 **Gallery modal rule — three blocks only (v2, 2026-06-04)**: the approval lightbox shows exactly three things and nothing else:
 
 1. **Rationale** — from `asset.yaml` `rationale:` field. Combined description + why-it-exists. What this asset is and what problem it solves. Operator-facing, decision-useful, one paragraph.
@@ -247,8 +257,8 @@ Section extraction uses H2 keyword match (operator / open question / next step /
 
 ```yaml
 asset_id: "0a"                              # matches Plan asset list ID + folder prefix
-asset_name: "Email template uplift"
-default_channel: Email                      # Email · LinkedIn · YouTube · Audio · Adviser Pack · Foundation
+asset_name: "Welcome page + first email"    # = the Plan row's name, verbatim (do not invent)
+default_channel: Substack                   # = the Plan row's Channel, verbatim — one of THIS campaign's valid channels (the CM injects them; never a generic list)
 status: "For Human Review"                  # REQUIRED — gallery badge + filter. Values: "For Human Review" / "Approved" / "In Production"
 rationale: >
   One paragraph: what this asset is + why it exists / what problem it solves.
@@ -315,7 +325,7 @@ files:
 ```yaml
 files:
   templates-preview/T1-sb-talks-episode-card.png:
-    channel: LinkedIn                       # overrides default_channel
+    channel: "LinkedIn + social"            # overrides default_channel for this file — still a valid campaign Plan channel
     type: Instance
     template_source: "templates-html/T1-sb-talks-episode-card.html"
     title: "T1 — Acme Co Talks episode card (sample render)"
@@ -337,7 +347,7 @@ Every `asset.yaml` MUST include a `deployment:` block capturing per-asset specif
 ```yaml
 deployment:
   # ↓ Inherited from Brief tech_stack via integrations.yaml channel_defaults.
-  # Producer reads asset.default_channel → looks up channel_defaults[Email] → gets platform.
+  # Producer reads asset.default_channel (= the Plan channel) → looks up channel_defaults[<channel>] → gets platform.
   # Producer SHOULD NOT manually override unless asset diverges from campaign default.
   destination_type: email                   # email | intranet | social | static-site | print | drive | api | none
   platform: "Mailchimp"                     # inherited; explicit here for asset-level audit trail

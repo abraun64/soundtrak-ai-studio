@@ -150,6 +150,28 @@ for h in ("post_tool_use.py", "stop.py"):
     except SyntaxError as e:
         check("L3", f"{h} syntax", False, str(e)[:120])
 
+# Agent registration guard (SYS-050): every .claude/agents/*/AGENT.md frontmatter MUST
+# parse as YAML — a ": " colon-space in an unquoted `description:` aborts the parse and
+# the agent type silently fails to register (forcing a manual general-purpose fallback).
+# Catch it here, not at dispatch time.
+try:
+    import re as _re
+    import yaml as _yaml
+    _bad_agents = []
+    for _ap in sorted((ROOT / ".claude" / "agents").glob("*/AGENT.md")):
+        _fm = _re.match(r"^---\n(.*?)\n---", _ap.read_text(encoding="utf-8"), _re.S)
+        if not _fm:
+            _bad_agents.append(f"{_ap.parent.name}: no frontmatter")
+            continue
+        try:
+            _yaml.safe_load(_fm.group(1))
+        except Exception as _e:
+            _bad_agents.append(f"{_ap.parent.name}: {str(_e).splitlines()[0][:48]}")
+    check("L3", "agent AGENT.md frontmatter parses (all register)", not _bad_agents,
+          "; ".join(_bad_agents) if _bad_agents else "")
+except Exception as _e:
+    check("L3", "agent AGENT.md frontmatter parses (all register)", False, f"check errored: {_e}"[:100])
+
 
 # ── Layer 4 — Git repos ──────────────────────────────────────────────────────
 check("L4", "system repo status", _git_ok(["status", "--short"]))
