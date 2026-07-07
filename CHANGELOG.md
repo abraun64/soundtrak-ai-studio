@@ -10,6 +10,12 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Auto-captured system ideas can never be handed a reused id.** The scheduled cadences that file
+  new ideas now record each one in the append-only audit log and draw the next free id from the full
+  history (ideas + backlog + log) rather than the idea inbox alone — so an id that was later promoted
+  to a ticket or removed can't be silently minted a second time and collide.
+
 ## [1.1.0] — 2026-07-06
 
 ### Fixed
