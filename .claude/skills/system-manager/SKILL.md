@@ -92,9 +92,11 @@ on each open card — a label, not a filter (the priority filters were removed).
 The operator gives one line. **You** write the full record while the context is
 fresh — never make the operator write the paragraph.
 1. Append to `ideas.yaml` (canonical path + id from `sysdata.py`) with: `id` (next IDEA-NNN), `title`, `summary` (one line),
-   `description` (the what + why, drawn from the current conversation so it triages
-   cold later), `raised_by` (operator name, or the diagnostic/retro that surfaced
-   it), `date` (today, absolute), `source`.
+   `benefit` (**always** — one line naming the concrete value it delivers: the operator / tenant / business
+   outcome, not a restatement of what it is), `description` (the what + why, drawn from the current
+   conversation so it triages cold later), `raised_by` (operator name, or the diagnostic/retro that
+   surfaced it), `date` (today, absolute), `source`. **Every idea AND every promoted ticket carries a
+   `benefit`** — the dashboard renders it on the card, so an item that can't name its benefit isn't ready.
 2. Append a `captured` entry to `audit-log.yaml`.
 3. Re-render. Confirm in one line. Do not interrupt other work to triage.
 
@@ -102,8 +104,8 @@ fresh — never make the operator write the paragraph.
 The gate between raw idea and committed work. Batched, not at capture time.
 For each idea (or the one named), with the operator's decision:
 - **promote** → create a `SYS-NNN` ticket in `backlog.yaml` (id from `sysdata.py next-id SYS`,
-  `status: todo`, the given priority, carry over description/raised_by/date/source, sharpen the title),
-  remove the idea from `ideas.yaml`, audit `triaged`.
+  `status: todo`, the given priority, carry over `benefit`/description/raised_by/date/source, sharpen the
+  title **and** the `benefit` line), remove the idea from `ideas.yaml`, audit `triaged`.
 - **merge** → fold into the named existing ticket, remove the idea, audit `merged`.
 - **kill** → remove the idea with a one-line reason, audit `killed`.
 Offer a recommended priority + promote/merge/kill for each so the operator confirms

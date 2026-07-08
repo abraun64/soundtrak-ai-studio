@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creating Loyalty That Lasts — Marketing AI System</title>
+  <style>/* Marketing AI System — social/email in-situ mockup chrome.
+ * Renders collapsed (feed) + expanded (clicked-open) states per form.
+ * Loaded automatically alongside system.css for all templates.
+ * Form-specific tokens live under .mock-<form> scopes so they don't bleed.
+ */
+
+/* --- Mockup zone layout (sits above markdown narrative) --- */
+.mockups {
+  margin: 0 0 32px 0;
+}
+.mockups:empty { display: none; }
+
+.mock-variant {
+  margin: 0 0 40px 0;
+}
+.mock-variant__label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
+  padding: 0 4px;
+}
+
+.mock-states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .mock-states { grid-template-columns: 1fr; }
+}
+
+.mock-state {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mock-state__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin: 0 0 14px 0;
+  text-align: center;
+}
+
+/* --- LinkedIn post chrome --- */
+.mock-li {
+  --li-bg: #f3f2ef;
+  --li-card-bg: #ffffff;
+  --li-text: #000000e6;
+  --li-text-secondary: #00000099;
+  --li-text-tertiary: #00000066;
+  --li-border: #00000014;
+  --li-accent: #0a66c2;
+  --li-hover: #00000008;
+}
+.mock-li .mock-state { background: var(--li-bg); }
+.mock-li .li-card {
+  width: 100%;
+  max-width: 552px;
+  background: var(--li-card-bg);
+  border: 1px solid var(--li-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--li-text);
+}
+.mock-li .li-header {
+  display: flex;
+  padding: 12px 16px 8px;
+  align-items: center;
+  gap: 8px;
+}
+.mock-li .li-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1a2a5e;
+  color: #f8f5ee;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "Caveat", "Segoe Script", cursive;
+}
+.mock-li .li-author { flex: 1; min-width: 0; }
+.mock-li .li-author-name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.mock-li .li-author-title { font-size: 12px; color: var(--li-text-secondary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-author-meta { font-size: 12px; color: var(--li-text-tertiary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-more { color: var(--li-text-secondary); font-size: 20px; padding: 4px 8px; }
+.mock-li .li-body {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--li-text);
+}
+.mock-li .li-body p { margin: 0 0 8px; }
+.mock-li .li-see-more {
+  color: var(--li-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 16px 8px;
+  user-select: none;
+}
+.mock-li .li-image {
+  width: 100%;
+  display: block;
+  background: #f8f5ee;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+.mock-li .li-reactions {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--li-text-secondary);
+  border-bottom: 1px solid var(--li-border);
+}
+.mock-li .li-reaction-icons { display: inline-flex; vertical-align: middle; }
+.mock-li .li-reaction-icons span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: -3px;
+  border: 1.5px solid #fff;
+  font-size: 10px;
+  text-align: center;
+  line-height: 13px;
+  color: white;
+}
+.mock-li .li-r-like { background: #378fe9; }
+.mock-li .li-r-insight { background: #f5b800; color: #333 !important; }
+.mock-li .li-r-celebrate { background: #6dae4f; }
+.mock-li .li-reactions-left { display: flex; align-items: center; gap: 6px; }
+.mock-li .li-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px;
+}
+.mock-li .li-action {
+  text-align: center;
+  padding: 8px 4px;
+  color: var(--li-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mock-li .li-comments {
+  border-top: 1px solid var(--li-border);
+  padding: 12px 16px;
+  background: #fafafa;
+}
+.mock-li .li-comment { display: flex; gap: 8px; margin-bottom: 12px; }
+.mock-li .li-comment:last-child { margin-bottom: 0; }
+.mock-li .li-c-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: #ddd;
+  color: #555; font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-li .li-c-body {
+  background: #f3f2ef; border-radius: 0 8px 8px 8px;
+  padding: 8px 12px; font-size: 13px; line-height: 1.4; flex: 1;
+}
+.mock-li .li-c-author { font-weight: 600; margin-bottom: 2px; }
+.mock-li .li-c-meta { font-size: 11px; color: var(--li-text-tertiary); margin-top: 4px; }
+
+/* --- Email chrome (inbox row + opened state) --- */
+.mock-email {
+  --em-bg: #f6f8fc;
+  --em-card-bg: #ffffff;
+  --em-text: #202124;
+  --em-text-secondary: #5f6368;
+  --em-border: #e5e7eb;
+  --em-accent: #1a73e8;
+  --em-unread: #f3f7fd;
+}
+.mock-email .mock-state { background: var(--em-bg); }
+.mock-email .em-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--em-card-bg);
+  border: 1px solid var(--em-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Google Sans", Roboto, -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--em-text);
+  font-size: 14px;
+}
+.mock-email .em-inbox-toolbar {
+  background: var(--em-bg);
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--em-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-inbox-row {
+  display: grid;
+  grid-template-columns: 28px 180px 1fr 80px;
+  gap: 12px;
+  padding: 10px 16px;
+  align-items: center;
+  background: var(--em-unread);
+  font-weight: 600;
+}
+.mock-email .em-star { color: #d1d5db; font-size: 16px; }
+.mock-email .em-from { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock-email .em-snippet { font-size: 14px; color: var(--em-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.mock-email .em-snippet b { font-weight: 600; }
+.mock-email .em-snippet .em-preview { color: var(--em-text-secondary); font-weight: 400; }
+.mock-email .em-date { text-align: right; font-size: 12px; color: var(--em-text-secondary); }
+
+/* Opened state */
+.mock-email .em-opened-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-subject { font-size: 20px; font-weight: 400; margin: 0 0 12px 0; color: var(--em-text); }
+.mock-email .em-meta-row { display: flex; gap: 12px; align-items: center; }
+.mock-email .em-sender-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--em-accent);
+  color: white; font-weight: 600; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-email .em-sender-name { font-size: 14px; font-weight: 600; }
+.mock-email .em-sender-email { font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-sent-meta { margin-left: auto; font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-opened-body {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--em-text);
+}
+.mock-email .em-opened-body p { margin: 0 0 14px 0; }
+.mock-email .em-opened-body a { color: var(--em-accent); }
+.mock-email .em-opened-body h1, .mock-email .em-opened-body h2, .mock-email .em-opened-body h3 {
+  margin: 20px 0 10px 0;
+}
+
+/* --- Twitter / X (stub) --- */
+.mock-tw {
+  --tw-bg: #ffffff;
+  --tw-text: #0f1419;
+  --tw-text-secondary: #536471;
+  --tw-border: #eff3f4;
+  --tw-accent: #1d9bf0;
+}
+.mock-tw .mock-state { background: #f7f9fa; }
+.mock-tw .tw-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--tw-bg);
+  border: 1px solid var(--tw-border);
+  border-radius: 16px;
+  padding: 16px;
+  font-family: "Chirp", -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--tw-text);
+}
+.mock-tw .tw-header { display: flex; gap: 10px; }
+.mock-tw .tw-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: #1a2a5e;
+  color: #f8f5ee; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-tw .tw-name { font-weight: 700; font-size: 15px; }
+.mock-tw .tw-handle { color: var(--tw-text-secondary); font-size: 14px; }
+.mock-tw .tw-body { font-size: 15px; line-height: 1.4; margin: 10px 0; white-space: pre-wrap; }
+.mock-tw .tw-image { width: 100%; border-radius: 16px; border: 1px solid var(--tw-border); margin: 10px 0 0; display: block; }
+
+/* --- Instagram (stub) --- */
+.mock-ig {
+  --ig-bg: #ffffff;
+  --ig-text: #262626;
+  --ig-text-secondary: #8e8e8e;
+  --ig-border: #dbdbdb;
+}
+.mock-ig .mock-state { background: #fafafa; }
+.mock-ig .ig-card {
+  width: 100%;
+  max-width: 470px;
+  background: var(--ig-bg);
+  border: 1px solid var(--ig-border);
+  border-radius: 8px;
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--ig-text);
+  overflow: hidden;
+}
+.mock-ig .ig-header { display: flex; gap: 10px; align-items: center; padding: 12px; }
+.mock-ig .ig-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;
+}
+.mock-ig .ig-handle { font-weight: 600; font-size: 14px; }
+.mock-ig .ig-image { width: 100%; display: block; border: none; border-radius: 0; margin: 0; aspect-ratio: 1 / 1; object-fit: cover; }
+.mock-ig .ig-caption { padding: 12px; font-size: 14px; line-height: 1.4; }
+.mock-ig .ig-caption b { font-weight: 600; margin-right: 6px; }
+
+/* --- Substack (stub) --- */
+.mock-sub {
+  --sub-bg: #ffffff;
+  --sub-text: #1a1a1a;
+  --sub-text-secondary: #6b6b6b;
+  --sub-border: #e5e5e5;
+  --sub-accent: #ff6719;
+}
+.mock-sub .mock-state { background: #f5f5f5; }
+.mock-sub .sub-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--sub-bg);
+  border: 1px solid var(--sub-border);
+  border-radius: 4px;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--sub-text);
+}
+.mock-sub .sub-pub { font-size: 12px; color: var(--sub-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+.mock-sub .sub-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0; }
+.mock-sub .sub-subtitle { font-size: 16px; color: var(--sub-text-secondary); margin: 0 0 16px 0; }
+.mock-sub .sub-image { width: 100%; border: 1px solid var(--sub-border); margin: 0 0 16px 0; display: block; border-radius: 0; }
+.mock-sub .sub-body { font-size: 16px; line-height: 1.6; }
+
+/* --- Stub-form placeholder note --- */
+.mock-stub-note {
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-style: italic;
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  margin-top: 8px;
+  max-width: 600px;
+}
+
+/* --- Asset-preview page main container width --- */
+.page-main--asset-preview { max-width: var(--max-width-wide); }
+.content--narrative { /* inherits .content baseline */ }
+
+/* Marketing AI System — clean-default-minimal system UI
+ * Stripe/Linear aesthetic. System fonts. Generous whitespace.
+ * No external font dependencies.
+ */
+
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --success: #10b981;
+  --success-soft: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-soft: #fffbeb;
+  --danger: #ef4444;
+  --danger-soft: #fef2f2;
+  --code-bg: #f3f4f6;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --max-width: 880px;          /* prose-narrow — for Brief / Brand Context reading */
+  --max-width-wide: 1480px;    /* dashboard / plan / tasks / index / asset-preview — tables + comparisons */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Header --- */
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.page-header__inner {
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.page-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.crumb {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.crumb-link {
+  color: var(--accent);
+}
+.crumb-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-decoration: underline;
+}
+.crumb-current {
+  color: var(--text);
+  font-weight: 600;
+}
+.crumb-sep {
+  color: var(--text-subtle);
+  user-select: none;
+}
+.page-header__template {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  opacity: 0.6;
+}
+.page-header__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.library-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.lib-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.lib-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+.lib-link--current {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* --- Main content --- */
+.page-main {
+  max-width: var(--max-width-wide);
+  margin: 48px auto;
+  padding: 0 32px;
+}
+
+/* Prose-narrow templates (Brief, Brand Context) get a narrower line length for readability */
+.template-brief .page-main,
+.template-brand-context .page-main {
+  max-width: var(--max-width);
+}
+
+.content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 56px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Typography --- */
+.content h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+.content h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 40px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.content h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 28px 0 8px 0;
+}
+.content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 24px 0 8px 0;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+}
+.content p {
+  margin: 0 0 16px 0;
+}
+.content ul, .content ol {
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+.content li { margin-bottom: 4px; }
+
+.content strong { font-weight: 600; color: var(--text); }
+.content em { font-style: italic; }
+
+.content code {
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+}
+.content pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+.content pre code {
+  background: none;
+  padding: 0;
+}
+
+.content a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.content a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.content blockquote {
+  border-left: 3px solid var(--border-strong);
+  padding: 4px 16px;
+  margin: 0 0 16px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* --- Tables --- */
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 20px 0;
+  font-size: 14px;
+}
+.content table th {
+  text-align: left;
+  font-weight: 600;
+  background: var(--bg);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border-strong);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.content table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content table tr:last-child td { border-bottom: none; }
+.content table tr:hover td { background: var(--bg); }
+
+/* --- Status badges (used in inline markdown via spans or by templates) --- */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+}
+.badge--draft { background: var(--code-bg); color: var(--text-muted); }
+.badge--approved { background: var(--success-soft); color: var(--success); }
+.badge--awaiting { background: var(--warning-soft); color: var(--warning); }
+.badge--blocked { background: var(--danger-soft); color: var(--danger); }
+.badge--live { background: var(--accent-soft); color: var(--accent); }
+
+/* --- HR --- */
+.content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* --- Images --- */
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+/* --- Footer --- */
+.page-footer {
+  max-width: var(--max-width-wide);
+  margin: 32px auto;
+  padding: 16px 32px;
+  font-size: 12px;
+  color: var(--text-subtle);
+  text-align: center;
+}
+.page-footer code {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+/* --- Collapsible details/summary (decision-first / reference-collapsed pattern) --- */
+.content details {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 24px 0;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+.content details[open] {
+  background: var(--surface);
+}
+.content details summary {
+  padding: 14px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+.content details summary::-webkit-details-marker { display: none; }
+.content details summary::before {
+  content: "▸";
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 12px;
+}
+.content details[open] summary::before {
+  transform: rotate(90deg);
+}
+.content details summary:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.content details summary strong {
+  font-weight: 600;
+}
+.content details > *:not(summary) {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.content details > *:last-child {
+  padding-bottom: 16px;
+}
+.content details summary + * {
+  margin-top: 12px;
+}
+/* Expanded content inside details should keep all the proper typography */
+.content details h2,
+.content details h3,
+.content details h4 {
+  margin-top: 24px;
+}
+.content details h2:first-of-type,
+.content details h3:first-of-type,
+.content details h4:first-of-type {
+  margin-top: 12px;
+}
+.content details table {
+  margin-bottom: 16px;
+}
+
+/* --- Checkboxes in lists (task lists) --- */
+.content ul.task-list,
+.content ul.task-list li {
+  list-style: none;
+  padding-left: 0;
+}
+.content input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* --- Dashboard-specific: richer card treatment for collapsible sections --- */
+/* The dashboard's <details> blocks are the operator's primary navigation. They */
+/* need to read as cards, not as plain disclosure rows. Scoped via body class so */
+/* Brief / Concept / Plan / Asset surfaces keep their lighter treatment. */
+body.template-dashboard .content details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, border-left-color 0.2s, transform 0.15s;
+}
+body.template-dashboard .content details:hover {
+  box-shadow: var(--shadow-md);
+  border-left-color: var(--accent);
+}
+body.template-dashboard .content details[open] {
+  background: var(--surface);
+  border-left-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+body.template-dashboard .content details summary {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  background: linear-gradient(to right, var(--bg) 0%, var(--surface) 60%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+body.template-dashboard .content details[open] summary {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 70%);
+}
+body.template-dashboard .content details summary::before {
+  content: "›";
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-muted);
+  width: 14px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+body.template-dashboard .content details[open] summary::before {
+  color: var(--accent);
+  transform: rotate(90deg) translateX(-1px);
+}
+body.template-dashboard .content details summary:hover {
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 80%);
+  color: var(--accent);
+}
+body.template-dashboard .content details > *:not(summary) {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+body.template-dashboard .content details > *:first-of-type:not(summary) {
+  padding-top: 8px;
+}
+body.template-dashboard .content details > *:last-child {
+  padding-bottom: 20px;
+}
+
+/* Color-vary the left-border per card position so 8 stacked cards aren't monotone */
+body.template-dashboard .content details:nth-of-type(8n+1) { border-left-color: #6366f1; } /* indigo */
+body.template-dashboard .content details:nth-of-type(8n+2) { border-left-color: #ec4899; } /* pink */
+body.template-dashboard .content details:nth-of-type(8n+3) { border-left-color: #8b5cf6; } /* violet */
+body.template-dashboard .content details:nth-of-type(8n+4) { border-left-color: #06b6d4; } /* cyan */
+body.template-dashboard .content details:nth-of-type(8n+5) { border-left-color: #10b981; } /* emerald */
+body.template-dashboard .content details:nth-of-type(8n+6) { border-left-color: #f59e0b; } /* amber */
+body.template-dashboard .content details:nth-of-type(8n+7) { border-left-color: #ef4444; } /* red */
+body.template-dashboard .content details:nth-of-type(8n+8) { border-left-color: #64748b; } /* slate */
+body.template-dashboard .content details:hover,
+body.template-dashboard .content details[open] {
+  /* On hover/open, accent wins over the nth-child color */
+  border-left-color: var(--accent);
+}
+
+/* Above-the-fold dashboard surfaces (🚨 Next actions / 🎯 Stage + next gate) — */
+/* lift these visually above the collapsed cards via top-of-page treatment */
+body.template-dashboard .content h2 {
+  font-size: 22px;
+  margin-top: 36px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+body.template-dashboard .content h2:first-of-type {
+  margin-top: 8px;
+}
+body.template-dashboard .content h3 {
+  font-size: 17px;
+  color: var(--text);
+  margin-top: 24px;
+}
+
+/* The 🚨 Next actions table — make it visually distinct as the highest-priority surface */
+body.template-dashboard .content > h2:first-of-type + table,
+body.template-dashboard .content > h2 + table {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+body.template-dashboard .content table th {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .page-main { padding: 0 16px; margin: 24px auto; }
+  .content { padding: 28px 24px; border-radius: var(--radius); }
+  .content h1 { font-size: 26px; }
+  .content h2 { font-size: 19px; }
+  .page-header { padding: 12px 16px; }
+}
+
+/* --- Print --- */
+@media print {
+  .page-header, .page-footer { display: none; }
+  .content { border: none; box-shadow: none; padding: 0; }
+}
+</style>
+</head>
+<body class="template-index">
+  <header class="page-header">
+    <div class="page-header__inner">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <div class="page-header__right">
+        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link lib-link--current" href="../INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
+        <span class="page-header__template" aria-hidden="true">index</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <article class="content">
+      <h1 id="creating-loyalty-that-lasts">Creating Loyalty That Lasts</h1>
+<p>Authored by the operator, originally published as <em>Netwealth IQ Report: Creating Loyalty That Lasts</em> (2024). 143-page research report. Companion piece to <em>The Value Gap and Winning New Clients</em> (which focuses on prospects). This playbook focuses on <strong>existing clients across lifecycle</strong>.</p>
+<p>The original language uses "financial advisers" and "wealth management" verbatim. <strong>For any other professional services firm</strong>, substitute the equivalent terms (see translation table in <code>winning-new-clients-playbook.md</code>).</p>
+<hr>
+<h2 id="the-core-thesis">The core thesis</h2>
+<p>Two critical insights about loyalty:</p>
+<ol>
+<li>
+<p><strong>Even as a client's perception of value grows, they may still leave.</strong> Average value rating rises across lifecycle (Newcomers 7.2 → Settled 7.8 → Loyals 8.2 out of 10), but clients still churn. The cost-as-proxy-for-not-enough-value reasoning + the "I can do this myself" overconfidence drive lapse.</p>
+</li>
+<li>
+<p><strong>What clients value changes over time.</strong> Advisers must adapt their approach as the relationship matures. Static service offerings lose loyal clients.</p>
+</li>
+</ol>
+<h2 id="lifecycle-segments">Lifecycle segments</h2>
+<table>
+<thead>
+<tr>
+<th>Segment</th>
+<th>Tenure</th>
+<th>Average value rating</th>
+<th>Overarching need</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Newcomers</strong></td>
+<td>&lt; 3 years</td>
+<td>7.2 / 10</td>
+<td>Excited about the roadmap + empowered for autonomy</td>
+</tr>
+<tr>
+<td><strong>Settled</strong></td>
+<td>3-5 years</td>
+<td>7.8 / 10</td>
+<td>Recognise changing preferences + new tactics + knowledge to act on them</td>
+</tr>
+<tr>
+<td><strong>Loyals</strong></td>
+<td>6+ years</td>
+<td>8.2 / 10</td>
+<td>Acknowledge value + preferential service + reassurance of status quo</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-clients-lapse">Why clients lapse</h3>
+<p>Among those who recently stopped using an adviser (top reasons):
+- <strong>43%</strong> — expense or cost
+- <strong>36%</strong> — wanting to manage finances themselves
+- <strong>29%</strong> — "learnt all I could from that adviser"
+- <strong>23%</strong> — finances not large/complex enough to have an adviser
+- <strong>17%</strong> — not receiving value from adviser
+- <strong>14%</strong> — not sure of quality
+- <strong>10%</strong> — just stopped paying / lapsed</p>
+<p><strong>Critical insight</strong>: across all segments, <strong>self-rated financial literacy is dramatically higher than actual</strong> (Loyals: 43% claim high literacy, only 2% actually have it). The "I can do it myself" reason for lapsing is rooted in overconfidence bias.</p>
+<hr>
+<h2 id="the-12-value-drivers">The 12 value drivers</h2>
+<p>Each driver below has: behavioural-science backing, lifecycle-dependent emphasis, actions, and (where listed) named case-study exemplars (full entries in <code>tenant-brand/gold-standard/entries/</code>, tagged <code>netwealth-sourced</code>).</p>
+<h3 id="driver-1-goal-based-advice">Driver 1 — Goal-based advice</h3>
+<p><strong>Need</strong>: Goal-based planning reduces "temporal discounting" — humans undervalue distant benefits + overvalue immediate returns. When advisers provide a picture of how future goals can be met, those future rewards become more immediate, concrete, valuable. Creates "anticipatory utility" — pleasure from anticipating a future positive event.</p>
+<p><strong>Lifecycle emphasis</strong>: 74% of Loyals seek goal-based advice tailored to specific personal goals (vs. 60% Newcomers, 57% Settled). Personalisation deepens — Settled (50%) want culturally-informed advice; Loyals want flexible plans that adapt (64%) + co-creation where adviser "values and acts on my suggestions" (48%).</p>
+<p><strong>Actions</strong>:
+1. <strong>Gamify the plan</strong> — short and long-term rewards, milestone engagement
+2. <strong>Monitor life events</strong> — map financial milestones to personal goals
+3. <strong>Celebrate early achievements</strong> — boost commitment and motivation
+4. <strong>Address emotions</strong> — focus on emotional experience alongside financial goals
+5. <strong>Scenario and what-if planning</strong> — visual simulations
+6. <strong>Anticipate life goals/needs proactively</strong> — marriage, new home, birth of a child
+7. <strong>Use long-term language</strong>: <em>"We will be here to guide you through the ups and downs"</em> / <em>"Let's work together to create a plan that feels right for you."</em>
+8. <strong>Train staff on behavioural science</strong> — uncover loss aversion, overconfidence early. Use open-ended questions: <em>"Can you provide me an example of a financial decision you're particularly pleased about — or one you regret?"</em> / <em>"If you were given $50,000 today, how would you use it?"</em>
+9. <strong>Co-create</strong> — involve clients in planning by offering options + educating on pros/cons
+10. <strong>Grow cultural competency</strong></p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-lumiant-goal-based-advice-2024.md">Lumiant</a> · <a href="../gold-standard/entries/netwealth-duolingo-gamification-2024.md">Duolingo</a> · <a href="../gold-standard/entries/netwealth-second-nature-goal-based-2024.md">Second Nature</a></p>
+<h3 id="driver-2-aligned-investment-options">Driver 2 — Aligned investment options</h3>
+<p><strong>Need</strong>: "Identity alignment" — people engage more with things that reflect their sense of identity. When clients see their ideals reflected in investments, they feel understood.</p>
+<p><strong>Lifecycle emphasis</strong>: 59% of Loyals say "recognising my investment preferences" is important (vs. 49% Newcomers). But "prioritises ethical or responsible options" peaks for Newcomers (51%) + Settled (57%) and drops for Loyals (43%). Newcomers slightly more want social/community-values investments (47% vs. 43%).</p>
+<p><strong>Actions</strong>:
+1. <strong>Regularly discuss values</strong> — periodic reviews of evolving personal/community values
+2. <strong>Leverage identity framing</strong> — "ethical investor" / "community-focused steward"
+3. <strong>Regularly align portfolios</strong> to evolving preferences
+4. <strong>Understand responsible investment options available</strong> — continually upgrade your knowledge
+5. <strong>Provide transparency through reporting</strong> — show social/environmental impact
+6. <strong>Minimise risk with what-if scenarios</strong></p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-aspiration-climate-banking-2024.md">Aspiration</a> · <a href="../gold-standard/entries/netwealth-conscious-investment-impact-2024.md">Conscious Investment Management</a> · <a href="../gold-standard/entries/netwealth-aladdin-wealth-risk-analysis-2024.md">Aladdin Wealth (BlackRock)</a></p>
+<h3 id="driver-3-guidance-for-the-unexpected">Driver 3 — Guidance for the unexpected</h3>
+<p><strong>Need</strong>: Reflects "loss aversion" — people are especially motivated to avoid negative outcomes. Reflects "authority bias" — clients trust professionals demonstrating deep specialised experience.</p>
+<p><strong>Lifecycle emphasis</strong>: Settled (72%) most value guidance on high-stakes decisions (home, business sale). Loyals (64%) expect specialised expertise on SMSF rules, tax regulations. Newcomers (51%) need support during major milestones.</p>
+<p><strong>Actions</strong>:
+1. <strong>Use case studies</strong> — illustrate additional support during uncertain/complex decisions
+2. <strong>Offer regular easy-to-understand updates</strong> — newsletter or podcast on regulatory and tax changes
+3. <strong>Illustrate crisis support capabilities</strong> — clearly communicate expertise in death/divorce situations
+4. <strong>Promote decision-making guidance</strong> for established clients
+5. <strong>Showcase specialised knowledge</strong> — regulatory expertise, tax regulations</p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-blueprint-wealth-case-studies-2024.md">Blueprint Wealth</a> · <a href="../gold-standard/entries/netwealth-willful-estate-planning-2024.md">Willful</a></p>
+<h3 id="driver-4-innovative-advice">Driver 4 — Innovative advice</h3>
+<p><strong>Need</strong>: "Novelty effect" — fresh stimuli spark excitement, urgency, engagement. But interest fades as familiarity + trust deepen.</p>
+<p><strong>Lifecycle emphasis</strong>: Strong for Newcomers (43%) + Settled (50%), drops for Loyals (31%). Same pattern for "complex scenarios/structures" — 45% Newcomers, 48% Settled, 36% Loyals.</p>
+<p><strong>Actions</strong>:
+1. <strong>Use language priming innovation</strong>: <em>"Consider our advanced tax minimisation strategies"</em> / <em>"There are two new creative investment opportunities..."</em>
+2. <strong>Focus on early client touchpoints</strong> — emphasise innovation prominently in onboarding
+3. <strong>Continually highlight the new</strong> — newsletters, meetings communicating added services
+4. <strong>Offer specialised tools and resources</strong> — niche expansion, unique technologies</p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-pivot-wealth-mythbusting-2024.md">Pivot Wealth</a></p>
+<h3 id="driver-5-operational-transparency">Driver 5 — Operational transparency</h3>
+<p><strong>Need</strong>: Michael Norton's research on operational transparency — when people see the behind-the-scenes effort + rationale, they perceive the service as more valuable + trustworthy.</p>
+<p><strong>Lifecycle emphasis</strong>: Loyals continue to seek transparency (61% want fee clarity, vs. 55% Newcomers) — emphasising the need to avoid complacency. "Portfolio explanations" valued by all (~55%).</p>
+<p><strong>Actions</strong>:
+1. <strong>Enhance the annual review</strong> — discuss fees, alternatives, service usage, value delivered
+2. <strong>Deliver regular updates on service and value</strong> — detailed but easy-to-understand fee/service breakdown
+3. <strong>Help people understand fees</strong>: a "fees FAQ" (perhaps via chatbot); comprehensive guide showing fee tiers + value delivered at each
+4. <strong>Move to fixed-fee tiered arrangements</strong> — predictable pricing eliminates billing uncertainty; mirror professional services models from accounting/legal (Basic / Pro / Enterprise)</p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-illuminate-year-end-summary-2024.md">Illuminate Wealth Management</a> · <a href="../gold-standard/entries/netwealth-origin-energy-fee-transparency-2024.md">Origin Energy</a> · <a href="../gold-standard/entries/netwealth-two-trails-tiered-pricing-2024.md">Two Trails Financial Planning</a></p>
+<h3 id="driver-6-communicate-often-proactively">Driver 6 — Communicate often, proactively</h3>
+<p><strong>Need</strong>: Addresses "uncertainty reduction" — humans naturally averse to uncertainty. Continuous information feed = greater sense of predictability + control.</p>
+<p><strong>Lifecycle emphasis</strong>: Importance INCREASES with tenure for almost all comms factors. Regular check-ins + portfolio reviews: 59% Loyals (vs. 43% Newcomers). Clear progress communication: 54% Loyals (vs. 36% Newcomers). Reliability during downturns: 43% Loyals (vs. 21% Newcomers — 22pp swing).</p>
+<p><strong>Actions</strong>:
+1. <strong>Set clear 12-24 month expectations</strong> — potential market scenarios, anticipated returns
+2. <strong>Communicate when things look bad</strong> — schedule consistent meetings on progress + concerns + adjustments
+3. <strong>Regular portfolio performance reviews + market comparisons</strong> — clear, concise, timely updates
+4. <strong>Consistent communication manages expectations</strong> — during downturns increase frequency for reassurance</p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-morgan-stanley-next-best-action-2024.md">Morgan Stanley Next Best Action</a> (Netwealth's own portfolio reporting tech also cited as an example, but not extracted as separate entry — it's the operator's own product)</p>
+<h3 id="driver-7-continual-reassurance-beyond-markets">Driver 7 — Continual reassurance beyond markets</h3>
+<p><strong>Need</strong>: "Confirmation bias" — people seek out information that confirms existing beliefs/decisions. Continual reassurance about adviser expertise helps clients feel validated.</p>
+<p><strong>Lifecycle emphasis</strong>: 59% of Loyals want continual assurance of adviser's track record (vs. 47% Newcomers). 51% Newcomers value ties to other financial specialists (vs. 32% — actually higher for Newcomers). Loyals appreciate broader partnerships (46%).</p>
+<p><strong>Actions</strong>:
+1. <strong>Share annual highlights of team's education + accreditations</strong>
+2. <strong>Your networks are their networks</strong> — share case studies and success stories from other clients
+3. <strong>Create case studies as social proof</strong> — highlight professional networks
+4. <strong>Establish peer networks and groups</strong> — regular meetings/workshops/forums</p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-entrepreneurs-organization-community-2024.md">Entrepreneurs' Organization</a></p>
+<h3 id="driver-8-knowledge-for-empowerment">Driver 8 — Knowledge for empowerment</h3>
+<p><strong>Need</strong>: "Self-determination theory" — people most motivated when they feel capable (competence) + in control of choices (autonomy).</p>
+<p><strong>Lifecycle emphasis</strong>: Newcomers (62%) want to be empowered with autonomy tools — drops to 46% for Loyals. Newcomers (62%) want adviser to "tell them something they don't know" — drops to 36% for Loyals. But Loyals want help "explaining complex concepts" (59% vs. 36% Newcomers — flips entirely).</p>
+<p><strong>Actions</strong>:
+1. <strong>Offer targeted financial education</strong> — tailored to segment (Newcomers: foundations; Settled: niche strategies; Loyals: investment vehicles like MDAs)
+2. <strong>Multi-format information</strong>: educational workshops, online learning centre, live Q&amp;A sessions</p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-ellevest-women-investing-2024.md">Ellevest</a> · <a href="../gold-standard/entries/netwealth-flux-multi-format-education-2024.md">Flux</a></p>
+<h3 id="driver-9-prompt-and-timely-support">Driver 9 — Prompt and timely support</h3>
+<p><strong>Need</strong>: Reciprocity — feeling like a priority reduces friction that pushes clients elsewhere.</p>
+<p><strong>Lifecycle emphasis</strong>: Speed expectations INCREASE with tenure. 51% Loyals + 50% Settled want instant support / same-day responses (vs. 43% Newcomers). 56% Loyals + 52% Settled want ease of getting in touch (vs. 43% Newcomers).</p>
+<p><strong>Actions</strong>:
+1. <strong>Set internal service standards</strong> — KPIs, processes, exception reporting
+2. <strong>Communicate service standards to set expectations</strong> — anchoring principle
+3. <strong>Over-communicate reliability</strong> — mention in newsletters how regularly you meet standards
+4. <strong>Offer multiple communication channels</strong> — phone, email, online chat, video
+5. <strong>Use technology</strong> — CRM, Knowledge Centre, helpdesk software
+6. <strong>Introduce online self-service tools</strong> — secure portal, chatbots, scheduling</p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-ryanair-anchoring-punctuality-2024.md">Ryanair</a> · <a href="../gold-standard/entries/netwealth-bessemer-trust-scarcity-ratio-2024.md">Bessemer Trust</a> · <a href="../gold-standard/entries/netwealth-capital-one-eno-chatbot-2024.md">Capital One Eno</a> · <a href="../gold-standard/entries/netwealth-morgan-stanley-askresearchgpt-2024.md">Morgan Stanley AskResearchGPT</a></p>
+<h3 id="driver-10-frictionless-digital-experience">Driver 10 — Frictionless digital experience</h3>
+<p><strong>Need</strong>: "Cognitive ease" — people prefer formats easy to access, process, manage. "Social presence theory" — face-to-face for complex matters.</p>
+<p><strong>Lifecycle emphasis</strong>: Newcomers crave digitisation, becomes less important as relationship matures:
+- 55% Newcomers value online portal info availability vs. 38% Loyals
+- 47% Newcomers want self-service features vs. 33% Loyals
+- 45% Newcomers want real-time portfolio updates vs. 34% Loyals</p>
+<p>But BOTH Settled (64%) + Loyals (48%) value streamlined processes/paperwork (vs. 36% Newcomers) — they appreciate back-end tech making things smoother without extra effort.</p>
+<p><strong>Actions</strong>:
+- <strong>Understand the importance of a client portal + mobile app</strong> as the cornerstone of digital-first experience
+- 48% of "AdviceTech Stars" use a client portal today, 43% intend to adopt in next 24 months
+- 79% of client-portal-using firms gain client engagement benefit; 68% gain communications benefit</p>
+<p><strong>Case studies</strong>: (Netwealth's own client portal cited; not extracted as separate entry)</p>
+<h3 id="driver-11-rewarding-clients">Driver 11 — Rewarding clients</h3>
+<p><strong>Need</strong>: "Reciprocity" — when people receive a benefit, they feel compelled to return the favour. "Scarcity" — limited availability increases perceived value.</p>
+<p><strong>Lifecycle emphasis</strong>: Loyalty incentives expected by all (53% Newcomers, 50% Settled, 56% Loyals). Exclusive client benefits + dedicated wealth manager scale with tenure (48% Newcomers → 56% Loyals). Referral rewards peak for Newcomers (51% vs. 36% Loyals).</p>
+<p><strong>Most-valued additional services</strong> (2022 Advisable Australian):
+- Fee rebates (64%)
+- Market trends/insights/research (60%)
+- Special product offers (45%)
+- Priority service / call access (44%)
+- Travel and lifestyle perks (42%)
+- Networking opportunities (37%)
+- Reward point schemes (37%)
+- Thought leadership content (37%)
+- Exclusive events (33%)</p>
+<p><strong>Actions</strong>:
+1. <strong>Waive certain fees</strong> for Loyals — selective or rebates
+2. <strong>Provide valuable resources as benefit</strong> — white papers, webinars, industry reports
+3. <strong>Offer a loyalty programme</strong> — points-based
+4. <strong>Personalised gifts</strong>
+5. <strong>Priority access to advisers</strong> — tenure-based booking priority
+6. <strong>Anniversary celebrations</strong> — handwritten thank-you cards, milestones at 1/5/10 years</p>
+<p><strong>Case studies</strong>: <a href="../gold-standard/entries/netwealth-bank-of-america-preferred-rewards-2024.md">Bank of America Preferred Rewards</a> (Netwealth's own Investor Rewards Programme also cited, not extracted)</p>
+<h3 id="driver-12-contributing-to-the-world">Driver 12 — Contributing to the world</h3>
+<p><strong>Need</strong>: "Social proof" + identity alignment with broader societal values (environment, community).</p>
+<p><strong>Lifecycle emphasis</strong>: 47% of Newcomers value environmental impact (vs. 25% Loyals — 22pp drop). But 44% of Loyals expect community impact (vs. 36% Newcomers).</p>
+<p><strong>Actions</strong>:</p>
+<p><em>Environment</em>:
+1. Responsible investment options + impact reports
+2. Impact investing networks for like-minded clients
+3. Impact storytelling and reporting via case studies (video, photo, on-the-ground stories)
+4. Sustainable business practices (carbon emissions, renewables)</p>
+<p><em>Community</em>:
+5. Support social causes through donations/partnerships/volunteering
+6. Employee volunteer programmes — paid time off, matched donations
+7. Pro bono / discounted services — free financial literacy workshops
+8. Sponsor local events
+9. Support community impact funds</p>
+<p><em>Both</em>:
+10. Publish annual sustainability + community impact reports</p>
+<p><strong>Case studies</strong>: (no named exemplars in source PDF for this driver)</p>
+<hr>
+<h2 id="lifecycle-segment-profiles-cross-driver-summary">Lifecycle segment profiles (cross-driver summary)</h2>
+<h3 id="newcomers-3-years-set-me-up-for-success">Newcomers (&lt;3 years) — "Set me up for success"</h3>
+<p><strong>Show me the possibilities</strong>:
+- Prioritises ethical or responsible investments
+- Creative financial and investment strategies beyond conventions
+- Helps navigate complex scenarios (foreign investments, tax structures, estate planning)
+- Connects me to other financial services (e.g. accountant)
+- Provides guidance for crucial decisions</p>
+<p><strong>Empower me for autonomy</strong>:
+- Empowering me with confidence + tools for autonomous decisions
+- Availability of information via online portals/apps
+- Self-service options</p>
+<p><strong>Other</strong>:
+- Transparency in fees and services
+- Incentives, benefits, discounts for referrals
+- Positive role impacting the environment</p>
+<h3 id="settled-3-5-years-build-my-wealth-muscle">Settled (3-5 years) — "Build my wealth muscle"</h3>
+<p><strong>Understand me better</strong>:
+- Culturally informed financial advice
+- Recognises my preferences in investments
+- Helps navigate complex scenarios/structures</p>
+<p><strong>Challenge and continue to educate me</strong>:
+- Creative + innovative advice strategies
+- Has connections with other financial partners/platforms
+- Empowers confidence + autonomy
+- Well-designed financial information</p>
+<p><strong>Be there for me</strong>:
+- Instant support (same-day responses)
+- Ease of getting in touch
+- Reliability during downturns
+- Online portal/app access
+- Self-service options</p>
+<p><strong>Reward my loyalty</strong>:
+- Referral incentives
+- Exclusive client benefits (dedicated wealth manager)</p>
+<p><strong>Be involved in my world</strong>:
+- Positive community role</p>
+<h3 id="loyals-6-years-recognise-me-and-be-there-for-me">Loyals (6+ years) — "Recognise me and be there for me"</h3>
+<p><strong>Recognise my abilities</strong>:
+- Values and acts on my suggestions
+- Recognises my preferences
+- Advice tailored to specific personal goals
+- Helps navigate regulatory changes (SMSF, tax)</p>
+<p><strong>Remind me why we should be partnering / Don't get apathetic</strong>:
+- Transparency in fees and services
+- Connections with other financial partners
+- Track record, consistency, tangible outcomes
+- Relevant education + professional accreditations</p>
+<p><strong>Reward my loyalty</strong>:
+- Exclusive client benefits (dedicated wealth manager)</p>
+<p><strong>Be there for me</strong>:
+- Reliability during downturns
+- Clearly communicates progress against strategy
+- Regular check-ins + portfolio reviews
+- Instant support
+- Ease of getting in touch
+- Streamlined processes + paperwork</p>
+<p><strong>Challenge and continue to educate me</strong>:
+- Transparency in fees and services
+- Referral incentives
+- Positive role impacting environment</p>
+<p><strong>Be involved in my world</strong>:
+- Positive community role</p>
+<h3 id="all-segments">All segments</h3>
+<p><strong>Build and evolve my plan</strong>:
+- Flexible plans personalised to financial goals
+- Goal-focused financial planning
+- Sets early 12-24 month expectations
+- Regular updates against agreed goals
+- Expanding financial horizons</p>
+<p><strong>Maximise my returns</strong>:
+- Returns within risk tolerance
+- Investment opportunities aligned with social/community values</p>
+<p><strong>Help me during uncertainty</strong>:
+- Help navigating unexpected life events
+- Transparency on poor-performing investments + optional solutions</p>
+<p><strong>Give me peace of mind</strong>:
+- Assurance investments perform in line with market
+- Security and comfort professional management
+- Relevant education + professional accreditations</p>
+<p><strong>Reward my loyalty</strong>:
+- Loyalty incentives (reduced fees for longstanding clients)</p>
+<hr>
+<h2 id="behavioural-science-principles-glossary-per-source">Behavioural science principles glossary (per source)</h2>
+<p>Ambiguity aversion · Anchoring · Anticipatory utility · Authority bias · Availability heuristic · Cognitive ease · Confidence gap · Confirmation bias · Familiarity · Gamification · Goal gradient effect · Habit formation · Identity alignment · Immediacy · Information seeking · Loss aversion · Novelty effect · Personalisation · Reciprocity · Scarcity · Social presence theory · Social proof · Status quo bias · Temporal discounting · Transparency.</p>
+<hr>
+<h2 id="how-to-apply-to-non-wealth-management-professional-services">How to apply to non-wealth-management professional services</h2>
+<p>Same translation table as in <code>winning-new-clients-playbook.md</code> applies. The 12 drivers translate cleanly:
+- <strong>Legal</strong>: "matter outcomes" instead of "investment performance"; "named partner" instead of "dedicated wealth manager"; "tiered legal-services packages" instead of fixed-fee investment packages
+- <strong>Accounting</strong>: "engagement scope" instead of "portfolio"; "advisory services" instead of "investment strategies"
+- <strong>Consulting</strong>: "engagement deliverables" instead of "portfolio performance"; "tiered consulting packages"
+- <strong>Agency</strong>: "campaign performance" instead of "portfolio performance"; "retainer tiers"
+- <strong>Coaching</strong>: "programme outcomes" instead of "investment returns"; "programme tiers"</p>
+<p>The lifecycle stages (Newcomers / Settled / Loyals) translate directly to any retainer-based or repeat-engagement professional services business. The behavioural-science principles are industry-agnostic.</p>
+    </article>
+  </main>
+
+  <footer class="page-footer">
+    <span>Source: <code>library\playbooks\creating-loyalty-playbook.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+  </footer>
+</body>
+</html>

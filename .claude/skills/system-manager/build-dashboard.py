@@ -118,6 +118,8 @@ def render_open_card(item: dict) -> str:
     tid = esc(item.get("id", ""))
     summary = esc(item.get("summary", ""))
     summary_html = f'<div class="card-summary">{summary}</div>' if summary else ""
+    benefit = esc(item.get("benefit", ""))
+    benefit_html = f'<div class="card-benefit"><b>Benefit &middot;</b> {benefit}</div>' if benefit else ""
     wip = '<span class="tag">in progress</span>' if item.get("status") == "in_progress" else ""
     layer = esc(item.get("layer", "system"))
     return (
@@ -125,6 +127,7 @@ def render_open_card(item: dict) -> str:
         f'<div class="card-id">{tid}{wip}</div>'
         f'<div class="card-title">{title}</div>'
         f"{summary_html}"
+        f"{benefit_html}"
         f'<div class="card-meta"><span>{meta_line(item)}</span>'
         f'<span class="card-tags"><span class="layer-tag">{layer}</span>'
         f'<span class="prio prio-{prio.lower()}">{prio}</span></span></div>'
@@ -165,6 +168,8 @@ def render_idea_row(idea: dict) -> str:
     title = esc(idea.get("title", "(untitled idea)"))
     summary = esc(idea.get("summary", ""))
     description = esc(idea.get("description", "")) or "No further context recorded."
+    benefit = esc(idea.get("benefit", ""))
+    benefit_html = f'<div class="idea-benefit"><b>Benefit &middot;</b> {benefit}</div>' if benefit else ""
     actions = (
         '<div class="acts">'
         '<span class="acts-label">promote</span>'
@@ -184,6 +189,7 @@ def render_idea_row(idea: dict) -> str:
         '<div class="trow-main">'
         f'<div class="idea-title" onclick="tg(this)"><span class="chev">&#8250;</span><span class="idea-id">{iid}</span>{title}</div>'
         f'<div class="idea-summary">{summary}</div>'
+        f"{benefit_html}"
         f'<div class="idea-meta">{meta_line(idea)}</div>'
         f'<div class="idea-desc">{description}</div>'
         "</div>"
@@ -269,6 +275,8 @@ body.template-system { background: var(--bg); }
 .card-id { font-family: ui-monospace, "SF Mono", monospace; font-size: 11px; color: var(--text-subtle); }
 .card-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.35; margin: 2px 0 0; }
 .card-summary { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 6px; }
+.card-benefit, .idea-benefit { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 6px; }
+.card-benefit b, .idea-benefit b { color: var(--accent); }
 .card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
 .card-meta > span:first-child { font-size: 11px; color: var(--text-subtle); }
 .prio { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 6px; white-space: nowrap; }

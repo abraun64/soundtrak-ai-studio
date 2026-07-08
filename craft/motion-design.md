@@ -59,9 +59,10 @@ Motion design starts with storyboarding — frame-by-frame or beat-by-beat plan 
 
 ### Storyboard discipline
 
-- **Storyboard BEFORE animating** — iterating in After Effects is 10× more expensive than iterating on a storyboard
-- **Show the storyboard** to the user or stakeholders before motion production — kill bad concepts cheaply
-- **Storyboard is the brief** that the motion designer (or AI generation tool) executes against
+- **Storyboard is a REQUIRED FIRST GATE for any video** *(operator rule, 2026-07-08)* — the storyboard is produced and **signed off by the operator BEFORE any motion is produced**. Do not animate or generate the video until the storyboard is approved. This is a named exception to "no intermediate gates on sub-deliverables": for video, iterating on a storyboard is ~10× cheaper than iterating on the produced motion, so the checkpoint pays for itself.
+- **Storyboard BEFORE animating** — iterating in After Effects (or any motion build) is 10× more expensive than iterating on a storyboard.
+- **Surface the storyboard as its own reviewable artifact** (a gallery tile / gate surface), not buried in the asset record — kill bad concepts cheaply.
+- **Storyboard is the brief** that the motion designer (or AI generation tool) executes against.
 
 ---
 

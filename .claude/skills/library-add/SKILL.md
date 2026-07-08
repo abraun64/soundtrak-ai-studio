@@ -1,6 +1,6 @@
 ---
 name: library-add
-description: Add a creative reference (URL, image+description, or internal asset path) to the unified library at tenant/library/entries/. Operator pastes URL in chat ("add this to the library", "save this as a benchmark", "log this Cannes winner"). Skill fetches source, drafts entry with full facetable frontmatter (audience / vertical / shape / idea-or-tactic / source / etc.), proposes cross-links to existing entries, surfaces draft for operator edit, writes on approval, updates INDEX. Supports archive-sweep mode for sources like System1 Ad of the Week. Triggers include "add this to the library", "save this as gold-standard", "log this", "save this benchmark".
+description: Add a creative reference (URL, image+description, or internal asset path) to the operator's Best-Practice Library (creative exemplars) at tenant/library/entries/. Operator pastes URL in chat ("add this to my Best-Practice Library", "add to my marketing library", "add this to the library", "save this as a benchmark", "log this Cannes winner"). Skill fetches source, drafts entry with full facetable frontmatter (audience / vertical / shape / idea-or-tactic / source / etc.), proposes cross-links to existing entries, surfaces draft for operator edit, writes on approval, updates INDEX. Supports archive-sweep mode for sources like System1 Ad of the Week. Triggers include "add this to my best-practice library", "add to my marketing library", "add this to the library", "save this as gold-standard", "log this", "save this benchmark". (For a RESEARCH source — market data / behavioural science — the operator says "add this to my Insights Library" instead; that goes to tenant/research-library/ per docs/specs/research-library.md, a different schema — not this skill.)
 ---
 
 # Library Add
@@ -80,7 +80,7 @@ When operator approves:
 
 1. Determine filename: `<publisher-or-brand>-<slug>-<year>.md` (e.g. `cannes-heinz-draw-ketchup-2022.md`). Lowercase, hyphenated. Use operator's suggestion if they give one.
 2. Write entry file to `tenant/library/entries/<filename>.md`.
-3. Update `tenant/library/INDEX.md` — insert new row at the TOP of the table (sorted: operator-curated first, then by year DESC).
+3. Update `tenant/library/INDEX.md` — insert new row at the TOP of the table (sorted: operator-curated first, then by year DESC). Preserve the page header — the `# Best-Practice Library` title, the "How to add to the library" block, and the Insights-Library cross-link; only the Entries table changes. (If `INDEX.md` is ever missing — a fresh deployment ships a scaffold, so this is rare — recreate it with that same header + the Entries table columns before inserting.)
 4. If reciprocal cross-links were approved: edit matched entries to add `## Related` lines pointing to the new entry.
 5. Return short confirmation: `Added: <filename>. INDEX updated. <N> cross-links written.`
 

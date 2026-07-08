@@ -409,6 +409,10 @@ Return the standard envelope. CM:
 
 ## Visual production modes (full dispatch)
 
+### VIDEO — storyboard is a required first gate (operator rule 2026-07-08)
+
+For **any video asset** (Mode A generated video OR a Mode C animated build), produce the **storyboard first and surface it for operator sign-off BEFORE producing the motion**. The storyboard is a shipped, reviewable artifact (its own file + gallery tile, per `craft/motion-design.md`), not a section buried in the asset record. Do NOT animate or generate the video until the storyboard is approved — motion iteration is ~10× more expensive than storyboard iteration. If dispatched to produce a full video in one pass, return the storyboard and pause for the gate rather than producing the motion. (This is the one named exception to "intra-asset outputs are production inputs, not approval artifacts".)
+
 ### Mode A — Replicate
 
 Use when: photo / illustration / aesthetic-dominant / hero imagery where text is NOT load-bearing.

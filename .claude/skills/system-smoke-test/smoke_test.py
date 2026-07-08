@@ -74,6 +74,15 @@ except OSError:
 ok, err = _run_ok([str(GALLERY), "--help"])
 check("L1", "build-gallery.py callable", ok, err if not ok else "")
 
+# Builder pure-function regression tests — the fiddly string parsers that drive the
+# Plan<->gallery reconciliation (_plan_ships_count, _normalize_asset_id). Guards the
+# 2026-07-08 class: a silent parser mis-parse (e.g. `256×256` read as a 256x multiplier)
+# that only surfaced inside a live campaign. RED here = caught before it reaches a campaign.
+_HELPERS_TEST = ROOT / ".claude" / "skills" / "asset-gallery" / "test_helpers.py"
+if _HELPERS_TEST.exists():
+    ok, err = _run_ok([str(_HELPERS_TEST)])
+    check("L1", "build-gallery parser tests", ok, err if not ok else "")
+
 
 # ── Layer 2 — Operator-quartet per active campaign ───────────────────────────
 try:

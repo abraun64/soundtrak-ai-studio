@@ -333,12 +333,18 @@ def _plan_ships_count(ships_val: str) -> int | None:
         if re.search(r"\bcopy\b|\bsnippet\b", part, re.I) and not re.search(
                 r"png|svg|jpe?g|gif|html|mp4|pdf|tile|storyboard|deck|carousel", part, re.I):
             continue
-        m = re.search(r"(\d+)\s*[×x]\s*", part)      # "2 × MP4", "6 PNG"
+        # A genuine "N ×" multiplier ("2 × MP4") leads the part. re.match anchors it to the
+        # START, so a mid-string retina tag ("@2x") or an embedded dimension isn't read as a
+        # multiplier. The negative lookahead also stops a leading pixel dimension ("256×256",
+        # "1344×256") from counting the first number (the old "256×256 → 256" bug).
+        m = re.match(r"(\d+)\s*[×x]\s*(?!\d)", part)
         if m:
             total += int(m.group(1))
             continue
         m2 = re.match(r"(\d+)\s+\w", part)            # "3 launch tiles"
-        total += int(m2.group(1)) if m2 else 1
+        n = int(m2.group(1)) if m2 else 1
+        # A large leading number is a size/dimension (256, 512, 1344…), not an item count.
+        total += n if n <= 24 else 1
     return total or 1
 
 
@@ -722,16 +728,27 @@ def humanize_filename(name: str) -> str:
     return label or Path(name).stem
 
 def _normalize_asset_id(raw) -> str:
-    """Canonicalise an asset id for Plan<->folder matching. Folders/asset.yaml use a
-    zero-padded form ("01", "0a"); the Plan asset table keys are un-padded ("1").
-    Normalise both sides to a comparable key: lowercase, strip a single leading zero
-    from a purely-numeric id ("01"->"1", "10" stays "10"), leave alpha-suffixed ids
-    ("0a", "3b") intact. Empty/placeholder -> ""."""
+    """Canonicalise an asset id for Plan<->folder matching. The Plan asset table keys are
+    "A<n>" (A1, A14) and setup rows "S<n>" (S1, S2); produced folders/asset.yaml use a
+    zero-padded numeric form ("01", "14", "0a"). Normalise so an "A"-prefixed Plan id and
+    its zero-padded produced id compare equal:
+      - lowercase, strip asterisks/placeholders;
+      - strip a leading "a" asset-prefix so "a14" -> "14" (matches produced "14"/"014");
+      - strip leading zeros from a purely-numeric id ("01" -> "1", "10" stays "10");
+      - strip leading zeros from a numeric+alpha id ("09b" -> "9b");
+      - KEEP "s"-prefixed setup ids ("s1") so a setup row never collides with an asset row;
+      - leave other alpha ids ("0a") intact. Empty/placeholder -> ""."""
     s = re.sub(r"\*+", "", str(raw or "")).strip().lower()
     if not s or s in ("#", "—", "-"):
         return ""
+    m = re.fullmatch(r"a(\d+[a-z]?)", s)   # "A14" -> "14", "A9b" -> "9b" (asset-prefix only)
+    if m:
+        s = m.group(1)
     if re.fullmatch(r"\d+", s):
         return str(int(s))  # "01" -> "1", "007" -> "7"
+    m2 = re.fullmatch(r"0*([1-9]\d*[a-z]+)", s)  # "09b" -> "9b"
+    if m2:
+        return m2.group(1)
     return s
 
 def build_breadcrumb(campaign_slug: str) -> str:
@@ -1002,16 +1019,18 @@ def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict
             for d in _devs
         )
         reconciliation_banner_html = (
-            '<div class="plan-reconciliation plan-reconciliation--warn" '
+            '<details class="plan-reconciliation plan-reconciliation--warn" '
             'style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #f59e0b;'
             'border-radius:6px;margin:14px 24px 0;padding:12px 16px;">'
-            '<div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#b45309;'
-            'font-weight:700;margin-bottom:6px;">⚠️ Plan reconciliation — '
-            f'{len(_devs)} deviation(s) from the approved Plan</div>'
-            '<div style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">'
+            '<summary style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#b45309;'
+            'font-weight:700;cursor:pointer;">⚠️ Plan reconciliation — '
+            f'{len(_devs)} deviation(s) from the approved Plan '
+            '<span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-muted);">'
+            '· click to expand</span></summary>'
+            '<div style="font-size:12px;color:var(--text-muted);margin:8px 0 6px;">'
             'The contract: Plan <code>Ships</code> = asset.yaml <code>ship:true</code> = gallery tiles, 1:1. '
             'Reconcile by updating the Plan or the asset.</div>'
-            f'<ul style="margin:0;padding-left:2px;list-style:none;font-size:13px;">{_rows}</ul></div>'
+            f'<ul style="margin:0;padding-left:2px;list-style:none;font-size:13px;">{_rows}</ul></details>'
         )
 
     html = f"""<!DOCTYPE html>

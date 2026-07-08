@@ -89,9 +89,9 @@ Goal: a 1-page **Brief** + a live campaign dashboard. **Brand Context is inherit
    - `campaigns/<slug>/campaign.yaml` — **MUST set `tenant: <slug>`** (groups the campaign under its tenant + powers the breadcrumb/chip cross-links) + `phases:` list (id · title · status · artifacts) + `nickname:`.
    - `campaigns/<slug>/<slug>.md` — the dashboard per [`dashboard.md`](../../../docs/specs/dashboard.md) (Phase-1 minimum = Brief Drafted, rest Pending). Never link the index to `brief.html`.
    - `campaigns/<slug>/gallery-config.yaml` — channel taxonomy (`channels:` + `channel_summaries:`); without it the gallery falls back to a generic skeleton.
-7. **Render + surface ONE thing**: render brief (incl. the insights sections) + `insight-brief.html` + dashboard (+ Brand Context if the operator re-confirmed it); update the quintet; tell the operator "Brief ready: `file:///…/brief.html` — approve / send back".
+7. **Render + surface ONE thing**: render brief (incl. the insights sections) + `insight-brief.html` + dashboard (+ Brand Context if the operator re-confirmed it); update the quintet; tell the operator "Brief ready: `file:///…/brief.html` — approve / send back". **The Brief is the ONLY Phase-1 gate.** The Insight Brief is an *input* rendered for reference — never surface it as its own approval and never mark it "✅" (rule 8 below). Brand Context is a durable **Phase-0** tenant artifact — list it under Phase 0, not Phase 1.
 
-On approval: Brief Status → Approved; re-render; Phase 2 fires.
+On approval (explicit *Approved* only — not "looks good", not a directional preference): Brief Status → Approved; **append a `--basis estimate` cost-ledger entry for the main-loop Brief interview** (`ledger.py add --phase 1 --agent main-loop --basis estimate`) so the dashboard cost cell isn't a misleading blank; re-render; Phase 2 fires.
 
 ### Phase 2 — Concept Design (creative trio)
 
@@ -101,7 +101,9 @@ Goal: the operator picks one of three Concepts.
 2. CD authors three Concepts (Safe / Smart / Wild) per [`concept.md`](../../../docs/specs/concept.md); one Recommended with §7 pitch rationale.
 3. Render the side-by-side `concepts/concept-trio.html`; surface ONE thing: "Concepts ready: `file:///…/concept-trio.html` — reply which one to ship".
 
-On pick: chosen → Selected, others → Rejected (kept as reference); re-render; Phase 3 fires.
+On a **clean pick** (operator picks one as-is, no change requests): chosen → Selected, others → Rejected (kept as reference); re-render; Phase 3 fires.
+
+**On a pick-with-changes / re-author (the 2026-07-08 "The Debrief" miss).** If the operator picks a direction but flags fixes, or asks for a rename/reframe, the CD re-authors — and the result is a **NEW draft**, not an approved concept. Accepting a *name* or a *direction* in chat is **directional, not approval** (rule 7). **Re-surface the re-authored `concepts/selected.html` and wait for an explicit "Approved" before Phase 3 fires.** Never self-approve the integration. Per `feedback_cm_does_not_self_approve.md`. The trio menu + the Insight Brief never carry an approval ✅ — only the finally-approved Selected concept does (rule 8).
 
 ### Phase 3 — Plan
 
@@ -116,12 +118,12 @@ Goal: a 1-page operational map the operator approves before Phase 4.
    - **Ships** — name *exactly* what this asset produces, one entry per distinct output (deck → `HTML + PPTX`; video → `storyboards + MP4s`; CUT rows → `—`). **Contract: gallery tiles = asset.yaml `ship:true` = Plan `Ships`, 1:1.** Can't fill it cleanly → the asset isn't specified; tighten first.
    - **Copy file** — `md`/`csv`/`pptx`/`docx`/`none` (does the operator edit copy separately?).
    Plan approved without Review shape / Form / Ships = P1 failure. Per `feedback_plan_ships_column_is_gallery_contract.md`.
-2. Owner agent = **Producer** by default. Compose the asset list from the selected concept's tactics; cross-check `tenant/frameworks/marketing-tactics.md`.
+2. Owner agent = **Producer** by default. Compose the asset list from the selected concept's tactics; cross-check `tenant/tactics/marketing-tactics.md`.
 3. **Cadence-skill check** (mandatory if `cadence_shape.type` ∈ {ongoing, hybrid}): the per-tenant cadence skill scaffold is a default Phase-4 row — don't ask, include it.
 4. Scope check: total assets vs Effort Tier (justify if above/below).
 5. Render `plan.html`; surface ONE thing: "Plan ready — approve / send back".
 
-On approval: Plan Status → Approved; Phase 4 fires.
+On approval (explicit *Approved* only): Plan Status → Approved; **append a `--basis estimate` cost-ledger entry for the main-loop Plan authoring** (`ledger.py add --phase 3 --agent main-loop --basis estimate`) so the Plan phase isn't a blank cost cell; Phase 4 fires.
 
 ---
 
@@ -301,7 +303,7 @@ Use `AskUserQuestion` for a clear small option set; plain text when open.
 1. CM does not delegate operational work the system can do (Brand fix → apply; tile → Canva Mode B; publish → tasks.html entry).
 2. CM surfaces exactly **one** decision per human moment.
 3. CM never asks for what it already has (Brand Context + Canva kit are durable, inherited from Phase 0).
-4. CM does not create intermediate gates. The gates are: Phase 0 batched approvals · Phase 1/2/3 · per-asset Phase 4. Producer sub-deliverables are production inputs, never approval artifacts.
+4. CM does not create intermediate gates. The gates are: Phase 0 batched approvals · Phase 1/2/3 · per-asset Phase 4. Producer sub-deliverables are production inputs, never approval artifacts. **ONE named exception — VIDEO**: any video asset carries a **storyboard-first gate** (operator rule 2026-07-08, per `craft/motion-design.md`). Dispatch the Producer for the **storyboard only** first, surface it as its own reviewable artifact (a gallery tile), and get operator sign-off **before** the motion is produced — motion iteration is ~10× more expensive than storyboard iteration. Do not fire full video production in a single pass.
 5. CM never surfaces an un-QA'd asset (Governance + Brand clear first).
 6. CM re-renders the quintet on every state change. Stale HTML is a worse failure than no HTML.
 7. CM never slices from a sibling campaign's folder. Cross-campaign inheritance flows ONLY through the tenant layer — graduate-then-cite.

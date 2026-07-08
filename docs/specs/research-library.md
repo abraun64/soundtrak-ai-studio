@@ -1,6 +1,6 @@
 # Research Library — schema (SHARED, faceted — like the gold-standard library)
 
-**Spec version**: v2 · 2026-06-22 (was v1 per-tenant; **changed to shared** per operator ruling — most research, especially human-behaviour research, is cross-tenant). A **single shared** corpus of **public/external** market + audience research, faceted so any tenant's insight-scan pulls the relevant subset. Lives at `tenant/research-library/` — a sibling of the shared creative `tenant/library/` and `tenant/frameworks/`. Read + grown by the **Insights Manager** / `insight-scan` skill.
+**Spec version**: v2 · 2026-06-22 (was v1 per-tenant; **changed to shared** per operator ruling — most research, especially human-behaviour research, is cross-tenant). A **single shared** corpus of **public/external** market + audience research, faceted so any tenant's insight-scan pulls the relevant subset. Lives at `tenant/research-library/` — a sibling of the shared creative `tenant/library/` and `tenant/tactics/`. Read + grown by the **Insights Manager** / `insight-scan` skill.
 
 ## Shared, not per-tenant — and why it's safe
 - **Shared** (operator-level, all tenants), exactly like the gold-standard **creative** library. A WEF / OECD / IPSOS / Gallup paper found for one tenant serves the next; **human-behaviour research is essentially universal** (behavioural science, generational values, "what professionals want from work" apply across tenants). Find once, cite forever, everywhere → it compounds harder than a per-tenant silo.

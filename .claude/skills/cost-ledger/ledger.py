@@ -133,6 +133,27 @@ def total_line(campaign: str) -> str:
             f"run `ledger.py report --campaign {campaign}` for the per-asset split.</small>")
 
 
+def phase_cost_cell(campaign: str, phase) -> str:
+    """Short per-phase AI-cost cell for a dashboard phases table — rendered fresh
+    at build time from the ledger via the <!-- PHASE_COST:N --> marker so it can
+    never go stale (mirrors total_line for the total row). Answers "where was the
+    spend, by phase?" directly in the table instead of a blank or 'metered per asset'."""
+    ph = str(phase)
+    ents = [e for e in read_entries(campaign) if str(e.get("phase") or "") == ph]
+    if not ents:
+        return "—"
+    met_c = sum(float(e.get("cost_usd") or 0.0) for e in ents if e.get("basis") != "estimate")
+    met_t = sum(int(e.get("tokens") or 0) for e in ents if e.get("basis") != "estimate")
+    est_c = sum(float(e.get("cost_usd") or 0.0) for e in ents if e.get("basis") == "estimate")
+    est_t = sum(int(e.get("tokens") or 0) for e in ents if e.get("basis") == "estimate")
+    tot_c, tot_t = met_c + est_c, met_t + est_t
+    if est_t and not met_t:
+        return f"~${tot_c:.2f} est. · ~{fmt_tok(tot_t)} tok"
+    if met_t and not est_t:
+        return f"~${tot_c:.2f} · ~{fmt_tok(tot_t)} tok"
+    return f"~${tot_c:.2f} · ~{fmt_tok(tot_t)} tok (${met_c:.2f} metered + ${est_c:.2f} est.)"
+
+
 def cmd_report(args) -> int:
     entries = read_entries(args.campaign)
     if not entries:

@@ -38,6 +38,7 @@ COMPLIANCE_MARKER = "<!-- COMPLIANCE_AUTO -->"
 RESONANCE_MARKER = "<!-- RESONANCE_AUTO -->"
 PHASES_MARKER = "<!-- PHASES_AUTO -->"
 COST_TOTAL_MARKER = "<!-- COST_TOTAL_AUTO -->"
+PHASE_COST_RE = re.compile(r"<!-- PHASE_COST:(\d+) -->")
 CROSS_TASKS_MARKER = "<!-- CROSS_CAMPAIGN_ACTIONS_AUTO -->"
 CAMPAIGN_INDEX_MARKER = "<!-- CAMPAIGN_INDEX_AUTO -->"
 
@@ -1587,6 +1588,17 @@ def inject(markdown_text: str, campaign_dir: Path) -> str:
             markdown_text = markdown_text.replace(
                 COST_TOTAL_MARKER,
                 f"<small>(cost ledger unavailable at render: {e})</small>")
+    if PHASE_COST_RE.search(markdown_text):
+        # Per-phase AI-cost cells (<!-- PHASE_COST:N -->) — same live-ledger
+        # source as the total row, so a phase cell can't drift or read blank
+        # while spend is still accruing (the "where's the $ per phase?" gap).
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "cost-ledger"))
+            import ledger as _ledger  # type: ignore
+            markdown_text = PHASE_COST_RE.sub(
+                lambda m: _ledger.phase_cost_cell(campaign_dir.name, m.group(1)), markdown_text)
+        except Exception:  # noqa: BLE001
+            markdown_text = PHASE_COST_RE.sub("—", markdown_text)
     return markdown_text
 
 

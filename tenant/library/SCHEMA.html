@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library — Schema — Marketing AI System</title>
+  <style>/* Marketing AI System — social/email in-situ mockup chrome.
+ * Renders collapsed (feed) + expanded (clicked-open) states per form.
+ * Loaded automatically alongside system.css for all templates.
+ * Form-specific tokens live under .mock-<form> scopes so they don't bleed.
+ */
+
+/* --- Mockup zone layout (sits above markdown narrative) --- */
+.mockups {
+  margin: 0 0 32px 0;
+}
+.mockups:empty { display: none; }
+
+.mock-variant {
+  margin: 0 0 40px 0;
+}
+.mock-variant__label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
+  padding: 0 4px;
+}
+
+.mock-states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .mock-states { grid-template-columns: 1fr; }
+}
+
+.mock-state {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mock-state__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin: 0 0 14px 0;
+  text-align: center;
+}
+
+/* --- LinkedIn post chrome --- */
+.mock-li {
+  --li-bg: #f3f2ef;
+  --li-card-bg: #ffffff;
+  --li-text: #000000e6;
+  --li-text-secondary: #00000099;
+  --li-text-tertiary: #00000066;
+  --li-border: #00000014;
+  --li-accent: #0a66c2;
+  --li-hover: #00000008;
+}
+.mock-li .mock-state { background: var(--li-bg); }
+.mock-li .li-card {
+  width: 100%;
+  max-width: 552px;
+  background: var(--li-card-bg);
+  border: 1px solid var(--li-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--li-text);
+}
+.mock-li .li-header {
+  display: flex;
+  padding: 12px 16px 8px;
+  align-items: center;
+  gap: 8px;
+}
+.mock-li .li-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1a2a5e;
+  color: #f8f5ee;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "Caveat", "Segoe Script", cursive;
+}
+.mock-li .li-author { flex: 1; min-width: 0; }
+.mock-li .li-author-name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.mock-li .li-author-title { font-size: 12px; color: var(--li-text-secondary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-author-meta { font-size: 12px; color: var(--li-text-tertiary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-more { color: var(--li-text-secondary); font-size: 20px; padding: 4px 8px; }
+.mock-li .li-body {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--li-text);
+}
+.mock-li .li-body p { margin: 0 0 8px; }
+.mock-li .li-see-more {
+  color: var(--li-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 16px 8px;
+  user-select: none;
+}
+.mock-li .li-image {
+  width: 100%;
+  display: block;
+  background: #f8f5ee;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+.mock-li .li-reactions {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--li-text-secondary);
+  border-bottom: 1px solid var(--li-border);
+}
+.mock-li .li-reaction-icons { display: inline-flex; vertical-align: middle; }
+.mock-li .li-reaction-icons span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: -3px;
+  border: 1.5px solid #fff;
+  font-size: 10px;
+  text-align: center;
+  line-height: 13px;
+  color: white;
+}
+.mock-li .li-r-like { background: #378fe9; }
+.mock-li .li-r-insight { background: #f5b800; color: #333 !important; }
+.mock-li .li-r-celebrate { background: #6dae4f; }
+.mock-li .li-reactions-left { display: flex; align-items: center; gap: 6px; }
+.mock-li .li-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px;
+}
+.mock-li .li-action {
+  text-align: center;
+  padding: 8px 4px;
+  color: var(--li-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mock-li .li-comments {
+  border-top: 1px solid var(--li-border);
+  padding: 12px 16px;
+  background: #fafafa;
+}
+.mock-li .li-comment { display: flex; gap: 8px; margin-bottom: 12px; }
+.mock-li .li-comment:last-child { margin-bottom: 0; }
+.mock-li .li-c-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: #ddd;
+  color: #555; font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-li .li-c-body {
+  background: #f3f2ef; border-radius: 0 8px 8px 8px;
+  padding: 8px 12px; font-size: 13px; line-height: 1.4; flex: 1;
+}
+.mock-li .li-c-author { font-weight: 600; margin-bottom: 2px; }
+.mock-li .li-c-meta { font-size: 11px; color: var(--li-text-tertiary); margin-top: 4px; }
+
+/* --- Email chrome (inbox row + opened state) --- */
+.mock-email {
+  --em-bg: #f6f8fc;
+  --em-card-bg: #ffffff;
+  --em-text: #202124;
+  --em-text-secondary: #5f6368;
+  --em-border: #e5e7eb;
+  --em-accent: #1a73e8;
+  --em-unread: #f3f7fd;
+}
+.mock-email .mock-state { background: var(--em-bg); }
+.mock-email .em-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--em-card-bg);
+  border: 1px solid var(--em-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Google Sans", Roboto, -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--em-text);
+  font-size: 14px;
+}
+.mock-email .em-inbox-toolbar {
+  background: var(--em-bg);
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--em-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-inbox-row {
+  display: grid;
+  grid-template-columns: 28px 180px 1fr 80px;
+  gap: 12px;
+  padding: 10px 16px;
+  align-items: center;
+  background: var(--em-unread);
+  font-weight: 600;
+}
+.mock-email .em-star { color: #d1d5db; font-size: 16px; }
+.mock-email .em-from { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock-email .em-snippet { font-size: 14px; color: var(--em-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.mock-email .em-snippet b { font-weight: 600; }
+.mock-email .em-snippet .em-preview { color: var(--em-text-secondary); font-weight: 400; }
+.mock-email .em-date { text-align: right; font-size: 12px; color: var(--em-text-secondary); }
+
+/* Opened state */
+.mock-email .em-opened-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-subject { font-size: 20px; font-weight: 400; margin: 0 0 12px 0; color: var(--em-text); }
+.mock-email .em-meta-row { display: flex; gap: 12px; align-items: center; }
+.mock-email .em-sender-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--em-accent);
+  color: white; font-weight: 600; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-email .em-sender-name { font-size: 14px; font-weight: 600; }
+.mock-email .em-sender-email { font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-sent-meta { margin-left: auto; font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-opened-body {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--em-text);
+}
+.mock-email .em-opened-body p { margin: 0 0 14px 0; }
+.mock-email .em-opened-body a { color: var(--em-accent); }
+.mock-email .em-opened-body h1, .mock-email .em-opened-body h2, .mock-email .em-opened-body h3 {
+  margin: 20px 0 10px 0;
+}
+
+/* --- Twitter / X (stub) --- */
+.mock-tw {
+  --tw-bg: #ffffff;
+  --tw-text: #0f1419;
+  --tw-text-secondary: #536471;
+  --tw-border: #eff3f4;
+  --tw-accent: #1d9bf0;
+}
+.mock-tw .mock-state { background: #f7f9fa; }
+.mock-tw .tw-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--tw-bg);
+  border: 1px solid var(--tw-border);
+  border-radius: 16px;
+  padding: 16px;
+  font-family: "Chirp", -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--tw-text);
+}
+.mock-tw .tw-header { display: flex; gap: 10px; }
+.mock-tw .tw-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: #1a2a5e;
+  color: #f8f5ee; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-tw .tw-name { font-weight: 700; font-size: 15px; }
+.mock-tw .tw-handle { color: var(--tw-text-secondary); font-size: 14px; }
+.mock-tw .tw-body { font-size: 15px; line-height: 1.4; margin: 10px 0; white-space: pre-wrap; }
+.mock-tw .tw-image { width: 100%; border-radius: 16px; border: 1px solid var(--tw-border); margin: 10px 0 0; display: block; }
+
+/* --- Instagram (stub) --- */
+.mock-ig {
+  --ig-bg: #ffffff;
+  --ig-text: #262626;
+  --ig-text-secondary: #8e8e8e;
+  --ig-border: #dbdbdb;
+}
+.mock-ig .mock-state { background: #fafafa; }
+.mock-ig .ig-card {
+  width: 100%;
+  max-width: 470px;
+  background: var(--ig-bg);
+  border: 1px solid var(--ig-border);
+  border-radius: 8px;
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--ig-text);
+  overflow: hidden;
+}
+.mock-ig .ig-header { display: flex; gap: 10px; align-items: center; padding: 12px; }
+.mock-ig .ig-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;
+}
+.mock-ig .ig-handle { font-weight: 600; font-size: 14px; }
+.mock-ig .ig-image { width: 100%; display: block; border: none; border-radius: 0; margin: 0; aspect-ratio: 1 / 1; object-fit: cover; }
+.mock-ig .ig-caption { padding: 12px; font-size: 14px; line-height: 1.4; }
+.mock-ig .ig-caption b { font-weight: 600; margin-right: 6px; }
+
+/* --- Substack (stub) --- */
+.mock-sub {
+  --sub-bg: #ffffff;
+  --sub-text: #1a1a1a;
+  --sub-text-secondary: #6b6b6b;
+  --sub-border: #e5e5e5;
+  --sub-accent: #ff6719;
+}
+.mock-sub .mock-state { background: #f5f5f5; }
+.mock-sub .sub-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--sub-bg);
+  border: 1px solid var(--sub-border);
+  border-radius: 4px;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--sub-text);
+}
+.mock-sub .sub-pub { font-size: 12px; color: var(--sub-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+.mock-sub .sub-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0; }
+.mock-sub .sub-subtitle { font-size: 16px; color: var(--sub-text-secondary); margin: 0 0 16px 0; }
+.mock-sub .sub-image { width: 100%; border: 1px solid var(--sub-border); margin: 0 0 16px 0; display: block; border-radius: 0; }
+.mock-sub .sub-body { font-size: 16px; line-height: 1.6; }
+
+/* --- Stub-form placeholder note --- */
+.mock-stub-note {
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-style: italic;
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  margin-top: 8px;
+  max-width: 600px;
+}
+
+/* --- Asset-preview page main container width --- */
+.page-main--asset-preview { max-width: var(--max-width-wide); }
+.content--narrative { /* inherits .content baseline */ }
+
+/* Marketing AI System — clean-default-minimal system UI
+ * Stripe/Linear aesthetic. System fonts. Generous whitespace.
+ * No external font dependencies.
+ */
+
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --success: #10b981;
+  --success-soft: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-soft: #fffbeb;
+  --danger: #ef4444;
+  --danger-soft: #fef2f2;
+  --code-bg: #f3f4f6;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --max-width: 880px;          /* prose-narrow — for Brief / Brand Context reading */
+  --max-width-wide: 1480px;    /* dashboard / plan / tasks / index / asset-preview — tables + comparisons */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Header --- */
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.page-header__inner {
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.page-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.crumb {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.crumb-link {
+  color: var(--accent);
+}
+.crumb-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-decoration: underline;
+}
+.crumb-current {
+  color: var(--text);
+  font-weight: 600;
+}
+.crumb-sep {
+  color: var(--text-subtle);
+  user-select: none;
+}
+.page-header__template {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  opacity: 0.6;
+}
+.page-header__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.library-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.lib-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.lib-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+.lib-link--current {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* --- Main content --- */
+.page-main {
+  max-width: var(--max-width-wide);
+  margin: 48px auto;
+  padding: 0 32px;
+}
+
+/* Prose-narrow templates (Brief, Brand Context) get a narrower line length for readability */
+.template-brief .page-main,
+.template-brand-context .page-main {
+  max-width: var(--max-width);
+}
+
+.content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 56px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Typography --- */
+.content h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+.content h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 40px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.content h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 28px 0 8px 0;
+}
+.content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 24px 0 8px 0;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+}
+.content p {
+  margin: 0 0 16px 0;
+}
+.content ul, .content ol {
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+.content li { margin-bottom: 4px; }
+
+.content strong { font-weight: 600; color: var(--text); }
+.content em { font-style: italic; }
+
+.content code {
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+}
+.content pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+.content pre code {
+  background: none;
+  padding: 0;
+}
+
+.content a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.content a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.content blockquote {
+  border-left: 3px solid var(--border-strong);
+  padding: 4px 16px;
+  margin: 0 0 16px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* --- Tables --- */
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 20px 0;
+  font-size: 14px;
+}
+.content table th {
+  text-align: left;
+  font-weight: 600;
+  background: var(--bg);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border-strong);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.content table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content table tr:last-child td { border-bottom: none; }
+.content table tr:hover td { background: var(--bg); }
+
+/* --- Status badges (used in inline markdown via spans or by templates) --- */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+}
+.badge--draft { background: var(--code-bg); color: var(--text-muted); }
+.badge--approved { background: var(--success-soft); color: var(--success); }
+.badge--awaiting { background: var(--warning-soft); color: var(--warning); }
+.badge--blocked { background: var(--danger-soft); color: var(--danger); }
+.badge--live { background: var(--accent-soft); color: var(--accent); }
+
+/* --- HR --- */
+.content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* --- Images --- */
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+/* --- Footer --- */
+.page-footer {
+  max-width: var(--max-width-wide);
+  margin: 32px auto;
+  padding: 16px 32px;
+  font-size: 12px;
+  color: var(--text-subtle);
+  text-align: center;
+}
+.page-footer code {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+/* --- Collapsible details/summary (decision-first / reference-collapsed pattern) --- */
+.content details {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 24px 0;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+.content details[open] {
+  background: var(--surface);
+}
+.content details summary {
+  padding: 14px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+.content details summary::-webkit-details-marker { display: none; }
+.content details summary::before {
+  content: "▸";
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 12px;
+}
+.content details[open] summary::before {
+  transform: rotate(90deg);
+}
+.content details summary:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.content details summary strong {
+  font-weight: 600;
+}
+.content details > *:not(summary) {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.content details > *:last-child {
+  padding-bottom: 16px;
+}
+.content details summary + * {
+  margin-top: 12px;
+}
+/* Expanded content inside details should keep all the proper typography */
+.content details h2,
+.content details h3,
+.content details h4 {
+  margin-top: 24px;
+}
+.content details h2:first-of-type,
+.content details h3:first-of-type,
+.content details h4:first-of-type {
+  margin-top: 12px;
+}
+.content details table {
+  margin-bottom: 16px;
+}
+
+/* --- Checkboxes in lists (task lists) --- */
+.content ul.task-list,
+.content ul.task-list li {
+  list-style: none;
+  padding-left: 0;
+}
+.content input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* --- Dashboard-specific: richer card treatment for collapsible sections --- */
+/* The dashboard's <details> blocks are the operator's primary navigation. They */
+/* need to read as cards, not as plain disclosure rows. Scoped via body class so */
+/* Brief / Concept / Plan / Asset surfaces keep their lighter treatment. */
+body.template-dashboard .content details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, border-left-color 0.2s, transform 0.15s;
+}
+body.template-dashboard .content details:hover {
+  box-shadow: var(--shadow-md);
+  border-left-color: var(--accent);
+}
+body.template-dashboard .content details[open] {
+  background: var(--surface);
+  border-left-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+body.template-dashboard .content details summary {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  background: linear-gradient(to right, var(--bg) 0%, var(--surface) 60%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+body.template-dashboard .content details[open] summary {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 70%);
+}
+body.template-dashboard .content details summary::before {
+  content: "›";
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-muted);
+  width: 14px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+body.template-dashboard .content details[open] summary::before {
+  color: var(--accent);
+  transform: rotate(90deg) translateX(-1px);
+}
+body.template-dashboard .content details summary:hover {
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 80%);
+  color: var(--accent);
+}
+body.template-dashboard .content details > *:not(summary) {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+body.template-dashboard .content details > *:first-of-type:not(summary) {
+  padding-top: 8px;
+}
+body.template-dashboard .content details > *:last-child {
+  padding-bottom: 20px;
+}
+
+/* Color-vary the left-border per card position so 8 stacked cards aren't monotone */
+body.template-dashboard .content details:nth-of-type(8n+1) { border-left-color: #6366f1; } /* indigo */
+body.template-dashboard .content details:nth-of-type(8n+2) { border-left-color: #ec4899; } /* pink */
+body.template-dashboard .content details:nth-of-type(8n+3) { border-left-color: #8b5cf6; } /* violet */
+body.template-dashboard .content details:nth-of-type(8n+4) { border-left-color: #06b6d4; } /* cyan */
+body.template-dashboard .content details:nth-of-type(8n+5) { border-left-color: #10b981; } /* emerald */
+body.template-dashboard .content details:nth-of-type(8n+6) { border-left-color: #f59e0b; } /* amber */
+body.template-dashboard .content details:nth-of-type(8n+7) { border-left-color: #ef4444; } /* red */
+body.template-dashboard .content details:nth-of-type(8n+8) { border-left-color: #64748b; } /* slate */
+body.template-dashboard .content details:hover,
+body.template-dashboard .content details[open] {
+  /* On hover/open, accent wins over the nth-child color */
+  border-left-color: var(--accent);
+}
+
+/* Above-the-fold dashboard surfaces (🚨 Next actions / 🎯 Stage + next gate) — */
+/* lift these visually above the collapsed cards via top-of-page treatment */
+body.template-dashboard .content h2 {
+  font-size: 22px;
+  margin-top: 36px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+body.template-dashboard .content h2:first-of-type {
+  margin-top: 8px;
+}
+body.template-dashboard .content h3 {
+  font-size: 17px;
+  color: var(--text);
+  margin-top: 24px;
+}
+
+/* The 🚨 Next actions table — make it visually distinct as the highest-priority surface */
+body.template-dashboard .content > h2:first-of-type + table,
+body.template-dashboard .content > h2 + table {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+body.template-dashboard .content table th {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .page-main { padding: 0 16px; margin: 24px auto; }
+  .content { padding: 28px 24px; border-radius: var(--radius); }
+  .content h1 { font-size: 26px; }
+  .content h2 { font-size: 19px; }
+  .page-header { padding: 12px 16px; }
+}
+
+/* --- Print --- */
+@media print {
+  .page-header, .page-footer { display: none; }
+  .content { border: none; box-shadow: none; padding: 0; }
+}
+</style>
+</head>
+<body class="template-index">
+  <header class="page-header">
+    <div class="page-header__inner">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <div class="page-header__right">
+        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link lib-link--current" href="INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
+        <span class="page-header__template" aria-hidden="true">index</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <article class="content">
+      <h1 id="library-schema">Library — Schema</h1>
+<p>The single reference library that <strong>Creative Director</strong> + <strong>Producer</strong> read for inspiration, exemplars, tactics, and visual references. Replaces the prior 3-library structure (inspiration / gold-standard / best-practices) with one faceted library that filters by content shape, not provenance.</p>
+<h2 id="why-one-library">Why one library</h2>
+<p>A CD doesn't ask "is this an inspiration entry or a gold-standard entry?" — they ask "is this B2B? Is it a campaign or a playbook? Is it big-idea or tactic? Pro-services-relevant?" Filtering on <strong>content facets</strong> is what the CD actually does. Provenance becomes one column among many.</p>
+<h2 id="folder-layout">Folder layout</h2>
+<pre><code>tenant/library/
+  SCHEMA.md                     ← this file
+  INDEX.md                      ← unified faceted table (read first)
+  entries/                      ← 74 entries (case studies + craft references)
+    &lt;publisher-or-brand&gt;-&lt;slug&gt;-&lt;year&gt;.md
+  playbooks/                    ← Netwealth-authored synthesis docs (different shape)
+    winning-new-clients-playbook.md
+    creating-loyalty-playbook.md
+  archetypes/                   ← 5 journey-mode docs
+    aperture-setting.md
+    participatory.md
+    educational-pipeline.md
+    direct-response.md
+    identity-reinforcement.md
+  visual-movements/             ← 4 aesthetic-movement docs
+    clean-authoritative.md
+    editorial-cartoon-handdrawn.md
+    editorial-documentary.md
+    maximalist-chaotic.md
+  WEB-SOURCES.md                ← Tier 2 allowlist for live WebFetch (when canon insufficient)
+</code></pre>
+<h2 id="entry-frontmatter-full-field-set">Entry frontmatter — full field set</h2>
+<pre><code class="language-yaml">---
+name: &lt;Campaign or asset name&gt;
+brand: &lt;Brand or author&gt;
+year: &lt;YYYY or YYYY-ongoing&gt;
+industry: &lt;free-text description of category&gt;
+audience_type: B2C | B2B | Multi | Internal | N/A
+vertical: &lt;see controlled list below&gt;
+shape: &lt;see controlled list below&gt;
+idea_or_tactic: Big-idea | Tactic | Hybrid | Style-ref
+journey_mode_primary: Aperture-setting | Participatory | Educational pipeline | Direct-response | Identity reinforcement
+journey_mode_secondary: &lt;same enum, or null&gt;
+posture_taken: Safe | Smart | Wild | N/A
+brand_stretch: Low | Standard | High | N/A
+formats: [hero film, OOH, social, AR, PR stunt, ...]
+kpi_outcome: &lt;one-line measured impact, or &quot;not publicly disclosed&quot;&gt;
+big_idea: &quot;&lt;one sentence — the concept compressed&gt;&quot; (optional for tactic-shaped entries)
+source: Operator-curated | Netwealth-research | System1 | Cannes | Effie | WARC | Inspiration-canon
+date_added: &lt;YYYY-MM-DD&gt; (for new entries — older inspiration-canon entries may omit)
+added_by: &lt;operator name&gt; (for new entries)
+tags: [free-form list]
+source_links:
+  - &lt;url&gt;
+---
+</code></pre>
+<h2 id="controlled-lists">Controlled lists</h2>
+<h3 id="audience">Audience</h3>
+<ul>
+<li><strong>B2C</strong> — consumer-facing</li>
+<li><strong>B2B</strong> — business-facing</li>
+<li><strong>Multi</strong> — cross-audience campaigns</li>
+<li><strong>Internal</strong> — employee comms</li>
+<li><strong>N/A</strong> — style references where audience is irrelevant</li>
+</ul>
+<h3 id="vertical">Vertical</h3>
+<ul>
+<li><strong>Tech-SaaS</strong> (B2B software, dev tools, AI platforms)</li>
+<li><strong>Tech-Consumer</strong> (consumer tech, music, search)</li>
+<li><strong>Retail-DTC</strong> (direct-to-consumer brands)</li>
+<li><strong>Retail</strong> (mass retail, big-box)</li>
+<li><strong>CPG</strong> (food, drinks, packaged goods)</li>
+<li><strong>QSR-Food</strong> (quick-service restaurants, food delivery)</li>
+<li><strong>Travel-Hospitality</strong></li>
+<li><strong>Fintech-Banking</strong> (consumer + B2B banking, fintech)</li>
+<li><strong>Wealth-Investment</strong> (wealth management, asset mgmt, investment platforms)</li>
+<li><strong>Health-Wellness</strong></li>
+<li><strong>Apparel-Footwear</strong></li>
+<li><strong>Beauty</strong></li>
+<li><strong>Auto</strong></li>
+<li><strong>Entertainment-Media</strong></li>
+<li><strong>Industrial-B2B</strong></li>
+<li><strong>Insurance</strong></li>
+<li><strong>Telco</strong></li>
+<li><strong>Pro-services</strong> (legal, accounting, consulting, agency)</li>
+<li><strong>Education-EdTech</strong></li>
+<li><strong>Toys-Kids</strong></li>
+<li><strong>Gambling-Sports</strong></li>
+<li><strong>Multi</strong> (genuinely cross-vertical)</li>
+</ul>
+<h3 id="shape">Shape</h3>
+<ul>
+<li><strong>Single-asset</strong> — one ad, one post, one piece</li>
+<li><strong>Multi-step-campaign</strong> — coordinated effort over time, finite duration</li>
+<li><strong>Always-on</strong> — ongoing program, no start/end</li>
+<li><strong>Launch</strong> — new product, brand, or category launch</li>
+<li><strong>Brand-refresh</strong> — repositioning or major brand-level reset</li>
+<li><strong>Visual-style-ref</strong> — pure aesthetic reference, no campaign context</li>
+</ul>
+<h3 id="idea-or-tactic">Idea-or-tactic</h3>
+<ul>
+<li><strong>Big-idea</strong> — a transferable creative concept worth stealing the move from</li>
+<li><strong>Tactic</strong> — a portable mechanic / format / structural device</li>
+<li><strong>Hybrid</strong> — both a big idea AND a transferable mechanic</li>
+<li><strong>Style-ref</strong> — visual or copy style reference, not idea-led</li>
+</ul>
+<h3 id="source">Source</h3>
+<ul>
+<li><strong>Operator-curated</strong> — operator-spotted (URLs, screenshots, hand-picked)</li>
+<li><strong>Netwealth-research</strong> — extracted from Netwealth IQ Reports (2024 wealth-management research)</li>
+<li><strong>System1</strong> — System1 Ad of the Week archive</li>
+<li><strong>Cannes</strong> / <strong>Effie</strong> / <strong>WARC</strong> / <strong>Spikes-Asia</strong> / <strong>Dubai-Lynx</strong> / <strong>Effie</strong> / <strong>Webby</strong> — award-database sourced</li>
+<li><strong>Inspiration-canon</strong> — Wave 1.5 generalist seed (Apple, Nike, Slack, etc.)</li>
+</ul>
+<h2 id="entry-body-structure">Entry body structure</h2>
+<p>Tight. ~150-400 words. Frontmatter carries structured signal; body explains the <em>why</em> + <em>the move</em> + <em>when-to-steal</em>.</p>
+<pre><code class="language-markdown">## Strategic spine
+(For campaign entries) audience insight / big idea / key message / product / channel mix
+
+## Creative move
+**What it did**: 1-2 sentences
+**The move**: bullets — the portable structural elements
+**Why it worked**: bullets — strategic + behavioural-science reasons
+**When to steal**: bullets — brief signals that say &quot;this applies here&quot;
+**Anti-patterns / risks**: bullets — what goes wrong when cloned badly
+
+## Visual direction
+(For entries with distinctive visual signature) hero description / palette / typography / photography-or-illustration style / composition / mood / source URL
+
+## Related
+- [[other-entry-slug]] — one-line rationale
+</code></pre>
+<h2 id="how-agents-use-this-library">How agents use this library</h2>
+<h3 id="creative-director-workflow-1-concepts">Creative Director (Workflow 1 — Concepts)</h3>
+<p>In Step 1 (Brief deconstruction) + Step 3 (Reference scan):</p>
+<ol>
+<li><strong>Read <code>INDEX.md</code></strong> as the entry point.</li>
+<li><strong>Filter mentally</strong> by the columns relevant to the brief at hand:
+   - <strong>Tenant industry</strong> → Vertical filter (single value or <code>vertical ∈ {wealth, pro-services}</code> for portable references)
+   - <strong>Brief KPI</strong> → Journey-mode filter (Direct-response brief? Filter on that mode.)
+   - <strong>Brief shape</strong> → Shape filter (launching? Filter on Launch + Brand-refresh)
+   - <strong>Stretch tolerance</strong> → Posture filter (Wild brief? Don't surface only Safe references)
+   - <strong>Idea-vs-tactic need</strong> → If brief calls for a Big Idea, filter <code>idea_or_tactic = Big-idea OR Hybrid</code>. If brief needs tactical scaffolding for a known idea, filter <code>Tactic</code>.</li>
+<li><strong>Deep-read 3-7 most relevant entries.</strong> Cite specific entries in concept §11 (References) as <code>[Library: &lt;name&gt;]</code>.</li>
+<li><strong>Read the relevant <code>archetypes/&lt;mode&gt;.md</code></strong> for journey modes you're considering.</li>
+<li><strong>Pull <code>visual-movements/&lt;movement&gt;.md</code></strong> when shaping §4 Visual architecture.</li>
+<li><strong>For prof-services tenants</strong>: ALSO read the relevant <code>playbooks/*.md</code> section for tactical playbook content.</li>
+</ol>
+<h3 id="producer-per-asset-craft">Producer (per-asset craft)</h3>
+<p>When CM's Per-Step Brief names a gold-standard reference, Producer reads that entry directly. Producer may filter the library for adjacent entries when struggling — same column logic.</p>
+<h3 id="library-add-skill"><code>/library-add</code> (skill)</h3>
+<p>Writes new entries to <code>entries/</code> with full frontmatter populated (asks operator for any inferable values it can't auto-extract). Adds to INDEX.</p>
+<h2 id="anti-clone-discipline">Anti-clone discipline</h2>
+<p>Same as before. <strong>Steal the move, not the surface.</strong> A concept that's a recognisable clone of a library entry fails the smell test — re-roll.</p>
+<h2 id="provenance-preservation">Provenance preservation</h2>
+<p>The old three-library structure is preserved as a <code>source</code> value on every entry:
+- <code>Inspiration-canon</code> = the 46 generalist seed entries from Wave 1.5
+- <code>Operator-curated</code> = URLs/screenshots the operator has personally added
+- <code>Netwealth-research</code> = extracted from the operator's Netwealth IQ Reports
+- <code>System1</code> = System1 Ad of the Week archive
+- etc.</p>
+<p>Filter on <code>source</code> if you need to surface a specific provenance subset (rarely needed — content-shape filters do the real work).</p>
+<h2 id="version">Version</h2>
+<p>v1.0 — 2026-05-26 unified refactor. Replaced prior 3-library structure (<code>tenant/inspiration/</code> + <code>tenant-brand/gold-standard/</code> + <code>tenant-brand/best-practices-professional-services/</code>). All content preserved.</p>
+    </article>
+  </main>
+
+  <footer class="page-footer">
+    <span>Source: <code>tenant\library\SCHEMA.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Winning New Clients — The Value Gap — Marketing AI System</title>
+  <style>/* Marketing AI System — social/email in-situ mockup chrome.
+ * Renders collapsed (feed) + expanded (clicked-open) states per form.
+ * Loaded automatically alongside system.css for all templates.
+ * Form-specific tokens live under .mock-<form> scopes so they don't bleed.
+ */
+
+/* --- Mockup zone layout (sits above markdown narrative) --- */
+.mockups {
+  margin: 0 0 32px 0;
+}
+.mockups:empty { display: none; }
+
+.mock-variant {
+  margin: 0 0 40px 0;
+}
+.mock-variant__label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
+  padding: 0 4px;
+}
+
+.mock-states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .mock-states { grid-template-columns: 1fr; }
+}
+
+.mock-state {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mock-state__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin: 0 0 14px 0;
+  text-align: center;
+}
+
+/* --- LinkedIn post chrome --- */
+.mock-li {
+  --li-bg: #f3f2ef;
+  --li-card-bg: #ffffff;
+  --li-text: #000000e6;
+  --li-text-secondary: #00000099;
+  --li-text-tertiary: #00000066;
+  --li-border: #00000014;
+  --li-accent: #0a66c2;
+  --li-hover: #00000008;
+}
+.mock-li .mock-state { background: var(--li-bg); }
+.mock-li .li-card {
+  width: 100%;
+  max-width: 552px;
+  background: var(--li-card-bg);
+  border: 1px solid var(--li-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--li-text);
+}
+.mock-li .li-header {
+  display: flex;
+  padding: 12px 16px 8px;
+  align-items: center;
+  gap: 8px;
+}
+.mock-li .li-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1a2a5e;
+  color: #f8f5ee;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "Caveat", "Segoe Script", cursive;
+}
+.mock-li .li-author { flex: 1; min-width: 0; }
+.mock-li .li-author-name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.mock-li .li-author-title { font-size: 12px; color: var(--li-text-secondary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-author-meta { font-size: 12px; color: var(--li-text-tertiary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-more { color: var(--li-text-secondary); font-size: 20px; padding: 4px 8px; }
+.mock-li .li-body {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--li-text);
+}
+.mock-li .li-body p { margin: 0 0 8px; }
+.mock-li .li-see-more {
+  color: var(--li-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 16px 8px;
+  user-select: none;
+}
+.mock-li .li-image {
+  width: 100%;
+  display: block;
+  background: #f8f5ee;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+.mock-li .li-reactions {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--li-text-secondary);
+  border-bottom: 1px solid var(--li-border);
+}
+.mock-li .li-reaction-icons { display: inline-flex; vertical-align: middle; }
+.mock-li .li-reaction-icons span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: -3px;
+  border: 1.5px solid #fff;
+  font-size: 10px;
+  text-align: center;
+  line-height: 13px;
+  color: white;
+}
+.mock-li .li-r-like { background: #378fe9; }
+.mock-li .li-r-insight { background: #f5b800; color: #333 !important; }
+.mock-li .li-r-celebrate { background: #6dae4f; }
+.mock-li .li-reactions-left { display: flex; align-items: center; gap: 6px; }
+.mock-li .li-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px;
+}
+.mock-li .li-action {
+  text-align: center;
+  padding: 8px 4px;
+  color: var(--li-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mock-li .li-comments {
+  border-top: 1px solid var(--li-border);
+  padding: 12px 16px;
+  background: #fafafa;
+}
+.mock-li .li-comment { display: flex; gap: 8px; margin-bottom: 12px; }
+.mock-li .li-comment:last-child { margin-bottom: 0; }
+.mock-li .li-c-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: #ddd;
+  color: #555; font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-li .li-c-body {
+  background: #f3f2ef; border-radius: 0 8px 8px 8px;
+  padding: 8px 12px; font-size: 13px; line-height: 1.4; flex: 1;
+}
+.mock-li .li-c-author { font-weight: 600; margin-bottom: 2px; }
+.mock-li .li-c-meta { font-size: 11px; color: var(--li-text-tertiary); margin-top: 4px; }
+
+/* --- Email chrome (inbox row + opened state) --- */
+.mock-email {
+  --em-bg: #f6f8fc;
+  --em-card-bg: #ffffff;
+  --em-text: #202124;
+  --em-text-secondary: #5f6368;
+  --em-border: #e5e7eb;
+  --em-accent: #1a73e8;
+  --em-unread: #f3f7fd;
+}
+.mock-email .mock-state { background: var(--em-bg); }
+.mock-email .em-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--em-card-bg);
+  border: 1px solid var(--em-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Google Sans", Roboto, -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--em-text);
+  font-size: 14px;
+}
+.mock-email .em-inbox-toolbar {
+  background: var(--em-bg);
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--em-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-inbox-row {
+  display: grid;
+  grid-template-columns: 28px 180px 1fr 80px;
+  gap: 12px;
+  padding: 10px 16px;
+  align-items: center;
+  background: var(--em-unread);
+  font-weight: 600;
+}
+.mock-email .em-star { color: #d1d5db; font-size: 16px; }
+.mock-email .em-from { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock-email .em-snippet { font-size: 14px; color: var(--em-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.mock-email .em-snippet b { font-weight: 600; }
+.mock-email .em-snippet .em-preview { color: var(--em-text-secondary); font-weight: 400; }
+.mock-email .em-date { text-align: right; font-size: 12px; color: var(--em-text-secondary); }
+
+/* Opened state */
+.mock-email .em-opened-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-subject { font-size: 20px; font-weight: 400; margin: 0 0 12px 0; color: var(--em-text); }
+.mock-email .em-meta-row { display: flex; gap: 12px; align-items: center; }
+.mock-email .em-sender-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--em-accent);
+  color: white; font-weight: 600; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-email .em-sender-name { font-size: 14px; font-weight: 600; }
+.mock-email .em-sender-email { font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-sent-meta { margin-left: auto; font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-opened-body {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--em-text);
+}
+.mock-email .em-opened-body p { margin: 0 0 14px 0; }
+.mock-email .em-opened-body a { color: var(--em-accent); }
+.mock-email .em-opened-body h1, .mock-email .em-opened-body h2, .mock-email .em-opened-body h3 {
+  margin: 20px 0 10px 0;
+}
+
+/* --- Twitter / X (stub) --- */
+.mock-tw {
+  --tw-bg: #ffffff;
+  --tw-text: #0f1419;
+  --tw-text-secondary: #536471;
+  --tw-border: #eff3f4;
+  --tw-accent: #1d9bf0;
+}
+.mock-tw .mock-state { background: #f7f9fa; }
+.mock-tw .tw-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--tw-bg);
+  border: 1px solid var(--tw-border);
+  border-radius: 16px;
+  padding: 16px;
+  font-family: "Chirp", -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--tw-text);
+}
+.mock-tw .tw-header { display: flex; gap: 10px; }
+.mock-tw .tw-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: #1a2a5e;
+  color: #f8f5ee; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-tw .tw-name { font-weight: 700; font-size: 15px; }
+.mock-tw .tw-handle { color: var(--tw-text-secondary); font-size: 14px; }
+.mock-tw .tw-body { font-size: 15px; line-height: 1.4; margin: 10px 0; white-space: pre-wrap; }
+.mock-tw .tw-image { width: 100%; border-radius: 16px; border: 1px solid var(--tw-border); margin: 10px 0 0; display: block; }
+
+/* --- Instagram (stub) --- */
+.mock-ig {
+  --ig-bg: #ffffff;
+  --ig-text: #262626;
+  --ig-text-secondary: #8e8e8e;
+  --ig-border: #dbdbdb;
+}
+.mock-ig .mock-state { background: #fafafa; }
+.mock-ig .ig-card {
+  width: 100%;
+  max-width: 470px;
+  background: var(--ig-bg);
+  border: 1px solid var(--ig-border);
+  border-radius: 8px;
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--ig-text);
+  overflow: hidden;
+}
+.mock-ig .ig-header { display: flex; gap: 10px; align-items: center; padding: 12px; }
+.mock-ig .ig-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;
+}
+.mock-ig .ig-handle { font-weight: 600; font-size: 14px; }
+.mock-ig .ig-image { width: 100%; display: block; border: none; border-radius: 0; margin: 0; aspect-ratio: 1 / 1; object-fit: cover; }
+.mock-ig .ig-caption { padding: 12px; font-size: 14px; line-height: 1.4; }
+.mock-ig .ig-caption b { font-weight: 600; margin-right: 6px; }
+
+/* --- Substack (stub) --- */
+.mock-sub {
+  --sub-bg: #ffffff;
+  --sub-text: #1a1a1a;
+  --sub-text-secondary: #6b6b6b;
+  --sub-border: #e5e5e5;
+  --sub-accent: #ff6719;
+}
+.mock-sub .mock-state { background: #f5f5f5; }
+.mock-sub .sub-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--sub-bg);
+  border: 1px solid var(--sub-border);
+  border-radius: 4px;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--sub-text);
+}
+.mock-sub .sub-pub { font-size: 12px; color: var(--sub-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+.mock-sub .sub-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0; }
+.mock-sub .sub-subtitle { font-size: 16px; color: var(--sub-text-secondary); margin: 0 0 16px 0; }
+.mock-sub .sub-image { width: 100%; border: 1px solid var(--sub-border); margin: 0 0 16px 0; display: block; border-radius: 0; }
+.mock-sub .sub-body { font-size: 16px; line-height: 1.6; }
+
+/* --- Stub-form placeholder note --- */
+.mock-stub-note {
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-style: italic;
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  margin-top: 8px;
+  max-width: 600px;
+}
+
+/* --- Asset-preview page main container width --- */
+.page-main--asset-preview { max-width: var(--max-width-wide); }
+.content--narrative { /* inherits .content baseline */ }
+
+/* Marketing AI System — clean-default-minimal system UI
+ * Stripe/Linear aesthetic. System fonts. Generous whitespace.
+ * No external font dependencies.
+ */
+
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --success: #10b981;
+  --success-soft: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-soft: #fffbeb;
+  --danger: #ef4444;
+  --danger-soft: #fef2f2;
+  --code-bg: #f3f4f6;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --max-width: 880px;          /* prose-narrow — for Brief / Brand Context reading */
+  --max-width-wide: 1480px;    /* dashboard / plan / tasks / index / asset-preview — tables + comparisons */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Header --- */
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.page-header__inner {
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.page-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.crumb {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.crumb-link {
+  color: var(--accent);
+}
+.crumb-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-decoration: underline;
+}
+.crumb-current {
+  color: var(--text);
+  font-weight: 600;
+}
+.crumb-sep {
+  color: var(--text-subtle);
+  user-select: none;
+}
+.page-header__template {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  opacity: 0.6;
+}
+.page-header__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.library-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.lib-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.lib-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+.lib-link--current {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* --- Main content --- */
+.page-main {
+  max-width: var(--max-width-wide);
+  margin: 48px auto;
+  padding: 0 32px;
+}
+
+/* Prose-narrow templates (Brief, Brand Context) get a narrower line length for readability */
+.template-brief .page-main,
+.template-brand-context .page-main {
+  max-width: var(--max-width);
+}
+
+.content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 56px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Typography --- */
+.content h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+.content h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 40px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.content h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 28px 0 8px 0;
+}
+.content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 24px 0 8px 0;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+}
+.content p {
+  margin: 0 0 16px 0;
+}
+.content ul, .content ol {
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+.content li { margin-bottom: 4px; }
+
+.content strong { font-weight: 600; color: var(--text); }
+.content em { font-style: italic; }
+
+.content code {
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+}
+.content pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+.content pre code {
+  background: none;
+  padding: 0;
+}
+
+.content a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.content a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.content blockquote {
+  border-left: 3px solid var(--border-strong);
+  padding: 4px 16px;
+  margin: 0 0 16px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* --- Tables --- */
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 20px 0;
+  font-size: 14px;
+}
+.content table th {
+  text-align: left;
+  font-weight: 600;
+  background: var(--bg);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border-strong);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.content table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content table tr:last-child td { border-bottom: none; }
+.content table tr:hover td { background: var(--bg); }
+
+/* --- Status badges (used in inline markdown via spans or by templates) --- */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+}
+.badge--draft { background: var(--code-bg); color: var(--text-muted); }
+.badge--approved { background: var(--success-soft); color: var(--success); }
+.badge--awaiting { background: var(--warning-soft); color: var(--warning); }
+.badge--blocked { background: var(--danger-soft); color: var(--danger); }
+.badge--live { background: var(--accent-soft); color: var(--accent); }
+
+/* --- HR --- */
+.content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* --- Images --- */
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+/* --- Footer --- */
+.page-footer {
+  max-width: var(--max-width-wide);
+  margin: 32px auto;
+  padding: 16px 32px;
+  font-size: 12px;
+  color: var(--text-subtle);
+  text-align: center;
+}
+.page-footer code {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+/* --- Collapsible details/summary (decision-first / reference-collapsed pattern) --- */
+.content details {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 24px 0;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+.content details[open] {
+  background: var(--surface);
+}
+.content details summary {
+  padding: 14px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+.content details summary::-webkit-details-marker { display: none; }
+.content details summary::before {
+  content: "▸";
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 12px;
+}
+.content details[open] summary::before {
+  transform: rotate(90deg);
+}
+.content details summary:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.content details summary strong {
+  font-weight: 600;
+}
+.content details > *:not(summary) {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.content details > *:last-child {
+  padding-bottom: 16px;
+}
+.content details summary + * {
+  margin-top: 12px;
+}
+/* Expanded content inside details should keep all the proper typography */
+.content details h2,
+.content details h3,
+.content details h4 {
+  margin-top: 24px;
+}
+.content details h2:first-of-type,
+.content details h3:first-of-type,
+.content details h4:first-of-type {
+  margin-top: 12px;
+}
+.content details table {
+  margin-bottom: 16px;
+}
+
+/* --- Checkboxes in lists (task lists) --- */
+.content ul.task-list,
+.content ul.task-list li {
+  list-style: none;
+  padding-left: 0;
+}
+.content input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* --- Dashboard-specific: richer card treatment for collapsible sections --- */
+/* The dashboard's <details> blocks are the operator's primary navigation. They */
+/* need to read as cards, not as plain disclosure rows. Scoped via body class so */
+/* Brief / Concept / Plan / Asset surfaces keep their lighter treatment. */
+body.template-dashboard .content details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, border-left-color 0.2s, transform 0.15s;
+}
+body.template-dashboard .content details:hover {
+  box-shadow: var(--shadow-md);
+  border-left-color: var(--accent);
+}
+body.template-dashboard .content details[open] {
+  background: var(--surface);
+  border-left-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+body.template-dashboard .content details summary {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  background: linear-gradient(to right, var(--bg) 0%, var(--surface) 60%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+body.template-dashboard .content details[open] summary {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 70%);
+}
+body.template-dashboard .content details summary::before {
+  content: "›";
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-muted);
+  width: 14px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+body.template-dashboard .content details[open] summary::before {
+  color: var(--accent);
+  transform: rotate(90deg) translateX(-1px);
+}
+body.template-dashboard .content details summary:hover {
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 80%);
+  color: var(--accent);
+}
+body.template-dashboard .content details > *:not(summary) {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+body.template-dashboard .content details > *:first-of-type:not(summary) {
+  padding-top: 8px;
+}
+body.template-dashboard .content details > *:last-child {
+  padding-bottom: 20px;
+}
+
+/* Color-vary the left-border per card position so 8 stacked cards aren't monotone */
+body.template-dashboard .content details:nth-of-type(8n+1) { border-left-color: #6366f1; } /* indigo */
+body.template-dashboard .content details:nth-of-type(8n+2) { border-left-color: #ec4899; } /* pink */
+body.template-dashboard .content details:nth-of-type(8n+3) { border-left-color: #8b5cf6; } /* violet */
+body.template-dashboard .content details:nth-of-type(8n+4) { border-left-color: #06b6d4; } /* cyan */
+body.template-dashboard .content details:nth-of-type(8n+5) { border-left-color: #10b981; } /* emerald */
+body.template-dashboard .content details:nth-of-type(8n+6) { border-left-color: #f59e0b; } /* amber */
+body.template-dashboard .content details:nth-of-type(8n+7) { border-left-color: #ef4444; } /* red */
+body.template-dashboard .content details:nth-of-type(8n+8) { border-left-color: #64748b; } /* slate */
+body.template-dashboard .content details:hover,
+body.template-dashboard .content details[open] {
+  /* On hover/open, accent wins over the nth-child color */
+  border-left-color: var(--accent);
+}
+
+/* Above-the-fold dashboard surfaces (🚨 Next actions / 🎯 Stage + next gate) — */
+/* lift these visually above the collapsed cards via top-of-page treatment */
+body.template-dashboard .content h2 {
+  font-size: 22px;
+  margin-top: 36px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+body.template-dashboard .content h2:first-of-type {
+  margin-top: 8px;
+}
+body.template-dashboard .content h3 {
+  font-size: 17px;
+  color: var(--text);
+  margin-top: 24px;
+}
+
+/* The 🚨 Next actions table — make it visually distinct as the highest-priority surface */
+body.template-dashboard .content > h2:first-of-type + table,
+body.template-dashboard .content > h2 + table {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+body.template-dashboard .content table th {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .page-main { padding: 0 16px; margin: 24px auto; }
+  .content { padding: 28px 24px; border-radius: var(--radius); }
+  .content h1 { font-size: 26px; }
+  .content h2 { font-size: 19px; }
+  .page-header { padding: 12px 16px; }
+}
+
+/* --- Print --- */
+@media print {
+  .page-header, .page-footer { display: none; }
+  .content { border: none; box-shadow: none; padding: 0; }
+}
+</style>
+</head>
+<body class="template-index">
+  <header class="page-header">
+    <div class="page-header__inner">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <div class="page-header__right">
+        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link lib-link--current" href="../INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
+        <span class="page-header__template" aria-hidden="true">index</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <article class="content">
+      <h1 id="winning-new-clients-the-value-gap">Winning New Clients — The Value Gap</h1>
+<p>Authored by the operator, originally published as <em>Netwealth IQ Report: The Value Gap and Winning New Clients</em> (2024). Research conducted with The Lab Strategy — qualitative (14 in-depth interviews) + quantitative (450 Australian respondents). Behavioural-science framework: COM-B (Michie, van Stralen &amp; West, 2011) + temporal-discounting (Hershfield, 2011).</p>
+<p>The original language uses "financial advisers" and "wealth management" verbatim. <strong>For any other professional services firm</strong> (legal, accounting, consulting, agency, coaching), substitute the equivalent terms — the strategic spine is identical.</p>
+<hr>
+<h2 id="the-core-thesis">The core thesis</h2>
+<p>Many people recognise the benefits of engaging a professional services firm, yet fail to commit the time and money to one. Like fitness intentions — the intention is present, but the action is missing. In wealth management, <strong>prospects are stuck as "considerers"</strong> — and the gap between intention and action is the <strong>value gap</strong>.</p>
+<p>The value gap isn't usually about price alone. It's about deep-rooted emotional drivers — loss aversion, present-bias, overconfidence — that perception-change can address.</p>
+<h2 id="the-five-barriers-to-advice">The five barriers to advice</h2>
+<table>
+<thead>
+<tr>
+<th>Barrier</th>
+<th>What it is</th>
+<th>Behavioural science</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Loss aversion</strong></td>
+<td>The most significant reported barrier — 51% of prospects cite perceived cost of advice. Prospects view the cost as a <em>loss</em> from current position, overshadowing potential gains.</td>
+<td>Loss aversion</td>
+</tr>
+<tr>
+<td><strong>2. Present focus</strong></td>
+<td>30% of prospects say "other things in my life distract me and I put the decision off." 27% indicate they "haven't been able to find advice yet."</td>
+<td>Present-biased preferences (Hershfield)</td>
+</tr>
+<tr>
+<td><strong>3. "I'm not right for this"</strong></td>
+<td>25% of prospects — especially Emerging Affluent + Established Mass — believe their financial situations are too simple. "My finances aren't big enough." Misconception that advice is only for the wealthy.</td>
+<td>Self-categorisation bias</td>
+</tr>
+<tr>
+<td><strong>4. Overconfidence</strong></td>
+<td>59% of prospects self-report moderate financial literacy, 23% claim high — but objective assessment shows only 15% actually have high literacy. The younger Emerging Affluent overestimate the most (47% claim high, 22% actual).</td>
+<td>Overconfidence bias / Dunning-Kruger</td>
+</tr>
+<tr>
+<td><strong>5. Cost / willingness-to-pay disconnect</strong></td>
+<td>When shown "typical" advice packages at market rate ($5,500 / $7,500 / $12,500 p.a.), less than half of suitability-confirmed prospects had any willingness to pay at those price points. Reference anchors are 30-50% below market.</td>
+<td>Anchoring (Kahneman/Tversky)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implication</strong>: marketing isn't just about communicating service value — it's about reshaping the perception anchors prospects bring to the decision.</p>
+<hr>
+<h2 id="the-netwealth-value-for-money-model">The Netwealth Value-for-Money Model</h2>
+<p>Three dimensions of value, informed by COM-B framework. Each dimension has 14 thematic drivers underneath.</p>
+<h3 id="three-dimensions">Three dimensions</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>What it means</th>
+<th>% of prospects ranking as most important</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Motivation</strong> — "helps me achieve my goals"</td>
+<td>Aligning services with the personal ambitions and desires of the individual</td>
+<td><strong>53%</strong> (primary driver)</td>
+</tr>
+<tr>
+<td><strong>Ease</strong> — "makes it easy to find and access value"</td>
+<td>Simplifying interactions so the process feels straightforward and user-friendly</td>
+<td><strong>34%</strong></td>
+</tr>
+<tr>
+<td><strong>Context</strong> — "has contextual associations and heuristics for value"</td>
+<td>Cultural alignment, social endorsements, professional brand bolstering confidence</td>
+<td><strong>13%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="three-keys-for-influencing-perception">Three keys for influencing perception</h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>What</strong> — The Value-for-Money Model</td>
+<td>The 14 drivers below define what to focus on</td>
+</tr>
+<tr>
+<td><strong>How</strong> — Language</td>
+<td>Clarity, framing, social norms, motivation/self-efficacy, emotional resonance</td>
+</tr>
+<tr>
+<td><strong>When</strong> — Touchpoints on path-to-purchase</td>
+<td>Referral → website/social → meeting(s) → if not converted, ongoing nurture (newsletters, podcasts, webinars)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="motivation-drivers-6-show-prospects-you-understand-their-goals">Motivation drivers (6) — show prospects you understand their goals</h2>
+<h3 id="driver-m1-trust-and-transparency-74">Driver M1 — Trust and transparency (74%)</h3>
+<p><strong>Need</strong>: Prospects need to feel confident in the integrity of the firm. Reflects reciprocity principle. Established Mass especially (76%).</p>
+<p><strong>Language to use</strong>:
+- "Our advisers act with the highest integrity and honesty."
+- "Transparent fees and services, with no hidden costs."
+- "Independence and neutrality in our advice ensures your best interests are always at heart."</p>
+<p><strong>Tactics</strong>:
+1. <strong>Showcase integrity</strong>: highlight advisers' credentials + ethical standards prominently.
+2. <strong>Transparent communication</strong>: detailed, easy-to-understand fee + service breakdowns including how you invest.
+3. <strong>Build trust with case studies</strong>: demonstrate transparency + success.
+4. <strong>Client testimonials</strong>: existing clients share positive experiences.
+5. <strong>Personal introductions</strong>: "meet the team" opportunity or introductory video.</p>
+<p><strong>A/B test result</strong>: Fee communication preference — 77% preferred Concept 1B ("$700/month. This fee pays for: [4 specific things]") over Concept 1A ("$700/month to help you make and execute your financial plan").</p>
+<h3 id="driver-m2-personalised-quality-advice-63">Driver M2 — Personalised quality advice (63%)</h3>
+<p><strong>Need</strong>: Tailored strategies + feeling seen and understood. Higher for Established Affluent (64%) and Established Mass (67%).</p>
+<p><strong>Language</strong>:
+- "Tailored advice that meets your unique financial goals and needs."
+- "Flexible plans designed to fit your specific financial situation."
+- "We value your input and incorporate your suggestions into our strategies."</p>
+<p><strong>Tactics</strong>: Client empathy (profiling tools), co-creation (involve client in planning), recalibration reviews, personalised roadmaps, proactive monitoring, interactive reporting tools, highlight personal success (case studies of similar profiles).</p>
+<p><strong>A/B test results</strong>:
+- 64% preferred Concept 2B (specific average upside of $70,000/year) over 2A (general value claim)
+- 70% preferred Concept 3B (emotional/goal-focused outcomes — "shape your financial future around the important goals you want to achieve") over 3A (investment-return-focused)</p>
+<p><strong>Implication</strong>: prospects respond better to emotional, goal-focused outcomes than to investment-return language — especially early in the relationship.</p>
+<h3 id="driver-m3-creative-innovative-advice-54">Driver M3 — Creative &amp; innovative advice (54%)</h3>
+<p><strong>Need</strong>: Creative financial strategies that go beyond conventional norms. Higher for Established Affluent (64%) and Established Mass (67%).</p>
+<p><strong>Language</strong>:
+- "Innovative strategies for optimised financial growth."
+- "Cutting-edge tools and analytics to manage your portfolio."
+- "Advanced tax minimisation strategies and debt management advice."</p>
+<p><strong>Tactics</strong>: Highlight unique opportunities, educational workshops, demonstrate tools/dashboards, showcase success of innovative strategies.</p>
+<h3 id="driver-m4-immediacy-responsive-engagement-52">Driver M4 — Immediacy / responsive engagement (52%)</h3>
+<p><strong>Need</strong>: Real-time updates, quick feedback, regular check-ins, rapid portfolio adjustments.</p>
+<p><strong>Language</strong>:
+- "Stay informed with real-time updates and quick responses."
+- "Regular check-ins and portfolio reviews to keep you on track."
+- "Rapid adjustments to market conditions to protect your investments."</p>
+<p><strong>Tactics</strong>: Portfolio tracking + reporting tools, highlight timely interventions with case studies, proactive communication, quick feedback (same-day responses).</p>
+<h3 id="driver-m5-positive-emotions-free-and-happy-46">Driver M5 — Positive emotions / free and happy (46%)</h3>
+<p><strong>Need</strong>: Positive, fulfilling experience contributing to overall sense of financial wellbeing + happiness.</p>
+<p><strong>Language</strong>:
+- "Experience the joy of financial freedom and security."
+- "We make you feel valued and not just a number."
+- "A delightful and fulfilling financial planning experience."</p>
+<p><strong>Tactics</strong>: Positive atmosphere in all initial interactions, celebrate achievements (case studies of milestones), exclusive events, case studies focused on emotional experience rather than financial outcomes.</p>
+<h3 id="driver-m6-client-rewards-32">Driver M6 — Client rewards (32%)</h3>
+<p><strong>Need</strong>: Acknowledgement of loyalty, reciprocity. Emerging Affluent place higher importance (37%).</p>
+<p><strong>Language</strong>:
+- "Enjoy exclusive benefits and rewards for your loyalty."
+- "Incentives for referrals and long-standing clients."
+- "Exclusive access to dedicated wealth managers and networking opportunities."</p>
+<p><strong>Tactics</strong>: Highlight unique benefits, loyalty programme (reduced fees / exclusive product offers), dedicated wealth manager criteria, networking opportunities, referral incentives.</p>
+<hr>
+<h2 id="ease-drivers-5-make-it-easy-to-find-and-access-value">Ease drivers (5) — make it easy to find and access value</h2>
+<h3 id="driver-e1-long-term-strategic-guidance-71">Driver E1 — Long-term strategic guidance (71%)</h3>
+<p><strong>Need</strong>: Knowing how long-term goals of growth and preservation will be supported, especially in unexpected events (buying a house, selling a business, divorce).</p>
+<p><strong>Language</strong>:
+- "We focus on long-term wealth growth and preservation."
+- "Financial planning to meet your future aspirations."
+- "Guidance through crucial financial decisions and life events."
+- "Our streamlined process ensures you understand every step of your financial journey. Here's how we make financial planning easy for you."</p>
+<p><strong>Tactics</strong>: Guidance on major decisions, step-by-step guides, success stories of clients navigating significant milestones.</p>
+<p><strong>A/B test result</strong>: 57% preferred Concept 4B ("simple chat → easy steps → smooth, supportive process — financial advice, simplified") over 4A ("initial consultation → detailed meetings → personalised plan → regular check-ins"). Ease and simplicity language outperforms comprehensiveness language.</p>
+<h3 id="driver-e2-security-support-and-reassurance-62">Driver E2 — Security, support and reassurance (62%)</h3>
+<p><strong>Need</strong>: Regular updates against goals, assurance of market-aligned performance, professional management. Established Affluent especially (67%).</p>
+<p><strong>Language</strong>:
+- "We provide regular updates on your progress and our strategic plans."
+- "We're here for you at every step. Expect regular updates and personalised reports to keep you informed."
+- "We work to ensure that your investments align with market conditions."
+- "You can have comfort in knowing your wealth is managed professionally."</p>
+<p><strong>Tactics</strong>: Proactive communication system, market alignment assurances, set early 12-24 month expectations, track record + case studies of secure-feeling clients.</p>
+<h3 id="driver-e3-knowledge-for-empowerment-59">Driver E3 — Knowledge for empowerment (59%)</h3>
+<p><strong>Need</strong>: Not just advice but learning + understanding. Prospects want to challenge themselves with new perspectives. Empowers autonomous decision-making.</p>
+<p><strong>Language</strong>:
+- "We empower you with the knowledge to make informed decisions."
+- "We provide clear explanations of complex financial concepts."
+- "Access our range of educational events and materials to enhance your financial literacy."
+- "Empower yourself with our educational resources. Join our next webinar to learn how to manage your finances effectively."</p>
+<p><strong>Tactics</strong>: Educational workshops, interactive tools/calculators, personalised learning paths, multi-format education (blog + podcast + interactive sessions).</p>
+<h3 id="driver-e4-emotional-support-34">Driver E4 — Emotional support (34%)</h3>
+<p><strong>Need</strong>: Reducing mental load, lowering anxiety, addressing unspoken emotional needs. Established Mass especially (36%).</p>
+<p><strong>Language</strong>:
+- "We help reduce your mental load and financial anxiety."
+- "We provide support to manage your emotional responses to finances."
+- "We coach you through tough financial decisions."
+- "We help you make rational financial decisions."</p>
+<p><strong>Tactics</strong>: Emotional coaching positioning, client stories of emotional support, networking events (client appreciation evenings, exclusive workshops).</p>
+<h3 id="driver-e5-seamless-accessibility-32">Driver E5 — Seamless accessibility (32%)</h3>
+<p><strong>Need</strong>: Frictionless engagement — self-service via apps/portals, easy admin, easy onboarding. Established Affluent especially.</p>
+<p><strong>Language</strong>:
+- "Quick and responsive communication to meet your needs."
+- "Easily access your financial information and manage your portfolio online."
+- "Streamlined processes for a hassle-free experience."
+- "We take care of the paperwork."
+- "Contact us by the mode that best works for you — email, phone or other."</p>
+<p><strong>Tactics</strong>: Self-service options (mobile app, client portal), streamlined onboarding + paperwork, multi-mode communication.</p>
+<hr>
+<h2 id="context-drivers-3-provide-contextual-cues-for-confidence">Context drivers (3) — provide contextual cues for confidence</h2>
+<h3 id="driver-c1-community-endorsement-46">Driver C1 — Community endorsement (46%)</h3>
+<p><strong>Need</strong>: Endorsements as decision signal. Reflects conformity principle. Established Mass especially (55%).</p>
+<p><strong>Language</strong>:
+- "Our advisers are certified by the top financial institutions and adhere to the highest standards of professionalism."
+- "Join the hundreds of satisfied clients who have trusted us with their financial futures."
+- "Hear directly from clients like you who have achieved their financial goals with our guidance."
+- "See why thousands trust us with their financial future — join our next webinar featuring experts from [...]."
+- "Rated #1 by [credible source] for customer satisfaction in financial advising."
+- "Recommended by..."
+- "Join us this month as we discuss key financial strategies in our community forum featuring success stories from clients just like you."</p>
+<p><strong>Tactics</strong>: Highlight education + accreditations, dynamic social norms (regularly communicate how many clients benefit), client success stories (video testimonial series featuring diverse backgrounds), highlight associations with renowned brands, partner visibility, build community (forums / groups / webinars / local events), professional brand image consistent across touchpoints.</p>
+<h3 id="driver-c2-social-associations-endorsement-33">Driver C2 — Social associations / endorsement (33%)</h3>
+<p><strong>Need</strong>: Associations with industry bodies, renowned brands, other financial partners. Emerging Affluent place higher importance on visibility + image (41%).</p>
+<p>Combined with C1 tactically — same content surfaces serve both.</p>
+<h3 id="driver-c3-cultural-resonance-30">Driver C3 — Cultural resonance (30%)</h3>
+<p><strong>Need</strong>: Advice that respects + aligns with cultural values, team diversity, ethical/responsible investing.</p>
+<p><strong>Language</strong>:
+- "We provide financial advice that respects and aligns with your cultural values."
+- "Our team's diverse backgrounds ensure we understand and cater to your unique needs."
+- "We are committed to ethical and responsible investments."
+- "Our commitment to community and environmental impact sets us apart."</p>
+<p><strong>Tactics</strong>: Culturally informed advice positioning, highlight team diversity / personal stories / cultural expertise, showcase firm's community involvement, align investment opportunities with social/community values.</p>
+<hr>
+<h2 id="cross-cutting-principles">Cross-cutting principles</h2>
+<h3 id="path-to-purchase-touchpoint-sequencing">Path-to-purchase touchpoint sequencing</h3>
+<p>Typical prospect journey:
+1. <strong>Referral</strong> (or initial brand discovery)
+2. <strong>Website / social</strong> (research phase — digital surfaces do the heavy lifting)
+3. <strong>Multiple meetings</strong> (consideration phase)
+4. <strong>Ongoing nurture</strong> (if not converted) — newsletters, podcasts, webinars, content marketing</p>
+<p>The Motivation / Ease / Context model applies AT EVERY TOUCHPOINT. The driver weight shifts: Context-signals matter most at discovery (1-2), Ease + Motivation matter most through consideration (3), Motivation drives commitment (3→4).</p>
+<h3 id="language-as-behavioural-lever">Language as behavioural lever</h3>
+<p>Five mechanisms:
+1. <strong>Clarity</strong> — unambiguous information enables informed decisions
+2. <strong>Framing</strong> — gain-frames vs. loss-frames change behaviour
+3. <strong>Social norm shaping</strong> — "most people…" encourages compliance
+4. <strong>Self-efficacy</strong> — "you can do it" boosts confidence
+5. <strong>Emotional appeals</strong> — emotional content prompts action</p>
+<h3 id="behavioural-science-principles-invoked-full-list">Behavioural-science principles invoked (full list)</h3>
+<p>Loss aversion · Present-biased preferences · Overconfidence bias · Anchoring · Reciprocity · Authority bias · Conformity · Social proof · Availability heuristic · Cognitive ease · Familiarity · Habit formation.</p>
+<hr>
+<h2 id="appendix-driver-summary-tables-consolidated">Appendix — Driver summary tables (consolidated)</h2>
+<p>The original PDF has consolidated driver summary tables on pages 46-53. Format:</p>
+<p>| What prospects value | Language to use | Tactics on how to add value |</p>
+<p>These tables consolidate every driver's language + tactics in one place. <strong>Use them as a reference checklist</strong> when authoring prof-services content — confirm the brief covers at least the relevant drivers' top tactics.</p>
+<hr>
+<h2 id="how-to-apply-to-non-wealth-management-professional-services">How to apply to non-wealth-management professional services</h2>
+<table>
+<thead>
+<tr>
+<th>Wealth-management term</th>
+<th>Legal</th>
+<th>Accounting</th>
+<th>Consulting</th>
+<th>Agency</th>
+<th>Coaching</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Financial adviser</td>
+<td>Partner / senior counsel</td>
+<td>Partner / advisor</td>
+<td>Engagement partner</td>
+<td>Account director</td>
+<td>Coach</td>
+</tr>
+<tr>
+<td>Portfolio</td>
+<td>Matter / case</td>
+<td>Account</td>
+<td>Project / engagement</td>
+<td>Account</td>
+<td>Programme</td>
+</tr>
+<tr>
+<td>Investment options</td>
+<td>Service approaches</td>
+<td>Service tiers</td>
+<td>Methodology / approach</td>
+<td>Service packages</td>
+<td>Programme tiers</td>
+</tr>
+<tr>
+<td>Fees / pricing</td>
+<td>Fees</td>
+<td>Fees</td>
+<td>Day rates / fixed scope</td>
+<td>Retainer / project fee</td>
+<td>Programme fee</td>
+</tr>
+<tr>
+<td>Client meetings</td>
+<td>Consultations</td>
+<td>Meetings</td>
+<td>Workshops</td>
+<td>Reviews</td>
+<td>Sessions</td>
+</tr>
+<tr>
+<td>Financial goals</td>
+<td>Legal goals / matter outcomes</td>
+<td>Tax / business outcomes</td>
+<td>Business outcomes</td>
+<td>Marketing outcomes</td>
+<td>Personal / professional outcomes</td>
+</tr>
+<tr>
+<td>Investment performance</td>
+<td>Matter progress</td>
+<td>Tax position / business health</td>
+<td>Project deliverables / outcomes</td>
+<td>Campaign performance</td>
+<td>Progress against goals</td>
+</tr>
+</tbody>
+</table>
+<p>The 14 thematic drivers translate cleanly. The behavioural science (loss aversion, overconfidence, social proof, etc.) is industry-agnostic.</p>
+    </article>
+  </main>
+
+  <footer class="page-footer">
+    <span>Source: <code>library\playbooks\winning-new-clients-playbook.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+  </footer>
+</body>
+</html>

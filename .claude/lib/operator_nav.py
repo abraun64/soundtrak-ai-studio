@@ -32,7 +32,12 @@ def top_nav_pills(project_root: Path, prefix: str) -> str:
     if (project_root / "tenant/library/INDEX.html").exists():
         links.append(
             f'<a class="lib-link" href="{prefix}tenant/library/INDEX.html" '
-            f'title="Unified reference library">📚 Library</a>'
+            f'title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a>'
+        )
+    if (project_root / "tenant/research-library/INDEX.html").exists():
+        links.append(
+            f'<a class="lib-link" href="{prefix}tenant/research-library/INDEX.html" '
+            f'title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a>'
         )
     if not links:
         return ""

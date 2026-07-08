@@ -2,7 +2,7 @@
 
 **The system's own dashboard.** Everything in the system lives in one of the document classes below. If you're cold-starting and don't know where something is, start here.
 
-**Last updated**: 2026-06-30
+**Last updated**: 2026-07-08
 **Version**: v3
 
 > **Kept fresh by `nav-audit`** (`.claude/skills/nav-audit/nav_audit.py`) — diffs this index against the specs/skills/agents/playbooks on disk and flags anything missing, any dead link, a stale stamp, and the oldest-untouched docs. It runs as part of `system-smoke-test` (so any "run smoke test" catches index drift) and on demand ("run nav audit"). When you add a spec/skill/agent/playbook, add a row here — the audit will catch it if you forget.
@@ -117,7 +117,6 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **content-subedit** | Sub-edits LinkedIn posts / Substack articles against the Soundtrak voice rules. | "sub-edit this", "check against the voice rules" | `.claude/skills/content-subedit/` |
 | **deploy-mailchimp** | Pushes email assets to Mailchimp via API. | Called by CM at Phase 6 | `.claude/skills/deploy-mailchimp/` |
 | **deploy-cookbook** | Universal cookbook-based deployment fallback. | Called by CM at Phase 6 | `.claude/skills/deploy-cookbook/` |
-| **sb-podcast-weekly-assets** | Acme Co Talks Friday cycle: transcript + URL → full bundle. | "run weekly cadence for Acme Co Talks" | `.claude/skills/sb-podcast-weekly-assets/` |
 | **system-smoke-test** | Health check: render pipeline + operator-quartet (all campaigns) + hooks + git + nav-index. Returns red/amber/green. | "run system smoke test", "check system health" | `.claude/skills/system-smoke-test/` |
 | **system-drift-watcher** | Cross-campaign drift scan (stale dashboards · zombie To-Do rows · in-flight Producers · stale cross-refs). | "check system drift", "anything stale?" | `.claude/skills/system-drift-watcher/` |
 | **cm-audit** | Surface-currency audit — every operator surface (dashboard/gallery/tasks/index/tenant-home) re-rendered after its data source changed. | "run cm audit", "are the surfaces current?" | `.claude/skills/cm-audit/` |
@@ -125,11 +124,19 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **docs-audit** | The CONTENT/STRUCTURE layer over nav-audit — reads INSIDE the docs: stale agent-count prose (five/six after the 7th agent), class tables that lost a column, `docs/public/` behind the roster/specs, and §9/§10/§11 coverage vs disk (SYS-018/SYS-026 drift class). | "run docs audit", "are the docs consistent?", "is the agent count right everywhere?" | `.claude/skills/docs-audit/` |
 | **cadences** | Four proactive scheduled sweeps — competitor/library scan · tenant brand-drift · stale-asset/surface · per-tenant shipped/blocked rollup. Surface-only (file deduped inbox ideas, never auto-ship). | Scheduled (weekly/monthly) via Windows tasks | `.claude/skills/cadences/` |
 | **system-manager** | Owner of the System layer — maintains the system-improvement backlog + idea inbox + audit history and the operator dashboard (To Do split Needs-you / AI-can-action + audit history), independent of any campaign. Capture / triage / retro / groom. | "system idea: …", "triage the inbox", "run a system retro", "/system-manager" | `.claude/skills/system-manager/` |
+
+### Tenant-specific skills
+
+*Scoped to one tenant's workflow (Soundtrak content · Acme Co podcast), not the general system. **Excluded from the public Seed** (the `build_seed` deny-list) — a fresh deployment ships without them. Listed here for completeness.*
+
+| Skill | What it does | Trigger phrases | Where |
+|---|---|---|---|
 | **thought-leadership** | the operator's content workflow: a pasted concept / principle / research → LinkedIn + Substack pieces (orchestrates the three skills below). | "new concept", "let's do a piece on X", "run the feedback loop" | `.claude/skills/thought-leadership/` |
 | **behavior-gap-sketch** | Distils raw text into one Carl Richards / Behavior-Gap visual metaphor + a copy-paste image prompt. | `/carl-image` | `.claude/skills/behavior-gap-sketch/` |
 | **linkedin-post** | Turns the same principle into a high-impact LinkedIn post, paired with the sketch. | `/image-social-post` | `.claude/skills/linkedin-post/` |
 | **long-form** | Turns the same principle into a feature-length Substack article. | `/long-form` | `.claude/skills/long-form/` |
 | **publish-soundtrak-article-website** | Publishes a finished article to soundtrakconsulting.com/thinking/ (docx + hero image + Substack URL). | "publish article", "publish to soundtrak" | `.claude/skills/publish-soundtrak-article-website/` |
+| **sb-podcast-weekly-assets** | Acme Co "Acme Co Talks" Friday cycle: transcript + URL → full asset bundle. | "run weekly cadence for Acme Co Talks" | `.claude/skills/sb-podcast-weekly-assets/` |
 
 ---
 

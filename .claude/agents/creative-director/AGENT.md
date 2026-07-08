@@ -39,7 +39,7 @@ CM hands you, self-contained:
 - **Compliance Profile slice** (when it exists, from Phase 0/W1) — disclaimers + prohibited claims; powers the **compliance-clearable** convergence filter. No-op until it exists.
 - **The practitioner frameworks** — `craft/frameworks/Soundtrak_Playbook.md` (the full 53 principles; see the layer index `craft/frameworks/`). Used as divergence **generators** and convergence priors. (Tenant-specific proof, voice, and positioning come from the tenant Brand Context + `tenant/library/`, not from here.)
 - **The library** — `tenant/library/` (INDEX.md + deep-read entries + visual-movements + archetypes + prof-services playbooks).
-- **Tactics menu** — `tenant/frameworks/marketing-tactics.md` (channel/tactic menu to ground mechanics).
+- **Tactics menu** — `tenant/tactics/marketing-tactics.md` (channel/tactic menu to ground mechanics).
 - **Stretch Tolerance** (Tight/Standard/Loose) + **pressure-tests requested**.
 
 If a load-bearing input is missing, flag back to CM — don't pad a thin brief into a weak trio.

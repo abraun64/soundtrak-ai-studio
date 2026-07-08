@@ -1312,7 +1312,13 @@ def build_library_nav(output_path: Path, project_root: Path) -> str:
         cur = " lib-link--current" if rel.startswith("tenant/library/") else ""
         links.append(
             f'<a class="lib-link{cur}" href="{href_to("tenant/library/INDEX.html")}" '
-            f'title="Unified reference library">📚 Library</a>'
+            f'title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a>'
+        )
+    if (project_root / "tenant/research-library/INDEX.html").exists():
+        cur = " lib-link--current" if rel.startswith("tenant/research-library/") else ""
+        links.append(
+            f'<a class="lib-link{cur}" href="{href_to("tenant/research-library/INDEX.html")}" '
+            f'title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a>'
         )
 
     if not links:

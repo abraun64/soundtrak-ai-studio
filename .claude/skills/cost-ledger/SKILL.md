@@ -34,6 +34,15 @@ total line used to be. At every render, `operator_actions.py` replaces it with t
 ledger aggregate (metered + estimated split, entry count, file pointer). No manual
 upkeep; cannot go stale.
 
+**Per-phase cells: `<!-- PHASE_COST:N -->`** (added 2026-07-08). Drop this marker in
+the AI-cost column of the phases table and the render fills it live from the ledger's
+phase-N total (metered / est. split shown when mixed). Use it instead of a hand-typed
+number or "metered per asset" — the same anti-stale guarantee as the total row, per
+phase. **This only works if dispatches carry their TRUE phase**: tag strategy subagents
+with the phase they serve (`--phase 1` Insights · `--phase 2` CD trio · `--phase 3`
+Plan/influencer research), NOT the `add` default of `4`. Mis-tagging lumps strategy
+spend into Phase 4 and the per-phase cells lie (the 2026-07-08 buildlog retro fix).
+
 ## Commands
 
 ```bash

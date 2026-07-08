@@ -10,6 +10,30 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+## [1.2.0] — 2026-07-08
+
+### Added
+- **Two clearly-named libraries, shipped populated, reachable from the top of every screen.** A fresh
+  deployment now ships with a starter **Best-Practice Library** (a curated set of standout-campaign
+  exemplars the studio learns from) and an **Insights Library** (a starter research corpus), each
+  titled, explained, and cross-linked, with a top-right menu pill on every operator surface. The
+  Best-Practice Library opens with plain instructions on how to grow it (in chat, say "add this to my Best-Practice
+  library"), and every release automatically carries the latest curated entries. (Real third-party
+  client names in the shipped entries are automatically genericised to an example tenant.)
+- **A richer creative toolkit for the Creative Director.** The strategic "journey modes" a campaign can
+  build toward expanded from 5 to 9 (adding Attention/fame, Trust/proof, Utility/service, and
+  Community/advocacy, plus an explicit escape hatch), and the visual-register palette grew from 4 to 8
+  (adding Premium/luxury, Retro/nostalgic, Techno-futurist, and Playful/vibrant) — a deeper strategic and
+  aesthetic range, each with worked exemplars behind it.
+
+### Changed
+- **Key legal docs now sit at the repository root.** LICENSE, NOTICE, and TRADEMARK are at the top level
+  where they're expected and easy to find; the operational data-handling notice stays under docs/legal.
+- **The Help-hub FAQ now covers both libraries** — how to add to your Best-Practice Library and your
+  Insights Library, each in one plain step.
+- **The system-improvement board states the benefit of every item.** Each idea and backlog ticket now
+  leads with the concrete value it delivers, rendered on the card — so the board reads prioritisable at a glance.
+
 ### Fixed
 - **Auto-captured system ideas can never be handed a reused id.** The scheduled cadences that file
   new ideas now record each one in the append-only audit log and draw the next free id from the full

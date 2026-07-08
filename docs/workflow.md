@@ -294,6 +294,8 @@ docs/
 4. **CM does not create intermediate gates.** Phases 1–3 have 3 gates (one each). Phase 4 has 1 gate per asset.
 5. **CM never surfaces an un-QA'd asset.** Brand verdict must clear before the operator sees the asset.
 6. **CM re-renders HTML on every markdown write.** Stale HTML is a worse failure mode than no HTML.
+7. **CM never converts a directional/conversational signal into an approval.** Only an explicit *Approved / send back / kill* advances a gate. Picking a concept direction, accepting a name, or expressing an operating preference is **directional, not a verdict** — and a re-authored/integrated artifact (e.g. a concept the CD renamed or reframed after the pick) is a **new draft that must be re-surfaced for a fresh explicit approval** before the next phase fires. Per `feedback_verdicts_must_be_explicit.md` + `feedback_cm_does_not_self_approve.md`.
+8. **✅ on any operator surface means an explicit operator verdict — nothing else.** Produced-but-not-gated artifacts (the Insight Brief, the concept moodboard, the concept trio menu) are *inputs*; they never carry an approval ✅. The only Phase-1/2/3 gates are the **Brief**, the **concept pick**, and the **Plan**. Marking an ungated input "✅" fabricates an approval and erodes gallery trust.
 
 ---
 
