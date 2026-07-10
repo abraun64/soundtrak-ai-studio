@@ -39,3 +39,6 @@ Steve Jobs returned to a near-bankrupt Apple and reset the brand's frame from "c
 - Manifesto-without-POV: a film that gestures at meaning without taking a position. Audiences smell it.
 - Imitation: countless "here's to the X" rip-offs have followed; if the device is recognisable, you've cloned the surface.
 - Aperture without a business behind it: Apple had the iMac queued to back the claim. A reset with no product/operational backup accelerates distrust.
+
+## Related
+- [[apple-privacy-thats-iphone-2019]] — same brand; an aperture-setting idea compounded over years, and (like this) a claim the product had to genuinely back

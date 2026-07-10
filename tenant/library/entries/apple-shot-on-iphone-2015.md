@@ -42,3 +42,6 @@ Apple gave up trying to demo the camera's capabilities itself. Instead, it curat
 
 ## Operator applications
 - **SelfWealth / Syfe strategy deck (March 2026)** — surfaced as the "trojan-horse hero feature" play: lead a brand/performance push with ONE differentiating feature stated plainly (Apple led on the camera, the feature most people actually want, run as the OOH/brand hero from 2015 to today) rather than reciting a feature list. For a retail brokerage that means picking the single feature the audience most wants and making it the whole message, not one bullet among many.
+
+## Related
+- [[apple-privacy-thats-iphone-2019]] — same brand; another single-minded product-truth platform run always-on (privacy as the one axis instead of the camera)

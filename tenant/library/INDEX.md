@@ -1,6 +1,6 @@
 # Best-Practice Library
 
-The reference collection the Creative Director and Producer draw on when creating your work — standout campaigns, gold-standard exemplars, and craft references. **93 entries**, plus the playbooks, archetypes, and visual-movement guides listed below.
+The reference collection the Creative Director and Producer draw on when creating your work — standout campaigns, gold-standard exemplars, and craft references. **95 entries**, plus the playbooks, archetypes, and visual-movement guides listed below.
 
 > 🔎 **Looking for research, not creative?** Market data, behavioural-science, and audience research live in the separate **[Insights Library](../research-library/INDEX.html)** — the corpus the Insights Manager cites. *This* Best-Practice Library is for **creative** exemplars. They're two different collections (both are in the top-right menu).
 
@@ -22,7 +22,7 @@ Add a standout example any time — **in chat, paste a link or a reference and s
 
 ## Also in this library
 
-Beyond the 93 campaign entries, three reference sets the Creative Director works from when shaping a concept. Click any to open it:
+Beyond the 95 campaign entries, three reference sets the Creative Director works from when shaping a concept. Click any to open it:
 
 - 📘 **Playbooks** — full tactical playbooks (the how-to behind a whole play). Netwealth-authored: [Winning New Clients](playbooks/winning-new-clients-playbook.md) · [Creating Loyalty That Lasts](playbooks/creating-loyalty-playbook.md)
 - 🎯 **Archetypes** — the 9 strategic "journey modes" a campaign can take (what job the creative is doing), ordered roughly by funnel: [Aperture-setting](archetypes/aperture-setting.md) · [Attention / fame](archetypes/attention-fame.md) · [Educational pipeline](archetypes/educational-pipeline.md) · [Trust / proof](archetypes/trust-proof.md) · [Utility / service](archetypes/utility-service.md) · [Participatory](archetypes/participatory.md) · [Direct-response](archetypes/direct-response.md) · [Community / advocacy](archetypes/community-advocacy.md) · [Identity reinforcement](archetypes/identity-reinforcement.md)
@@ -40,6 +40,8 @@ Beyond the 93 campaign entries, three reference sets the Creative Director works
 | Soundtrak | [The Customer Behind Your Customer (Thinking article)](entries/soundtrak-customer-behind-your-customer-2026.md) | 2026 | B2B | Pro-services | Single-asset | Tactic | Smart | Educational pipeline | Soundtrak-own |
 | Soundtrak | [Owned Media Compounds. Performance Media Doesn't. (Thinking article)](entries/soundtrak-owned-media-compounds-2026.md) | 2026 | B2B | Pro-services | Single-asset | Hybrid | Smart | Educational pipeline | Soundtrak-own |
 | Soundtrak | [The 1%ers (Thinking article — finishing + the relative/time-boxed 1%)](entries/soundtrak-the-1ers-2026.md) | 2026 | B2B | Pro-services | Single-asset | Hybrid | Smart | Educational pipeline | Soundtrak-own |
+| Heidi Health | [Relief, on repeat (Side Effects May Include…)](entries/heidi-relief-on-repeat-2026.md) | 2026 | B2B | Health-Wellness | Multi-step-campaign | Hybrid | Wild | Attention/fame | Operator-curated |
+| Apple | [Privacy. That's iPhone.](entries/apple-privacy-thats-iphone-2019.md) | 2019-ongoing | B2C | Tech-Consumer | Always-on | Big-idea | Smart | Aperture-setting | Operator-curated |
 | Fletch (FletchPMM) | ["Let's fix your confusing positioning" (website — clarity + clean-authoritative exemplar)](entries/fletch-pmm-website-2026.md) | 2026 | B2B | Pro-services | Single-asset | Hybrid | Smart | Direct-response | Operator-curated |
 | Netwealth | [AdviceTech Research Report 2025](entries/netwealth-advicetech-report-2025.md) | 2025 | B2B | Wealth-Investment | Always-on | Hybrid | Smart | Trust/proof | Operator-curated |
 | Netwealth | [The Advisable Australian](entries/netwealth-advisable-australian-2024.md) | 2022-ongoing | B2B | Wealth-Investment | Always-on | Hybrid | Smart | Aperture-setting | Operator-curated |
