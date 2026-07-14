@@ -90,6 +90,8 @@ The tables below are a menu of tactic *types*. These **named plays** are the hig
 | Image & video SEO | Optimising alt text, filenames, captions, and YouTube metadata for visual search. | Owned |
 | Programmatic SEO | Automating the creation of thousands of landing pages from structured data to capture long-tail traffic. | Owned |
 | International / multilingual SEO | Hreflang, country-specific domains, localised content for global markets. | Owned |
+| App Store Optimisation (ASO) | Optimising an app's store listing — title, keyword field, screenshots, ratings/reviews — to rank and convert in the App Store / Google Play. | Owned |
+| Directory & marketplace submissions | Listing the product in startup / SaaS / AI / MCP / no-code and review directories (Product Hunt, G2, Capterra, category lists) for backlinks, referral traffic, and buyer discovery. | Owned / Earned |
 
 ## Paid Search & Performance
 
@@ -406,6 +408,7 @@ The tables below are a menu of tactic *types*. These **named plays** are the hig
 
 ## Changelog
 
+- **2026-07-14** — Breadth cross-check against [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) (SYS-062). Confirmed coverage of programmatic-SEO, schema, churn-prevention, referrals, lead-magnets, co-marketing. Added the two genuine gaps: **App Store Optimisation (ASO)** and **Directory & marketplace submissions** (SEO section). Companion craft frameworks mined the same session into one file: `craft/frameworks/applied-marketing-frameworks.md` (§1 Mental models · §2 Conversion audit · §3 Voice of customer).
 - **2026-06-16** — Added a **Named plays** layer (6 strategic mechanics: friction-reduction utility · proprietary-data content engine · lifecycle behavioural-trigger matrix · trojan-horse hero feature · "Wrapped" shareable-data mechanic · channel-as-JTBD). Source: the operator's SelfWealth/Syfe strategy deck (March 2026), patterns generalised. External precedents (Equity Mates acquisition, Shot on iPhone, Spotify Wrapped) filed in `tenant/library/`.
 - **2026-06-12** — Added 28 tactics: 3 new categories (eCommerce & Product Content · Retail Media & In-Store · Sales Enablement) + additions to Content Marketing, Partnership & Channel, Data & Analytics, AI & Marketing Automation, Product-Led & In-Product. Source: SalesChef (saleschef.ai/what-saleschef-does) capability teardown. Usage section refreshed from archived CEP/copywriter architecture to v3 (CD Phase 2 · CM Phase 3/2a).
 - **2026-05-19** — Initial master reference.

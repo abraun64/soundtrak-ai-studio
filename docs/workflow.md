@@ -127,7 +127,7 @@ This is the foundational discipline that makes the system a *force multiplier* r
 - If operator points to existing brand assets (HTML guide, voice doc, prior campaign, URL) — CM/CD extract + normalise into the tenant's durable Brand Context record (`docs/specs/brand-context.md`).
 - If absent — authored in **Phase 0 (tenant baseline)** before the first campaign (`docs/specs/phase-0-tenant-baseline.md`), not during the campaign. Phase 1 inherits it.
 - **Canva brand kit**: set up in Phase 0 (palette + fonts + logos) so Producer can use it in Mode B for all subsequent assets. Captured as `canva_brand_kit_id` in the Brand Context record.
-- Brand Context is durable per-tenant — reused on subsequent campaigns for the same business, updated as needed.
+- Brand Context is durable per-tenant — reused on subsequent campaigns for the same business, updated as needed. Updating it (or any baseline section) is an **idempotent re-run of Phase 0**: say "update my brand" (or "update my voice / segments / market / compliance / channels") and CM detects what already exists, keeps what's right, interviews only the named/missing part, and gates the diff before writing — never a full redo, never a silent overwrite. See `docs/specs/phase-0-tenant-baseline.md` §"Idempotent re-run + section-scoped update".
 
 **Practitioner frameworks layering**:
 - The practitioner frameworks (`craft/frameworks/`) and the tenant Brand Context don't conflict — they layer.
@@ -139,7 +139,7 @@ This is the foundational discipline that makes the system a *force multiplier* r
 
 **Output**: a 1-page **Brief** (`docs/specs/brief.md`, including the "insights that matter" sections) + the **Insight Brief** + a normalised **Brand Context** record (`docs/specs/brand-context.md`). All rendered to HTML for operator review.
 
-**Operator approval**: opens `brief.html` (and `brand-context.html` if newly created) in browser; confirms facts + insights are right; replies in chat with verdict.
+**Operator approval** — the single Phase-1 gate is the **Brief, and that one verdict covers the insights that inform it**: the operator opens `brief.html` (and `brand-context.html` if newly created), which surfaces the per-segment **insight digest** (+ named evidence) above the fold so the approval is *informed*, not a rubber-stamp; confirms the facts **and** the insights are right; replies in chat with one explicit verdict. That verdict approves **both** the Brief and the Insight Brief — CM **derives the Insight Brief's approved-state from it** (SYS-067: approved-*as-part-of*-the-Brief, never a separate gate). **Scoped send-back**: if only the insights are off ("the insights on segment X are wrong"), CM re-dispatches just the **Insights Manager** with the correction, not the whole Brief.
 
 ### Phase 2 — Concept Design (creative trio)
 
@@ -295,7 +295,7 @@ docs/
 5. **CM never surfaces an un-QA'd asset.** Brand verdict must clear before the operator sees the asset.
 6. **CM re-renders HTML on every markdown write.** Stale HTML is a worse failure mode than no HTML.
 7. **CM never converts a directional/conversational signal into an approval.** Only an explicit *Approved / send back / kill* advances a gate. Picking a concept direction, accepting a name, or expressing an operating preference is **directional, not a verdict** — and a re-authored/integrated artifact (e.g. a concept the CD renamed or reframed after the pick) is a **new draft that must be re-surfaced for a fresh explicit approval** before the next phase fires. Per `feedback_verdicts_must_be_explicit.md` + `feedback_cm_does_not_self_approve.md`.
-8. **✅ on any operator surface means an explicit operator verdict — nothing else.** Produced-but-not-gated artifacts (the Insight Brief, the concept moodboard, the concept trio menu) are *inputs*; they never carry an approval ✅. The only Phase-1/2/3 gates are the **Brief**, the **concept pick**, and the **Plan**. Marking an ungated input "✅" fabricates an approval and erodes gallery trust.
+8. **✅ on any operator surface means an explicit operator verdict — nothing else.** The Phase-1/2/3 gates are the **Brief**, the **concept pick**, and the **Plan**. The **Insight Brief** is approved *as part of* the Brief (SYS-067) — so it may carry a ✅ **only once the Brief is approved** (a state CM derives from that verdict), never a standalone or pre-approval tick. Genuinely ungated inputs — the concept **moodboard**, the concept **trio menu** — never carry a ✅. Marking any of these "✅" without the backing verdict fabricates an approval and erodes gallery trust.
 
 ---
 

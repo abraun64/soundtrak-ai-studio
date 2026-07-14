@@ -62,12 +62,58 @@ Foundation-shaped campaigns still build absent/contested strategy through the ga
 - **ONE batched approval per artifact class** (operator-trio style): "here's the tenant baseline — Brand Context · Segments · Market · Compliance — approve / edit each." Compliance Profile additionally carries the counsel-review flag (§8 of its spec).
 - **"No baseline needed for X" is a valid explicit outcome** — never skipped silently.
 - The Compliance Profile is **operator-approved** (and counsel where §8 requires); never auto-activated.
+- **The same gate governs re-runs and section-scoped updates** — a re-run diffs proposed changes against approved content and asks the operator to confirm; it **never silently overwrites** an approved baseline (see *Idempotent re-run + section-scoped update*).
 
 ## Run-once + refresh
 
-- Phase 0 runs **once per tenant**. Tenant-baseline readiness surfaces on `campaigns/index`.
+- Phase 0 **completes once per tenant**, but is **safe to re-run any time** as material accumulates (see *Idempotent re-run* below) — the first run establishes the baseline; later runs top up gaps or update one section, never redo the whole thing. Tenant-baseline readiness surfaces on `campaigns/index`.
 - Refresh cadence: claim map per-campaign (existing rule); market + segments quarterly; **Compliance Profile on regime change + periodic** (its §10).
 - Owner: CM orchestrates; later extractable to an `/establish-tenant` skill after 2–3 manual runs (per the existing skill-extraction discipline).
+
+## Idempotent re-run + section-scoped update (SYS-065)
+
+"Set yourself up" / "onboard `<tenant>`" / **"update my brand"** is **one idempotent workflow**, not a one-shot. Re-running it as new material arrives — or to change a single part — is a first-class path, and it is **safe**: it keeps what's still right, only interviews for what's missing or changed, and **never silently overwrites operator-approved baseline content** (see *Gates*). This mirrors the promise the operator FAQ makes (`docs/playbooks/faq.md` → "Do I have to redo my whole setup…").
+
+### Auto-detect — what already exists
+
+Before interviewing, CM **detects the current baseline state per section** so it can skip what's present. Detection is mechanical (don't eyeball it):
+
+```
+python .claude/skills/campaign-manager/phase0_detect.py --tenant <slug>
+```
+
+It reads two signals per section — the **file** (`tenant-brand/<slug>*` / `tenant/<slug>/integrations.yaml`) and the **`baseline:` declaration** in `tenant-brand/<slug>.yaml` — and reports each section as `present` (both agree), `missing` (interview it), or `partial` (file/declaration mismatch — reconcile with the operator, never silently). This is the read-only companion to `phase0_gate.py`: the **gate** answers "may a campaign start?"; the **detector** answers "what does this tenant already have, section by section?".
+
+- **First run** (all `missing`): the full baseline pass, exactly as today.
+- **Re-run** (some `present`): CM lists what's already established, confirms it in one line ("your voice, segments and market are set — leave them?"), and only interviews the `missing`/`partial` sections plus anything the operator names for update.
+
+### Section vocabulary + operator update verbs
+
+The baseline is addressable in six sections. Each maps to an artifact and an operator-facing verb — updating one section **must not** redo the others:
+
+| Section | Artifact | Operator says |
+|---|---|---|
+| **brand-context** | `tenant-brand/<tenant>.md` | "update my brand", "refresh my brand context" |
+| **voice** | `tenant-brand/<tenant>.md` (voice/tone slice — same file, scoped edit) | "update my voice", "change how it writes" |
+| **segments** | `tenant-brand/<tenant>-segments.md` | "update my segments", "update just my target segments" |
+| **market** | `tenant-brand/<tenant>-market.md` | "refresh my market / competitors" |
+| **compliance** | `tenant-brand/<tenant>-compliance.md` | "update my compliance rules / disclaimers" |
+| **channels** | `tenant/<tenant>/integrations.yaml` | "update my channels", "I added a new tool" |
+
+`voice` has no file of its own — it's the voice/tone slice of the Brand Context, reported and edited separately so "update just my voice" is a legible scoped verb that touches only that slice of `<tenant>.md`.
+
+A section-scoped update (`--section <name>` on the detector) interviews **only** that section, diffs the proposed change against the current approved content, and gates just that artifact class. It does **not** re-open the other five.
+
+### Gates preserved (hard — no silent overwrite)
+
+The re-run/update path uses the **same batched approval per artifact class** as a first run (see *Gates*). A re-run or section update **NEVER** writes over operator-approved baseline content without confirmation:
+
+1. **Detect** the current state (present / missing / partial).
+2. For any section being changed, **draft the update and show the diff** against the current approved artifact — what's added, what's changed, what's removed.
+3. **The operator approves the diff** (per artifact class, batched) before anything is written.
+4. Only on explicit approval is the artifact rewritten and its `baseline:` entry / `Last updated` stamp refreshed; then re-render its HTML (per the render-on-every-state-change rule).
+
+`partial` (file present but not declared, or declared but file missing) is surfaced for reconciliation, never auto-resolved. "No change needed for section X" is a valid **explicit** outcome, never a silent skip. This protects operator trust: an approved baseline is only ever changed by the operator saying yes to a specific diff.
 
 ## `<tenant>-market.md` — inline schema (NEW artifact)
 

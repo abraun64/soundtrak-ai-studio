@@ -1,0 +1,68 @@
+---
+name: deploy-{{NAME}}
+description: |
+  {{TITLE}} deploy adapter — pushes an Approved asset to {{TARGET}}.
+  Conforms to the deploy-adapter contract
+  (.claude/skills/deploy-cookbook/ADAPTER-CONTRACT.md).
+
+  TRIGGER when: CM dispatches an Approved asset with deployment.platform == "{{NAME}}"
+  AND deployment.publish_method in [api, hybrid] AND tenant integrations.yaml has
+  has_adapter: true for {{NAME}}.
+
+  DO NOT TRIGGER when: publish_method == "cookbook" (use deploy-cookbook instead),
+  has_adapter: false in tenant config, or required credentials env-vars unset
+  (warn + fall back to deploy-cookbook).
+---
+
+# {{TITLE}} Adapter
+
+**Status**: STUB · scaffolded {{DATE}} · TODO: implement + fill investigation-reference.md.
+
+## Declared INPUTS
+
+- Asset path (from invoker prompt).
+- Sibling `asset.yaml` `deployment:` block: `platform`, `publish_method`, `location`,
+  `format_requirements`, `verification`, `deployment_notes` (per `docs/specs/asset.md`).
+- Tenant `integrations.yaml#platforms.{{NAME}}`: `has_adapter`, `credentials` (env-var refs),
+  `defaults` (per `docs/specs/integrations.md`).
+
+## Declared OUTPUTS — the adapter envelope
+
+Returns JSON to CM (see ADAPTER-CONTRACT.md § adapter envelope):
+
+```json
+{
+  "status": "deployed | dry_run | aborted | failed",
+  "platform": "{{NAME}}",
+  "target": "<where it went / would go>",
+  "verification": { "automated": [...], "manual": [...] },
+  "operator_action": "<the one next thing, or ''>",
+  "notes": "<deployment_notes + adapter remarks>"
+}
+```
+
+## deploy step
+
+TODO: push the asset to {{TARGET}}. Resolve credentials from env-vars; ABORT + fall back to
+deploy-cookbook if any required var is unset.
+
+## verify step
+
+TODO: run the asset's `deployment.verification` checks — execute `automated: true` checks here,
+return `automated: false` ones as manual operator actions in the envelope.
+
+## What this adapter does NOT do
+
+- Perform a real external deploy under `--smoke-test` / `--dry-run` (offline plan+verify only).
+- TODO: platform-specific boundaries (e.g. "does not publish/send without operator confirm").
+
+## Failure modes
+
+- Required env-var unset → ABORT + fall back to `deploy-cookbook`.
+- Malformed asset / missing `deployment:` block → error, no partial deploy.
+
+## Cross-references
+
+- `.claude/skills/deploy-cookbook/ADAPTER-CONTRACT.md` — the contract this conforms to.
+- `.claude/skills/deploy-cookbook/` — cookbook fallback.
+- `docs/specs/integrations.md` · `docs/specs/asset.md` §deployment.

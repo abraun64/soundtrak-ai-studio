@@ -41,20 +41,42 @@ If you find yourself asking the operator anything other than the named gates (Ph
 
 ## When you're invoked
 
-Six shapes — recognise which, then act (don't ask "what would you like to do?" if context makes it obvious):
+Seven shapes — recognise which, then act (don't ask "what would you like to do?" if context makes it obvious):
 
 1. **"Onboard <tenant>" / "start a campaign for <new tenant>"** (no `tenant-brand/<tenant>.yaml` exists) → run **Phase 0** first
 2. **"Start a campaign: <fuzzy ask>"** → **run the Phase-0 gate first**: `python .claude/lib/phase0_gate.py --tenant <slug>`. BLOCKED (baseline incomplete) → run **Phase 0**; PASS → run **Phase 1 Fact-Find**. The gate is mechanical — don't eyeball baseline completeness.
-3. **"What's the state? / what's awaiting me?"** → run **Standup**
-4. **"What's next on CAMP-X? / ship the next asset"** → run **Advance**
-5. **A specialist returned control** → run **Post-handoff routing**
-6. **A blocker needs an operator decision** → run **Escalation**
+3. **"Update my brand / voice / segments / market / compliance / channels" (existing tenant)** → run **Phase 0** in re-run mode: `phase0_detect.py` first, then interview + diff-gate only the named section(s). Never redo the whole baseline.
+4. **"What's the state? / what's awaiting me?"** → run **Standup**
+5. **"What's next on CAMP-X? / ship the next asset"** → run **Advance**
+6. **A specialist returned control** → run **Post-handoff routing**
+7. **A blocker needs an operator decision** → run **Escalation**
 
 ---
 
-## Phase 0 — Tenant baseline (new tenants only)
+## Phase 0 — Tenant baseline (new tenants + idempotent re-runs)
 
 When a tenant has **no baseline** (`tenant-brand/<tenant>.yaml` absent), build the durable compound every future campaign inherits, BEFORE Phase 1. **You orchestrate; the runbook drives.** Full procedure: [`docs/playbooks/onboard-tenant.md`](../../../docs/playbooks/onboard-tenant.md); schema: [`docs/specs/phase-0-tenant-baseline.md`](../../../docs/specs/phase-0-tenant-baseline.md). (Extractable to an `/establish-tenant` skill after 2–3 manual runs.)
+
+**Phase 0 is idempotent — always detect first, interview only the gaps.** "Onboard", "set yourself up", and **"update my brand"** are the *same* workflow: safe to re-run any time as material accumulates. Before interviewing, detect the current per-section state (don't eyeball it):
+
+```
+python .claude/skills/campaign-manager/phase0_detect.py --tenant <slug>
+```
+
+It reports each baseline section as `present` (file + `baseline:` declaration agree), `missing` (interview it), or `partial` (mismatch — reconcile with the operator, never silently). **First run** (all missing) = the full pass below. **Re-run** (some present) = list what's already set, confirm in one line ("your voice, segments and market are set — leave them?"), and interview only the missing/partial sections plus anything the operator names.
+
+**Section-scoped updates.** The baseline is addressable in six sections; each has an operator verb, and updating one MUST NOT redo the others (`--section <name>` scopes the detector):
+
+| Section → artifact | Operator says |
+|---|---|
+| **brand-context** → `tenant-brand/<tenant>.md` | "update my brand", "refresh my brand context" |
+| **voice** → `<tenant>.md` (voice/tone slice — same file) | "update my voice", "change how it writes" |
+| **segments** → `<tenant>-segments.md` | "update my segments / target segments" |
+| **market** → `<tenant>-market.md` | "refresh my market / competitors" |
+| **compliance** → `<tenant>-compliance.md` | "update my compliance rules / disclaimers" |
+| **channels** → `tenant/<tenant>/integrations.yaml` | "update my channels", "I added a tool" |
+
+**No silent overwrite (HARD).** A re-run or section update uses the SAME batched gate per artifact class: detect → draft the change → **show the diff against the current approved artifact** → operator approves that diff → only then rewrite the artifact, refresh its `baseline:` entry + `Last updated` stamp, and re-render its HTML. An approved baseline is only ever changed by the operator saying yes to a specific diff. `partial` is surfaced for reconciliation; "no change needed for X" is a valid *explicit* outcome. Full behaviour: spec §"Idempotent re-run + section-scoped update".
 
 Orchestration spine — **ingest what exists, don't invent strategy**:
 
@@ -89,9 +111,9 @@ Goal: a 1-page **Brief** + a live campaign dashboard. **Brand Context is inherit
    - `campaigns/<slug>/campaign.yaml` — **MUST set `tenant: <slug>`** (groups the campaign under its tenant + powers the breadcrumb/chip cross-links) + `phases:` list (id · title · status · artifacts) + `nickname:`.
    - `campaigns/<slug>/<slug>.md` — the dashboard per [`dashboard.md`](../../../docs/specs/dashboard.md) (Phase-1 minimum = Brief Drafted, rest Pending). Never link the index to `brief.html`.
    - `campaigns/<slug>/gallery-config.yaml` — channel taxonomy (`channels:` + `channel_summaries:`); without it the gallery falls back to a generic skeleton.
-7. **Render + surface ONE thing**: render brief (incl. the insights sections) + `insight-brief.html` + dashboard (+ Brand Context if the operator re-confirmed it); update the quintet; tell the operator "Brief ready: `file:///…/brief.html` — approve / send back". **The Brief is the ONLY Phase-1 gate.** The Insight Brief is an *input* rendered for reference — never surface it as its own approval and never mark it "✅" (rule 8 below). Brand Context is a durable **Phase-0** tenant artifact — list it under Phase 0, not Phase 1.
+7. **Render + surface ONE thing**: render brief (incl. the insights sections) + `insight-brief.html` + dashboard (+ Brand Context if the operator re-confirmed it); update the quintet; tell the operator "Brief ready: `file:///…/brief.html` — **approve the Brief and the insights that inform it**, or tell me what to fix". **The Brief is the ONLY Phase-1 gate — but that one verdict covers the insights too** (SYS-067). `brief.html` MUST surface the per-segment **insight digest** (+ named evidence) above the fold so the approval is informed. The **Insight Brief is approved *as part of* the Brief** (not a separate gate): on approval CM derives its approved-state from the Brief verdict — so its ✅ is real, backed by a verdict. **Never a standalone or pre-approval ✅ on the Insight Brief** (rule 8 below); genuinely ungated inputs (moodboard, trio menu) never carry one at all. Brand Context is a durable **Phase-0** tenant artifact — list it under Phase 0, not Phase 1.
 
-On approval (explicit *Approved* only — not "looks good", not a directional preference): Brief Status → Approved; **append a `--basis estimate` cost-ledger entry for the main-loop Brief interview** (`ledger.py add --phase 1 --agent main-loop --basis estimate`) so the dashboard cost cell isn't a misleading blank; re-render; Phase 2 fires.
+On approval (explicit *Approved* only — not "looks good", not a directional preference): Brief Status → Approved; **stamp the Insight Brief's approved-state from the SAME verdict** (approved-as-part-of-the-Brief — its dashboard entry may now carry a ✅, and only now); **append a `--basis estimate` cost-ledger entry for the main-loop Brief interview** (`ledger.py add --phase 1 --agent main-loop --basis estimate`) so the dashboard cost cell isn't a misleading blank; re-render; Phase 2 fires. **Scoped send-back**: if the reply flags only the insights ("insights on segment X are off"), re-dispatch **just the Insights Manager** with the correction — not the whole Brief interview — then re-surface for the one approval.
 
 ### Phase 2 — Concept Design (creative trio)
 

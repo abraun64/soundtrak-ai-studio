@@ -10,6 +10,28 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-07-14
+
+### Added
+- **The studio checks its own rendered work before you see it.** A new render → inspect → fix pass reads the actual rendered page and catches layout defects — overflowing tables, orphaned headings, missing image descriptions — auto-fixing the safe ones, so assets reach you visually correct the first time.
+- **An automatic guard against false "approved" ticks.** The system now flags any green ✅ that has landed on something you didn't actually approve, protecting the trust of every approval mark on your boards.
+- **Behavioural self-tests.** A lightweight test suite checks that the studio's core machinery actually does the right thing on known inputs (not just that pages exist), run as part of the health check — so regressions are caught before they reach you.
+- **A guided way to add new publishing channels.** A new integration scaffolder stamps out a tested deploy connector to a standard contract (with a working reference connector included), making it a guided step to extend the studio to a new channel or environment.
+- **A weekly "a release is ready" nudge.** The studio notices when improvements have piled up unreleased, prepares a validated release, and tells you it's ready to publish — you always do the final publish.
+- **Faster brand setup and updates.** Onboarding is now re-runnable: it detects what you already have and only asks about what's missing, and you can update just one part (your voice, segments, channels) without redoing the whole baseline — and it never overwrites something you've approved without showing you the change first.
+- **New craft references.** A catalogue of ~60 marketing mental models, a conversion-optimisation audit framework, and a voice-of-customer research method the studio's creative direction now draws on.
+- **Engineer-facing architecture docs.** A new illustrated explainer (two diagrams) of how the studio is built and how it extends to new environments — for developers and partners.
+- **Live per-phase cost on every campaign dashboard.** Each phase shows its real AI cost, rendered live from the metered ledger so the totals can't go stale.
+
+### Changed
+- **The insights behind a campaign are now genuinely approved with the Brief.** Approving a campaign Brief formally covers the audience insights that inform it — shown at the approval point — so the sign-off is real, not assumed.
+- **Stricter approval honesty.** The studio never treats a passing chat comment as a formal approval, and a reworked artifact always comes back for a fresh, explicit sign-off.
+
+### Fixed
+- Per-phase cost cells no longer read blank where real work happened.
+- Removed false "approved" ticks that had appeared on inputs you hadn't approved.
+- Hardened the gallery's output-count reading so image dimensions (e.g. 256×256, @2x) are never mistaken for quantities.
+
 ## [1.2.0] — 2026-07-08
 
 ### Added

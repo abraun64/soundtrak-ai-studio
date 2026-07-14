@@ -429,6 +429,8 @@ html, body {
   gap: 6px;
   font-size: 13px;
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 .crumb {
   color: var(--text-muted);
@@ -483,7 +485,7 @@ html, body {
 .library-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
 }
 .lib-link {
@@ -1654,6 +1656,37 @@ body.template-plan .pill--queued  { background: var(--code-bg);     color: var(-
 body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
 body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
 
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
 /* Cut & transferred — collapsed audit group below the live build */
 body.template-plan .asset-cards-archived {
   margin: 4px 0 28px;
@@ -1879,9 +1912,9 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
-      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../../../../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link" href="../../../../../tenant/library/INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../../docs/guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
         <span class="page-header__template" aria-hidden="true">base</span>
       </div>
@@ -2104,6 +2137,16 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <td>International / multilingual SEO</td>
 <td>Hreflang, country-specific domains, localised content for global markets.</td>
 <td>Owned</td>
+</tr>
+<tr>
+<td>App Store Optimisation (ASO)</td>
+<td>Optimising an app's store listing — title, keyword field, screenshots, ratings/reviews — to rank and convert in the App Store / Google Play.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Directory &amp; marketplace submissions</td>
+<td>Listing the product in startup / SaaS / AI / MCP / no-code and review directories (Product Hunt, G2, Capterra, category lists) for backlinks, referral traffic, and buyer discovery.</td>
+<td>Owned / Earned</td>
 </tr>
 </tbody>
 </table>
@@ -3344,6 +3387,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 </ul>
 <h2 id="changelog">Changelog</h2>
 <ul>
+<li><strong>2026-07-14</strong> — Breadth cross-check against <a href="https://github.com/coreyhaines31/marketingskills">coreyhaines31/marketingskills</a> (SYS-062). Confirmed coverage of programmatic-SEO, schema, churn-prevention, referrals, lead-magnets, co-marketing. Added the two genuine gaps: <strong>App Store Optimisation (ASO)</strong> and <strong>Directory &amp; marketplace submissions</strong> (SEO section). Companion craft frameworks mined the same session into one file: <code>craft/frameworks/applied-marketing-frameworks.md</code> (§1 Mental models · §2 Conversion audit · §3 Voice of customer).</li>
 <li><strong>2026-06-16</strong> — Added a <strong>Named plays</strong> layer (6 strategic mechanics: friction-reduction utility · proprietary-data content engine · lifecycle behavioural-trigger matrix · trojan-horse hero feature · "Wrapped" shareable-data mechanic · channel-as-JTBD). Source: the operator's SelfWealth/Syfe strategy deck (March 2026), patterns generalised. External precedents (Equity Mates acquisition, Shot on iPhone, Spotify Wrapped) filed in <code>tenant/library/</code>.</li>
 <li><strong>2026-06-12</strong> — Added 28 tactics: 3 new categories (eCommerce &amp; Product Content · Retail Media &amp; In-Store · Sales Enablement) + additions to Content Marketing, Partnership &amp; Channel, Data &amp; Analytics, AI &amp; Marketing Automation, Product-Led &amp; In-Product. Source: SalesChef (saleschef.ai/what-saleschef-does) capability teardown. Usage section refreshed from archived CEP/copywriter architecture to v3 (CD Phase 2 · CM Phase 3/2a).</li>
 <li><strong>2026-05-19</strong> — Initial master reference.</li>
@@ -3352,7 +3396,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>tenant\frameworks\marketing-tactics.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span>Source: <code>tenant\tactics\marketing-tactics.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
   </footer>
 </body>
 </html>

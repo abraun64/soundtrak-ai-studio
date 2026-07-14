@@ -212,6 +212,22 @@ else:
     check("L6", "docs-audit present", False, "missing")
 
 
+# ── Layer 7 — Behavioural evals ──────────────────────────────────────────────
+# Presence/currency (L1-L6) prove surfaces EXIST and are CURRENT. They do NOT prove a
+# skill DID THE RIGHT THING on a representative input — the class of every recurring
+# failure here (a fake ✅, a blank per-phase cost cell, a dropped render marker). The
+# per-skill eval harness (SYS-061) feeds known inputs through render.py / ledger.py and
+# the content-subedit voice rules and asserts on the concrete output. Deterministic +
+# offline (no API/LLM). A red eval makes the smoke-test red.
+EVALS_RUNNER = ROOT / ".claude" / "evals" / "run.py"
+if EVALS_RUNNER.exists():
+    ok, err = _run_ok([str(EVALS_RUNNER)], timeout=60)
+    check("L7", "per-skill behavioural evals", ok,
+          "eval FAIL — run `python .claude/evals/run.py` to see which" if not ok else "")
+else:
+    check("L7", "eval harness present", False, "missing .claude/evals/run.py")
+
+
 # ── Report ───────────────────────────────────────────────────────────────────
 LAYERS = {
     "L1": "LAYER 1 - Render pipeline",
@@ -220,6 +236,7 @@ LAYERS = {
     "L4": "LAYER 4 - Git repos",
     "L5": "LAYER 5 - Doc index",
     "L6": "LAYER 6 - Doc content + structure",
+    "L7": "LAYER 7 - Behavioural evals",
 }
 print("=== SYSTEM SMOKE TEST ===")
 print(f"Date: {datetime.now():%Y-%m-%d %H:%M}")

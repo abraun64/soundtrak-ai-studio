@@ -96,9 +96,19 @@ The generator has platform-specific step templates for common destinations:
 - **Platform unknown to generator**: emit generic cookbook + flag for Producer to enrich `format_requirements` next iteration.
 - **asset.yaml missing deployment block**: ABORT + emit Producer Step 4.6 warning (per build-gallery.py warning).
 
+## Coded adapters — the standard contract
+
+The cookbook is the FALLBACK. When a platform gets a coded adapter instead, that adapter must
+conform to the **deploy-adapter contract**: [`ADAPTER-CONTRACT.md`](ADAPTER-CONTRACT.md) (sibling
+file). It defines the four required files (interface `SKILL.md` + tested `adapter.py` + captured
+`investigation-reference.md` + `smoke_test.py`) and the standard adapter envelope. New adapters
+are scaffolded to that contract via `.claude/skills/integration-scaffolder/`; the reference
+implementation proving it end-to-end is `.claude/skills/deploy-static-folder/`.
+
 ## Cross-references
 
 - `docs/specs/integrations.md`
 - `docs/specs/asset.md` §deployment
 - `docs/specs/rollout-architecture.md` §5 (operations.html surface where cookbooks land)
 - `.claude/skills/deploy-mailchimp/` — preferred path when adapter available + creds present
+- [`ADAPTER-CONTRACT.md`](ADAPTER-CONTRACT.md) — the standard shape every coded deploy adapter conforms to

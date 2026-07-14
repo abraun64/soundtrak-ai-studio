@@ -10,7 +10,7 @@ The evidence-backed answer to *"what is impacting our target market right now th
 
 - `campaigns/<slug>/insight-brief.md` (+ `.html`) — full research + all sources.
 - Authored **after** the Brief's objective + target segment(s) are set (so the sweep is scoped to them), as part of the Phase-1 output.
-- The distilled **"insights that matter"** (per segment) + the **"considered & cut"** register surface on the Phase-1 Brief (`brief.html`); the operator approves the Brief *including* the insights.
+- The distilled **"insights that matter"** (per segment) + the **"considered & cut"** register surface on the Phase-1 Brief (`brief.html`) above the fold; the operator's single Brief verdict approves the Brief **including** the insights (SYS-067). CM **derives the Insight Brief's approved-state from that verdict** (approved-*as-part-of*-the-Brief — no separate gate); its dashboard entry may then carry a ✅, and only then — never a standalone or pre-approval tick. A send-back scoped to the insights ("insights on segment X are off") re-dispatches just the Insights Manager, not the whole Brief.
 
 ## The insight bar — human insight > market insight (and ≠ wallpaper)
 

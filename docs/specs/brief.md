@@ -56,6 +56,8 @@ Authored by the **Insights Manager** in Phase 1 (after the objective + segment(s
 - **Insights that matter — grouped by target segment.** For each segment, 1–3 insights, each one sentence (audience truth + tension) + named source(s) + date + why-it-matters-to-the-objective. Decision-first, above the fold.
 - **Considered & cut** — a collapsed `<details markdown="1">` register of the ~top 10 candidates that didn't make it (each: insight · segment · why cut), **numbered + restorable**: the operator says *"restore insight #N"* → CM promotes it to the surfaced set + re-injects to the CD.
 
+**Approval covers the insights (SYS-067).** The single Phase-1 Brief verdict approves **both** the Brief and the Insight Brief — the digest above is shown *at the gate* so that approval is informed. On approval CM derives the Insight Brief's approved-state from the Brief verdict (approved-*as-part-of*-the-Brief; not a separate gate). A send-back scoped to a segment's insights re-runs just the Insights Manager, not the whole Brief.
+
 These are the **evidenced input to the CD's concept §2** — the big idea is built on them, not inferred cold. The operator approves the Brief *including* the insights (and any restores) before Phase 2 fires. **No-op for campaigns run before the Insights Manager existed** — the section simply doesn't appear.
 
 ## How to reach them (routes to market per segment) *(Insights Manager — informs the CD, not a media plan)*

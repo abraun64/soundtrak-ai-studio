@@ -149,12 +149,30 @@ for t in tenants:
         det = _stale(home, *owned_cy)
         check("tenant:" + t, "tenant home current", det == "", det or "")
 
+# ── Surface-honesty guard (SYS-059) ──────────────────────────────────────────
+# A ✅ on an operator surface may sit ONLY on a genuinely-gated artifact (Brief ·
+# Selected concept · Plan · finished assets · Phase-5/6 plans). A ✅ on an ungated
+# input (Insight Brief, concept trio/menu, moodboard, editorial backlog, research …)
+# fabricates an operator approval and erodes gallery trust — docs/workflow.md rule 8.
+try:
+    import surface_honesty
+    for v in surface_honesty.scan(_DATA):
+        check("campaign:" + v.campaign,
+              "surface-honesty (no ✅ on ungated input)", False,
+              f'{v.surface} · {v.where} · "{v.offending}"')
+except Exception as e:
+    check("surface-honesty", "guard ran", False, f"surface_honesty guard error: {e}")
+
 # ── Report ───────────────────────────────────────────────────────────────────
 groups: list[str] = []
 for g, *_ in results:
     if g not in groups:
         groups.append(g)
 
+try:  # Windows consoles default to cp1252, which can't encode ✅ / · in details
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 print("=== CM SELF-AUDIT ===")
 print(f"Date: {datetime.now():%Y-%m-%d %H:%M}")
 print(f"Active campaigns: {len(active)} · Tenants: {len(tenants)}\n")
