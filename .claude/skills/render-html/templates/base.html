@@ -13,7 +13,6 @@
       <div class="page-header__right">
         {{ library_nav }}
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
-        <span class="page-header__template" aria-hidden="true">{{ template_name }}</span>
       </div>
     </div>
   </header>
@@ -25,7 +24,7 @@
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>{{ source_path }}</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span>Source file: <code>{{ source_path }}</code></span>
   </footer>
 </body>
 </html>

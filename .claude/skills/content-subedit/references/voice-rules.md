@@ -21,6 +21,8 @@ Flag any em-dash you keep, with the one-line reason it's load-bearing (in the St
 
 Flag any occurrence of the following. Delete or rephrase — never keep.
 
+**Run this as a literal, deterministic find-check, not a vibe check (reinforced 2026-07-15).** Search the copy for each banned word below in turn — an explicit find over the exact string, one word at a time. Do not skim and trust that it "reads clean." "genuinely" slipped through into the Ed 19 draft twice and Ed 20 once despite this rule existing, because the pass was done by feel. Scan every pass, every word, including short common words like "genuinely" and "quietly" that a vibe read glides straight over.
+
 ### AI vocabulary
 delve, delving, tapestry, intricate, intricacies, interplay, foster, fostering,
 garner, garnering, underscore, underscores, pivotal, showcase, enduring, realm,
@@ -31,7 +33,7 @@ technical ecosystem), curate, curated (unless actual curation is being described
 navigate (as a metaphor — "navigating challenges", "navigate the landscape")
 
 ### Banned words added by the operator
-genuinely, honestly (when used as a filler — "honestly, this is...")
+genuinely, honestly (when used as a filler — "honestly, this is..."), quietly (as an empty intensifier — "quietly building", "quietly changed everything")
 
 ### Padding phrases
 "It's worth noting that", "It's important to remember that",
@@ -150,10 +152,26 @@ Two linked moves, flag either, flag both:
 
 ---
 
+## RULE 7 — UNVERIFIED / MIS-ATTRIBUTED STATISTIC (added 2026-07-15)
+
+A factual-accuracy safeguard, not a taste rule. Flag any statistic, percentage, or hard number that:
+- **lacks a named, verifiable source** — no report, no author, no year ("studies show 70% of buyers..."), or
+- **is attributed to a source that may not contain it** — a real-sounding number hung on a real-sounding report the writer never actually checked.
+
+AI drafts fabricate plausible figures and attach credible attributions to them. On Ed 20, the draft carried a fabricated "44%" and "9% from websites" attributed to *McKinsey State of the Consumer 2026* — neither number was in that report. It read as authoritative and was caught only by manual verification against the primary source.
+
+**Test:** For every number in the copy, ask — is there a named source (who, what report, what year)? Has that number been confirmed present in the actual primary source, not a summary of it? If either answer is no, flag it.
+
+**Fix:** Do not silently keep or reword the number. Flag it back to the writer for verification against the primary source. If it cannot be verified, it must be cut or replaced with a figure that can. Never let an unverifiable statistic ship.
+
+**Limit: zero unverifiable statistics.** A sub-edit cannot itself verify a claim against the web, so its job is to **catch and flag** every number that lacks a checkable source — never to pass it through on the assumption someone else checked.
+
+---
+
 ## HOW TO RUN THE SUB-EDIT
 
 1. Read the full content of the file.
-2. Work through Rules 1–6 in order. For each rule, list every violation found.
+2. Work through Rules 1–7 in order. For each rule, list every violation found.
 3. If violations exist, fix them in the content.
 4. Check that fixes haven't introduced new violations.
 5. Report: number of violations found per rule, what was changed, and the corrected text.
@@ -173,3 +191,4 @@ Two linked moves, flag either, flag both:
 | Restatements | Zero | Zero |
 | Recap closing | Not permitted | Not permitted |
 | Hollow contrast (many-say-few-do + kicker) | Zero | Zero |
+| Unverified / mis-attributed statistic | Zero (flag every one) | Zero (flag every one) |

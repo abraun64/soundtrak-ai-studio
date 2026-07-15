@@ -75,9 +75,9 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **Client operator onboarding** | Day-1 handoff session + 4-week standby for tenant-self-runs or handoff models. | Phase 5 execution for non-the operator-runs tenants | `docs/playbooks/client-operator-onboarding.md` |
 | **Pre-sync hygiene** | Checklist before running sync-tenant.ps1. Prevents cross-tenant leakage and dirty master propagation. | Before any master → tenant sync | `docs/playbooks/pre-sync-hygiene.md` |
 | **Sync master to tenant** | PowerShell + rsync mechanics for propagating master to a tenant's OneDrive. | Phase 6 setup | `docs/playbooks/sync-master-to-tenant.md` |
-| **Deployment guide** | Non-technical install/setup runbook. **Superseded by `docs/guide/deployment-guide.html`** (Soundtrak HTML); kept as source. | Reference only | `docs/playbooks/deployment-guide.md` |
+| **Deployment guide** | Non-technical install/setup runbook. **Retired redirect stub** → canonical is `docs/guide/deployment-guide.html`. | Redirect only | `docs/playbooks/deployment-guide.md` |
 | **Onboarding checklist** | First-run getting-started checklist. **Superseded by `docs/guide/getting-started.html`**; kept as source. | Reference only | `docs/playbooks/onboarding-checklist.md` |
-| **FAQ** | Self-service Q&A. **Superseded by `docs/guide/help.html`** (Help & Guides hub); kept as source. | Reference only | `docs/playbooks/faq.md` |
+| **FAQ** | Self-service Q&A. **Retired redirect stub** → canonical is `docs/guide/help.html` (`#faq`). | Redirect only | `docs/playbooks/faq.md` |
 
 ---
 

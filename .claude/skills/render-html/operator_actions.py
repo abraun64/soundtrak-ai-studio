@@ -802,8 +802,8 @@ def render_asset_list_table_md(assets: list[dict]) -> str:
         sections.append("")
 
     sections.append(
-        "<small>Auto-derived from each asset folder's `asset.yaml` (`status:`, `artifact_class:`, `artifact_kind:`). "
-        "Two classes, identity-silent: **end-audience** = what the audience sees; **operational** = how to ship/deploy/run it. "
+        "<small>Each asset is tagged by what it's for. "
+        "Two kinds: **end-audience** = what the audience sees; **operational** = how to ship/deploy/run it. "
         "WHO executes operational artifacts (you solo, the client team solo, or paired) is a runtime decision — not encoded in the doc. "
         "Open any asset in the channel-grouped **[gallery](gallery.html)**.</small>"
     )
@@ -1036,7 +1036,16 @@ def render_phases_table_md(phases: list[dict], campaign_dir: Path) -> str:
             if not t:
                 continue
             is_link = bool(h) and not h.startswith("#") and (campaign_dir / h.split("#")[0]).exists()
-            rendered.append(f"[{t}]({h})" if is_link else t)
+            if is_link:
+                cell = f"[{t}]({h})"
+                # BB2 (SYS-073): also surface the markdown Source when it exists — a subtle,
+                # low-prominence link so the underlying doc is reachable without cluttering the row.
+                base = h.split("#")[0]
+                if base.endswith(".html") and (campaign_dir / (base[:-5] + ".md")).exists():
+                    cell += f' <a class="src-link" href="{base[:-5] + ".md"}" title="Open the source document">src</a>'
+                rendered.append(cell)
+            else:
+                rendered.append(t)
         # Only the PRIMARY (first) artifact stays in the column; the rest go to the archive.
         artifacts_md = rendered[0] if rendered else ""
         if len(rendered) > 1:
@@ -1048,8 +1057,7 @@ def render_phases_table_md(phases: list[dict], campaign_dir: Path) -> str:
         )
     lines.append("")
     lines.append(
-        "<small>Auto-derived from `campaign.yaml` (phases + cadence) and `assets/*/asset.yaml` (status + operator_actions). "
-        "To edit phase prose: edit `campaign.yaml`. To change derived statuses: change the underlying yaml fields, not this table.</small>"
+        "<small>This table keeps itself up to date as the campaign moves through its phases.</small>"
     )
     # SYS-030 archive — earlier / supporting / superseded docs, one collapsed click below the
     # gate (so the column above carries exactly one thing to review per phase).
@@ -1157,7 +1165,12 @@ def render_cross_campaign_actions_md(campaigns: list[dict]) -> str:
     from asset.yaml operator_actions where present; a pointer row otherwise so
     every active campaign with pending work still appears (completeness)."""
     if not campaigns:
-        return "_(no campaigns found)_"
+        return ("> **👋 Welcome — let's get your first campaign going.**\n>\n"
+                "> You don't have any campaigns yet. Three steps to begin:\n>\n"
+                "> 1. **Set up your business once** — say **“set yourself up”** in chat (this captures your brand, voice and audience).\n"
+                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n"
+                "> 3. **Review & approve** — everything appears here as web pages; you approve each step.\n>\n"
+                "> First time? The [Getting Started guide](../docs/guide/getting-started.html) walks you through it.")
     import html as _html
 
     blocks: list[str] = []
@@ -1251,7 +1264,7 @@ def render_cross_campaign_actions_md(campaigns: list[dict]) -> str:
     ) if len(blocks) > 1 else ""
     footer = (
         "<small>🔴 Blocker = unblocks downstream work · 🟡 Action · ⚪ Nice-to-have. "
-        "Itemised rows auto-derived from each campaign's `assets/*/asset.yaml` `operator_actions:`. "
+        "Items update automatically as work progresses. "
         "Phase 5/6 launch steps live in each campaign's plan doc (Execute &amp; Launch · Manage &amp; Report) — "
         "this list carries only the plan-approval gate. "
         "Mark done: `python .claude/skills/status-propagator/propagate.py --campaign <slug> --asset <NN> --task <id> --done`.</small>"
@@ -1319,7 +1332,12 @@ def render_campaign_index_md(campaigns: list[dict]) -> str:
     On any failure, degrade to a minimal roster (name + dashboard link) and warn loudly,
     so the operator's most important surface is never silently empty."""
     if not campaigns:
-        return "_(no campaigns found)_"
+        return ("> **👋 Welcome — let's get your first campaign going.**\n>\n"
+                "> You don't have any campaigns yet. Three steps to begin:\n>\n"
+                "> 1. **Set up your business once** — say **“set yourself up”** in chat (this captures your brand, voice and audience).\n"
+                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n"
+                "> 3. **Review & approve** — everything appears here as web pages; you approve each step.\n>\n"
+                "> First time? The [Getting Started guide](../docs/guide/getting-started.html) walks you through it.")
     try:
         return _render_campaign_index_impl(campaigns)
     except Exception as e:  # noqa: BLE001 — degrade, never blank
@@ -1347,7 +1365,12 @@ def _render_campaign_index_impl(campaigns: list[dict]) -> str:
        - Cadence checkpoints pending
        - Surfaces row (dashboard, gallery)"""
     if not campaigns:
-        return "_(no campaigns found)_"
+        return ("> **👋 Welcome — let's get your first campaign going.**\n>\n"
+                "> You don't have any campaigns yet. Three steps to begin:\n>\n"
+                "> 1. **Set up your business once** — say **“set yourself up”** in chat (this captures your brand, voice and audience).\n"
+                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n"
+                "> 3. **Review & approve** — everything appears here as web pages; you approve each step.\n>\n"
+                "> First time? The [Getting Started guide](../docs/guide/getting-started.html) walks you through it.")
     import html as _html
     import posixpath
     import re as _re
@@ -1543,8 +1566,7 @@ def _render_campaign_index_impl(campaigns: list[dict]) -> str:
         )
     out_parts.append("")
     out_parts.append(
-        "<small>Auto-derived from `campaigns/<slug>/campaign.yaml` (nickname · phases · artifacts · archived) "
-        "+ `assets/*/asset.yaml` (status). Reflects current truth on every render.</small>"
+        "<small>This list keeps itself up to date as your campaigns progress.</small>"
     )
     return "\n".join(out_parts)
 

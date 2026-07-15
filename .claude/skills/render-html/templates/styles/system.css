@@ -10,7 +10,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -1548,3 +1548,19 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
 .resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
 .resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }

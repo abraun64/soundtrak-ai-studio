@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -1907,16 +1907,31 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
 .resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
 .resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
-<body class="template-spec">
+<body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../tenant/library/INDEX.html" title="Best-practice library — creative exemplars &amp; gold standards">📚 Best-practice library</a><a class="lib-link" href="../tenant/research-library/INDEX.html" title="Insights library — the shared research corpus the Insights Manager cites">🔎 Insights library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
-        <span class="page-header__template" aria-hidden="true">spec</span>
       </div>
     </div>
   </header>
@@ -1925,7 +1940,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
     <article class="content">
       <h1 id="ai-marketing-system-navigation-index">AI Marketing System — Navigation Index</h1>
 <p><strong>The system's own dashboard.</strong> Everything in the system lives in one of the document classes below. If you're cold-starting and don't know where something is, start here.</p>
-<p><strong>Last updated</strong>: 2026-07-08
+<p><strong>Last updated</strong>: 2026-07-14
 <strong>Version</strong>: v3</p>
 <blockquote>
 <p><strong>Kept fresh by <code>nav-audit</code></strong> (<code>.claude/skills/nav-audit/nav_audit.py</code>) — diffs this index against the specs/skills/agents/playbooks on disk and flags anything missing, any dead link, a stale stamp, and the oldest-untouched docs. It runs as part of <code>system-smoke-test</code> (so any "run smoke test" catches index drift) and on demand ("run nav audit"). When you add a spec/skill/agent/playbook, add a row here — the audit will catch it if you forget.</p>
@@ -2160,8 +2175,8 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 </tr>
 <tr>
 <td><strong>Deployment guide</strong></td>
-<td>Non-technical install/setup runbook. <strong>Superseded by <code>docs/guide/deployment-guide.html</code></strong> (Soundtrak HTML); kept as source.</td>
-<td>Reference only</td>
+<td>Non-technical install/setup runbook. <strong>Retired redirect stub</strong> → canonical is <code>docs/guide/deployment-guide.html</code>.</td>
+<td>Redirect only</td>
 <td><code>docs/playbooks/deployment-guide.md</code></td>
 </tr>
 <tr>
@@ -2172,8 +2187,8 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 </tr>
 <tr>
 <td><strong>FAQ</strong></td>
-<td>Self-service Q&amp;A. <strong>Superseded by <code>docs/guide/help.html</code></strong> (Help &amp; Guides hub); kept as source.</td>
-<td>Reference only</td>
+<td>Self-service Q&amp;A. <strong>Retired redirect stub</strong> → canonical is <code>docs/guide/help.html</code> (<code>#faq</code>).</td>
+<td>Redirect only</td>
 <td><code>docs/playbooks/faq.md</code></td>
 </tr>
 </tbody>
@@ -2312,6 +2327,18 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <td>Universal cookbook-based deployment fallback.</td>
 <td>Called by CM at Phase 6</td>
 <td><code>.claude/skills/deploy-cookbook/</code></td>
+</tr>
+<tr>
+<td><strong>deploy-static-folder</strong></td>
+<td>Static-folder deploy adapter — reference implementation of the deploy-adapter contract (copies an HTML deployment package to a local web-root + verifies).</td>
+<td>Called by CM at Phase 5/6 (<code>platform: static-folder</code>)</td>
+<td><code>.claude/skills/deploy-static-folder/</code></td>
+</tr>
+<tr>
+<td><strong>integration-scaffolder</strong></td>
+<td>Stamps a new deploy-adapter skeleton conforming to the adapter contract (interface + tested <code>adapter.py</code> + investigation-reference + smoke test).</td>
+<td>Operator, to add a new coded deploy adapter (SYS-066)</td>
+<td><code>.claude/skills/integration-scaffolder/</code></td>
 </tr>
 <tr>
 <td><strong>system-smoke-test</strong></td>
@@ -2762,11 +2789,30 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 </tr>
 </tbody>
 </table>
+<hr>
+<h2 id="12-engineering-architecture-docs-docsarchitecture">12. Engineering architecture docs (<code>docs/architecture/</code>)</h2>
+<p><em>Engineer-facing internals. How the Studio is wired and how it extends — for a dev or partner engineer, not the marketing operator. Inline-SVG diagrams in the brand palette.</em></p>
+<table>
+<thead>
+<tr>
+<th>Doc</th>
+<th>Audience</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="architecture/studio-architecture.html"><code>docs/architecture/studio-architecture.md</code></a></td>
+<td>Software engineers, partner engineers</td>
+<td>Setup/runtime architecture (harness + 7 agents + hooks + markdown→HTML render pipeline + data stores + three-layer model + MCP) AND extensibility (Seed fork model · deploy-adapter contract + integration-scaffolder · release-readiness cadence · cross-agent portability · backup/scheduled tasks). Two inline-SVG diagrams + built-vs-roadmap table.</td>
+</tr>
+</tbody>
+</table>
     </article>
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>Marketing AI System\docs\NAVIGATION_INDEX.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span>Source file: <code>Marketing AI System\docs\NAVIGATION_INDEX.md</code></span>
   </footer>
 </body>
 </html>

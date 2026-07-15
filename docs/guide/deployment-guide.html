@@ -20,6 +20,20 @@
 </nav>
 <div class="wrap">
   <h1>Deployment guide</h1>
+
+  <div class="callout">
+    <b>First — the thing that makes this different: you own it.</b> What you're setting up here isn't a
+    website you log into or an app you rent. It's a copy of the whole system that lives on <b>your</b> computer:
+    <ul>
+      <li><b>You own it</b> — yours to run indefinitely, no seat licence, no lock-in.</li>
+      <li><b>It's all readable</b> — how it works, your brand profile, and every asset it makes are plain
+        files you can open, read, and change.</li>
+      <li><b>You run and control it</b> — the AI does the work; you make the calls, and steer it in plain English.</li>
+      <li><b>Your data stays yours</b> — on your machine; the only thing that leaves is what you type into a session.</li>
+    </ul>
+    <span class="muted">It's a premium, licensed product — yours to run for your own business's marketing,
+    not to resell or run for other people's clients. Transparent and yours to control, <b>not</b> open-source.</span>
+  </div>
   <p class="lede">Get your own copy running on your computer. <b>No coding, and no experience with Claude needed.</b> A few quick installs, then the system sets <i>itself</i> up — about 30–45 minutes, most of it waiting on downloads.</p>
 
   <div class="callout"><b>Never used Claude before? Read this first.</b> Your system runs inside <b>Claude Code</b> — an AI assistant that lives on your computer. You use it by <b>typing plain‑English requests</b> (like messaging a very capable colleague); it does the work and shows you — <b>you never write code yourself</b>. Three things to know up front:
@@ -99,14 +113,15 @@
     <div class="callout"><b>The one habit that matters:</b> a <b>fresh chat for each new job</b> — each campaign, each retro — and give it a name. Everything you do is saved automatically and carried across chats through your foundation, so a new chat never loses your brand or your past work.</div>
   </div>
 
-  <div class="step"><div class="sh">Step 7 — Your first campaign</div>
-    <p>That's it — you're set up. You're now ready for your first campaign: press <b>+ New Session</b> (name it for the campaign, e.g. "Q3 launch") and type <b>"start a campaign: &lt;what it's for&gt;"</b>. The <a href="operator-guide.html">Operator guide</a> walks you through it, stage by stage.</p>
+  <div class="step"><div class="sh">Step 7 — Make the gallery buttons open natively</div>
+    <p>In the asset gallery, the <b>📁 Open folder</b> and <b>✏️ Edit copy</b> buttons open in your browser by default. Run this one-time setup (Windows, no admin rights) from your project folder so they open File Explorer / your text editor instead:</p>
+    <pre><code>powershell -ExecutionPolicy Bypass -File ".\.claude\skills\asset-gallery\protocol\setup-protocol.ps1"</code></pre>
+    <p>It auto-detects your install path — nothing to edit. Full details + how to undo are in <code>.claude/skills/asset-gallery/protocol/setup-cookbook.md</code>.</p>
   </div>
 
-  <h2>Optional — make the gallery buttons open natively</h2>
-  <p>In the asset gallery, the <b>📁 Open folder</b> and <b>✏️ Edit copy</b> buttons open in your browser by default. To make them open File Explorer / your text editor instead, run this one-time setup (Windows, no admin rights) from your project folder:</p>
-  <pre><code>powershell -ExecutionPolicy Bypass -File ".\.claude\skills\asset-gallery\protocol\setup-protocol.ps1"</code></pre>
-  <p>It auto-detects your install path — nothing to edit. Full details + how to undo are in <code>.claude/skills/asset-gallery/protocol/setup-cookbook.md</code>. Skip it and the buttons still work, just in the browser.</p>
+  <div class="step"><div class="sh">Step 8 — Your first campaign</div>
+    <p>That's it — you're set up. You're now ready for your first campaign: press <b>+ New Session</b> (name it for the campaign, e.g. "Q3 launch") and type <b>"start a campaign: &lt;what it's for&gt;"</b>. The <a href="operator-guide.html">Operator guide</a> walks you through it, stage by stage.</p>
+  </div>
 
   <h2>If the health check shows red</h2>
   <p>Step 4 runs a "doctor" that checks your setup. A red <code>[FAIL]</code> line always prints the exact fix. The usual culprits:</p>

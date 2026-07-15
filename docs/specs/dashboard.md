@@ -74,6 +74,17 @@ Round to nearest minute: `~X min` (<60) or `~Xh Xm` (≥60). Human Time is `—`
 
 > *AI cost from the metered ledger (`.claude/state/cost-ledger.jsonl`) where available; CM estimates flagged separately. CD = Opus 4.8; CM / Brand / Producer / Governance = Sonnet 4.6. Actual charges at [console.anthropic.com](https://console.anthropic.com).*
 
+## Operator-surface copy contract (SYS-069 review · 2026-07-15)
+
+Every operator surface obeys these so the language stays human and consistent (`feedback_operator_facing_plain_language`):
+- **One name for the operator's action list: "To Do"** (Title Case) — never "Tasks queue" / "Next action" / "Awaiting you". *(Exception: the System Manager dashboard's deliberate "Needs you" / "AI can action" split is a considered distinction, not drift.)*
+- **Plain asset names, never internal codes.** Say the asset's plain name; never surface "A6" / "Wave 2" / "gate-cleared" to the operator (say "checked and ready for you"). Per `feedback_plan_is_source_of_truth` + `feedback_operator_facing_plain_language`.
+- **No system/file jargon on the surface.** Never show `campaign.yaml` / `asset.yaml` / `_AUTO` / `§N` / template names / file paths in operator-facing text. Auto-injected footnotes read as plain English ("This list keeps itself up to date…"), not "auto-derived from …yaml".
+- **Audit detail collapses.** Dense history / per-asset verdict prose goes below the fold in `<details>`; the top of the surface carries only the decision.
+- **Empty states greet + point** ("No campaigns yet — say 'start a campaign' to begin."), never a curt "(no X found)".
+- **The test:** *could a smart person who has never seen this system act on this line without asking?* If no, rewrite or cut it.
+- **Emoji in headings** are a consistent wayfinding aid or absent — not sprinkled on some surfaces and not others.
+
 ## Cross-references
 - `render-pipeline.md` — the auto-injection markers + operator-surface rendering contract
 - `cost-ledger` skill — the metered AI-cost source for `COST_TOTAL_AUTO`

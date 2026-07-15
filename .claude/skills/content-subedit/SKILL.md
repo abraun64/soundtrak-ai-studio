@@ -81,9 +81,9 @@ Work from the extracted text.
 
 ---
 
-## Step 3 — Run all five rules
+## Step 3 — Run all rules
 
-Work through each rule in order. For every candidate hit:
+Work through each rule in order (Rules 1–7 in `references/voice-rules.md`). For every candidate hit:
 1. **Tenant-precedence check first** — is this an explicitly permitted / named device or carve-out in the tenant §2 (per Step 1 precedence)? If yes → **not a violation.** Leave it; log it as "tenant-permitted — left as-is."
 2. Otherwise it's a violation: quote the offending text, state the fix applied.
 
@@ -115,6 +115,7 @@ RULE 3 — PUNCHY PAIRS: [N] violations fixed
 RULE 4 — RESTATEMENTS: [N] violations fixed
 RULE 5 — RECAP CLOSING: [fixed / no violation]
 RULE 6 — HOLLOW CONTRAST (many-say-few-do + significance kicker): [N] violations fixed
+RULE 7 — UNVERIFIED / MIS-ATTRIBUTED STATISTIC: [N] flagged — [list each number + its missing/unverified source]
 TENANT-PERMITTED (left as-is): [N] — [list each named device / carve-out respected, e.g. "four-word declarative (§2 #9)"]
 
 [Corrected content]
@@ -158,6 +159,8 @@ holistic, seamless, robust, pivotal, underscore, genuinely, honestly, navigate
 (metaphorical), unlock, synergy, realm, foster, garner, multifaceted, curate.
 **Plus** every word in the active tenant's §2 banned list (load it — it extends this baseline).
 
+**This is a LITERAL find-check, not a vibe check (reinforced 2026-07-15).** Run an explicit, deterministic pass over the *exact* word list — search the copy for each banned word in turn, one at a time. Do not skim the text and trust your sense that it "reads clean." "genuinely" slipped into the Ed 19 draft **twice** and Ed 20 once despite this rule already existing, precisely because the pass was done by feel. Scan the literal strings every pass, including short common words like "genuinely" and "quietly" that a vibe read glides over.
+
 **Punchy pairs to find:**
 - Any sentence ending in a period followed by a very short sentence (under 8 words)
   that reframes or concludes the first. Read the pair out loud — does the second
@@ -170,3 +173,6 @@ holistic, seamless, robust, pivotal, underscore, genuinely, honestly, navigate
 **Recap closing:**
 - Read the last paragraph. Does it restate the article's main argument?
   If you could place it at the top as an introduction, it's a recap — cut it.
+
+**Unverified / mis-attributed statistics (Rule 7):**
+- For every number in the copy, check there is a named, verifiable source (who, what report, what year) and that the number was confirmed present in the actual primary source. Flag any figure with a missing source, or one hung on a source that may not contain it (Ed 20's fabricated "44%" / "9%" mis-attributed to a McKinsey report). The sub-edit flags for verification — it never passes an unverifiable number through.

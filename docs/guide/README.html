@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campaign Report — Spec (v1) — Marketing AI System</title>
+  <title>`docs/guide/` — hand-authored operator guides (intentional exception) — Marketing AI System</title>
   <style>/* Marketing AI System — social/email in-situ mockup chrome.
  * Renders collapsed (feed) + expanded (clicked-open) states per form.
  * Loaded automatically alongside system.css for all templates.
@@ -1930,7 +1930,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
       </div>
     </div>
@@ -1938,71 +1938,81 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 
   <main class="page-main">
     <article class="content">
-      <h1 id="campaign-report-spec-v1">Campaign Report — Spec (v1)</h1>
-<p><strong>Spec version</strong>: v1 · 2026-06-15.</p>
-<p>The <strong>Campaign Report</strong> is the <strong>results readout</strong> produced when a campaign closes — <em>did it hit its KPIs, what drove the result, what we'd do differently</em>. It is the evidence-and-outcomes counterpart to the <a href="retro.md">Retro</a>: the <strong>report</strong> says <em>what happened</em> (outcomes, from the data); the <strong>retro</strong> captures <em>what we learned</em> (internal lessons) and graduates learnings to the tenant layer. <strong>Every campaign produces a report at close</strong>, and <strong>a campaign cannot be marked Closed without one</strong> (enforced — see §Enforcement).</p>
-<p><strong>Produced by</strong>: the <strong><code>marketing-forensic-analyst</code></strong> agent (read-only data investigator) from the campaign's performance data. The analyst returns a standalone HTML report (matplotlib viz, brand palette) + an evidence-tagged findings brief; CM captures the headline readout as the markdown. The analyst <strong>never invents numbers</strong> — a missing metric is flagged, not fabricated.</p>
-<p><strong>Stored</strong>: <code>campaigns/&lt;slug&gt;/report/&lt;YYYY-MM-DD&gt;-results.md</code> (markdown authoritative — the readout) + the analyst's <code>&lt;...&gt;-analysis.html</code> (the deep evidence + charts) in the same <code>report/</code> folder.</p>
-<p><strong>When</strong>: at campaign close — one-off campaigns at the end of Phase 5/6; cadenced campaigns at quarterly milestones (and at final close). It <strong>feeds the campaign-end retro</strong> (its §2 "what worked") and the <strong>graduation pass</strong> (winning assets → <code>tenant/library/</code> · a strong result → a case study).</p>
-<hr>
-<h2 id="schema">Schema</h2>
-<pre><code class="language-markdown"># Campaign Report — &lt;Campaign Name&gt; — &lt;YYYY-MM-DD&gt;
-
-**Period**: &lt;start&gt; → &lt;end&gt;     **Full analysis**: [analyst report](&lt;...&gt;-analysis.html)     **Status**: Draft / ✅ Approved
-
-## §0 Did we hit the goals? (the headline)
-
-| KPI | Target | Result | Hit? |
-|---|---|---|---|
-| &lt;KPI floor 1&gt; | &lt;target&gt; | &lt;actual&gt; | ✅ / ⚠️ / ❌ |
-| ... | | | |
-
-**Verdict** (one line, binary — hit / partial / missed): &lt;plus the single most important number of the campaign&gt;.
-
-## §1 What drove the result
-
-The funnel's biggest leak + per-channel efficiency (cost-per-signup / cost-per-reply / etc.). Every material claim **evidence-tagged** — FINDING (defensible) / HYPOTHESIS (directional, small-n or confounded) / MYTH-CHECK (an assumption the data does NOT support).
-
-## §2 What worked / what didn't (from the data)
-
-Short, evidence-led. This feeds the retro's §2 (worked) + §3 (didn't).
-
-## §3 Recommendations
-
-Split **do-now** (act on it) vs **test-before-believing** (directional, verify first) — the analyst's own split.
-
-## §4 Full analysis
-
-→ the analyst's standalone HTML report (the deep evidence, funnel charts, demographic fit). The markdown above is the readout; the HTML is the proof.
-</code></pre>
-<hr>
-<h2 id="drafting-discipline">Drafting discipline</h2>
-<ul>
-<li><strong>Outcomes, not lessons.</strong> The report is the <em>what-happened</em> readout; the retro is the <em>what-we-learned</em>. Don't merge them — the report <strong>feeds</strong> the retro.</li>
-<li><strong>§0 is binary.</strong> Hit / partial / missed per KPI — no hedging in the headline.</li>
-<li><strong>Evidence-tag everything material</strong> (FINDING / HYPOTHESIS / MYTH-CHECK). A HYPOTHESIS must never masquerade as a FINDING.</li>
-<li><strong>No invented numbers.</strong> Missing metric → flag it + say what data would settle it.</li>
-<li><strong>Length</strong>: 1 page of markdown readout; the depth lives in the analyst HTML.</li>
-</ul>
-<hr>
-<h2 id="enforcement-this-report-is-mandatory-at-close">Enforcement (this report is mandatory at close)</h2>
-<ul>
-<li><strong>CM wrap gate</strong> (<code>campaign-manager/SKILL.md</code> §Campaign close): the close sequence is <strong>(1) results report → (2) campaign-end retro (fed by it) → (3) graduation → (4) <code>closed: true</code> + freeze</strong>. CM must NOT set <code>closed</code> / Status → Closed without the report + retro present.</li>
-<li><strong>check-state Layer H</strong> (<code>.claude/skills/check-state/check.py</code>): a campaign with <code>closed: true</code> (or a Closed dashboard status) and no <code>report/&lt;*&gt;-results.*</code> is <strong>drift</strong> — surfaced by <code>python .claude/skills/check-state/check.py --campaign &lt;slug&gt;</code>.</li>
-</ul>
-<hr>
-<h2 id="cross-references">Cross-references</h2>
-<ul>
-<li><strong>Retro spec</strong>: <code>docs/specs/retro.md</code> — the lessons artifact this report feeds</li>
-<li><strong>Forensic-analyst agent</strong>: <code>.claude/agents/marketing-forensic-analyst/AGENT.md</code> — produces the analysis</li>
-<li><strong>Workflow</strong>: <code>docs/workflow.md</code> §The three layers — the report's winning-asset findings graduate to the tenant library</li>
-<li><strong>Phase 6 spec</strong>: <code>docs/specs/phase-6-cadence.md</code> — the close steps live in the cadence runbook's final cycle</li>
-</ul>
+      <h1 id="docsguide-hand-authored-operator-guides-intentional-exception"><code>docs/guide/</code> — hand-authored operator guides (intentional exception)</h1>
+<p><strong>Read this before editing anything in this folder.</strong></p>
+<p>The system is <em>markdown-authoritative, HTML-rendered</em>: almost every page is a <code>.md</code> file that
+<code>render-html</code> turns into HTML, so you edit the markdown and the surface follows. <strong>This folder is
+the deliberate exception.</strong> The files here are hand-authored HTML with <strong>no markdown source</strong> — they
+are not produced by the render pipeline and there is nothing to "re-render."</p>
+<h2 id="why-theyre-an-exception">Why they're an exception</h2>
+<p>These are the first pages a new operator sees — the onboarding front door. They use bespoke design
+(step boxes, guide cards, callouts, a top nav, their own <code>style.css</code>) that the generic markdown
+template can't reproduce. Forcing them into markdown would flatten the thing that makes them good, so
+they are maintained by hand, on purpose.</p>
+<h2 id="the-files">The files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it is</th>
+<th>Ships in Seed?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>deployment-guide.html</code></td>
+<td>Non-technical install/setup runbook — <strong>canonical</strong> deployment guide</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>operator-guide.html</code></td>
+<td>Full stage-by-stage walk-through of running the system</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>help.html</code></td>
+<td>Help &amp; guides hub + the <strong>canonical</strong> operator FAQ (embedded, <code>#faq</code>)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>getting-started.html</code></td>
+<td>Short first-run orientation (content merged into operator-guide)</td>
+<td>No (internal)</td>
+</tr>
+<tr>
+<td><code>uat-*.html</code></td>
+<td>UAT run sheets — internal release artifacts</td>
+<td>No (internal)</td>
+</tr>
+<tr>
+<td><code>style.css</code></td>
+<td>Shared styling for the above</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>"Ships in Seed?" is defined by the <code>build_seed</code> allowlist (<code>.claude/lib/build_seed.py</code>).</p>
+<h2 id="the-maintenance-rule">The maintenance rule</h2>
+<ol>
+<li><strong>Edit the <code>.html</code> directly.</strong> There is no <code>.md</code> to change — the HTML <em>is</em> the source. Do not
+   create a parallel markdown copy of any of these; that reintroduces the drift this note exists to
+   prevent (a change landing in one copy and missing the one the operator opens — the SYS-070 bug).</li>
+<li><strong>These are the canonical operator-facing copies.</strong> Point operator links here — specifically
+   <code>help.html</code> for the FAQ (<code>help.html#faq</code>) and <code>deployment-guide.html</code> for setup. The
+   <code>docs/playbooks/deployment-guide.md</code> and <code>docs/playbooks/faq.md</code> files are <strong>retired redirect
+   stubs</strong>, not live content — do not edit them expecting the operator to see it.</li>
+<li><strong><code>help.html</code> embeds the FAQ on purpose.</strong> The standalone <code>docs/playbooks/faq.html</code> is <em>not</em>
+   shipped in the Seed, so linking out to it would break in a deployed copy. Keep the FAQ inline in
+   <code>help.html</code>.</li>
+</ol>
+<p><em>History: this folder's exception was made explicit by SYS-075 (2026-07-15), after SYS-070's ownership
+framing was edited into a markdown copy while the operator kept opening the un-updated hand-authored
+HTML. See <code>system/backlog.yaml</code> SYS-075.</em></p>
     </article>
   </main>
 
   <footer class="page-footer">
-    <span>Source file: <code>docs\specs\campaign-report.md</code></span>
+    <span>Source file: <code>docs\guide\README.md</code></span>
   </footer>
 </body>
 </html>
