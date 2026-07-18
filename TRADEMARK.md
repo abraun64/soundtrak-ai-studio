@@ -1,7 +1,5 @@
 # Trademark policy — Soundtrak
 
-> ⚠️ **DRAFT — for counsel review. Not legal advice.**
-
 The software's license (PolyForm Internal Use License 1.0.0, see `LICENSE.md`) covers the
 **code only**. It grants **no rights** to Soundtrak Consulting's names, logos, or brand —
 including "Soundtrak", "Soundtrak AI Studio", and the Soundtrak marks (the "Marks").

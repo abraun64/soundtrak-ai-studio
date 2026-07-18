@@ -1,7 +1,5 @@
 # NOTICE
 
-> ⚠️ **DRAFT — for counsel review.**
-
 Soundtrak AI Studio
 Copyright © 2026 Soundtrak Consulting.
 

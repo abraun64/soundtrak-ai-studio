@@ -1,7 +1,5 @@
 # Data handling — Soundtrak AI Studio
 
-> ⚠️ **DRAFT — for counsel review. Not legal advice.**
->
 > This describes how the **software** handles data when you run it. It is **not** a service
 > privacy policy — the software runs on your own computer, under your control.
 
