@@ -27,6 +27,8 @@ _spec.loader.exec_module(_bg)
 
 ships = _bg._plan_ships_count
 nid = _bg._normalize_asset_id
+stale = _bg._copy_stale_vs_render
+DRIFT_S = _bg.COPY_RENDER_DRIFT_SECONDS  # 14400 (4h) at time of writing
 
 # (input, expected) — grow this list whenever a parser bug is found.
 SHIPS_CASES = [
@@ -66,6 +68,24 @@ NID_CASES = [
 ]
 
 
+# _copy_stale_vs_render(copy_mtime, ship_mtime): True iff the shipped surface is NEWER than
+# the edit-copy by more than the 4h threshold — the directional intra-asset stale-mirror
+# check (the 2026-07-09 A4 bug: copy.md a day behind the reworked edition.md/issue-header).
+# Copy newer than ship (the normal source-first / mid-edit order) NEVER flags; either None
+# is no-signal. (copy_mtime, ship_mtime, expected).
+_T = DRIFT_S
+STALE_CASES = [
+    (1000, 1000, False),                 # equal -> not stale
+    (1000, 1000 + _T - 1, False),        # ship ahead but within window -> not stale
+    (1000, 1000 + _T + 1, True),         # ship ahead past window -> STALE (A4 class)
+    (1000, 1000 + 86400, True),          # ship a day ahead of copy -> STALE
+    (1000 + 86400, 1000, False),         # copy AHEAD of ship (mid-edit / source-first) -> not stale
+    (1000 + _T + 5, 1000, False),        # copy newer, never flags regardless of gap
+    (None, 1000, False),                 # no copy mtime -> no signal
+    (1000, None, False),                 # no ship mtime -> no signal
+]
+
+
 def _run() -> int:
     fails = []
     for val, exp in SHIPS_CASES:
@@ -76,7 +96,11 @@ def _run() -> int:
         got = nid(val)
         if got != exp:
             fails.append(f"  _normalize_asset_id({val!r}) = {got!r}, expected {exp!r}")
-    total = len(SHIPS_CASES) + len(NID_CASES)
+    for cm, sm, exp in STALE_CASES:
+        got = stale(cm, sm)
+        if got != exp:
+            fails.append(f"  _copy_stale_vs_render({cm!r}, {sm!r}) = {got!r}, expected {exp!r}")
+    total = len(SHIPS_CASES) + len(NID_CASES) + len(STALE_CASES)
     if fails:
         print(f"FAIL — {len(fails)}/{total} build-gallery parser cases failed:")
         print("\n".join(fails))

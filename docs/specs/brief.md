@@ -12,13 +12,33 @@ The **Brief** is the operator-approved fact set for the campaign. CM authors it 
 
 ---
 
+## Canonical section order (SYS-085 — LOCKED; the brief-lint enforces it)
+
+Every Brief uses THESE sections, in THIS order, with THESE names — so any reader (a marketer, not
+just the author) can navigate any campaign's Brief the same way. Campaign-specific extras go in
+**"Anything else"**, never as new top-level headings.
+
+1. Why this campaign · 2. Business objective · 3. The offer · 4. Audience · 5. Insights that matter ·
+6. How to reach them · 7. Single-minded proposition · 8. Goal & KPI · 9. Brand context ·
+10. Mandatories · 11. Budget · 12. Timeline · 13. Tech setup · 14. Roles · 15. Cadence *(recurring
+campaigns only)* · 16. **Anything else** *(campaign-specific context that doesn't fit above — the
+catch-all so extras don't spawn inconsistent headings)* · 17. **Approval record** *(the audit / gate
+block at the BOTTOM — kept)*.
+
+**Decisions (2026-07-15):** Objective and Goal & KPI stay SEPARATE; "Open questions" folds into
+"Anything else"; the top is the Campaign DNA header (no metadata paragraph, no clean-room note —
+SYS-079 / SYS-084 / SYS-089). The v2 sections (Tech setup / Roles / Cadence) MAY be `TBD` at Phase-1
+approval, resolved by end of Phase 3. Enforce with `.claude/skills/brief-lint/brief_lint.py` before
+surfacing (mandatory, alongside the review-ready gate).
+
 ## Schema
 
 ```markdown
 # <Campaign Name> — Brief v<N>
 
-**Operator**: <name>     **Tenant**: <business name>     **Type**: B2B / B2C / Internal / Brand
-**Status**: Draft / Approved / Locked     **Approved**: <date>
+<!-- CAMPAIGN_DNA_AUTO -->
+
+<small>**Attribution key** (how each line was sourced): `[the operator's read]` = operator-stated · `[interview]` = captured in the intake interview · `[AI synthesis]` = AI-composed from inputs.</small>
 
 ## Why this campaign
 One paragraph. The business reason this exists *now*. Not features — outcomes.
@@ -210,6 +230,12 @@ cadence_shape:
   phase_6_emphasis: "<one-liner: 'Acme Co-solo from cycle 1' | 'the operator runs pilot → handoff at cycle 5' | n/a>"
   estimated_phase_6_closure: "<date or trigger>"
   first_phase_6_cycle_target: "<date>"
+
+## Anything else
+Campaign-specific context that doesn't fit the sections above (workstream structure · open questions still resolving · sequencing quirks). The catch-all — so extras never spawn inconsistent top-level headings.
+
+## Approval record
+The audit + gate block at the BOTTOM of every Brief. `Gate closed <date>` · who approved · what the verdict covered ("Brief + the insights that inform it"). Append-only.
 ```
 ```
 

@@ -39,6 +39,14 @@ sys.path.insert(0, str(ROOT / ".claude" / "skills" / "render-html"))
 import operator_actions as oa  # noqa: E402
 import yaml  # noqa: E402
 
+# SYS-092 — reuse the phase0 surface's assessment so the home's Phase-0 snapshot can't
+# disagree with the phase0 page (kills the "5/5" home vs "5/7 · 2 drafted" phase0 drift).
+import importlib.util as _ilu  # noqa: E402
+_p0_spec = _ilu.spec_from_file_location(
+    "build_phase0_surface", ROOT / ".claude" / "skills" / "render-html" / "build-phase0-surface.py")
+_phase0 = _ilu.module_from_spec(_p0_spec)
+_p0_spec.loader.exec_module(_phase0)
+
 STATUS_ICON = {"present": "✅", "planned": "🟡", "absent": "⚪"}
 
 
@@ -123,10 +131,11 @@ def build(slug: str) -> int:
     name = str(tenant.get("name") or slug)
     summary = str(tenant.get("summary") or "")
 
-    # Phase-0 baseline tracker counts (established = status:present).
-    _baseline_rows = tenant.get("baseline") or []
-    _established = sum(1 for r in _baseline_rows if str(r.get("status") or "").lower() == "present")
-    _total = len(_baseline_rows)
+    # SYS-092 — Phase-0 counts from the SAME shared computation the phase0 page uses, so
+    # the home snapshot can't disagree with it (killed the 5/5-vs-5/7 drift).
+    _st = _phase0.foundation_status(slug, tenant)
+    _established, _total, _drafted = _st["done"], _st["total"], _st["drafted"]
+    _drafted_txt = f" · {_drafted} drafted" if _drafted else ""
 
     # Campaigns owned by this tenant (single source of truth = campaign.yaml `tenant:`).
     all_camps = oa.scan_all_campaigns(CAMPAIGNS)
@@ -149,7 +158,7 @@ def build(slug: str) -> int:
             f'({len(archived)})</strong></summary>\n<ul>{rows}</ul></details>')
 
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-    md = f"""# {name} — Tenant Home
+    md = f"""# {name} — Home
 
 **Last updated**: {stamp}     **Tenant**: `{slug}`     [← All campaigns](../campaigns/index.html)
 
@@ -157,7 +166,7 @@ def build(slug: str) -> int:
 
 ## Phase 0 — Tenant Baseline
 
-_The durable compound every campaign inherits — built **once** at the tenant layer, **cited** per campaign (never re-built per campaign). **{_established}/{_total} established.**_
+_The durable compound every campaign inherits — built **once** at the tenant layer, **cited** per campaign (never re-built per campaign). **{_established}/{_total} established{_drafted_txt}.**_
 
 **[→ Full Phase-0 baseline status (completion dates · drafted-vs-done · audit history)]({slug}-phase0.html)**
 

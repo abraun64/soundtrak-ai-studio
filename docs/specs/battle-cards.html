@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Marketing System — Navigation Index — Marketing AI System</title>
+  <title>Battle Cards — Asset spec — Marketing AI System</title>
   <style>/* Marketing AI System — social/email in-situ mockup chrome.
  * Renders collapsed (feed) + expanded (clicked-open) states per form.
  * Loaded automatically alongside system.css for all templates.
@@ -1928,9 +1928,9 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
-      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
       </div>
     </div>
@@ -1938,882 +1938,137 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 
   <main class="page-main">
     <article class="content">
-      <h1 id="ai-marketing-system-navigation-index">AI Marketing System — Navigation Index</h1>
-<p><strong>The system's own dashboard.</strong> Everything in the system lives in one of the document classes below. If you're cold-starting and don't know where something is, start here.</p>
-<p><strong>Last updated</strong>: 2026-07-14
-<strong>Version</strong>: v3</p>
-<blockquote>
-<p><strong>Kept fresh by <code>nav-audit</code></strong> (<code>.claude/skills/nav-audit/nav_audit.py</code>) — diffs this index against the specs/skills/agents/playbooks on disk and flags anything missing, any dead link, a stale stamp, and the oldest-untouched docs. It runs as part of <code>system-smoke-test</code> (so any "run smoke test" catches index drift) and on demand ("run nav audit"). When you add a spec/skill/agent/playbook, add a row here — the audit will catch it if you forget.</p>
-</blockquote>
-<hr>
-<h2 id="how-to-read-this-index">How to read this index</h2>
-<p>Each section answers: <em>what kind of thing is this, when do you read it, and where does it live?</em></p>
-<hr>
-<h2 id="1-operating-manual-read-first-in-every-session">1. Operating manual (read first in every session)</h2>
-<table>
-<thead>
-<tr>
-<th>What</th>
-<th>What it is</th>
-<th>Where</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>workflow.md</strong></td>
-<td>The operating manual. How the system works end-to-end: agent inventory, campaign phases, operator gates, render pipeline. READ FIRST in any new session.</td>
-<td><code>docs/workflow.md</code></td>
-</tr>
-<tr>
-<td><strong>README.md</strong></td>
-<td>System overview + repository structure + backup instructions. Written for GitHub; useful for orientation.</td>
-<td><code>Marketing AI System/README.md</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="2-specs-canonical-schemas-all-campaigns-inherit">2. Specs (canonical schemas — all campaigns inherit)</h2>
-<p><em>Specs define the structure of artifacts. When an artifact doesn't look right, check the spec first.</em></p>
-<p><strong>Grouped by category</strong> — artifact schemas · asset-type specs · architecture &amp; process — in <a href="specs/README.md"><code>docs/specs/README.md</code></a>.</p>
-<table>
-<thead>
-<tr>
-<th>Spec</th>
-<th>What it governs</th>
-<th>Where</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Rollout Architecture v2</strong></td>
-<td>The 6-phase campaign lifecycle backbone. Why the phases exist and what each produces.</td>
-<td><code>docs/specs/rollout-architecture.md</code></td>
-</tr>
-<tr>
-<td><strong>Brief spec v2</strong></td>
-<td>Campaign brief schema + grill-me interview discipline.</td>
-<td><code>docs/specs/brief.md</code></td>
-</tr>
-<tr>
-<td><strong>Concept spec</strong></td>
-<td>Creative trio (Safe/Smart/Wild) schema + CD outputs required.</td>
-<td><code>docs/specs/concept.md</code></td>
-</tr>
-<tr>
-<td><strong>Plan spec v2</strong></td>
-<td>Asset list schema (incl. Review format + Copy file columns) + §N Phase readiness gate.</td>
-<td><code>docs/specs/plan.md</code></td>
-</tr>
-<tr>
-<td><strong>Per-Step Brief spec</strong></td>
-<td>CM → Producer dispatch envelope. What every brief must contain.</td>
-<td><code>docs/specs/per-step-brief.md</code></td>
-</tr>
-<tr>
-<td><strong>Asset spec</strong></td>
-<td>Asset folder structure standard + asset.yaml schema + gallery modal rules (3-block: rationale / gate questions / next steps).</td>
-<td><code>docs/specs/asset.md</code></td>
-</tr>
-<tr>
-<td><strong>Brand Context spec</strong></td>
-<td>Tenant brand context schema + BC slicing guide by asset form.</td>
-<td><code>docs/specs/brand-context.md</code></td>
-</tr>
-<tr>
-<td><strong>Phase 5 spec</strong></td>
-<td>Day-1 Rollout artifact schema.</td>
-<td><code>docs/specs/phase-5-rollout.md</code></td>
-</tr>
-<tr>
-<td><strong>Phase 6 spec</strong></td>
-<td>Ongoing Cadence artifact schema + cycle checklist structure.</td>
-<td><code>docs/specs/phase-6-cadence.md</code></td>
-</tr>
-<tr>
-<td><strong>integrations.yaml spec</strong></td>
-<td>Per-tenant platform integrations schema (credentials refs, channel defaults, adapters).</td>
-<td><code>docs/specs/integrations.md</code></td>
-</tr>
-<tr>
-<td><strong>Retro spec</strong></td>
-<td>Retro schema + authoring discipline + approval gate.</td>
-<td><code>docs/specs/retro.md</code></td>
-</tr>
-<tr>
-<td><strong>Battle Cards spec</strong></td>
-<td>Gong-aligned battle card structure (4 principles, Rule of Three, FIA format).</td>
-<td><code>docs/specs/battle-cards.md</code></td>
-</tr>
-<tr>
-<td><strong>Pitch Deck spec</strong></td>
-<td>7-act canonical pitch deck narrative arc. 11-13 slides.</td>
-<td><code>docs/specs/pitch-deck.md</code></td>
-</tr>
-<tr>
-<td><strong>Cookbook spec</strong></td>
-<td>Operator-facing deploy/verify cookbook schema.</td>
-<td><code>docs/specs/cookbook.md</code></td>
-</tr>
-<tr>
-<td><strong>Render pipeline spec</strong></td>
-<td>Inventory of the 5 render scripts + consolidation proposal (deferred).</td>
-<td><code>docs/specs/render-pipeline.md</code></td>
-</tr>
-<tr>
-<td><strong>Practitioner frameworks</strong></td>
-<td>The embedded practitioner playbook (the full 53 principles) + how agents use it.</td>
-<td><code>craft/frameworks/README.md</code></td>
-</tr>
-<tr>
-<td><strong>Tenant Playbook spec</strong></td>
-<td>Per-tenant tactical learnings record — the campaign-to-campaign inheritance vehicle (graduate-then-cite, three-layer model).</td>
-<td><code>docs/specs/tenant-playbook.md</code></td>
-</tr>
-<tr>
-<td><strong>Phase 0 — Tenant Baseline spec</strong></td>
-<td>The per-tenant baseline every campaign inherits: Brand Context · Compliance Profile · segment map · market landscape · playbook · research library · audience-truths · integrations.</td>
-<td><code>docs/specs/phase-0-tenant-baseline.md</code></td>
-</tr>
-<tr>
-<td><strong>Insight Brief spec</strong></td>
-<td>Phase-1 Insights Manager artifact: per-segment human+market insight (§1) · routes to market (§2, channels + GTM partnerships) · restorable kill register (§3) · source sweep · durable updates · freshness.</td>
-<td><code>docs/specs/insight-brief.md</code></td>
-</tr>
-<tr>
-<td><strong>Research Library spec</strong></td>
-<td>The SHARED, faceted research corpus (public research, cross-tenant) the <code>insight-scan</code> cites before fetching. Distinct from the creative <code>tenant/library/</code>.</td>
-<td><code>docs/specs/research-library.md</code></td>
-</tr>
-<tr>
-<td><strong>Audience Truths spec</strong></td>
-<td>Durable per-segment enduring truths (tenant-scoped), refreshed from each Insight Brief §5 at wrap.</td>
-<td><code>docs/specs/audience-truths.md</code></td>
-</tr>
-<tr>
-<td><strong>Compliance Profile spec</strong></td>
-<td>Per-tenant regulatory ruleset the Governance Manager authors (Phase 0) + gates against (Phase 4) — disclaimer library, prohibited claims, mandatories, risk tiers.</td>
-<td><code>docs/specs/compliance-profile.md</code></td>
-</tr>
-<tr>
-<td><strong>Campaign Report spec</strong></td>
-<td>Forensic Data analyst's close-out results report schema (KPIs vs target, funnel, drivers, evidence-tagged).</td>
-<td><code>docs/specs/campaign-report.md</code></td>
-</tr>
-<tr>
-<td><strong>Dashboard spec</strong></td>
-<td>Per-campaign dashboard structure (7-block) + the auto-injection markers (STATUS / PHASES / OPERATOR_ACTIONS / …).</td>
-<td><code>docs/specs/dashboard.md</code></td>
-</tr>
-<tr>
-<td><strong>Gallery QA spec</strong></td>
-<td>Pre-surface gallery checklist + the Plan-Ships ⇄ gallery-tile contract (check before the operator sees it).</td>
-<td><code>docs/specs/gallery-qa.md</code></td>
-</tr>
-<tr>
-<td><strong>Data Architecture spec</strong></td>
-<td>Storage model — markdown authoritative, HTML rendered, OneDrive + Git dual-backed; render-pipeline contract.</td>
-<td><code>docs/specs/data-architecture.md</code></td>
-</tr>
-<tr>
-<td><strong>System Manager spec</strong></td>
-<td>The System-layer owner: backlog + idea inbox + audit schema, the operator dashboard (To Do split "Needs you" / "AI can action" + audit history), and the capture / triage / retro / groom workflows.</td>
-<td><code>docs/specs/system-manager.md</code></td>
-</tr>
-<tr>
-<td><strong>Agent I/O Contract spec</strong></td>
-<td>Structured dispatch + return envelopes for CM↔agent handoffs (machine-checkable orchestration: ship-file existence, explicit verdicts, cost capture). WIRED (additive) — SYS-004 Steps 2-3: validator (<code>agent-io</code> skill) + agents emit + CM validates; Step 4 (sole source of truth) gated.</td>
-<td><code>docs/specs/agent-io-contract.md</code></td>
-</tr>
-<tr>
-<td><strong>Standalone Deployment spec</strong></td>
-<td>Retro-5: packaging the system as a clean single-tenant "Seed" — ship/tenant/personal manifest, the <code>build_seed</code> allowlist cut + leak scan, Phase-0 hard gate, install doctor, the phased plan + safety model.</td>
-<td><code>docs/specs/standalone-deployment.md</code></td>
-</tr>
-<tr>
-<td><strong>Download-gate spec</strong></td>
-<td>SYS-048: the soundtrak.com "Agree &amp; Download" click-wrap gate (spec + copy) that strengthens contract formation beyond the repo's browse-wrap, pairing with the in-tool first-run acceptance gate. Master-internal (not shipped in the Seed).</td>
-<td><code>docs/specs/download-gate.md</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="3-playbooks-andrews-runbooks">3. Playbooks (the operator's runbooks)</h2>
-<p><em>Playbooks are step-by-step operator runbooks for recurring processes. They tell you exactly what to do, in order.</em></p>
-<table>
-<thead>
-<tr>
-<th>Playbook</th>
-<th>What it covers</th>
-<th>When to use</th>
-<th>Where</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Onboard a new tenant</strong></td>
-<td>Fact-find → Brand Context → folder structure → integrations → first campaign Brief. Includes §7 System design rationale (transfer the "why" to new tenants).</td>
-<td>First conversation after "yes, let's do this"</td>
-<td><code>docs/playbooks/onboard-tenant.md</code></td>
-</tr>
-<tr>
-<td><strong>Client operator onboarding</strong></td>
-<td>Day-1 handoff session + 4-week standby for tenant-self-runs or handoff models.</td>
-<td>Phase 5 execution for non-the operator-runs tenants</td>
-<td><code>docs/playbooks/client-operator-onboarding.md</code></td>
-</tr>
-<tr>
-<td><strong>Pre-sync hygiene</strong></td>
-<td>Checklist before running sync-tenant.ps1. Prevents cross-tenant leakage and dirty master propagation.</td>
-<td>Before any master → tenant sync</td>
-<td><code>docs/playbooks/pre-sync-hygiene.md</code></td>
-</tr>
-<tr>
-<td><strong>Sync master to tenant</strong></td>
-<td>PowerShell + rsync mechanics for propagating master to a tenant's OneDrive.</td>
-<td>Phase 6 setup</td>
-<td><code>docs/playbooks/sync-master-to-tenant.md</code></td>
-</tr>
-<tr>
-<td><strong>Deployment guide</strong></td>
-<td>Non-technical install/setup runbook. <strong>Retired redirect stub</strong> → canonical is <code>docs/guide/deployment-guide.html</code>.</td>
-<td>Redirect only</td>
-<td><code>docs/playbooks/deployment-guide.md</code></td>
-</tr>
-<tr>
-<td><strong>Onboarding checklist</strong></td>
-<td>First-run getting-started checklist. <strong>Superseded by <code>docs/guide/getting-started.html</code></strong>; kept as source.</td>
-<td>Reference only</td>
-<td><code>docs/playbooks/onboarding-checklist.md</code></td>
-</tr>
-<tr>
-<td><strong>FAQ</strong></td>
-<td>Self-service Q&amp;A. <strong>Retired redirect stub</strong> → canonical is <code>docs/guide/help.html</code> (<code>#faq</code>).</td>
-<td>Redirect only</td>
-<td><code>docs/playbooks/faq.md</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="4-agent-definitions-specialist-ai-agents">4. Agent definitions (specialist AI agents)</h2>
-<p><em>Agent definitions tell each agent who they are, what they do, and how to do it. CM reads these when dispatching.</em></p>
-<table>
-<thead>
-<tr>
-<th>Agent</th>
-<th>Role</th>
-<th>Where</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Campaign Manager</strong></td>
-<td>Orchestrator. Runs the phases, authors briefs/plans, dispatches specialists.</td>
-<td><code>.claude/skills/campaign-manager/SKILL.md</code></td>
-</tr>
-<tr>
-<td><strong>Insights Manager</strong></td>
-<td>Phase-1 Insight Brief author (per-segment human + market insight that fuels the big idea); Phase-4 advisory resonance read.</td>
-<td><code>.claude/agents/insights-manager/AGENT.md</code></td>
-</tr>
-<tr>
-<td><strong>Creative Director</strong></td>
-<td>Concept trio author (built on the Insight Brief) + Brand Context author.</td>
-<td><code>.claude/agents/creative-director/AGENT.md</code></td>
-</tr>
-<tr>
-<td><strong>Governance Manager</strong></td>
-<td>Compliance/legal/regulatory gate (Phase 4); Compliance Profile author (Phase 0). Red-flag-for-human-review, not legal advice.</td>
-<td><code>.claude/agents/governance-manager/AGENT.md</code></td>
-</tr>
-<tr>
-<td><strong>Brand Manager</strong></td>
-<td>Asset verdict giver. Reviews every asset before operator sees it.</td>
-<td><code>.claude/agents/brand-manager/AGENT.md</code></td>
-</tr>
-<tr>
-<td><strong>Producer</strong></td>
-<td>Builds the finished asset: copy + visuals + structural elements + cookbooks.</td>
-<td><code>.claude/agents/producer/AGENT.md</code></td>
-</tr>
-<tr>
-<td><strong>Marketing Forensic Analyst</strong></td>
-<td>Performance data investigator. Forensic pass on analytics, funnels, campaign post-mortems.</td>
-<td><code>.claude/agents/marketing-forensic-analyst/AGENT.md</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="5-skills-operator-invocable-entry-points">5. Skills (operator-invocable entry points)</h2>
-<p><em>Skills are invoked by natural language. The <code>description:</code> block in each SKILL.md is the trigger mechanism — not the slash command.</em></p>
-<p><em>All skills live in <code>.claude/skills/&lt;name&gt;/</code> (the SKILL.md is the entry point).</em></p>
-<table>
-<thead>
-<tr>
-<th>Skill</th>
-<th>What it does</th>
-<th>Trigger phrases</th>
-<th>Where</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>campaign-manager</strong></td>
-<td>Main system entry point. Start campaigns, advance them, get status.</td>
-<td>"start campaign", "what's next", "ship the asset"</td>
-<td><code>.claude/skills/campaign-manager/</code></td>
-</tr>
-<tr>
-<td><strong>render-html</strong></td>
-<td>Markdown → HTML for any doc class.</td>
-<td>"render this", "generate HTML"</td>
-<td><code>.claude/skills/render-html/</code></td>
-</tr>
-<tr>
-<td><strong>asset-gallery</strong></td>
-<td>Builds the per-campaign gallery.html with tiles, lightbox, modal.</td>
-<td>Called by CM automatically</td>
-<td><code>.claude/skills/asset-gallery/</code></td>
-</tr>
-<tr>
-<td><strong>canva-design</strong></td>
-<td>Mode B visual production via Canva MCP.</td>
-<td>Called by Producer</td>
-<td><code>.claude/skills/canva-design/</code></td>
-</tr>
-<tr>
-<td><strong>replicate-generate</strong></td>
-<td>Mode A AI visual generation via Replicate API.</td>
-<td>Called by Producer</td>
-<td><code>.claude/skills/replicate-generate/</code></td>
-</tr>
-<tr>
-<td><strong>library-add</strong></td>
-<td>Adds a URL/asset to the tenant library.</td>
-<td>"add this to the library"</td>
-<td><code>.claude/skills/library-add/</code></td>
-</tr>
-<tr>
-<td><strong>insight-scan</strong></td>
-<td>The Insights Manager's disciplined multi-source web sweep (research library cite-first · human-behaviour · cohort voice · trade media · GTM/partnership routes). Feeds the Insight Brief.</td>
-<td>Called by Insights Manager (Phase 1)</td>
-<td><code>.claude/skills/insight-scan/</code></td>
-</tr>
-<tr>
-<td><strong>cost-ledger</strong></td>
-<td>Per-dispatch AI cost ledger; dashboard AI-cost totals render from it (COST_TOTAL_AUTO).</td>
-<td>Called by CM on each subagent return</td>
-<td><code>.claude/skills/cost-ledger/</code></td>
-</tr>
-<tr>
-<td><strong>agent-io</strong></td>
-<td>Validates the agent I/O contract (SYS-004) — the structured <code>return:</code> envelope that rides alongside each agent's prose. CM runs <code>validate_envelope.py</code> on every return (dispatch_id pairing · status · per-agent required fields · ship-file existence) + appends the pair to the dispatch ledger. Additive / non-breaking.</td>
-<td>Called by CM on each subagent return; "validate the envelope"</td>
-<td><code>.claude/skills/agent-io/</code></td>
-</tr>
-<tr>
-<td><strong>content-subedit</strong></td>
-<td>Sub-edits LinkedIn posts / Substack articles against the Soundtrak voice rules.</td>
-<td>"sub-edit this", "check against the voice rules"</td>
-<td><code>.claude/skills/content-subedit/</code></td>
-</tr>
-<tr>
-<td><strong>deploy-mailchimp</strong></td>
-<td>Pushes email assets to Mailchimp via API.</td>
-<td>Called by CM at Phase 6</td>
-<td><code>.claude/skills/deploy-mailchimp/</code></td>
-</tr>
-<tr>
-<td><strong>deploy-cookbook</strong></td>
-<td>Universal cookbook-based deployment fallback.</td>
-<td>Called by CM at Phase 6</td>
-<td><code>.claude/skills/deploy-cookbook/</code></td>
-</tr>
-<tr>
-<td><strong>deploy-static-folder</strong></td>
-<td>Static-folder deploy adapter — reference implementation of the deploy-adapter contract (copies an HTML deployment package to a local web-root + verifies).</td>
-<td>Called by CM at Phase 5/6 (<code>platform: static-folder</code>)</td>
-<td><code>.claude/skills/deploy-static-folder/</code></td>
-</tr>
-<tr>
-<td><strong>integration-scaffolder</strong></td>
-<td>Stamps a new deploy-adapter skeleton conforming to the adapter contract (interface + tested <code>adapter.py</code> + investigation-reference + smoke test).</td>
-<td>Operator, to add a new coded deploy adapter (SYS-066)</td>
-<td><code>.claude/skills/integration-scaffolder/</code></td>
-</tr>
-<tr>
-<td><strong>system-smoke-test</strong></td>
-<td>Health check: render pipeline + operator-quartet (all campaigns) + hooks + git + nav-index. Returns red/amber/green.</td>
-<td>"run system smoke test", "check system health"</td>
-<td><code>.claude/skills/system-smoke-test/</code></td>
-</tr>
-<tr>
-<td><strong>system-drift-watcher</strong></td>
-<td>Cross-campaign drift scan (stale dashboards · zombie To-Do rows · in-flight Producers · stale cross-refs).</td>
-<td>"check system drift", "anything stale?"</td>
-<td><code>.claude/skills/system-drift-watcher/</code></td>
-</tr>
-<tr>
-<td><strong>cm-audit</strong></td>
-<td>Surface-currency audit — every operator surface (dashboard/gallery/tasks/index/tenant-home) re-rendered after its data source changed.</td>
-<td>"run cm audit", "are the surfaces current?"</td>
-<td><code>.claude/skills/cm-audit/</code></td>
-</tr>
-<tr>
-<td><strong>nav-audit</strong></td>
-<td>Keeps this index honest — diffs <code>NAVIGATION_INDEX.md</code> against specs/skills/agents/playbooks on disk; flags missing entries, dead links, stale stamp + oldest docs.</td>
-<td>"run nav audit", "is the navigation index fresh?"</td>
-<td><code>.claude/skills/nav-audit/</code></td>
-</tr>
-<tr>
-<td><strong>docs-audit</strong></td>
-<td>The CONTENT/STRUCTURE layer over nav-audit — reads INSIDE the docs: stale agent-count prose (five/six after the 7th agent), class tables that lost a column, <code>docs/public/</code> behind the roster/specs, and §9/§10/§11 coverage vs disk (SYS-018/SYS-026 drift class).</td>
-<td>"run docs audit", "are the docs consistent?", "is the agent count right everywhere?"</td>
-<td><code>.claude/skills/docs-audit/</code></td>
-</tr>
-<tr>
-<td><strong>cadences</strong></td>
-<td>Four proactive scheduled sweeps — competitor/library scan · tenant brand-drift · stale-asset/surface · per-tenant shipped/blocked rollup. Surface-only (file deduped inbox ideas, never auto-ship).</td>
-<td>Scheduled (weekly/monthly) via Windows tasks</td>
-<td><code>.claude/skills/cadences/</code></td>
-</tr>
-<tr>
-<td><strong>system-manager</strong></td>
-<td>Owner of the System layer — maintains the system-improvement backlog + idea inbox + audit history and the operator dashboard (To Do split Needs-you / AI-can-action + audit history), independent of any campaign. Capture / triage / retro / groom.</td>
-<td>"system idea: …", "triage the inbox", "run a system retro", "/system-manager"</td>
-<td><code>.claude/skills/system-manager/</code></td>
-</tr>
-</tbody>
-</table>
-<h3 id="tenant-specific-skills">Tenant-specific skills</h3>
-<p><em>Scoped to one tenant's workflow (Soundtrak content · Acme Co podcast), not the general system. </em><em>Excluded from the public Seed</em><em> (the <code>build_seed</code> deny-list) — a fresh deployment ships without them. Listed here for completeness.</em></p>
-<table>
-<thead>
-<tr>
-<th>Skill</th>
-<th>What it does</th>
-<th>Trigger phrases</th>
-<th>Where</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>thought-leadership</strong></td>
-<td>the operator's content workflow: a pasted concept / principle / research → LinkedIn + Substack pieces (orchestrates the three skills below).</td>
-<td>"new concept", "let's do a piece on X", "run the feedback loop"</td>
-<td><code>.claude/skills/thought-leadership/</code></td>
-</tr>
-<tr>
-<td><strong>behavior-gap-sketch</strong></td>
-<td>Distils raw text into one Carl Richards / Behavior-Gap visual metaphor + a copy-paste image prompt.</td>
-<td><code>/carl-image</code></td>
-<td><code>.claude/skills/behavior-gap-sketch/</code></td>
-</tr>
-<tr>
-<td><strong>linkedin-post</strong></td>
-<td>Turns the same principle into a high-impact LinkedIn post, paired with the sketch.</td>
-<td><code>/image-social-post</code></td>
-<td><code>.claude/skills/linkedin-post/</code></td>
-</tr>
-<tr>
-<td><strong>long-form</strong></td>
-<td>Turns the same principle into a feature-length Substack article.</td>
-<td><code>/long-form</code></td>
-<td><code>.claude/skills/long-form/</code></td>
-</tr>
-<tr>
-<td><strong>publish-soundtrak-article-website</strong></td>
-<td>Publishes a finished article to soundtrakconsulting.com/thinking/ (docx + hero image + Substack URL).</td>
-<td>"publish article", "publish to soundtrak"</td>
-<td><code>.claude/skills/publish-soundtrak-article-website/</code></td>
-</tr>
-<tr>
-<td><strong>sb-podcast-weekly-assets</strong></td>
-<td>Acme Co "Acme Co Talks" Friday cycle: transcript + URL → full asset bundle.</td>
-<td>"run weekly cadence for Acme Co Talks"</td>
-<td><code>.claude/skills/sb-podcast-weekly-assets/</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="6-tenant-data-per-client-not-system">6. Tenant data (per-client, not system)</h2>
-<p><em>Tenant data is campaign-specific. It lives alongside the system but belongs to individual clients.</em></p>
-<table>
-<thead>
-<tr>
-<th>What</th>
-<th>What it contains</th>
-<th>Where</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Brand Context</strong></td>
-<td>Voice rules, visual identity, compliance posture, channels, gold standards. Per tenant.</td>
-<td><code>tenant-brand/&lt;tenant-slug&gt;.md</code></td>
-</tr>
-<tr>
-<td><strong>Compliance Profile</strong></td>
-<td>Per-tenant regulatory ruleset the Governance Manager authors in Phase 0 + gates against in Phase 4: disclaimer library, prohibited claims, mandatories, risk tiers.</td>
-<td><code>tenant-brand/&lt;tenant&gt;-compliance.md</code></td>
-</tr>
-<tr>
-<td><strong>Segment map</strong></td>
-<td>Per-tenant needs-based segmentation (the buyer groups the Insight Brief works per-segment).</td>
-<td><code>tenant-brand/&lt;tenant&gt;-segments.md</code></td>
-</tr>
-<tr>
-<td><strong>Market landscape</strong></td>
-<td>Per-tenant market context: category, competitors, positioning terrain the insight + concept build on.</td>
-<td><code>tenant-brand/&lt;tenant&gt;-market.md</code></td>
-</tr>
-<tr>
-<td><strong>Tenant playbook</strong></td>
-<td>Per-tenant tactical-learnings record — the campaign-to-campaign inheritance vehicle (graduate-then-cite, three-layer model).</td>
-<td><code>tenant-brand/&lt;tenant&gt;-playbook.md</code></td>
-</tr>
-<tr>
-<td><strong>Audience truths</strong></td>
-<td>Durable per-segment enduring truths, per tenant. Refreshed from each Insight Brief §5 at wrap.</td>
-<td><code>tenant-brand/&lt;tenant&gt;-audience-truths.md</code></td>
-</tr>
-<tr>
-<td><strong>Tech / martech stack</strong></td>
-<td>The tenant's tooling. Authored as the Brief's <code>tech_stack</code> block (per campaign) + each tenant's <code>integrations.yaml</code> <code>channel_defaults</code> (platform defaults). NOT a hidden field — it is an explicit, authored artifact.</td>
-<td>Brief <code>tech_stack</code> + <code>tenant/&lt;tenant-slug&gt;/integrations.yaml</code></td>
-</tr>
-<tr>
-<td><strong>Tenant config</strong></td>
-<td><code>integrations.yaml</code> (platform creds refs + <code>channel_defaults</code>), brand assets, per-tenant library.</td>
-<td><code>tenant/&lt;tenant-slug&gt;/</code></td>
-</tr>
-<tr>
-<td><strong>Reference library</strong></td>
-<td>92-entry inspiration + gold-standard library. Cross-tenant. Faceted (vertical, shape, idea_or_tactic).</td>
-<td><code>tenant/library/</code></td>
-</tr>
-<tr>
-<td><strong>Research library (SHARED)</strong></td>
-<td>Cross-tenant public-research corpus the <code>insight-scan</code> cites before fetching. Faceted (vertical · audience · topic · layer [market/human-behaviour] · source-type). Distinct from the creative <code>tenant/library/</code>.</td>
-<td><code>tenant/research-library/</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="7-campaign-artifacts-per-campaign">7. Campaign artifacts (per-campaign)</h2>
-<p><em>Each active campaign lives in its own folder. Every campaign has the same structure.</em></p>
-<table>
-<thead>
-<tr>
-<th>Artifact</th>
-<th>What it is</th>
-<th>Path pattern</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Campaign dashboard</td>
-<td>The campaign's home page. Phases + Artifacts, To Do, History.</td>
-<td><code>campaigns/&lt;slug&gt;/&lt;slug&gt;.md</code></td>
-</tr>
-<tr>
-<td>Brief</td>
-<td>Campaign strategy: who/what/why/budget/timeline/tech/people.</td>
-<td><code>campaigns/&lt;slug&gt;/brief.md</code></td>
-</tr>
-<tr>
-<td>Concept</td>
-<td>Selected creative concept. Big Idea, Key Message, 15-sec pitch, visuals.</td>
-<td><code>campaigns/&lt;slug&gt;/concepts/selected.md</code></td>
-</tr>
-<tr>
-<td>Plan</td>
-<td>Asset list with Review format + Copy file columns. Phase readiness.</td>
-<td><code>campaigns/&lt;slug&gt;/plan.md</code></td>
-</tr>
-<tr>
-<td>Gallery</td>
-<td>Visual gallery of all campaign assets. Channel-grouped, with modal.</td>
-<td><code>campaigns/&lt;slug&gt;/gallery.html</code></td>
-</tr>
-<tr>
-<td>Phase 5 Rollout</td>
-<td>Day-1 deployment runbook for this campaign.</td>
-<td><code>campaigns/&lt;slug&gt;/phase-5-rollout.md</code></td>
-</tr>
-<tr>
-<td>Phase 6 Cadence</td>
-<td>Ongoing cycle runbook. Campaign DNA header.</td>
-<td><code>campaigns/&lt;slug&gt;/phase-6-cadence.md</code></td>
-</tr>
-<tr>
-<td>Assets</td>
-<td>Per-asset folders: HTML/PNG + asset.yaml + copy.md + cookbooks.</td>
-<td><code>campaigns/&lt;slug&gt;/assets/&lt;asset-slug&gt;/</code></td>
-</tr>
-<tr>
-<td>Retros</td>
-<td>Campaign-specific retros.</td>
-<td><code>campaigns/&lt;slug&gt;/retros/</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="8-system-infrastructure-runtime-machinery">8. System infrastructure (runtime machinery)</h2>
-<p><em>Don't touch unless you know what you're doing. These files make the system work.</em></p>
-<table>
-<thead>
-<tr>
-<th>What</th>
-<th>What it does</th>
-<th>Where</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>PostToolUse hook</strong></td>
-<td>Classifies every file write and updates the dirty-campaigns ledger.</td>
-<td><code>.claude/hooks/post_tool_use.py</code></td>
-</tr>
-<tr>
-<td><strong>Stop hook</strong></td>
-<td>Drains the ledger: re-renders dashboards, galleries, tasks, index. Auto-backs up to GitHub.</td>
-<td><code>.claude/hooks/stop.py</code></td>
-</tr>
-<tr>
-<td><strong>settings.json</strong></td>
-<td>Wires hooks into Claude Code. Uses <code>${CLAUDE_PROJECT_DIR}</code> for CWD-safe paths.</td>
-<td><code>.claude/settings.json</code></td>
-</tr>
-<tr>
-<td><strong>dirty-campaigns.json</strong></td>
-<td>Per-session ledger of which campaigns were touched. Drained by Stop hook.</td>
-<td><code>.claude/state/dirty-campaigns.json</code></td>
-</tr>
-<tr>
-<td><strong>hook-latency.json</strong></td>
-<td>Latency log for PostToolUse hook. Check if sessions feel slow.</td>
-<td><code>.claude/state/hook-latency.json</code></td>
-</tr>
-<tr>
-<td><strong>build-gallery.py</strong></td>
-<td>Generates gallery.html: thumbnails via Playwright, 3-block modal, campaign DNA, copy/download buttons. Reads <code>asset.yaml</code> <code>status:</code> field first (load-bearing); falls back to MD scan.</td>
-<td><code>.claude/skills/asset-gallery/build-gallery.py</code></td>
-</tr>
-<tr>
-<td><strong>render.py</strong></td>
-<td>Markdown → HTML renderer. Templates: base, dashboard, tasks, index, asset-preview. Dashboard template auto-injects operator-actions To Do table via <code>operator_actions.py</code> (replaces <code>&lt;!-- OPERATOR_ACTIONS_AUTO --&gt;</code> marker).</td>
-<td><code>.claude/skills/render-html/render.py</code></td>
-</tr>
-<tr>
-<td><strong>operator_actions.py</strong></td>
-<td>Scans every <code>assets/*/asset.yaml</code> in a campaign for pending <code>operator_actions:</code> entries and renders them as the dashboard's auto-generated To Do block. Single source of truth — dashboard To Do is now derived, not hand-authored.</td>
-<td><code>.claude/skills/render-html/operator_actions.py</code></td>
-</tr>
-<tr>
-<td><strong>status-propagator</strong></td>
-<td>Single command updates asset status across all the layers that gallery + dashboard read from (asset.yaml + numeric-prefix .md + preview.md + HTMLs + gallery + dashboard). Also handles <code>--task &lt;id&gt; --done</code> to mark individual operator-actions complete. Replaces the manual ~9-touch-point discipline.</td>
-<td><code>.claude/skills/status-propagator/propagate.py</code> · <a href="../.claude/skills/status-propagator/SKILL.md">SKILL.md</a></td>
-</tr>
-<tr>
-<td><strong>check-state</strong></td>
-<td>Read-only drift detector. Walks every asset folder in one campaign or all campaigns and reports any disagreement between yaml status, numeric-prefix asset record, preview.md, and dashboard mentions of approved assets. Pair with status-propagator to fix what it finds.</td>
-<td><code>.claude/skills/check-state/check.py</code> · <a href="../.claude/skills/check-state/SKILL.md">SKILL.md</a></td>
-</tr>
-<tr>
-<td><strong>build-dashboard.py</strong></td>
-<td>Generates <code>system/dashboard.html</code> (the System Operator Dashboard): To Do split into Needs-you / AI-can-action (in_progress as a tag) + a prominent inbox CTA → triage lightbox + audit history. Reads the <code>system/</code> data store; inlines system.css. Re-run after any backlog/ideas/audit edit.</td>
-<td><code>.claude/skills/system-manager/build-dashboard.py</code></td>
-</tr>
-<tr>
-<td><strong>system/ data store</strong></td>
-<td>The System-layer source of truth: <code>backlog.yaml</code> (tickets) · <code>ideas.yaml</code> (idea inbox) · <code>audit-log.yaml</code> (history) → <code>dashboard.html</code> (generated). In-repo (campaigns/ is a separate repo).</td>
-<td><code>system/</code></td>
-</tr>
-<tr>
-<td><strong>repo_paths.py</strong></td>
-<td>Canonical data-root resolver: <code>data_root()</code> / <code>is_worktree()</code>. Lets diagnostics + the System Manager resolve campaigns/ · system/ · tenant-brand/ to the MAIN checkout when run from a <code>.claude/worktrees/*</code> checkout (SYS-002).</td>
-<td><code>.claude/lib/repo_paths.py</code></td>
-</tr>
-<tr>
-<td><strong>weekly-digest.py</strong></td>
-<td>SYS-005 — read-only weekly groom-lite: runs diagnostics, summarises open work + inbox, auto-files new failures as deduped ideas, writes <code>system/digests/&lt;date&gt;.md</code>. Built for a weekly schedule.</td>
-<td><code>.claude/skills/system-manager/weekly-digest.py</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="9-memory-rules-system-learnings-indexed-by-subject">9. Memory rules (system learnings — indexed by subject)</h2>
-<p><em>Memory rules capture what the system learned through doing. They're stored in <code>~/.claude/projects/.../memory/</code>. Listed here by subject area.</em></p>
-<table>
-<thead>
-<tr>
-<th>Subject</th>
-<th>Memory rule</th>
-<th>Key learning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>System architecture</strong></td>
-<td><code>reframe_cmo_force_multiplier.md</code></td>
-<td>Force multiplier, not replacement. All downstream flows from this.</td>
-</tr>
-<tr>
-<td><strong>Propagation</strong></td>
-<td><code>feedback_captured_rules_require_explicit_propagation.md</code></td>
-<td>Memory writes are inert until specs/agents/skills are updated.</td>
-</tr>
-<tr>
-<td><strong>Propagation</strong></td>
-<td><code>feedback_propagation_failure_modes_recur_across_dimensions.md</code></td>
-<td>Generalised: ANY artifact change needs downstream propagation.</td>
-</tr>
-<tr>
-<td><strong>Plan authoring</strong></td>
-<td><code>feedback_plan_declares_review_shape_and_copy_file.md</code></td>
-<td>Plan must declare Review format + Copy file for every asset. Drives Producer, gallery, approval scope.</td>
-</tr>
-<tr>
-<td><strong>Gallery QA</strong></td>
-<td><code>feedback_cm_owns_gallery_qa_before_operator_surface.md</code></td>
-<td>CM checks gallery before operator sees it. 7-point checklist.</td>
-</tr>
-<tr>
-<td><strong>HTML deployment</strong></td>
-<td><code>feedback_html_web_page_folder_structure.md</code></td>
-<td><code>index.html</code> + <code>images/</code> at root. No campaign files in the deployable folder.</td>
-</tr>
-<tr>
-<td><strong>Asset review</strong></td>
-<td><code>feedback_gallery_publish_aware_producer.md</code></td>
-<td>Producer ships asset.yaml + gallery-recognised headers. Gallery reads declarative metadata.</td>
-</tr>
-<tr>
-<td><strong>Retros</strong></td>
-<td><code>feedback_retros_are_system_artifacts_not_conversations.md</code></td>
-<td>Retros generate memory rules + spec changes. Incomplete until §4 propagated.</td>
-</tr>
-<tr>
-<td><strong>Tenant onboarding</strong></td>
-<td><code>feedback_build_while_doing_pattern_doesnt_replicate.md</code></td>
-<td>The dialectic that built the system doesn't transfer automatically. Read onboard-tenant.md §7.</td>
-</tr>
-<tr>
-<td><strong>Skills</strong></td>
-<td><code>feedback_skill_discovery_is_description_match_not_autocomplete.md</code></td>
-<td>Description block is the load-bearing discovery path. Host UX is fragile.</td>
-</tr>
-<tr>
-<td><strong>GitHub backup</strong></td>
-<td><code>reference_github_repos.md</code></td>
-<td>Two repos: ai-marketing-system + soundtrak-campaigns. Auto-backup via stop hook.</td>
-</tr>
-</tbody>
-</table>
-<p><em>Full memory rule list lives in <code>~/.claude/projects/C--Users-operator-OneDrive-Claude-Marketing-AI-System/memory/</code>. This index covers the highest-leverage rules.</em></p>
-<hr>
-<h2 id="10-system-retros">10. System retros</h2>
-<p><em>System-level retros track what the system learned about itself.</em></p>
-<table>
-<thead>
-<tr>
-<th>Retro</th>
-<th>Scope</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Retro 001 — 2026-05-28</td>
-<td>First end-to-end system build. CMO force-multiplier reframe.</td>
-<td>✅ Closed (see MEMORY.md)</td>
-</tr>
-<tr>
-<td>Retro 002 — 2026-06-04</td>
-<td>Architecture + Wave 0 + first Phase 6 cycle. 13 items, all executed.</td>
-<td>✅ Closed — <code>campaigns/acme-co-podcast-engine-2026q2/retros/2026-06-04-rollout-arch-v2-end-to-end.md</code></td>
-</tr>
-<tr>
-<td>Retro 003 — 2026-06-08</td>
-<td>AI Marketing System process retro (this doc's execution session). 12 items E1-E12.</td>
-<td>✅ Closed — <code>docs/retros/2026-06-04-ai-marketing-system.md</code></td>
-</tr>
-<tr>
-<td>Retro 004 — 2026-06-12</td>
-<td>Phase 2 redesign inputs (objective taxonomy · concept litmus · §0 schema · graduate-then-cite).</td>
-<td>✅ Closed — <code>docs/retros/2026-06-12-phase2-redesign-inputs.md</code></td>
-</tr>
-<tr>
-<td>Retro 005 — 2026-06-23</td>
-<td>Insights Manager (7th agent) + enhancement arc (resonance read · human-first method · shared research library · §2 routes-to-market · gallery lightbox · concept visual board + exposed kill register · nav-audit · Claude-in-Chrome raw-voice store). §4 shipped in-session; all checks green.</td>
-<td>✅ Closed — <code>docs/retros/2026-06-23-insights-manager-and-enhancements.md</code></td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="11-public-facing-artifacts-docspublic">11. Public-facing artifacts (<code>docs/public/</code>)</h2>
-<p><em>Prospect/RFP/demo materials. Versioned. Maintained as the system evolves.</em></p>
-<table>
-<thead>
-<tr>
-<th>Doc</th>
-<th>Audience</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="public/system-overview.html"><code>docs/public/system-overview.md</code></a></td>
-<td>Prospects, first conversations</td>
-<td>Plain-English what-it-does. Benefits-led. Leave-behind reference.</td>
-</tr>
-<tr>
-<td><a href="public/feature-list.html"><code>docs/public/feature-list.md</code></a></td>
-<td>RFP responders, procurement, technical evaluators</td>
-<td>Technical/structural feature inventory. Side-by-side comparison vs typical in-house team and traditional agency. Architecture, agents, phases, surfaces, toolchain, multi-tenancy, audit, RFP-checklist.</td>
-</tr>
-<tr>
-<td><a href="public/demo-walkthrough.html"><code>docs/public/demo-walkthrough.md</code></a></td>
-<td>the operator (running a prospect demo)</td>
-<td>10-min screen-by-screen demo script. Uses Acme Co as the live tenant. 10 steps · timing table · short/technical/compliance variations.</td>
-</tr>
-<tr>
-<td><a href="public/architecture-ai-native.html"><code>docs/public/architecture-ai-native.md</code></a></td>
-<td>Engineers, AI practitioners, technical founders</td>
-<td>Full architecture explainer: context stack, agent topology (librarian pattern), three-layer model, control flow, deterministic layer, technical feature list, inventory.</td>
-</tr>
-<tr>
-<td><a href="public/architecture-plain-english.html"><code>docs/public/architecture-plain-english.md</code></a></td>
-<td>Anyone — zero technical knowledge assumed</td>
-<td>Same system explained as a small agency: the seven roles (Campaign Manager + six specialists), the four decisions, what you see in the browser, memory + safety rails, FAQ.</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h2 id="12-engineering-architecture-docs-docsarchitecture">12. Engineering architecture docs (<code>docs/architecture/</code>)</h2>
-<p><em>Engineer-facing internals. How the Studio is wired and how it extends — for a dev or partner engineer, not the marketing operator. Inline-SVG diagrams in the brand palette.</em></p>
-<table>
-<thead>
-<tr>
-<th>Doc</th>
-<th>Audience</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="architecture/studio-architecture.html"><code>docs/architecture/studio-architecture.md</code></a></td>
-<td>Software engineers, partner engineers</td>
-<td>Setup/runtime architecture (harness + 7 agents + hooks + markdown→HTML render pipeline + data stores + three-layer model + MCP) AND extensibility (Seed fork model · deploy-adapter contract + integration-scaffolder · release-readiness cadence · cross-agent portability · backup/scheduled tasks). Two inline-SVG diagrams + built-vs-roadmap table.</td>
-</tr>
-</tbody>
-</table>
+      <h1 id="battle-cards-asset-spec">Battle Cards — Asset spec</h1>
+<p><strong>Type</strong>: Internal-only sales-kit reference. NEVER shipped to a prospect.
+<strong>Audience</strong>: the tenant's operator (founder / sales-rep / practitioner) opening the card before discovery calls + scanning mid-call.
+<strong>Form factor</strong>: prints clean on ~2 pages A4 single-sided. Markdown + rendered HTML.
+<strong>Canonical reference implementation</strong>: <code>campaigns/soundtrak-ai-system-overview-2026q2/assets/17-battle-cards/</code></p>
+<h2 id="why-a-dedicated-spec">Why a dedicated spec</h2>
+<p>Battle Cards have specific quality criteria that don't apply to other sales-kit assets. They're deal-time scannable tools, not exhaustive product sheets. Producer drafting Battle Cards without this spec defaults to product-sheet shape (long-form prose, 10+ objections, dense feature comparisons) which fails at the moment of actual use. This spec encodes the Gong-aligned battle-card best practice as the system default.</p>
+<h2 id="four-pillars-the-gong-principles-codified">Four pillars (the Gong principles, codified)</h2>
+<h3 id="pillar-1-scannability-rule-of-three">Pillar 1 — Scannability + Rule of Three</h3>
+<p>Reps reference Battle Cards in the heat of a live call. Layout must make critical information instantly discoverable.</p>
+<ul>
+<li><strong>Rule of Three</strong>: every section maxes at 3 items. 3 differentiators · 3 main objections · 3 competitor scenarios · 3 pricing scenarios. Cognitive load above 3 collapses mid-call scannability.</li>
+<li><strong>No blocks of text</strong>: bullets, short sentences, talking-point format. Paragraphs are banned in §1-§4. Reserved for the optional extended reference appendix only.</li>
+<li><strong>30-second top-of-card test</strong>: §1 must be scannable in 30 seconds before a call. Operator opens it on phone, walks to coffee, opens the laptop, takes the call.</li>
+</ul>
+<h3 id="pillar-2-scenarios-landmines-fact-impact-act">Pillar 2 — Scenarios + Landmines + Fact-Impact-Act</h3>
+<p>Content is centred on real buyer conversations, not feature matrices.</p>
+<ul>
+<li><strong>Scenario-first</strong> competitor analysis: each competitor card opens with <em>"Prospect says: '[verbatim what they say]'"</em>. Not a feature-comparison grid.</li>
+<li><strong>Landmines</strong>: every competitor section carries one smart-question the operator asks that surfaces the competitor's hidden weakness. Example: <em>"How does your current system handle [X] without requiring custom coding?"</em> Each Landmine should expose a structural failure the competitor can't defend.</li>
+<li><strong>Fact-Impact-Act framework</strong>: every kept objection AND every competitor scenario uses this three-label structure with the labels visible to the reader:</li>
+<li><strong>Fact</strong>: the factual competitive difference (1 line)</li>
+<li><strong>Impact</strong>: the consequence for the buyer's business (1 line)</li>
+<li><strong>Act</strong>: the verbatim response + the specific question the operator asks next (1 line)</li>
+<li>The three-label structure is non-negotiable. It's the discipline that prevents Battle Cards drifting back into prose.</li>
+</ul>
+<h3 id="pillar-3-frontline-evidence">Pillar 3 — Frontline evidence</h3>
+<p>Credibility lives in real engagement data, not assumptions.</p>
+<ul>
+<li><strong>Win-loss interviews</strong>: anchor "How to Win" sections in actual buyer feedback from lost deals (where the operator has it). When the operator is founder-only with no separate sales team to interview, use first-person practitioner experience explicitly framed as such.</li>
+<li><strong>Named engagements vs archetypal patterns</strong>: where the operator has permission to name real clients, do. Where not, use archetypal-prospect language ("founders at this stage typically say…") and FLAG to the operator at production time so they can choose to upgrade.</li>
+<li><strong>No fabricated metrics</strong>. Producer never invents win-loss numbers. Either real engagement data flagged for operator confirm, or archetypal framing transparently labelled as such.</li>
+</ul>
+<h3 id="pillar-4-fresh-accessible">Pillar 4 — Fresh + accessible</h3>
+<p>Stale Battle Cards break credibility with the prospect.</p>
+<ul>
+<li><strong>Freshness stamp at top of card</strong>: <code>Last reviewed: YYYY-MM-DD · Owner: &lt;name&gt; · Next review: YYYY-MM-DD</code>. Mandatory.</li>
+<li><strong>Default review cadence</strong>: quarterly (90 days). Adjust per tenant if frequency of new objections / pricing changes warrants tighter.</li>
+<li><strong>Named owner</strong>: not the AI agents. A human operator (typically the founder / sales lead / product marketing) is the named owner of the Battle Cards. Updates route through them.</li>
+<li><strong>Accessibility</strong>: Battle Cards live in the campaign's <code>assets/</code> folder + render to HTML via <code>render-html</code> skill + surface in the per-campaign gallery. NOT buried in shared drives. Future enhancement: CRM-snippet export (Hubspot, Salesforce, Close).</li>
+</ul>
+<h2 id="required-structure">Required structure</h2>
+<p>The Battle Cards <code>asset.md</code> MUST contain these sections in this order:</p>
+<h3 id="header-block">Header block</h3>
+<pre><code># Battle Cards &lt;vN&gt; — &lt;Tenant&gt; Sales Kit Reference
+
+**Asset**: #&lt;id&gt; · **Status**: &lt;status&gt; · **Form**: Internal-only reference card
+**Last reviewed**: YYYY-MM-DD · **Owner**: &lt;name&gt; · **Next review**: YYYY-MM-DD
+**Audience**: &lt;operator name&gt; only. Open before discovery calls. Mid-call scannable.
+
+&gt; **Never send this to a prospect.** Internal scaffolding. No CTAs, no marketing copy.
+</code></pre>
+<h3 id="honest-audit-table-only-on-revisions">Honest audit table (only on revisions)</h3>
+<p>On v2+ versions, surface a pillar-by-pillar table showing what v1 failed on + what v2 fixed. This is the rationale the operator reads in 1 minute before approving the revision.</p>
+<h3 id="1-quick-reference-top-of-card">§1 Quick reference (top of card)</h3>
+<p>Scannable in 30 seconds. Single page top.</p>
+<ul>
+<li><strong>3 winning differentiators</strong> (Rule of Three): the 3 things that uniquely belong to this tenant vs. competitors</li>
+<li><strong>Pricing anchor</strong>: one line (e.g. <code>$X-Y/m + ~$Z setup. Walk-away under $W total.</code>)</li>
+<li><strong>Screening question</strong> (verbatim): the one-line qualifier the operator drops in every CTA</li>
+</ul>
+<h3 id="2-competitor-scenarios-3-only">§2 Competitor scenarios (3 only)</h3>
+<p>For each of 3 competitors:
+- <strong>Scenario</strong> (Prospect says: "...")
+- <strong>The Landmine</strong> (smart question operator asks)
+- <strong>Fact / Impact / Act</strong> (three labels visible)
+- <strong>How to Win</strong> (1-2 lines, anchored in real or archetypal pattern)</p>
+<h3 id="3-top-3-objections-fact-impact-act-format">§3 Top 3 objections (Fact-Impact-Act format)</h3>
+<p>Three highest-stakes, highest-frequency objections. Demote the rest to <code>objection-extended.md</code> (sibling file, declared as Foundation <code>type: rationale</code> in asset.yaml). The extended file preserves the full v1 / prior-version responses so nothing of substance is lost — just reorganised for mid-call use.</p>
+<h3 id="4-pricing-playbook">§4 Pricing playbook</h3>
+<ul>
+<li><strong>The anchor</strong>: one line</li>
+<li><strong>3 pricing scenarios</strong> (low-anchor pushback / high-anchor comparison / setup-fee justification — adjust per tenant): each as a 2-line verbatim operator response</li>
+<li><strong>Walk-away threshold</strong>: one line</li>
+</ul>
+<h3 id="5-screening-question-routing">§5 Screening-question routing</h3>
+<p>Tenant-specific. Map each reply pattern (typically 5-7 rows) to a route (Offer A / Offer B / Probe / Disqualify) + the verbatim operator reply. <strong>Rule of Three doesn't apply</strong> to a lookup table — operator can't lose pipeline patterns to fit the rule.</p>
+<h3 id="appendix-pre-call-cheat-sheet-optional">Appendix — Pre-call cheat sheet (optional)</h3>
+<p>60-second print-ready summary. The top-of-card §1 collapsed further for offline glance.</p>
+<h2 id="required-peer-artifacts">Required peer artifacts</h2>
+<p>In the asset folder:</p>
+<ul>
+<li><code>asset.md</code> — the source (above structure)</li>
+<li><code>index.html</code> — rendered via <code>render-html</code> skill, print-to-PDF capable</li>
+<li><code>copy.md</code> — operator-editable surface per the web-deliverable contract</li>
+<li><code>objection-extended.md</code> — demoted objections (Foundation, type: rationale)</li>
+<li><code>asset.yaml</code> — declarative metadata. <code>default_channel: Sales Kit</code>, files block declares the 4 above</li>
+</ul>
+<h2 id="voice-rules">Voice rules</h2>
+<p>Same as the tenant's brand voice but tighter:
+- <strong>Internal-prep register</strong> allowed (fragments, mid-sentence directness, operator-talking-to-themselves). NOT the polished landing-page register.
+- <strong>Em-dashes</strong>: zero in body prose. Use middle-dot <code>·</code> for inline separators (e.g. <code>Offer A · strong fit</code>), period for end-stops, hyphen-with-spaces <code>-</code> for parenthetical beats.
+- <strong>Banned-words</strong>: enforced per tenant Brand Context.
+- <strong>Operator is the subject of every verb</strong> (you / the operator / they-the-operator). NOT a generic "we" or "the company".</p>
+<h2 id="phase-6-maintenance-discipline">Phase 6 maintenance discipline</h2>
+<p>Battle Cards are living documents. Phase 6 (post-launch maintenance) of every campaign that ships a Battle Cards asset MUST include a quarterly-review task.</p>
+<p><strong>Operator workflow</strong> (chat-driven, codified here):</p>
+<ol>
+<li>Operator opens chat with CM: <em>"Battle cards quarterly review for <tenant>"</em></li>
+<li>CM:
+   - Reads the current Battle Cards <code>asset.md</code>
+   - Prompts operator with structured intake: <em>"Since the last review (<code>&lt;date&gt;</code>), what's changed?"</em><ul>
+<li>New objections heard in discovery calls? (top 3 worth surfacing)</li>
+<li>Pricing shifted? (range, setup fee, walk-away)</li>
+<li>Competitor moves? (new pricing, new positioning, new players)</li>
+<li>Win-loss patterns? (what's working in pitches, what's blocking)</li>
+<li>Screening-question reply patterns drifted? (new reply types worth adding)</li>
+<li>Synthesises operator answers into proposed revisions</li>
+<li>Surfaces a diff vs current Battle Cards for operator approval</li>
+</ul>
+</li>
+<li>Operator approves → Producer fires for the revision pass</li>
+<li>Battle Cards v(n+1) ships with updated freshness stamp + next-review date</li>
+<li>CM updates the campaign dashboard Phase 6 row to show review done + next review date</li>
+</ol>
+<p><strong>Automation option (not yet implemented)</strong>: scheduled task via <code>mcp__scheduled-tasks__create_scheduled_task</code> fires every 90 days from last review date with a prompt: <em>"Battle cards quarterly review for <tenant> is due. Open chat with CM to start."</em> Operator can dismiss or fire. Recommendation: implement for any tenant with active sales motion; skip for one-shot campaigns.</p>
+<h2 id="producer-agent-contract-additions">Producer agent contract additions</h2>
+<p>When Producer is fired for any Battle Cards asset:</p>
+<ul>
+<li>Producer MUST follow the structure above. Filename conventions (<code>asset.md</code> + <code>index.html</code> + <code>copy.md</code> + <code>objection-extended.md</code> + <code>asset.yaml</code>) are mandatory.</li>
+<li>Producer MUST author the <code>## Open questions for operator (gate)</code> section (per asset.md spec) — including at minimum: win-loss evidence framing (real names vs archetypal), walk-away threshold confirmation, screening-routing row count, quarterly review cadence + owner confirmation.</li>
+<li>Producer MUST author <code>## What the operator does next</code> section with the explicit chat-driven quarterly-review workflow surfaced.</li>
+<li>Producer MUST NOT fabricate competitor pricing, win-loss numbers, or named-client claims without explicit operator approval.</li>
+</ul>
+<h2 id="reference">Reference</h2>
+<p>Canonical implementation: <code>campaigns/soundtrak-ai-system-overview-2026q2/assets/17-battle-cards/asset.md</code> (v2, Gong-principles revision, 2026-06-01). Future Battle Cards across any tenant should mirror this shape unless the tenant's sales motion requires a different structure (in which case capture the deviation as an explicit operator decision).</p>
     </article>
   </main>
 
   <footer class="page-footer">
-    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../docs/legal/LICENSE.html">Licence</a> · <a href="../docs/legal/NOTICE.html">Notice</a></span>
-    <span>Source file: <code>Marketing AI System\docs\NAVIGATION_INDEX.md</code></span>
+    <span>Source file: <code>docs\specs\battle-cards.md</code></span>
   </footer>
 </body>
 </html>

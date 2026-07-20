@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -429,6 +429,8 @@ html, body {
   gap: 6px;
   font-size: 13px;
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 .crumb {
   color: var(--text-muted);
@@ -463,6 +465,17 @@ html, body {
   font-size: 11px;
   opacity: 0.6;
 }
+/* Refresh control (SYS-014) — top-right of every operator surface; reloads the page
+   so the operator doesn't reach for the browser refresh. */
+.refresh-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); font-size: 14px; line-height: 1;
+  cursor: pointer; padding: 0; font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.refresh-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
 .page-header__right {
   display: flex;
   align-items: center;
@@ -472,7 +485,7 @@ html, body {
 .library-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
 }
 .lib-link {
@@ -864,6 +877,115 @@ body.template-dashboard .content table th {
   letter-spacing: 0.05em;
 }
 
+/* ============================================================================
+ * Brief — prose-narrow surface polish (added 2026-06-12, HTML-surface retro).
+ * Restrained: it's a reading document. Metadata header · callout blockquotes ·
+ * attribution + HARD inline tags. Tags are general (.content) so any prose
+ * surface that uses them inherits; layout bits scoped to template-brief.
+ * ========================================================================== */
+
+/* Metadata block (first paragraph after the H1: Operator · Tenant · Type · Status) */
+body.template-brief .content > h1 + p {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+body.template-brief .content > h1 + p strong { color: var(--text); font-weight: 600; }
+
+/* "Why this campaign" (first H2's paragraph) — the load-bearing framing — is the
+ * one accent callout on the page. */
+body.template-brief .content > h2:first-of-type + p {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  margin: 0 0 22px 0;
+  font-size: 15.5px;
+  color: var(--text);
+}
+
+/* Blockquotes (rescope / history / context notes) — neutral, not accent. They
+ * read as reference asides and belong at the bottom of the brief. */
+body.template-brief .content blockquote {
+  background: var(--bg);
+  border-left: 4px solid var(--border-strong);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 18px;
+  margin: 0 0 22px 0;
+  color: var(--text-muted);
+  font-style: normal;
+}
+body.template-brief .content blockquote p:last-child { margin-bottom: 0; }
+
+/* Attribution markers — the brief's signature [who-said-what] discipline */
+.content .attr {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.content .attr--operator { background: var(--success-soft); color: var(--success); }  /* the operator's read */
+.content .attr--ext      { background: var(--accent-soft);  color: var(--accent); }   /* AI extension */
+.content .attr--syn      { background: var(--warning-soft); color: var(--warning); }  /* AI synthesis */
+
+/* HARD mandatory flags */
+.content .hard-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 7px;
+  border-radius: 5px;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ============================================================================
+ * Concept pages — dense strategy docs (added 2026-06-12, HTML-surface retro).
+ * It's a reading document; the win is lifting the load-bearing lines (Big Idea,
+ * Key Message, radio script) out of the prose and giving sections clear rhythm.
+ * ========================================================================== */
+
+/* Clear section rhythm so a long concept scans */
+body.template-concept-trio .content h2 {
+  margin-top: 40px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+body.template-concept-trio .content h2:first-of-type { margin-top: 8px; }
+body.template-concept-trio .content h3 { margin-top: 26px; color: var(--text); }
+
+/* The Big Idea — first section's lead line — is the page's hero callout */
+body.template-concept-trio .content > h2:first-of-type + p {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  margin: 0 0 22px 0;
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* Key message + 15-second radio script (blockquotes) become accent callouts */
+body.template-concept-trio .content blockquote {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 18px;
+  margin: 0 0 20px 0;
+  color: var(--text);
+  font-style: normal;
+  font-size: 15.5px;
+}
+body.template-concept-trio .content blockquote p:last-child { margin-bottom: 0; }
+
+/* Revision-history / freshness-check tables read as quiet audit, not headline */
+body.template-concept-trio .content h2:last-of-type ~ table { font-size: 13px; }
+
 /* --- Responsive --- */
 @media (max-width: 768px) {
   .page-main { padding: 0 16px; margin: 24px auto; }
@@ -878,15 +1000,938 @@ body.template-dashboard .content table th {
   .page-header, .page-footer { display: none; }
   .content { border: none; box-shadow: none; padding: 0; }
 }
+
+/* ============================================================================
+ * Dashboard header strip + unified status/priority system (added 2026-06-12,
+ * operator HTML-surface fine-tuning retro). Replaces the dense top metadata
+ * paragraph with a structured, scannable strip. All scoped to the dashboard so
+ * Brief / Concept / Plan / Asset surfaces are untouched.
+ * ========================================================================== */
+
+/* The header strip — name + status pills + one-line "where we are" + recent wins */
+.content .dash-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 8px 0;
+}
+.content .dash-header__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.content .dash-header__eyebrow {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 2px 0;
+}
+.content .dash-header__title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+.content .dash-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Unified status pill system — the single status vocabulary across the dashboard.
+ * Replaces the ad-hoc 🟢🔵🔴🟡 emoji mix. Reuses the soft/strong token pairs. */
+.content .pill {
+  display: inline-block;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.55;
+  white-space: nowrap;
+}
+.content .pill--active   { background: var(--accent-soft);  color: var(--accent); }
+.content .pill--approved { background: var(--success-soft); color: var(--success); }
+.content .pill--live     { background: #ecfeff;             color: #0e7490; }
+.content .pill--review   { background: var(--warning-soft); color: var(--warning); }
+.content .pill--blocked  { background: var(--danger-soft);  color: var(--danger); }
+.content .pill--queued   { background: var(--code-bg);      color: var(--text-muted); }
+.content .pill--pending  { background: var(--code-bg);      color: var(--text-subtle); }
+.content .pill--cut      { background: var(--code-bg);      color: var(--text-subtle); text-decoration: line-through; }
+
+/* The one-line "where we are" sentence — the dense Stage paragraph's replacement */
+.content .dash-where {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+.content .dash-where strong { color: var(--text); font-weight: 600; }
+
+/* "Recently approved" chip row — keeps the wins visible without opening History */
+.content .dash-recent {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.content .dash-recent__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  margin-right: 2px;
+}
+.content .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Operator-surfaces nav row — the quartet links, styled as a clean toolbar */
+.content .dash-surfaces {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px 0 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  font-size: 13px;
+}
+.content .dash-surfaces a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.content .dash-surfaces a:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+.content .dash-surfaces a.is-primary {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* Unified priority tags for To Do rows — one vocabulary (Now / Next / Later)
+ * replacing the four prior schemes (Priority 1-6 / D1-D5 / P2-P8 / Whenever).
+ * Authored inline in table cells today; auto-emitted by render.py in iteration 2. */
+body.template-dashboard .prio {
+  display: inline-block;
+  min-width: 46px;
+  text-align: center;
+  padding: 2px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+body.template-dashboard .prio--now   { background: var(--danger-soft);  color: var(--danger); }
+body.template-dashboard .prio--next  { background: var(--warning-soft); color: var(--warning); }
+body.template-dashboard .prio--later { background: var(--code-bg);      color: var(--text-muted); }
+
+/* ============================================================================
+ * Campaigns index — cross-campaign surface (added 2026-06-12, HTML-surface retro).
+ * The Active block is the hero: campaign CARDS, not a plain table. Reference
+ * tables below are visually demoted so the active campaigns lead the eye.
+ * ========================================================================== */
+
+/* Active campaigns — card grid (replaces the auto 3-column table) */
+body.template-index .camp-grid {
+  display: grid;
+  /* auto-FILL (not auto-fit): keep empty tracks so a single card in a per-tenant
+     section stays ~half-width instead of stretching to fill the row. */
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 16px;
+  margin: 4px 0 8px 0;
+}
+body.template-index .camp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.15s, border-left-color 0.2s;
+}
+body.template-index .camp-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+body.template-index .camp-card:nth-of-type(5n+1) { border-left-color: #6366f1; }
+body.template-index .camp-card:nth-of-type(5n+2) { border-left-color: #06b6d4; }
+body.template-index .camp-card:nth-of-type(5n+3) { border-left-color: #10b981; }
+body.template-index .camp-card:nth-of-type(5n+4) { border-left-color: #f59e0b; }
+body.template-index .camp-card:nth-of-type(5n+5) { border-left-color: #ec4899; }
+body.template-index .camp-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+body.template-index .camp-card__headL {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+body.template-index .camp-card__headR {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+body.template-index .camp-card__name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--text);
+}
+body.template-index .camp-card__formal {
+  font-size: 12px;
+  color: var(--text-subtle);
+  line-height: 1.3;
+}
+/* Context links (Brand context) — quiet, right-aligned under the phase pill */
+body.template-index .camp-card__context {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 10px;
+}
+body.template-index .camp-card__context a {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+body.template-index .camp-card__context a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+/* "View all tasks" CTA — prominent button under the active campaign cards */
+body.template-index .index-tasks-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 22px auto 8px auto;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  text-decoration: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.15s, background 0.15s;
+}
+body.template-index .index-tasks-cta:hover {
+  background: #1d4ed8;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  border: none;
+}
+body.template-index .index-tasks-cta__icon { font-size: 15px; line-height: 1; }
+body.template-index .index-tasks-cta__text { display: inline; }
+body.template-index .index-tasks-cta__label { font-size: 14px; font-weight: 600; }
+body.template-index .index-tasks-cta__sub { display: none; }
+body.template-index .index-tasks-cta__arrow { font-size: 16px; font-weight: 400; }
+
+/* Archived campaigns — collapsed list below the active grid */
+body.template-index .camp-archived { margin-top: 20px; }
+body.template-index .camp-archived ul { margin: 8px 0 0; padding-left: 20px; }
+body.template-index .camp-archived li { margin-bottom: 4px; font-size: 14px; }
+body.template-index .camp-archived__formal { color: var(--text-subtle); font-size: 12px; }
+body.template-index .camp-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+body.template-index .camp-card__surfaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+body.template-index .camp-card__surfaces a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-index .camp-card__surfaces a:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+
+/* Section headings — active leads; reference sections sit quieter below the rule */
+body.template-index .content h2 {
+  font-size: 20px;
+  margin-top: 36px;
+}
+body.template-index .content h2:first-of-type { margin-top: 8px; }
+body.template-index .content h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-top: 24px;
+}
+
+/* Reference tables (cross-campaign / specs / playbooks / infra) — demoted: compact + muted */
+body.template-index .content hr ~ table {
+  font-size: 13px;
+}
+body.template-index .content hr ~ table td {
+  padding: 7px 12px;
+  color: var(--text-muted);
+}
+body.template-index .content hr ~ table td a { color: var(--accent); }
+
+/* ============================================================================
+ * Tasks — cross-campaign To Do (added 2026-06-12, HTML-surface retro).
+ * Grouped per campaign with phase context + priority pills so the operator can
+ * see which campaign, which phase, and whether a decision unblocks or is optional.
+ * ========================================================================== */
+body.template-tasks .task-summary {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 4px 0 20px 0;
+}
+body.template-tasks .task-group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin: 0 0 18px 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+body.template-tasks .task-group__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+body.template-tasks .task-group__name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+body.template-tasks .task-group__dash {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+body.template-tasks .task-group__dash:hover { color: var(--accent); }
+/* SYS-012 — per-campaign collapse: each task group is a <details>, header is its <summary> */
+body.template-tasks details.task-group > summary.task-group__head { cursor: pointer; list-style: none; }
+body.template-tasks details.task-group > summary.task-group__head::-webkit-details-marker { display: none; }
+body.template-tasks details.task-group > summary.task-group__head::before {
+  content: "\25B8"; /* chevron */
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.15s ease;
+}
+body.template-tasks details.task-group[open] > summary.task-group__head::before { transform: rotate(90deg); }
+body.template-tasks .task-tools { display: flex; justify-content: flex-end; margin: 0 0 14px; }
+body.template-tasks .task-toggle-all {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-tasks .task-toggle-all:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.content .task-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  font-size: 14px;
+}
+.content .task-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.content .task-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content .task-table tr:last-child td { border-bottom: none; }
+.content .task-table tr:hover td { background: var(--bg); }
+.content .task-table td:nth-child(4) { color: var(--text-muted); white-space: nowrap; }
+.content .task-pointer {
+  margin: 0;
+  padding: 14px 18px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.content .task-pointer a { font-weight: 600; }
+/* Low-key footer pointer to the tenant Brand-recs queue (asset-verdict items —
+   durable, no time pressure). Sits under a group's task table, visually demoted. */
+.content .task-pointer--rec {
+  border-top: 1px dashed var(--border);
+  margin: 6px 0 0;
+  padding: 9px 18px 2px;
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+.content .task-pointer--rec strong { color: var(--text-muted); font-weight: 600; }
+/* Richer task cells — asset context under the title, "what you'll do" under why */
+.content .task-asset {
+  font-size: 12px;
+  color: var(--text-subtle);
+  margin-top: 3px;
+}
+.content .task-hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.content .task-hint__label {
+  font-weight: 700;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  margin-right: 4px;
+}
+
+/* ============================================================================
+ * Plan — per-asset cards (added 2026-06-15, HTML-surface retro).
+ * render.py transform_plan() rewrites the markdown asset-list TABLE into these
+ * cards at render time; the markdown table stays authoritative (check-state /
+ * Ships contract). Cut + transferred rows collapse into .asset-cards-archived.
+ * ========================================================================== */
+
+/* Section rhythm — the asset list is the headline; supporting tables sit quieter */
+body.template-plan .content h1 { margin-bottom: 4px; }
+body.template-plan .content h2 {
+  font-size: 21px;
+  margin-top: 40px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+body.template-plan .content h2:first-of-type { margin-top: 14px; }
+
+/* Metadata block (Concept selected · Approved · Status) reads as quiet eyebrow */
+body.template-plan .content > h1 + p {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}
+body.template-plan .content > h1 + p strong { color: var(--text); font-weight: 600; }
+
+/* The card grid — ~3 across (⅓ width) so each card stays easy to read */
+body.template-plan .asset-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 14px;
+  margin: 12px 0 8px;
+  align-items: start;
+}
+body.template-plan .asset-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 15px 18px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.12s ease;
+}
+body.template-plan .asset-card:hover { box-shadow: var(--shadow-md); }
+/* Color-vary the left border so a long stack isn't monotone */
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+1) { border-left-color: #6366f1; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+2) { border-left-color: #06b6d4; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+3) { border-left-color: #10b981; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+4) { border-left-color: #f59e0b; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+5) { border-left-color: #ec4899; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+6) { border-left-color: #8b5cf6; }
+
+body.template-plan .asset-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+body.template-plan .asset-card__num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+body.template-plan .asset-card__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+body.template-plan .asset-card__name strong { font-weight: 600; }
+body.template-plan .asset-card__head .pill { margin-left: auto; }
+
+/* Ships — the output manifest, the load-bearing line */
+body.template-plan .asset-card__ships {
+  font-size: 14px;
+  margin: 10px 0 8px;
+  padding: 8px 12px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+body.template-plan .asset-card__ships-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 6px;
+}
+body.template-plan .asset-card__ships code {
+  background: var(--surface);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Description — the deliverable, incl. variation count */
+body.template-plan .asset-card__desc {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 9px 0 0;
+}
+body.template-plan .asset-card__vars {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 5px;
+  padding: 0 6px;
+  margin-left: 2px;
+}
+/* Output format(s) — the manifest line */
+body.template-plan .asset-card__out {
+  font-size: 13px;
+  margin: 9px 0 2px;
+  padding: 7px 11px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+body.template-plan .asset-card__out-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 6px;
+}
+body.template-plan .asset-card__out code {
+  background: var(--surface);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Meta chips — owner / phase / target / review shape / copy / depends */
+body.template-plan .asset-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 7px;
+  margin: 8px 0 2px;
+}
+body.template-plan .asc-chip {
+  font-size: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 9px;
+  color: var(--text);
+  line-height: 1.5;
+}
+body.template-plan .asc-chip__k {
+  color: var(--text-subtle);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  margin-right: 5px;
+}
+body.template-plan .asc-chip code { background: transparent; padding: 0; }
+
+/* Notes — demoted to click-to-expand so the card head stays scannable */
+body.template-plan .asset-card__notes { margin-top: 10px; }
+body.template-plan .asset-card__notes summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 12.5px;
+  list-style: none;
+}
+body.template-plan .asset-card__notes summary::before { content: "▸ "; }
+body.template-plan .asset-card__notes[open] summary::before { content: "▾ "; }
+body.template-plan .asset-card__notes summary::-webkit-details-marker { display: none; }
+body.template-plan .asset-card__notes > div {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
+}
+
+/* Status pills on the cards */
+body.template-plan .asset-card .pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+body.template-plan .pill--shipped,
+body.template-plan .pill--ok      { background: var(--success-soft); color: #047857; }
+body.template-plan .pill--review  { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pill--prog    { background: #dbeafe; color: #1d4ed8; }
+body.template-plan .pill--queued  { background: var(--code-bg);     color: var(--text-muted); }
+body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
+body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
+
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
+/* Cut & transferred — collapsed audit group below the live build */
+body.template-plan .asset-cards-archived {
+  margin: 4px 0 28px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+}
+body.template-plan .asset-cards-archived summary {
+  padding: 13px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+body.template-plan .asset-cards-archived .asset-cards { margin: 0 14px 16px; }
+body.template-plan .asset-cards-archived .asset-card {
+  opacity: 0.7;
+  border-left-style: dashed;
+}
+body.template-plan .asset-cards-archived .asset-card:hover { opacity: 1; }
+
+/* Supporting tables (phasing / pre-flight / status snapshot) — compact + quiet */
+body.template-plan .content table { font-size: 13.5px; }
+body.template-plan .content table th {
+  background: var(--accent-soft);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+/* Channel/type groups — section the live cards by medium (Web · Email · …) */
+body.template-plan .asset-group { margin: 18px 0; }
+body.template-plan .asset-group__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px;
+}
+body.template-plan .asset-group__title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  white-space: nowrap;
+}
+body.template-plan .asset-group__count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--code-bg);
+  border-radius: 999px;
+  padding: 1px 9px;
+}
+body.template-plan .asset-group__head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* History & audit trail — pushed to the very bottom of the plan */
+body.template-plan .plan-tail-label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  margin: 8px 0 6px;
+}
+
+/* Collapsed AI/process sections (roster, fast-lane, workflows, version history…) */
+body.template-plan details.plan-collapsed {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 14px 0;
+}
+body.template-plan details.plan-collapsed > summary {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  list-style: none;
+}
+body.template-plan details.plan-collapsed > summary::-webkit-details-marker { display: none; }
+body.template-plan details.plan-collapsed > summary::before { content: "⚙ "; opacity: 0.6; }
+body.template-plan details.plan-collapsed[open] > summary {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+body.template-plan details.plan-collapsed > *:not(summary) { padding-left: 18px; padding-right: 18px; }
+body.template-plan details.plan-collapsed > *:first-of-type:not(summary) { padding-top: 10px; }
+body.template-plan details.plan-collapsed > *:last-child { padding-bottom: 14px; }
+/* H2 inside a collapsed section is now the summary; drop its in-flow heading look */
+body.template-plan details.plan-collapsed h3 { margin-top: 16px; border-bottom: none; }
+
+/* Open questions — highlighted callout (the operator must act on these) */
+body.template-plan .plan-oq {
+  border: 1px solid var(--warning);
+  background: var(--warning-soft);
+  border-radius: var(--radius-lg);
+  padding: 2px 22px 18px;
+  margin: 24px 0;
+}
+body.template-plan .plan-oq h2 {
+  border-bottom: none;
+  color: #b45309;
+}
+body.template-plan .plan-oq h2::before { content: "❓ "; }
+body.template-plan .plan-oq table { background: var(--surface); }
+body.template-plan .plan-oq > ol,
+body.template-plan .plan-oq > ul { margin-bottom: 4px; }
+
+/* Channel workstreams — the reframed Phasing summary (count · timing · status) */
+body.template-plan .workstreams {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 12px 0 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+body.template-plan .ws-row {
+  display: grid;
+  grid-template-columns: 1.1fr 2.6fr 0.6fr 1.1fr;
+  align-items: baseline;
+  gap: 14px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+body.template-plan .ws-row:last-child { border-bottom: none; }
+body.template-plan .ws-row:hover { background: var(--bg); }
+body.template-plan .ws-row--head {
+  background: var(--accent-soft);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+body.template-plan .ws-row--head:hover { background: var(--accent-soft); }
+body.template-plan .ws-row__ch { font-weight: 650; color: var(--text); }
+body.template-plan .ws-row--head .ws-row__ch { font-weight: 700; color: var(--text-muted); }
+body.template-plan .ws-row__desc { color: var(--text-muted); line-height: 1.45; }
+body.template-plan .ws-row__more { color: var(--text-subtle); font-size: 11.5px; white-space: nowrap; }
+body.template-plan .ws-row__n { color: var(--text-muted); font-size: 12.5px; white-space: nowrap; }
+body.template-plan .ws-row__t {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+}
+
+/* ── Tenant layer — logical grouping on the flat structure (2026-06-15) ──────── */
+/* Breadcrumb UP from a campaign dashboard to its tenant home. */
+.tenant-breadcrumb {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: -2px 0 18px;
+}
+.tenant-breadcrumb a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.tenant-breadcrumb a:hover { text-decoration: underline; }
+
+/* Tenant section header on the master index (campaigns grouped under their tenant). */
+.tenant-section {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 30px 0 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+  font-size: 18px;
+  font-weight: 700;
+}
+.tenant-section a { color: var(--text); text-decoration: none; }
+.tenant-section a:hover { color: var(--accent); }
+.tenant-section__count { font-size: 12px; font-weight: 500; color: var(--text-subtle); }
+
+/* Per-card tenant eyebrow label on the master index (Option A — flat 2-up grid,
+   tenant identity per card instead of section headers). */
+body.template-index .camp-card__tenant {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-decoration: none;
+  margin-bottom: 3px;
+}
+body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
+
+/* Governance verdict pill on asset previews (COMPLIANCE_AUTO marker). */
+.gov-verdict {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.9em;
+  padding: 1px 8px;
+  border-radius: 5px;
+}
+.gov-verdict.gov--clear   { background: var(--success-soft); color: var(--success); }
+.gov-verdict.gov--hold    { background: var(--warning-soft); color: var(--warning); }
+.gov-verdict.gov--blocked { background: var(--danger-soft);  color: var(--danger); }
+.gov-verdict.gov--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* Insights Manager advisory resonance read on external-touchpoint asset previews
+   (RESONANCE_AUTO marker). Advisory, never a gate — softer register than governance. */
+.resonance-read {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.9em;
+  padding: 1px 8px;
+  border-radius: 5px;
+}
+.resonance-read.res--on      { background: var(--success-soft); color: var(--success); }
+.resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
+.resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
+.resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
-<body class="template-index">
+<body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link lib-link--current" href="INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
-        <span class="page-header__template" aria-hidden="true">index</span>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../../docs/guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link lib-link--current" href="INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
+        <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
       </div>
     </div>
   </header>
@@ -906,17 +1951,25 @@ body.template-dashboard .content table th {
   playbooks/                    ← Netwealth-authored synthesis docs (different shape)
     winning-new-clients-playbook.md
     creating-loyalty-playbook.md
-  archetypes/                   ← 5 journey-mode docs
+  archetypes/                   ← 9 journey-mode docs (the creative &quot;job&quot; an entry does — a classifier)
     aperture-setting.md
-    participatory.md
+    attention-fame.md
     educational-pipeline.md
+    trust-proof.md
+    utility-service.md
+    participatory.md
     direct-response.md
+    community-advocacy.md
     identity-reinforcement.md
-  visual-movements/             ← 4 aesthetic-movement docs
+  visual-movements/             ← 8 aesthetic-register docs (an OPEN starter palette, not a closed set)
     clean-authoritative.md
-    editorial-cartoon-handdrawn.md
     editorial-documentary.md
+    editorial-cartoon-handdrawn.md
     maximalist-chaotic.md
+    premium-luxury.md
+    retro-nostalgic.md
+    techno-futurist.md
+    playful-vibrant.md
   WEB-SOURCES.md                ← Tier 2 allowlist for live WebFetch (when canon insufficient)
 </code></pre>
 <h2 id="entry-frontmatter-full-field-set">Entry frontmatter — full field set</h2>
@@ -929,14 +1982,14 @@ audience_type: B2C | B2B | Multi | Internal | N/A
 vertical: &lt;see controlled list below&gt;
 shape: &lt;see controlled list below&gt;
 idea_or_tactic: Big-idea | Tactic | Hybrid | Style-ref
-journey_mode_primary: Aperture-setting | Participatory | Educational pipeline | Direct-response | Identity reinforcement
+journey_mode_primary: Aperture-setting | Attention/fame | Educational pipeline | Trust/proof | Utility/service | Participatory | Direct-response | Community/advocacy | Identity reinforcement | Other/N-A
 journey_mode_secondary: &lt;same enum, or null&gt;
 posture_taken: Safe | Smart | Wild | N/A
 brand_stretch: Low | Standard | High | N/A
 formats: [hero film, OOH, social, AR, PR stunt, ...]
 kpi_outcome: &lt;one-line measured impact, or &quot;not publicly disclosed&quot;&gt;
 big_idea: &quot;&lt;one sentence — the concept compressed&gt;&quot; (optional for tactic-shaped entries)
-source: Operator-curated | Netwealth-research | System1 | Cannes | Effie | WARC | Inspiration-canon
+source: Operator-curated | Netwealth-research | System1 | Cannes | Effie | WARC | Inspiration-canon | Soundtrak-own
 date_added: &lt;YYYY-MM-DD&gt; (for new entries — older inspiration-canon entries may omit)
 added_by: &lt;operator name&gt; (for new entries)
 tags: [free-form list]
@@ -994,6 +2047,20 @@ source_links:
 <li><strong>Hybrid</strong> — both a big idea AND a transferable mechanic</li>
 <li><strong>Style-ref</strong> — visual or copy style reference, not idea-led</li>
 </ul>
+<h3 id="journey-mode-the-creative-job-the-work-does-a-classifier">Journey-mode (the creative job the work does — a CLASSIFIER)</h3>
+<p>Every entry gets a <strong>primary</strong> mode (+ optional <strong>secondary</strong>). This is a real classifier the CD filters on (KPI → mode), so it aims to be <strong>near-complete across the funnel</strong>; use <strong>Other/N-A</strong> rather than force a bad tag. Each mode has a deep-dive in <code>archetypes/&lt;mode&gt;.md</code>.
+- <strong>Aperture-setting</strong> — reset / reframe what the brand stands for (reposition)
+- <strong>Attention/fame</strong> — earn broad, disproportionate attention (reach, earned media)
+- <strong>Educational pipeline</strong> — teach / nurture toward consideration
+- <strong>Trust/proof</strong> — make claims believable with evidence (data, case studies, demos)
+- <strong>Utility/service</strong> — be genuinely useful (tools, calculators, data, service content)
+- <strong>Participatory</strong> — invite the audience to act / co-create / engage
+- <strong>Direct-response</strong> — drive an immediate specific action (convert)
+- <strong>Community/advocacy</strong> — turn customers into a community + referral engine
+- <strong>Identity reinforcement</strong> — deepen belonging / loyalty among the existing audience
+- <strong>Other/N-A</strong> — nothing fits (escape hatch — prefer a real mode where honest)</p>
+<h3 id="visual-movements-an-open-reference-palette-not-a-classifier">Visual movements (an OPEN reference palette — NOT a classifier)</h3>
+<p>Unlike journey-mode, visual movements are <strong>not</strong> a frontmatter facet and <strong>not</strong> a closed set. They're <code>visual-movements/*.md</code> reference registers the CD <em>pulls</em> when shaping §4 — a starter palette (currently 8), deliberately non-exhaustive because the space of aesthetics is effectively infinite. The CD names a new register when a concept needs one and adds it back via <code>/library-add</code>. Don't force a concept's visual direction to be one of the listed registers.</p>
 <h3 id="source">Source</h3>
 <ul>
 <li><strong>Operator-curated</strong> — operator-spotted (URLs, screenshots, hand-picked)</li>
@@ -1001,6 +2068,7 @@ source_links:
 <li><strong>System1</strong> — System1 Ad of the Week archive</li>
 <li><strong>Cannes</strong> / <strong>Effie</strong> / <strong>WARC</strong> / <strong>Spikes-Asia</strong> / <strong>Dubai-Lynx</strong> / <strong>Effie</strong> / <strong>Webby</strong> — award-database sourced</li>
 <li><strong>Inspiration-canon</strong> — Wave 1.5 generalist seed (Apple, Nike, Slack, etc.)</li>
+<li><strong>Soundtrak-own</strong> — the tenant's own published marketing, gold-standard exemplars</li>
 </ul>
 <h2 id="entry-body-structure">Entry body structure</h2>
 <p>Tight. ~150-400 words. Frontmatter carries structured signal; body explains the <em>why</em> + <em>the move</em> + <em>when-to-steal</em>.</p>
@@ -1033,7 +2101,7 @@ source_links:
    - <strong>Idea-vs-tactic need</strong> → If brief calls for a Big Idea, filter <code>idea_or_tactic = Big-idea OR Hybrid</code>. If brief needs tactical scaffolding for a known idea, filter <code>Tactic</code>.</li>
 <li><strong>Deep-read 3-7 most relevant entries.</strong> Cite specific entries in concept §11 (References) as <code>[Library: &lt;name&gt;]</code>.</li>
 <li><strong>Read the relevant <code>archetypes/&lt;mode&gt;.md</code></strong> for journey modes you're considering.</li>
-<li><strong>Pull <code>visual-movements/&lt;movement&gt;.md</code></strong> when shaping §4 Visual architecture.</li>
+<li><strong>Pull <code>visual-movements/&lt;movement&gt;.md</code></strong> when shaping §4 Visual architecture — these are an <strong>open starter palette, not a closed set</strong>; name a new register (and <code>/library-add</code> it) when a concept needs one.</li>
 <li><strong>For prof-services tenants</strong>: ALSO read the relevant <code>playbooks/*.md</code> section for tactical playbook content.</li>
 </ol>
 <h3 id="producer-per-asset-craft">Producer (per-asset craft)</h3>
@@ -1048,6 +2116,7 @@ source_links:
 - <code>Operator-curated</code> = URLs/screenshots the operator has personally added
 - <code>Netwealth-research</code> = extracted from the operator's Netwealth IQ Reports
 - <code>System1</code> = System1 Ad of the Week archive
+- <code>Soundtrak-own</code> = the tenant's own published marketing, gold-standard exemplars (The Signal + soundtrakconsulting.com/thinking)
 - etc.</p>
 <p>Filter on <code>source</code> if you need to surface a specific provenance subset (rarely needed — content-shape filters do the real work).</p>
 <h2 id="version">Version</h2>
@@ -1056,7 +2125,7 @@ source_links:
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>tenant\library\SCHEMA.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span>Source file: <code>tenant\library\SCHEMA.md</code></span>
   </footer>
 </body>
 </html>

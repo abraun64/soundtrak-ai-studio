@@ -4,7 +4,7 @@
 
 The per-campaign dashboard (`campaigns/<slug>/<slug>.md` → `dashboard.html`) is the operator's persistent view of where a campaign is. CM authors it at Phase 1 and re-renders it on every state change. The cross-campaign `index.html` links to it — never to a downstream artifact.
 
-**Auto-marker first.** Prefer the injection markers over hand-authored blocks (they self-maintain and can't drift): `<!-- PHASES_AUTO -->` (phases from `campaign.yaml`, artifact links existence-checked) · `<!-- OPERATOR_ACTIONS_AUTO -->` (the 🚨 To Do, same styled priority-pill table as tasks.html) · `<!-- ASSET_LIST_AUTO -->` (full asset list, rows route to the gallery) · `<!-- COST_TOTAL_AUTO -->` (ledger-derived AI-cost line). Hand-authored To Do / asset-list / cost blocks drift — use the markers.
+**Auto-marker first.** Prefer the injection markers over hand-authored blocks (they self-maintain and can't drift): `<!-- PHASES_AUTO -->` (phases from `campaign.yaml`, artifact links existence-checked) · `<!-- OPERATOR_ACTIONS_AUTO -->` (the 🚨 To Do, same styled priority-pill table as tasks.html) · `<!-- ASSET_LIST_AUTO -->` (full asset list, rows route to the gallery) · `<!-- COST_TOTAL_AUTO -->` (ledger-derived AI-cost line) · `<!-- HUMAN_TIME_TOTAL_AUTO -->` (the Total row's human-time, summed live from the phase rows — SYS-082). Hand-authored To Do / asset-list / cost blocks drift — use the markers.
 
 ## 7-block structure (confirmed 2026-06-04; supersedes the 5-block structure)
 
@@ -26,12 +26,34 @@ Artifact links: `[Name ✅/🔄/⏳](url)` — ✅ approved · 🔄 drafted/in-r
 ### Block 2 — 🚨 To Do (above fold, always visible)
 Columns: **Priority | Phase | Task | What to do | Last touched | Time | Where**. ALL operator-actionable items (pending gates · pre-flight · optional momentum). Completed items move to History (Block 7) immediately — never linger.
 
-### Blocks 3–7 (`<details markdown="1">` collapsed)
-- **3 — 🤖 Producers in flight**: Producer · Asset · doing-now · expected return. "None in flight" when idle.
-- **4 — 📋 Full asset list**: Gallery link at top, then Asset # · name · Status · Human Time · AI Cost. Mirrors the Plan.
-- **5 — 🎯 KPIs**: KPI · Target · Stretch · Deadline · Result (baseline → current).
-- **6 — 💰 Budget**: Total (LOCKED) · Spent · Remaining · one-line allocation note.
-- **7 — 📜 History** (absorbs the old ✅ Done block): Date · What · Status. Append-only, most recent first.
+### Collapsible blocks (revised 2026-07-15 — SYS-083, supersedes the 5-collapsed set)
+The stack is now THREE blocks — **Producers in flight** (internal machinery) and **Full asset list**
+(redundant with the Gallery) are REMOVED:
+- **🎯 KPIs** — `<details open markdown="1">` (**OPEN by default**): KPI · Target · Stretch · Deadline · Result.
+- **💰 Budget** — `<details open markdown="1">` (**OPEN by default**): Total (LOCKED) · Spent · Remaining · allocation note.
+- **📜 History** — `<details markdown="1">` (collapsed): Date · What · Status. Append-only, most recent first.
+
+### Phase status vocabulary (SYS-081, 2026-07-15)
+A phase's Status must tell the operator WHOSE COURT the ball is in. Use exactly:
+**Inherited** (Phase 0, from the tenant baseline) · **Pending** (⏳ not started) · **In production**
+(🔄 the AI is actively generating — ball in the AI's court) · **For review** (👀 the AI is done,
+awaiting your approval — ball in YOUR court) · **Blocked** (🚧 waiting on an external input you owe,
+e.g. the ABN — distinct from "For review", which is a call you can make now) · **Approved** (✅ signed
+off). The load-bearing split is **In production vs For review** (previously both hid under "In
+production"). For a phase with many assets, roll up to the most operator-actionable state with a
+count — "For review — 3 awaiting you" — ideally DERIVED from the asset states so it can't go stale.
+
+### No metadata header (SYS-079, 2026-07-15)
+The dashboard opens H1 → **Campaign DNA** table directly. Do NOT emit the old
+Slug/Tenant/Operator/Type/Effort/Stage/Status/Opened/Last-updated paragraph — the Campaign DNA table +
+the phases/status rows already carry that, so the paragraph was pure redundancy.
+
+### Artifacts column — primary per phase (SYS-080, 2026-07-15)
+List each phase's PRIMARY / gated artifact(s) + its own key output only — not every working input.
+Standard strategy rows: **Phase 1 = Brief + Insight Brief · Phase 2 = Selected + Trio · Phase 3 = Plan.**
+(The Insight Brief belongs to **Phase 1** — the Insights Manager authors it there — not Phase 2.) Working
+inputs (editorial backlog · influencer targets · moodboard) live inside the linked doc, not as separate
+artifact links.
 
 ## Task-entry format (Block 2 + `tasks.md`)
 

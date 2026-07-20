@@ -1958,7 +1958,7 @@ Brief paragraph naming the campaign's phases (pre-launch / launch / sustain / wr
 
 The asset list is **one table** — every marketing asset AND every setup/deploy task, as rows. It renders as a single grouped table with a **Group by: Channel | Wave** toggle (see &quot;The two views&quot; below), split Launch / Ongoing. Keep `# | Asset` as the first two columns — the gallery + `check-state` contract keys on them.
 
-| # | Asset | Description | Type | Channel | Review shape | Form | Ships | Copy file | Owner agent | Phase | Target date | Depends on | Notes |
+| # | Asset | Description | Type | Channel | Review format | Form | Ships | Copy file | Owner agent | Phase | Target date | Depends on | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | Visual identity kit | The masthead + templates every other asset is built from | asset | Brand foundation | `output` | Brand mini-guide (HTML) + masthead + templates | Masthead (SVG) + tile template + edition template | `none` | Producer | Pre-launch | YYYY-MM-DD | — | The dependency for every visual below |
 | S1 | Create the Substack + lock handle | Stand up the publication so every asset can link to it | setup | Substack | — | Operator action (account) | — | `none` | Operator | Pre-launch | YYYY-MM-DD | — | CM can't create accounts |
@@ -1981,7 +1981,7 @@ The asset list is **one table** — every marketing asset AND every setup/deploy
 - **The test:** could someone *outside* marketing read the Name + Description and act with zero interpretation? If not, rewrite. The Description is the *purpose / what distinguishes it* — the deliverable format lives in `Form` / `Ships`.
 - **Plain language everywhere** — including the collapsed `Notes` and the change log, not just the name + description. `Notes` may carry finer production detail (status, file paths, gate state) but stays interpretable: no cryptic codes (say what an issue is *about*, never &quot;A2&quot;), acronyms spelled out. The bar relaxes on *depth* in Notes, never on *clarity*.
 
-**Review shape values:**
+**Review format values:**
 - `output` — the specific deliverable; operator approves it as-is
 - `template [+N exemplars]` — parametric template is the approval target; N populated exemplars show how it works but inherit approval from the template
 - `variant-comp [N variants × M sizes]` — one representative comp is the approval target; all production instances (other sizes, resizes, derivatives) inherit approval automatically — no individual review
@@ -2015,7 +2015,7 @@ One list, two group-bys. The operator flips a **Group by: Channel | Wave** toggl
 - **By channel** (default) — rows grouped by the surface they live on; the `Wave` column shows, per channel, what fires when.
 - **By wave** — rows grouped by production wave; the `Channel` column shows, per wave, which surfaces are in play.
 
-Both are the SAME rows with both columns present — no second table, nothing hand-synced. Above both sits the **Launch / Ongoing** split (classified from the Phase column): Launch = one-time stand-up; Ongoing = the recurring engine (cadence, weekly editions, paid boost, KPI monitoring). Every per-row detail is preserved — the key columns sit inline; Form / Review shape / Copy file / Target / Notes fold into a per-row **details** expander so nothing is dropped.
+Both are the SAME rows with both columns present — no second table, nothing hand-synced. Above both sits the **Launch / Ongoing** split (classified from the Phase column): Launch = one-time stand-up; Ongoing = the recurring engine (cadence, weekly editions, paid boost, KPI monitoring). Every per-row detail is preserved — the key columns sit inline; Form / Review format / Copy file / Target / Notes fold into a per-row **details** expander so nothing is dropped.
 
 ### Waves — derived, never authored (v3)
 
@@ -2229,6 +2229,7 @@ If any criterion is unmet, §N status stays 🟥 Blocked + Phase 6 does NOT fire
   </main>
 
   <footer class="page-footer">
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../../docs/legal/LICENSE.html">Licence</a> · <a href="../../docs/legal/NOTICE.html">Notice</a></span>
     <span>Source file: <code>docs\specs\plan.md</code></span>
   </footer>
 </body>

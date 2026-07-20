@@ -16,7 +16,7 @@ The **Per-Step Brief** is the self-contained context package CM writes to a spec
 # Per-Step Brief — <Asset name>
 
 **Plan ref**: Asset #<n> from `plan.md`     **Form**: <e.g. HTML/CSS landing page (Mode C)>     **Target publish**: <date>     **Producer fast-lane**: yes / no
-**Review shape**: `output` / `template [+N exemplars]` / `variant-comp [N variants × M sizes]`
+**Review format**: `output` / `template [+N exemplars]` / `variant-comp [N variants × M sizes]`
 **Copy file**: `md` / `csv` / `pptx` / `docx` / `none`
 
 ## 1. The task

@@ -38,6 +38,8 @@ COMPLIANCE_MARKER = "<!-- COMPLIANCE_AUTO -->"
 RESONANCE_MARKER = "<!-- RESONANCE_AUTO -->"
 PHASES_MARKER = "<!-- PHASES_AUTO -->"
 COST_TOTAL_MARKER = "<!-- COST_TOTAL_AUTO -->"
+HUMAN_TIME_TOTAL_MARKER = "<!-- HUMAN_TIME_TOTAL_AUTO -->"  # SYS-082
+CAMPAIGN_DNA_MARKER = "<!-- CAMPAIGN_DNA_AUTO -->"  # SYS-089
 PHASE_COST_RE = re.compile(r"<!-- PHASE_COST:(\d+) -->")
 CROSS_TASKS_MARKER = "<!-- CROSS_CAMPAIGN_ACTIONS_AUTO -->"
 CAMPAIGN_INDEX_MARKER = "<!-- CAMPAIGN_INDEX_AUTO -->"
@@ -983,6 +985,66 @@ def scan_phase_artifacts(campaign_dir: Path, phase_id) -> list[dict]:
     return out
 
 
+_HT_RE = re.compile(r"~?\s*(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes)\b", re.I)
+
+
+def human_time_total(markdown_text: str) -> str:
+    """SYS-082 — sum the Human Time column of the phases table. Works whether the table
+    is hand-authored in the md OR the PHASES_AUTO table already injected into
+    markdown_text (this runs after PHASES injection). Reads the 5th cell of 7-column
+    phase rows; skips the header/Foundation/Total rows. Parses '~25 min' / '~1.5 hr'.
+    Returns '**—**' if there's nothing to sum, so the row degrades cleanly."""
+    total_min, found = 0.0, False
+    for line in markdown_text.splitlines():
+        s = line.strip()
+        if not s.startswith("|"):
+            continue
+        cells = [c.strip() for c in s.strip("|").split("|")]
+        if len(cells) != 7:
+            continue
+        ht = cells[4]
+        if "Total (to date)" in cells[0] or ht.lower() == "human time":
+            continue
+        m = _HT_RE.search(ht)
+        if m:
+            found = True
+            total_min += float(m.group(1)) * (60 if m.group(2).lower().startswith("h") else 1)
+    if not found:
+        return "**—**"
+    if total_min >= 90:
+        hrs = total_min / 60
+        return f"**~{int(hrs)} hr**" if hrs.is_integer() else f"**~{hrs:.1f} hr**"
+    return f"**~{int(round(total_min))} min**"
+
+
+def render_campaign_dna(campaign_dir: Path) -> str:
+    """SYS-089 — the shared compact Campaign DNA header injected at the top of every artifact
+    surface (Brief / Insight Brief / Concept / Plan), so each one opens on a consistent "you are
+    here" anchor instead of a different crammed metadata paragraph. Rendered from campaign.yaml
+    (`dna:` block + status/name) so it can't drift. The FULL DNA table lives on the dashboard;
+    this is the reviewer's compact version. Renders nothing if the yaml has no `dna:` block."""
+    try:
+        cy = scan_campaign_yaml(campaign_dir)
+    except Exception:
+        return ""
+    dna = cy.get("dna") or {}
+    if not dna:
+        return ""
+    name = str(cy.get("nickname") or cy.get("campaign_name") or cy.get("slug") or "").strip()
+    rows = []
+    for key, label in (("objective", "Objective"), ("audience", "Audience"),
+                       ("kpi", "Primary KPI")):
+        if dna.get(key):
+            rows.append(f"| **{label}** | {dna[key]} |")
+    status = str(cy.get("status") or "").strip()
+    if status:
+        rows.append(f"| **Status** | {status} |")
+    if not rows:
+        return ""
+    head = f"**🧭 {name} — Campaign DNA**\n\n" if name else "**🧭 Campaign DNA**\n\n"
+    return head + "| | |\n|---|---|\n" + "\n".join(rows)
+
+
 def render_phases_table_md(phases: list[dict], campaign_dir: Path) -> str:
     if not phases:
         return "_(no phases defined in campaign.yaml)_"
@@ -1599,6 +1661,9 @@ def inject(markdown_text: str, campaign_dir: Path) -> str:
         campaign_data = scan_campaign_yaml(campaign_dir)
         phases = campaign_data.get("phases") or []
         markdown_text = markdown_text.replace(PHASES_MARKER, render_phases_table_md(phases, campaign_dir))
+    if HUMAN_TIME_TOTAL_MARKER in markdown_text:
+        # SYS-082 — Total-row human-time, summed live from campaign.yaml phases.
+        markdown_text = markdown_text.replace(HUMAN_TIME_TOTAL_MARKER, human_time_total(markdown_text))
     if COST_TOTAL_MARKER in markdown_text:
         # Ledger-derived AI cost line — rendered fresh every build so it cannot
         # go stale (the hand-maintained total it replaces rotted twice).

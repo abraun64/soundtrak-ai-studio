@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -429,6 +429,8 @@ html, body {
   gap: 6px;
   font-size: 13px;
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 .crumb {
   color: var(--text-muted);
@@ -463,6 +465,17 @@ html, body {
   font-size: 11px;
   opacity: 0.6;
 }
+/* Refresh control (SYS-014) — top-right of every operator surface; reloads the page
+   so the operator doesn't reach for the browser refresh. */
+.refresh-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); font-size: 14px; line-height: 1;
+  cursor: pointer; padding: 0; font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.refresh-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
 .page-header__right {
   display: flex;
   align-items: center;
@@ -472,7 +485,7 @@ html, body {
 .library-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
 }
 .lib-link {
@@ -1145,7 +1158,9 @@ body.template-dashboard .prio--later { background: var(--code-bg);      color: v
 /* Active campaigns — card grid (replaces the auto 3-column table) */
 body.template-index .camp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  /* auto-FILL (not auto-fit): keep empty tracks so a single card in a per-tenant
+     section stays ~half-width instead of stretching to fill the row. */
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 16px;
   margin: 4px 0 8px 0;
 }
@@ -1351,6 +1366,29 @@ body.template-tasks .task-group__dash {
   white-space: nowrap;
 }
 body.template-tasks .task-group__dash:hover { color: var(--accent); }
+/* SYS-012 — per-campaign collapse: each task group is a <details>, header is its <summary> */
+body.template-tasks details.task-group > summary.task-group__head { cursor: pointer; list-style: none; }
+body.template-tasks details.task-group > summary.task-group__head::-webkit-details-marker { display: none; }
+body.template-tasks details.task-group > summary.task-group__head::before {
+  content: "\25B8"; /* chevron */
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.15s ease;
+}
+body.template-tasks details.task-group[open] > summary.task-group__head::before { transform: rotate(90deg); }
+body.template-tasks .task-tools { display: flex; justify-content: flex-end; margin: 0 0 14px; }
+body.template-tasks .task-toggle-all {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-tasks .task-toggle-all:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
 .content .task-table {
   width: 100%;
   border-collapse: collapse;
@@ -1382,6 +1420,16 @@ body.template-tasks .task-group__dash:hover { color: var(--accent); }
   color: var(--text-muted);
 }
 .content .task-pointer a { font-weight: 600; }
+/* Low-key footer pointer to the tenant Brand-recs queue (asset-verdict items —
+   durable, no time pressure). Sits under a group's task table, visually demoted. */
+.content .task-pointer--rec {
+  border-top: 1px dashed var(--border);
+  margin: 6px 0 0;
+  padding: 9px 18px 2px;
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+.content .task-pointer--rec strong { color: var(--text-muted); font-weight: 600; }
 /* Richer task cells — asset context under the title, "what you'll do" under why */
 .content .task-asset {
   font-size: 12px;
@@ -1608,6 +1656,37 @@ body.template-plan .pill--queued  { background: var(--code-bg);     color: var(-
 body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
 body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
 
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
 /* Cut & transferred — collapsed audit group below the live build */
 body.template-plan .asset-cards-archived {
   margin: 4px 0 28px;
@@ -1789,6 +1868,19 @@ body.template-plan .ws-row__t {
 .tenant-section a:hover { color: var(--accent); }
 .tenant-section__count { font-size: 12px; font-weight: 500; color: var(--text-subtle); }
 
+/* Per-card tenant eyebrow label on the master index (Option A — flat 2-up grid,
+   tenant identity per card instead of section headers). */
+body.template-index .camp-card__tenant {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-decoration: none;
+  margin-bottom: 3px;
+}
+body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
+
 /* Governance verdict pill on asset previews (COMPLIANCE_AUTO marker). */
 .gov-verdict {
   display: inline-block;
@@ -1801,15 +1893,45 @@ body.template-plan .ws-row__t {
 .gov-verdict.gov--hold    { background: var(--warning-soft); color: var(--warning); }
 .gov-verdict.gov--blocked { background: var(--danger-soft);  color: var(--danger); }
 .gov-verdict.gov--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* Insights Manager advisory resonance read on external-touchpoint asset previews
+   (RESONANCE_AUTO marker). Advisory, never a gate — softer register than governance. */
+.resonance-read {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.9em;
+  padding: 1px 8px;
+  border-radius: 5px;
+}
+.resonance-read.res--on      { background: var(--success-soft); color: var(--success); }
+.resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
+.resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
+.resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
-<body class="template-spec">
+<body class="template-dashboard">
   <header class="page-header">
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link" href="../../tenant/library/INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
-        <span class="page-header__template" aria-hidden="true">spec</span>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
+        <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
       </div>
     </div>
   </header>
@@ -1819,7 +1941,7 @@ body.template-plan .ws-row__t {
       <h1 id="campaign-dashboard-schema">Campaign Dashboard — schema</h1>
 <p><strong>Spec version</strong>: v1 · 2026-06-15 (extracted from CM SKILL.md to de-bloat the skill; CM cites this).</p>
 <p>The per-campaign dashboard (<code>campaigns/&lt;slug&gt;/&lt;slug&gt;.md</code> → <code>dashboard.html</code>) is the operator's persistent view of where a campaign is. CM authors it at Phase 1 and re-renders it on every state change. The cross-campaign <code>index.html</code> links to it — never to a downstream artifact.</p>
-<p><strong>Auto-marker first.</strong> Prefer the injection markers over hand-authored blocks (they self-maintain and can't drift): <code>&lt;!-- PHASES_AUTO --&gt;</code> (phases from <code>campaign.yaml</code>, artifact links existence-checked) · <code>&lt;!-- OPERATOR_ACTIONS_AUTO --&gt;</code> (the 🚨 To Do, same styled priority-pill table as tasks.html) · <code>&lt;!-- ASSET_LIST_AUTO --&gt;</code> (full asset list, rows route to the gallery) · <code>&lt;!-- COST_TOTAL_AUTO --&gt;</code> (ledger-derived AI-cost line). Hand-authored To Do / asset-list / cost blocks drift — use the markers.</p>
+<p><strong>Auto-marker first.</strong> Prefer the injection markers over hand-authored blocks (they self-maintain and can't drift): <code>&lt;!-- PHASES_AUTO --&gt;</code> (phases from <code>campaign.yaml</code>, artifact links existence-checked) · <code>&lt;!-- OPERATOR_ACTIONS_AUTO --&gt;</code> (the 🚨 To Do, same styled priority-pill table as tasks.html) · <code>&lt;!-- ASSET_LIST_AUTO --&gt;</code> (full asset list, rows route to the gallery) · <code>&lt;!-- COST_TOTAL_AUTO --&gt;</code> (ledger-derived AI-cost line) · <code>&lt;!-- HUMAN_TIME_TOTAL_AUTO --&gt;</code> (the Total row's human-time, summed live from the phase rows — SYS-082). Hand-authored To Do / asset-list / cost blocks drift — use the markers.</p>
 <h2 id="7-block-structure-confirmed-2026-06-04-supersedes-the-5-block-structure">7-block structure (confirmed 2026-06-04; supersedes the 5-block structure)</h2>
 <h3 id="block-1-phases-artifacts-above-fold-always-visible-primary-nav-anchor">Block 1 — Phases + Artifacts (above fold, always visible — primary nav anchor)</h3>
 <p>One table: <strong>Phase | Description | Status | Window | Human Time | AI Cost | Artifacts</strong>. One row per Phase 1–6 (+ a <strong>Total</strong> row).</p>
@@ -1904,14 +2026,31 @@ body.template-plan .ws-row__t {
 <p>Artifact links: <code>[Name ✅/🔄/⏳](url)</code> — ✅ approved · 🔄 drafted/in-review · ⏳ pending.</p>
 <h3 id="block-2-to-do-above-fold-always-visible">Block 2 — 🚨 To Do (above fold, always visible)</h3>
 <p>Columns: <strong>Priority | Phase | Task | What to do | Last touched | Time | Where</strong>. ALL operator-actionable items (pending gates · pre-flight · optional momentum). Completed items move to History (Block 7) immediately — never linger.</p>
-<h3 id="blocks-37-details-markdown1-collapsed">Blocks 3–7 (<code>&lt;details markdown="1"&gt;</code> collapsed)</h3>
-<ul>
-<li><strong>3 — 🤖 Producers in flight</strong>: Producer · Asset · doing-now · expected return. "None in flight" when idle.</li>
-<li><strong>4 — 📋 Full asset list</strong>: Gallery link at top, then Asset # · name · Status · Human Time · AI Cost. Mirrors the Plan.</li>
-<li><strong>5 — 🎯 KPIs</strong>: KPI · Target · Stretch · Deadline · Result (baseline → current).</li>
-<li><strong>6 — 💰 Budget</strong>: Total (LOCKED) · Spent · Remaining · one-line allocation note.</li>
-<li><strong>7 — 📜 History</strong> (absorbs the old ✅ Done block): Date · What · Status. Append-only, most recent first.</li>
-</ul>
+<h3 id="collapsible-blocks-revised-2026-07-15-sys-083-supersedes-the-5-collapsed-set">Collapsible blocks (revised 2026-07-15 — SYS-083, supersedes the 5-collapsed set)</h3>
+<p>The stack is now THREE blocks — <strong>Producers in flight</strong> (internal machinery) and <strong>Full asset list</strong>
+(redundant with the Gallery) are REMOVED:
+- <strong>🎯 KPIs</strong> — <code>&lt;details open markdown="1"&gt;</code> (<strong>OPEN by default</strong>): KPI · Target · Stretch · Deadline · Result.
+- <strong>💰 Budget</strong> — <code>&lt;details open markdown="1"&gt;</code> (<strong>OPEN by default</strong>): Total (LOCKED) · Spent · Remaining · allocation note.
+- <strong>📜 History</strong> — <code>&lt;details markdown="1"&gt;</code> (collapsed): Date · What · Status. Append-only, most recent first.</p>
+<h3 id="phase-status-vocabulary-sys-081-2026-07-15">Phase status vocabulary (SYS-081, 2026-07-15)</h3>
+<p>A phase's Status must tell the operator WHOSE COURT the ball is in. Use exactly:
+<strong>Inherited</strong> (Phase 0, from the tenant baseline) · <strong>Pending</strong> (⏳ not started) · <strong>In production</strong>
+(🔄 the AI is actively generating — ball in the AI's court) · <strong>For review</strong> (👀 the AI is done,
+awaiting your approval — ball in YOUR court) · <strong>Blocked</strong> (🚧 waiting on an external input you owe,
+e.g. the ABN — distinct from "For review", which is a call you can make now) · <strong>Approved</strong> (✅ signed
+off). The load-bearing split is <strong>In production vs For review</strong> (previously both hid under "In
+production"). For a phase with many assets, roll up to the most operator-actionable state with a
+count — "For review — 3 awaiting you" — ideally DERIVED from the asset states so it can't go stale.</p>
+<h3 id="no-metadata-header-sys-079-2026-07-15">No metadata header (SYS-079, 2026-07-15)</h3>
+<p>The dashboard opens H1 → <strong>Campaign DNA</strong> table directly. Do NOT emit the old
+Slug/Tenant/Operator/Type/Effort/Stage/Status/Opened/Last-updated paragraph — the Campaign DNA table +
+the phases/status rows already carry that, so the paragraph was pure redundancy.</p>
+<h3 id="artifacts-column-primary-per-phase-sys-080-2026-07-15">Artifacts column — primary per phase (SYS-080, 2026-07-15)</h3>
+<p>List each phase's PRIMARY / gated artifact(s) + its own key output only — not every working input.
+Standard strategy rows: <strong>Phase 1 = Brief + Insight Brief · Phase 2 = Selected + Trio · Phase 3 = Plan.</strong>
+(The Insight Brief belongs to <strong>Phase 1</strong> — the Insights Manager authors it there — not Phase 2.) Working
+inputs (editorial backlog · influencer targets · moodboard) live inside the linked doc, not as separate
+artifact links.</p>
 <h2 id="task-entry-format-block-2-tasksmd">Task-entry format (Block 2 + <code>tasks.md</code>)</h2>
 <table>
 <thead>
@@ -1996,6 +2135,15 @@ body.template-plan .ws-row__t {
 <blockquote>
 <p><em>AI cost from the metered ledger (<code>.claude/state/cost-ledger.jsonl</code>) where available; CM estimates flagged separately. CD = Opus 4.8; CM / Brand / Producer / Governance = Sonnet 4.6. Actual charges at <a href="https://console.anthropic.com">console.anthropic.com</a>.</em></p>
 </blockquote>
+<h2 id="operator-surface-copy-contract-sys-069-review-2026-07-15">Operator-surface copy contract (SYS-069 review · 2026-07-15)</h2>
+<p>Every operator surface obeys these so the language stays human and consistent (<code>feedback_operator_facing_plain_language</code>):
+- <strong>One name for the operator's action list: "To Do"</strong> (Title Case) — never "Tasks queue" / "Next action" / "Awaiting you". <em>(Exception: the System Manager dashboard's deliberate "Needs you" / "AI can action" split is a considered distinction, not drift.)</em>
+- <strong>Plain asset names, never internal codes.</strong> Say the asset's plain name; never surface "A6" / "Wave 2" / "gate-cleared" to the operator (say "checked and ready for you"). Per <code>feedback_plan_is_source_of_truth</code> + <code>feedback_operator_facing_plain_language</code>.
+- <strong>No system/file jargon on the surface.</strong> Never show <code>campaign.yaml</code> / <code>asset.yaml</code> / <code>_AUTO</code> / <code>§N</code> / template names / file paths in operator-facing text. Auto-injected footnotes read as plain English ("This list keeps itself up to date…"), not "auto-derived from …yaml".
+- <strong>Audit detail collapses.</strong> Dense history / per-asset verdict prose goes below the fold in <code>&lt;details&gt;</code>; the top of the surface carries only the decision.
+- <strong>Empty states greet + point</strong> ("No campaigns yet — say 'start a campaign' to begin."), never a curt "(no X found)".
+- <strong>The test:</strong> <em>could a smart person who has never seen this system act on this line without asking?</em> If no, rewrite or cut it.
+- <strong>Emoji in headings</strong> are a consistent wayfinding aid or absent — not sprinkled on some surfaces and not others.</p>
 <h2 id="cross-references">Cross-references</h2>
 <ul>
 <li><code>render-pipeline.md</code> — the auto-injection markers + operator-surface rendering contract</li>
@@ -2006,7 +2154,8 @@ body.template-plan .ws-row__t {
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>docs\specs\dashboard.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../../docs/legal/LICENSE.html">Licence</a> · <a href="../../docs/legal/NOTICE.html">Notice</a></span>
+    <span>Source file: <code>docs\specs\dashboard.md</code></span>
   </footer>
 </body>
 </html>

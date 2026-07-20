@@ -72,7 +72,7 @@ def extract_title(markdown_text: str) -> str:
 
 KNOWN_TEMPLATES = {
     "brief", "brand-context", "concept-trio", "plan", "asset-preview",
-    "dashboard", "tasks", "index", "spec",
+    "dashboard", "tasks", "index", "spec", "insight-brief",
 }
 
 
@@ -95,6 +95,8 @@ def infer_template(markdown_path: Path) -> str:
         return "dashboard"  # campaigns/<slug>/<slug>.md
     if stem == "dashboard":
         return "dashboard"
+    if stem == "insight-brief":
+        return "insight-brief"  # SYS-088 — its own (wide) template, not the narrow Brief column
     if stem == "brief":
         return "brief"
     if stem == "plan":
@@ -122,7 +124,7 @@ def stylize_brief(body_html: str) -> str:
 # identified by a column literally named "asset" PLUS >=3 of these — so the
 # small phasing / pre-flight / status-snapshot / showcase tables are left alone.
 _PLAN_COLS = {
-    "review shape", "form", "ships", "copy file", "owner", "owner agent",
+    "review format", "review shape", "form", "ships", "copy file", "owner", "owner agent",
     "phase", "target", "target date", "depends on", "depends", "notes",
     # v3 (2026-07): asset-list gains Type / Channel / Description. Their presence
     # (specifically a `type` column) switches the render to the v3 table below.
@@ -354,7 +356,7 @@ def transform_plan(body_html: str) -> str:
         owner = col("owner", "owner agent")
         phase = col("phase")
         target = col("target", "target date")
-        review = col("review shape")
+        review = col("review format", "review shape")
         copyf = col("copy file")
         deps = col("depends on")
         form = col("form")
@@ -811,6 +813,16 @@ def convert_markdown(markdown_text: str) -> str:
         extensions=["extra", "tables", "fenced_code", "toc", "sane_lists"],
         output_format="html5",
     )
+
+
+def _campaign_root_of(path: Path) -> "Path | None":
+    """SYS-089 — the campaigns/<slug>/ dir a file lives under (else None). Used to inject the
+    Campaign DNA header on artifact surfaces (brief/insight/concept/plan) from campaign.yaml."""
+    p = path.resolve()
+    for d in [p.parent, *p.parents]:
+        if d.parent.name == "campaigns":
+            return d
+    return None
 
 
 def find_project_root(path: Path) -> Path:
@@ -1363,6 +1375,32 @@ def guard_residual_markers(rendered: str, output_path: Path) -> tuple[str, list[
     return rendered, found
 
 
+# SYS-093 — the marker injections below (operator_actions.inject + STATUS/COMPLIANCE/
+# RESONANCE) do plain string .replace() on the raw markdown, which also hits a marker
+# written INSIDE a code span — e.g. a spec that DOCUMENTS `<!-- PHASES_AUTO -->` in
+# backticks (docs/specs/dashboard.md is even classified as a live dashboard by filename).
+# Stash code spans before the inject region and restore them before conversion, so a
+# documented marker survives and renders as visible code instead of being consumed.
+_CODE_SPAN_RE = re.compile(r"```.*?```|`[^`\n]+`", re.DOTALL)
+
+
+def stash_code_spans(text: str) -> "tuple[str, dict]":
+    stash: dict = {}
+
+    def _repl(m):
+        key = f"\x00CS{len(stash)}\x00"
+        stash[key] = m.group(0)
+        return key
+
+    return _CODE_SPAN_RE.sub(_repl, text), stash
+
+
+def restore_code_spans(text: str, stash: dict) -> str:
+    for k, v in stash.items():
+        text = text.replace(k, v)
+    return text
+
+
 def scan_html_for_markers(html_path: Path) -> list[str]:
     """Read-only: return any residual auto-inject markers left in an already-rendered
     .html (for the smoke test / a structural check). [] = clean."""
@@ -1385,6 +1423,9 @@ def render(markdown_path: Path, template_name: str, output_path: Path, extra_con
     template_name = tn
 
     markdown_text = markdown_path.read_text(encoding="utf-8")
+    # SYS-093: hide markers written inside code spans from the injection replaces
+    # below (restored just before conversion) so documented markers aren't consumed.
+    markdown_text, _code_span_stash = stash_code_spans(markdown_text)
     # Dashboard auto-injection: replace AUTO_INJECT_MARKER sentinels in the
     # markdown with auto-generated tables (operator_actions, asset list) sourced
     # from each asset.yaml. Triggered by EITHER (a) --template dashboard, OR
@@ -1414,6 +1455,19 @@ def render(markdown_path: Path, template_name: str, output_path: Path, extra_con
             markdown_text = operator_actions.inject(markdown_text, campaign_dir)
         except Exception as e:
             print(f"  (operator_actions dashboard inject failed: {e})", file=sys.stderr)
+
+    # SYS-089 — Campaign DNA header on artifact surfaces (brief/insight/concept/plan) that live
+    # under campaigns/<slug>/. Injected from the sibling campaign.yaml so every artifact opens on
+    # the same consistent "you are here" anchor instead of a bespoke crammed metadata paragraph.
+    if operator_actions is not None and operator_actions.CAMPAIGN_DNA_MARKER in markdown_text:
+        croot = _campaign_root_of(markdown_path)
+        if croot is not None:
+            try:
+                markdown_text = markdown_text.replace(
+                    operator_actions.CAMPAIGN_DNA_MARKER,
+                    operator_actions.render_campaign_dna(croot))
+            except Exception as e:
+                print(f"  (campaign-dna inject failed: {e})", file=sys.stderr)
 
     # STATUS_AUTO marker — replace in any per-asset md (preview.md, NN-slug.md).
     # The marker pulls the canonical status from the same folder's asset.yaml.
@@ -1458,6 +1512,8 @@ def render(markdown_path: Path, template_name: str, output_path: Path, extra_con
     # Replaces the hand-authored date that drifted stale; render ≈ last update.
     if markdown_path.parent.name == "campaigns":
         markdown_text = stamp_last_updated(markdown_text)
+    # SYS-093: marker-injection region done — restore code spans for conversion.
+    markdown_text = restore_code_spans(markdown_text, _code_span_stash)
     title = extract_title(markdown_text)
     # For asset-preview, extract operator-action H2 sections into a right-hand
     # sidebar panel so the reviewer sees the deliverable first + the actions on
@@ -1503,6 +1559,13 @@ def render(markdown_path: Path, template_name: str, output_path: Path, extra_con
     project_root = find_project_root(output_path)
     breadcrumb_html = build_breadcrumb(output_path, project_root)
     library_nav_html = build_library_nav(output_path, project_root)
+    # SYS-090 — relative prefix from this surface to the repo root, so the footer's
+    # licence/notice links resolve from any depth (campaigns/<slug>/assets/... → ../../../).
+    try:
+        _depth = len(output_path.resolve().relative_to(project_root.resolve()).parts) - 1
+        site_root = "../" * _depth
+    except Exception:
+        site_root = ""
 
     # Simple variable substitution
     rendered = template
@@ -1512,6 +1575,7 @@ def render(markdown_path: Path, template_name: str, output_path: Path, extra_con
     rendered = rendered.replace("{{ template_name }}", template_name)
     rendered = rendered.replace("{{ breadcrumb }}", breadcrumb_html)
     rendered = rendered.replace("{{ library_nav }}", library_nav_html)
+    rendered = rendered.replace("{{ site_root }}", site_root)
     rendered = rendered.replace("{{ source_path }}", str(markdown_path.relative_to(markdown_path.parent.parent.parent) if markdown_path.is_absolute() else markdown_path))
     rendered = rendered.replace("{{ operator_panels }}", operator_panels_html if template_name == "asset-preview" else "")
 

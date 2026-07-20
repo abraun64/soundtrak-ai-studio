@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -1656,6 +1656,37 @@ body.template-plan .pill--queued  { background: var(--code-bg);     color: var(-
 body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
 body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
 
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
 /* Cut & transferred — collapsed audit group below the live build */
 body.template-plan .asset-cards-archived {
   margin: 4px 0 28px;
@@ -1876,16 +1907,31 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
 .resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
 .resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
-<body class="template-spec">
+<body class="template-brief">
   <header class="page-header">
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Unified reference library">📚 Library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
-        <span class="page-header__template" aria-hidden="true">spec</span>
       </div>
     </div>
   </header>
@@ -1899,11 +1945,29 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <p><strong>Stored</strong>: <code>campaigns/&lt;slug&gt;/brief.md</code> (markdown authoritative) + rendered <code>brief.html</code> (operator-facing view).</p>
 <p><strong>Locked</strong>: at end of Phase 1 operator approval for the strategic sections (Why / Offer / Audience / Proposition / KPI / Mandatories / Budget / Timeline). The v2 sections (Tech Setup / Human Roles / Cadence Shape) MAY have <code>TBD</code> placeholders at Phase 1 approval but <strong>must be fully resolved by end of Phase 3 (Plan approval gate)</strong> before Phase 6 work fires — see Rollout Architecture v2 §4.1 for the end-of-Phase-3 gate. Material changes to any locked section (KPI / audience / proposition / tech_stack / ownership_model) require a vN+1 + re-approval. Filling a <code>TBD</code> placeholder is not a material change.</p>
 <hr>
+<h2 id="canonical-section-order-sys-085-locked-the-brief-lint-enforces-it">Canonical section order (SYS-085 — LOCKED; the brief-lint enforces it)</h2>
+<p>Every Brief uses THESE sections, in THIS order, with THESE names — so any reader (a marketer, not
+just the author) can navigate any campaign's Brief the same way. Campaign-specific extras go in
+<strong>"Anything else"</strong>, never as new top-level headings.</p>
+<ol>
+<li>Why this campaign · 2. Business objective · 3. The offer · 4. Audience · 5. Insights that matter ·</li>
+<li>How to reach them · 7. Single-minded proposition · 8. Goal &amp; KPI · 9. Brand context ·</li>
+<li>Mandatories · 11. Budget · 12. Timeline · 13. Tech setup · 14. Roles · 15. Cadence <em>(recurring
+campaigns only)</em> · 16. <strong>Anything else</strong> <em>(campaign-specific context that doesn't fit above — the
+catch-all so extras don't spawn inconsistent headings)</em> · 17. <strong>Approval record</strong> <em>(the audit / gate
+block at the BOTTOM — kept)</em>.</li>
+</ol>
+<p><strong>Decisions (2026-07-15):</strong> Objective and Goal &amp; KPI stay SEPARATE; "Open questions" folds into
+"Anything else"; the top is the Campaign DNA header (no metadata paragraph, no clean-room note —
+SYS-079 / SYS-084 / SYS-089). The v2 sections (Tech setup / Roles / Cadence) MAY be <code>TBD</code> at Phase-1
+approval, resolved by end of Phase 3. Enforce with <code>.claude/skills/brief-lint/brief_lint.py</code> before
+surfacing (mandatory, alongside the review-ready gate).</p>
 <h2 id="schema">Schema</h2>
 <pre><code class="language-markdown"># &lt;Campaign Name&gt; — Brief v&lt;N&gt;
 
-**Operator**: &lt;name&gt;     **Tenant**: &lt;business name&gt;     **Type**: B2B / B2C / Internal / Brand
-**Status**: Draft / Approved / Locked     **Approved**: &lt;date&gt;
+&lt;!-- CAMPAIGN_DNA_AUTO --&gt;
+
+&lt;small&gt;**Attribution key** (how each line was sourced): `<span class="attr attr--operator">the operator’s read</span>` = operator-stated · `[interview]` = captured in the intake interview · `<span class="attr attr--syn">AI synthesis</span>` = AI-composed from inputs.&lt;/small&gt;
 
 ## Why this campaign
 One paragraph. The business reason this exists *now*. Not features — outcomes.
@@ -1940,6 +2004,8 @@ Authored by the **Insights Manager** in Phase 1 (after the objective + segment(s
 
 - **Insights that matter — grouped by target segment.** For each segment, 1–3 insights, each one sentence (audience truth + tension) + named source(s) + date + why-it-matters-to-the-objective. Decision-first, above the fold.
 - **Considered &amp; cut** — a collapsed `&lt;details markdown=&quot;1&quot;&gt;` register of the ~top 10 candidates that didn't make it (each: insight · segment · why cut), **numbered + restorable**: the operator says *&quot;restore insight #N&quot;* → CM promotes it to the surfaced set + re-injects to the CD.
+
+**Approval covers the insights (SYS-067).** The single Phase-1 Brief verdict approves **both** the Brief and the Insight Brief — the digest above is shown *at the gate* so that approval is informed. On approval CM derives the Insight Brief's approved-state from the Brief verdict (approved-*as-part-of*-the-Brief; not a separate gate). A send-back scoped to a segment's insights re-runs just the Insights Manager, not the whole Brief.
 
 These are the **evidenced input to the CD's concept §2** — the big idea is built on them, not inferred cold. The operator approves the Brief *including* the insights (and any restores) before Phase 2 fires. **No-op for campaigns run before the Insights Manager existed** — the section simply doesn't appear.
 
@@ -2106,18 +2172,24 @@ tech_stack:
   phase_6_emphasis: &quot;&lt;one-liner: 'Acme Co-solo from cycle 1' | 'the operator runs pilot → handoff at cycle 5' | n/a&gt;&quot;
   estimated_phase_6_closure: &quot;&lt;date or trigger&gt;&quot;
   first_phase_6_cycle_target: &quot;&lt;date&gt;&quot;
+
+## Anything else
+Campaign-specific context that doesn't fit the sections above (workstream structure · open questions still resolving · sequencing quirks). The catch-all — so extras never spawn inconsistent top-level headings.
+
+## Approval record
+The audit + gate block at the BOTTOM of every Brief. `Gate closed &lt;date&gt;` · who approved · what the verdict covered (&quot;Brief + the insights that inform it&quot;). Append-only.
 </code></pre>
 <p>```</p>
 <hr>
 <h2 id="attribution-discipline-post-retro-001-extract-before-extend">Attribution discipline (post-Retro-001 — Extract before extend)</h2>
 <p>Every Brief section attributes its source so future readers can see what came from where:</p>
 <ul>
-<li><strong>[the operator's read]</strong> — the operator's view extracted via Phase 1 Q&amp;A or pulled from Operator Playbook principles. Authoritative. AI does not override.</li>
-<li><strong>[AI extension]</strong> — AI elaboration on the operator's read (e.g. fleshing out an audience segment from a one-line operator hint). the operator can re-read and override.</li>
-<li><strong>[AI synthesis]</strong> — AI's own pattern-recognition from inputs (e.g. inferring KPI numbers from comparable campaigns). Lowest weight; flag for the operator confirmation.</li>
+<li><strong><span class="attr attr--operator">the operator’s read</span></strong> — the operator's view extracted via Phase 1 Q&amp;A or pulled from Operator Playbook principles. Authoritative. AI does not override.</li>
+<li><strong><span class="attr attr--ext">AI extension</span></strong> — AI elaboration on the operator's read (e.g. fleshing out an audience segment from a one-line operator hint). the operator can re-read and override.</li>
+<li><strong><span class="attr attr--syn">AI synthesis</span></strong> — AI's own pattern-recognition from inputs (e.g. inferring KPI numbers from comparable campaigns). Lowest weight; flag for the operator confirmation.</li>
 </ul>
 <p>Use these tags inline at section level or paragraph level. Briefs without attribution are incomplete.</p>
-<p><strong>v2 sections — attribution applies equally</strong>: tech_stack values pulled from operator's existing tooling get <code>[the operator's read]</code>; AI's best-guess defaults during interview get <code>[AI synthesis]</code> and must be confirmed.</p>
+<p><strong>v2 sections — attribution applies equally</strong>: tech_stack values pulled from operator's existing tooling get <code><span class="attr attr--operator">the operator’s read</span></code>; AI's best-guess defaults during interview get <code><span class="attr attr--syn">AI synthesis</span></code> and must be confirmed.</p>
 <hr>
 <h2 id="interview-discipline-grill-me-pattern">Interview discipline (grill-me pattern)</h2>
 <p>CM extracts the Brief via a <strong>per-field structured interview</strong>, not a single batch questionnaire. Rules:</p>
@@ -2128,7 +2200,7 @@ tech_stack:
 <li><strong>Pre-fill unambiguous fields</strong> from pasted inputs; don't ask about things already known.</li>
 <li><strong>Full interview target: 4–8 minutes</strong> of operator time for the strategic core (Why / Offer / Audience / Proposition / KPI / Mandatories / Budget / Timeline).</li>
 <li><strong>v2 sections — separate interview pass at end of Phase 1 OR during Phase 3</strong>: tech_stack + human_roles + cadence_shape can be a single grouped pass (~3-5 min). Many fields will be operator-known from prior tenant context; CM pre-fills from <code>tenant/&lt;name&gt;/brand-context.md</code> defaults where present.</li>
-<li><strong>Attribution is live</strong>: every confirmed field gets tagged <code>[the operator's read]</code>, <code>[AI extension]</code>, or <code>[AI synthesis]</code> at capture, not retroactively.</li>
+<li><strong>Attribution is live</strong>: every confirmed field gets tagged <code><span class="attr attr--operator">the operator’s read</span></code>, <code><span class="attr attr--ext">AI extension</span></code>, or <code><span class="attr attr--syn">AI synthesis</span></code> at capture, not retroactively.</li>
 <li><strong>Dependency pass</strong>: after all fields have a first pass, surface logical tensions (budget vs. tier, timeline vs. KPI, <strong>tech_stack vs. asset list</strong>) and resolve before drafting.</li>
 <li><strong>Fast-path override</strong>: operator can say "fast-path" or "batch" to revert to single proactive ask.</li>
 </ul>
@@ -2175,7 +2247,8 @@ tech_stack:
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>docs\specs\brief.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../../docs/legal/LICENSE.html">Licence</a> · <a href="../../docs/legal/NOTICE.html">Notice</a></span>
+    <span>Source file: <code>docs\specs\brief.md</code></span>
   </footer>
 </body>
 </html>

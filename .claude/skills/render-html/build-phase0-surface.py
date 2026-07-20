@@ -150,6 +150,24 @@ def assess(slug: str, tenant: dict) -> list[dict]:
     return rows
 
 
+def foundation_status(slug: str, tenant: dict) -> dict:
+    """SYS-092 — the ONE Phase-0 completion computation, shared by the phase0 page AND
+    the tenant home so they cannot disagree. Ratio is over the tenant's OWN (non-shared)
+    canonical items; drafted/todo are the gaps. Returns the assessed rows too, so callers
+    render from the same data."""
+    rows = assess(slug, tenant)
+    own = [r for r in rows if not r["shared"]]
+    done = sum(1 for r in own if r["state"] == "complete")
+    return {
+        "done": done,
+        "drafted": sum(1 for r in own if r["state"] == "drafted"),
+        "todo": sum(1 for r in own if r["state"] == "todo"),
+        "total": len(own),
+        "pct": round(100 * done / len(own)) if own else 0,
+        "rows": rows,
+    }
+
+
 _STATE = {
     "complete": ("✅", "Complete"),
     "drafted":  ("🟡", "Drafted — ratify into baseline"),
@@ -219,19 +237,14 @@ def build(slug: str) -> int:
         return 1
     name = str(tenant.get("name") or slug)
     summary = str(tenant.get("summary") or "")
-    rows = assess(slug, tenant)
-
-    own = [r for r in rows if not r["shared"]]
-    done = sum(1 for r in own if r["state"] == "complete")
-    drafted = [r for r in own if r["state"] == "drafted"]
-    todo = [r for r in own if r["state"] == "todo"]
-    total = len(own)
-    pct = round(100 * done / total) if total else 0
+    st = foundation_status(slug, tenant)   # SYS-092 — shared with the tenant home
+    rows = st["rows"]
+    done, total, pct = st["done"], st["total"], st["pct"]
     gaps = ""
-    if drafted:
-        gaps += f" · {len(drafted)} drafted (not ratified)"
-    if todo:
-        gaps += f" · {len(todo)} still to do"
+    if st["drafted"]:
+        gaps += f" · {st['drafted']} drafted (not ratified)"
+    if st["todo"]:
+        gaps += f" · {st['todo']} still to do"
 
     stamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     md = f"""# {name} — Phase 0 Baseline

@@ -751,6 +751,31 @@ def _normalize_asset_id(raw) -> str:
         return m2.group(1)
     return s
 
+# Intra-asset sync threshold. An asset's operator edit-copy (copy_file) and its shipped,
+# rendered surface (issue-header.html/.png, the deck PPTX, the exported PDF) are DIFFERENT
+# representations of the same copy, hand-maintained in lockstep. The check is DIRECTIONAL:
+# it flags only when the shipped surface is NEWER than the edit-copy by more than the
+# threshold — i.e. the published output was updated but the edit-copy was left behind (the
+# 2026-07-09 bug: A4's copy.md still described a ~700-word draft after edition.md +
+# issue-header.html were reworked to ~1,290 words). The OTHER direction (edit-copy newer
+# than the surface) is the normal mid-edit state — copy authored/patched, re-render pending
+# — plus it's the healthy source->output order, so flagging it just fires on every batch.
+# Threshold is session-generous (4h): authoring the copy then rendering the surface hours
+# later in one work session is fine; a mirror skipped across sessions sits ~a day behind.
+COPY_RENDER_DRIFT_SECONDS = 14400  # 4 hours
+
+
+def _copy_stale_vs_render(copy_mtime, ship_mtime, threshold: float = COPY_RENDER_DRIFT_SECONDS) -> bool:
+    """True if the edit-copy is STALE against the shipped surface — i.e. `ship_mtime` is
+    newer than `copy_mtime` by more than `threshold` (the published output moved ahead, the
+    edit-copy was not re-synced). Directional on purpose (see COPY_RENDER_DRIFT_SECONDS):
+    copy newer than ship is the normal mid-edit/source-first order and never flags. Either
+    mtime None -> no signal. Pure; unit-tested in test_helpers.py so the threshold +
+    direction can't regress silently."""
+    if copy_mtime is None or ship_mtime is None:
+        return False
+    return (ship_mtime - copy_mtime) > threshold
+
 def build_breadcrumb(campaign_slug: str) -> str:
     """Match the breadcrumb pattern used by render-html templates."""
     campaign_label = humanize_slug(campaign_slug)
@@ -1989,6 +2014,10 @@ def run_check(campaign_dir: Path) -> int:
       - a `ship: true` file declared in asset.yaml that doesn't exist on disk
       - a declared copy_file / production_file / view_source pointing at a missing file
       - gallery.html missing, or older than the newest ship-affecting file (stale)
+      - an edit-copy (copy_file) left behind its shipped surface — copy_file materially
+        older than a ship:true file in the same asset (the 2026-07-09 stale-mirror class:
+        the .md/.html/.pptx representations of one asset drifting out of sync). Same
+        principle covers html<->PDF/PPTX. See _copy_stale_vs_render for the direction + why.
     WARN (non-fatal): a For-Human-Review asset with no rationale (the modal leads with it).
 
     NOT auto-checked (needs fragile Plan-id <-> folder matching): exact tile-count vs
@@ -2030,6 +2059,9 @@ def run_check(campaign_dir: Path) -> int:
         if ("review" in status.lower() or "human" in status.lower()) and not str(meta.get("rationale") or "").strip():
             warnings.append(f"{d.name}: status '{status}' but no rationale")
 
+        copy_rel = meta.get("copy_file") if isinstance(meta.get("copy_file"), str) else None
+        asset_ship_mtime = 0.0  # newest shipped/rendered surface in THIS asset (excl. the edit-copy)
+
         files_block = meta.get("files") or {}
         if isinstance(files_block, dict):
             for rel, fmeta in files_block.items():
@@ -2040,6 +2072,8 @@ def run_check(campaign_dir: Path) -> int:
                         failures.append(f"{d.name}: ship:true file missing on disk -> {rel}")
                     else:
                         newest_ship_mtime = max(newest_ship_mtime, fp.stat().st_mtime)
+                        if rel != copy_rel:
+                            asset_ship_mtime = max(asset_ship_mtime, fp.stat().st_mtime)
                 for key in ("production_file", "view_source", "copy_file"):
                     v = fmeta.get(key)
                     # Only STRING values name a file to path-check. A per-file
@@ -2051,6 +2085,23 @@ def run_check(campaign_dir: Path) -> int:
             v = meta.get(key)
             if isinstance(v, str) and v and not (d / v).exists():
                 failures.append(f"{d.name}: {key} -> missing file {v}")
+
+        # Intra-asset edit-copy <-> rendered-surface sync (the 2026-07-09 stale-mirror class:
+        # A4's copy.md still described the pre-rework ~700-word draft after edition.md +
+        # issue-header.html were reworked). The operator edits copy_file; it must move in
+        # lockstep with the shipped surface it mirrors. If they drift far apart in mtime, one
+        # was updated without the other — flag it so a stale mirror can't reach the operator.
+        # Same principle covers html <-> PDF/PPTX: any shipped representation left behind its
+        # edit-copy trips this. (git checkout stamps all files the same mtime -> no false hit.)
+        if copy_rel:
+            cf = d / copy_rel
+            if cf.exists() and asset_ship_mtime and _copy_stale_vs_render(cf.stat().st_mtime, asset_ship_mtime):
+                failures.append(
+                    f"{d.name}: edit-copy '{copy_rel}' is STALE — older than the shipped surface "
+                    f"(copy {_dt.fromtimestamp(cf.stat().st_mtime):%Y-%m-%d %H:%M} < "
+                    f"ship {_dt.fromtimestamp(asset_ship_mtime):%Y-%m-%d %H:%M}): the published "
+                    f"output was updated but {copy_rel} was not re-synced — update it, then re-render"
+                )
 
     print(f"=== GALLERY QA CHECK — {campaign_dir.name} ===")
     if not folders:

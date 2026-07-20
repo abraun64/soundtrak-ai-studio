@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -429,6 +429,8 @@ html, body {
   gap: 6px;
   font-size: 13px;
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 .crumb {
   color: var(--text-muted);
@@ -463,6 +465,17 @@ html, body {
   font-size: 11px;
   opacity: 0.6;
 }
+/* Refresh control (SYS-014) — top-right of every operator surface; reloads the page
+   so the operator doesn't reach for the browser refresh. */
+.refresh-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); font-size: 14px; line-height: 1;
+  cursor: pointer; padding: 0; font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.refresh-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
 .page-header__right {
   display: flex;
   align-items: center;
@@ -472,7 +485,7 @@ html, body {
 .library-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
 }
 .lib-link {
@@ -1145,7 +1158,9 @@ body.template-dashboard .prio--later { background: var(--code-bg);      color: v
 /* Active campaigns — card grid (replaces the auto 3-column table) */
 body.template-index .camp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  /* auto-FILL (not auto-fit): keep empty tracks so a single card in a per-tenant
+     section stays ~half-width instead of stretching to fill the row. */
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 16px;
   margin: 4px 0 8px 0;
 }
@@ -1351,6 +1366,29 @@ body.template-tasks .task-group__dash {
   white-space: nowrap;
 }
 body.template-tasks .task-group__dash:hover { color: var(--accent); }
+/* SYS-012 — per-campaign collapse: each task group is a <details>, header is its <summary> */
+body.template-tasks details.task-group > summary.task-group__head { cursor: pointer; list-style: none; }
+body.template-tasks details.task-group > summary.task-group__head::-webkit-details-marker { display: none; }
+body.template-tasks details.task-group > summary.task-group__head::before {
+  content: "\25B8"; /* chevron */
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.15s ease;
+}
+body.template-tasks details.task-group[open] > summary.task-group__head::before { transform: rotate(90deg); }
+body.template-tasks .task-tools { display: flex; justify-content: flex-end; margin: 0 0 14px; }
+body.template-tasks .task-toggle-all {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-tasks .task-toggle-all:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
 .content .task-table {
   width: 100%;
   border-collapse: collapse;
@@ -1382,6 +1420,16 @@ body.template-tasks .task-group__dash:hover { color: var(--accent); }
   color: var(--text-muted);
 }
 .content .task-pointer a { font-weight: 600; }
+/* Low-key footer pointer to the tenant Brand-recs queue (asset-verdict items —
+   durable, no time pressure). Sits under a group's task table, visually demoted. */
+.content .task-pointer--rec {
+  border-top: 1px dashed var(--border);
+  margin: 6px 0 0;
+  padding: 9px 18px 2px;
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+.content .task-pointer--rec strong { color: var(--text-muted); font-weight: 600; }
 /* Richer task cells — asset context under the title, "what you'll do" under why */
 .content .task-asset {
   font-size: 12px;
@@ -1608,6 +1656,37 @@ body.template-plan .pill--queued  { background: var(--code-bg);     color: var(-
 body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
 body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
 
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
 /* Cut & transferred — collapsed audit group below the live build */
 body.template-plan .asset-cards-archived {
   margin: 4px 0 28px;
@@ -1789,6 +1868,19 @@ body.template-plan .ws-row__t {
 .tenant-section a:hover { color: var(--accent); }
 .tenant-section__count { font-size: 12px; font-weight: 500; color: var(--text-subtle); }
 
+/* Per-card tenant eyebrow label on the master index (Option A — flat 2-up grid,
+   tenant identity per card instead of section headers). */
+body.template-index .camp-card__tenant {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-decoration: none;
+  margin-bottom: 3px;
+}
+body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
+
 /* Governance verdict pill on asset previews (COMPLIANCE_AUTO marker). */
 .gov-verdict {
   display: inline-block;
@@ -1801,15 +1893,45 @@ body.template-plan .ws-row__t {
 .gov-verdict.gov--hold    { background: var(--warning-soft); color: var(--warning); }
 .gov-verdict.gov--blocked { background: var(--danger-soft);  color: var(--danger); }
 .gov-verdict.gov--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* Insights Manager advisory resonance read on external-touchpoint asset previews
+   (RESONANCE_AUTO marker). Advisory, never a gate — softer register than governance. */
+.resonance-read {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.9em;
+  padding: 1px 8px;
+  border-radius: 5px;
+}
+.resonance-read.res--on      { background: var(--success-soft); color: var(--success); }
+.resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
+.resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
+.resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
-<body class="template-spec">
+<body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link" href="../../tenant/library/INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
-        <span class="page-header__template" aria-hidden="true">spec</span>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
+        <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
       </div>
     </div>
   </header>
@@ -1818,7 +1940,7 @@ body.template-plan .ws-row__t {
     <article class="content">
       <h1 id="gallery-pre-surface-qa-checklist">Gallery pre-surface QA — checklist</h1>
 <p><strong>Spec version</strong>: v1 · 2026-06-15 (extracted from CM SKILL.md — operator flagged it as "overkill" inline; it's a real check, just not skill-body material).</p>
-<p>CM runs this <strong>before surfacing any Phase-4 asset to the operator</strong>. The operator should never be the one who catches a gallery issue — that's CM's job. Read the asset's <code>asset.yaml</code> and verify each row against the Plan's <strong>Review shape</strong> + <strong>Copy file</strong> columns.</p>
+<p>CM runs this <strong>before surfacing any Phase-4 asset to the operator</strong>. The operator should never be the one who catches a gallery issue — that's CM's job. Read the asset's <code>asset.yaml</code> and verify each row against the Plan's <strong>Review format</strong> + <strong>Copy file</strong> columns.</p>
 <table>
 <thead>
 <tr>
@@ -1873,9 +1995,30 @@ body.template-plan .ws-row__t {
 <td>any HTML web-page asset has a deploy cookbook (<code>cookbooks/deploy.md</code> / <code>deploy.md</code>)</td>
 <td>author one before surfacing</td>
 </tr>
+<tr>
+<td><strong>Copy surface (v3)</strong></td>
+<td>every copy-bearing asset resolves a copy-review md (top-level <code>copy_file:</code>, a <code>copy.md</code>, or the primary prose <code>.md</code>; HTML-only ships a text extract). A build <strong>WARNING</strong> = unmet.</td>
+<td>declare <code>copy_file:</code> / add a <code>copy.md</code> text extract</td>
+</tr>
+<tr>
+<td><strong>What this is (v3)</strong></td>
+<td><code>asset_name</code> + <code>rationale</code> written so the lightbox title (<code>#id · name</code>) and the "What this is" lead are real, not fallbacks</td>
+<td>write <code>asset_name</code> + <code>rationale</code> in asset.yaml</td>
+</tr>
+<tr>
+<td><strong>Plan trace (v3)</strong></td>
+<td>the asset's <code>asset_id</code> matches a Plan <code>#</code> row (Ships/Review-shape). No match = a deviation surfaced in the <strong>Plan reconciliation</strong> banner</td>
+<td>reconcile: update the Plan or the asset (rename / add row / fix ship flags)</td>
+</tr>
+<tr>
+<td><strong>Channel + name match (v3)</strong></td>
+<td><code>asset.yaml default_channel</code> = the Plan row's <code>Channel</code> <strong>and</strong> <code>asset_name</code> = the Plan name, VERBATIM — the Plan is the source of truth for the asset catalog. An off-Plan channel <strong>silently drops</strong> the asset (the render loop skips a channel it doesn't know). This is a <strong>hard gate</strong>: <code>check-state</code> <strong>Layer K</strong> <em>fails</em> (not warns) on any mismatch.</td>
+<td>set <code>default_channel</code>/<code>asset_name</code> to the Plan values — never invent a channel or rename</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Then</strong>: <code>python .claude/skills/asset-gallery/build-gallery.py --campaign &lt;slug&gt;</code> and confirm the tile count looks right.</p>
+<p><strong>Then</strong>: <code>python .claude/skills/asset-gallery/build-gallery.py --campaign &lt;slug&gt;</code> and confirm the tile count looks right. <strong>Read the build's stdout tail</strong> — it prints (a) any <strong>COPY-REVIEW WARNINGS</strong> (copy-bearing assets with no resolvable copy surface) and (b) the <strong>PLAN RECONCILIATION</strong> block: <code>✓ Reflects the approved Plan</code> when the gallery matches 1:1, else the list of deviations (not-in-plan · planned-not-produced · ship-count · renamed). CM reconciles every deviation — update the Plan or the asset — before surfacing. The same reconciliation renders as a banner at the top of <code>gallery.html</code>.</p>
+<p><strong>Automated pre-check (SYS-003)</strong>: <code>python .claude/skills/asset-gallery/build-gallery.py --campaign &lt;slug&gt; --check</code> validates the <em>machine-checkable</em> rows above — every <code>ship: true</code> file (and any declared <code>copy_file</code> / <code>production_file</code> / <code>view_source</code>) exists on disk, each asset folder has an <code>asset.yaml</code>, review assets carry a <code>rationale</code>, and <code>gallery.html</code> is at least as new as the newest ship-affecting file (no stale gallery). It exits non-zero on drift, so CM and the smoke test can gate on it. It does <strong>not</strong> check tile-count vs Review-shape — eyeball that. Worktree-aware (resolves <code>campaigns/</code> to the main checkout).</p>
 <p><strong>Re-occurrence policy</strong>: operator catches a gallery issue (wrong tile count · missing download · wrong "View in full" · missing status badge · empty rationale) = <strong>P1 CM process failure</strong>. CM owns this check.</p>
 <h2 id="cross-references">Cross-references</h2>
 <ul>
@@ -1887,7 +2030,8 @@ body.template-plan .ws-row__t {
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>docs\specs\gallery-qa.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../../docs/legal/LICENSE.html">Licence</a> · <a href="../../docs/legal/NOTICE.html">Notice</a></span>
+    <span>Source file: <code>docs\specs\gallery-qa.md</code></span>
   </footer>
 </body>
 </html>

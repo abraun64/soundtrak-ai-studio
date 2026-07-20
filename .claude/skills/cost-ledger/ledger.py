@@ -43,6 +43,32 @@ sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 import tenant_paths as _tp  # noqa: E402  — W4 dual-path: resolve campaign in either layout
 DEFAULT_RATE_PER_MTOK = 6.0
 
+# SYS-091 — per-model $/Mtok reference (Anthropic prompt-caching docs, 2026-07).
+# Cache READS bill at 0.1x input, so a dispatch's TRUE cost swings with its cache-hit
+# ratio; the single blended DEFAULT_RATE_PER_MTOK above is one calibration and is
+# APPROXIMATE (a cache-heavy dispatch is far cheaper than the blend implies). When a
+# usage report exposes the token split, price it accurately via cost_from_split().
+# Tuple: (input, cache_read, cache_write_5m, cache_write_1h, output).
+PRICING_PER_MTOK = {
+    "claude-opus-4-8":  (5.0,  0.50,  6.25, 10.0, 25.0),
+    "claude-sonnet-5":  (3.0,  0.30,  3.75,  6.0, 15.0),
+    "claude-haiku-4-5": (1.0,  0.10,  1.25,  2.0,  5.0),
+    "claude-fable-5":   (10.0, 1.00, 12.50, 20.0, 50.0),
+}
+
+
+def cost_from_split(model: str, *, fresh_input: int = 0, cache_read: int = 0,
+                    cache_write_5m: int = 0, cache_write_1h: int = 0,
+                    output: int = 0) -> float:
+    """SYS-091 — accurate $ from a real token breakdown, for when a usage report exposes
+    the cache_read / cache_creation / input / output split (cache reads at 0.1x input).
+    Falls back to Opus 4.8 rates for an unknown model. Prefer this over the blended rate
+    whenever the split is available; the blended DEFAULT_RATE_PER_MTOK is the fallback for
+    a lump token count only."""
+    inp, cr, w5, w1, out = PRICING_PER_MTOK.get(model, PRICING_PER_MTOK["claude-opus-4-8"])
+    return round((fresh_input * inp + cache_read * cr + cache_write_5m * w5
+                  + cache_write_1h * w1 + output * out) / 1_000_000, 2)
+
 
 def read_entries(campaign: str | None = None) -> list[dict]:
     if not LEDGER.exists():

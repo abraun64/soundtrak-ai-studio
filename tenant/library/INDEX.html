@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -1907,16 +1907,31 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
 .resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
 .resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
-<body class="template-spec">
+<body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
         <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../../docs/guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link lib-link--current" href="INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
-        <span class="page-header__template" aria-hidden="true">spec</span>
       </div>
     </div>
   </header>
@@ -1924,7 +1939,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
   <main class="page-main">
     <article class="content">
       <h1 id="best-practice-library">Best-Practice Library</h1>
-<p>The reference collection the Creative Director and Producer draw on when creating your work — standout campaigns, gold-standard exemplars, and craft references. <strong>93 entries</strong>, plus the playbooks, archetypes, and visual-movement guides listed below.</p>
+<p>The reference collection the Creative Director and Producer draw on when creating your work — standout campaigns, gold-standard exemplars, and craft references. <strong>95 entries</strong>, plus the playbooks, archetypes, and visual-movement guides listed below.</p>
 <blockquote>
 <p>🔎 <strong>Looking for research, not creative?</strong> Market data, behavioural-science, and audience research live in the separate <strong><a href="../research-library/INDEX.html">Insights Library</a></strong> — the corpus the Insights Manager cites. <em>This</em> Best-Practice Library is for <strong>creative</strong> exemplars. They're two different collections (both are in the top-right menu).</p>
 </blockquote>
@@ -1970,7 +1985,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 </tbody>
 </table>
 <h2 id="also-in-this-library">Also in this library</h2>
-<p>Beyond the 93 campaign entries, three reference sets the Creative Director works from when shaping a concept. Click any to open it:</p>
+<p>Beyond the 95 campaign entries, three reference sets the Creative Director works from when shaping a concept. Click any to open it:</p>
 <ul>
 <li>📘 <strong>Playbooks</strong> — full tactical playbooks (the how-to behind a whole play). Netwealth-authored: <a href="playbooks/winning-new-clients-playbook.md">Winning New Clients</a> · <a href="playbooks/creating-loyalty-playbook.md">Creating Loyalty That Lasts</a></li>
 <li>🎯 <strong>Archetypes</strong> — the 9 strategic "journey modes" a campaign can take (what job the creative is doing), ordered roughly by funnel: <a href="archetypes/aperture-setting.md">Aperture-setting</a> · <a href="archetypes/attention-fame.md">Attention / fame</a> · <a href="archetypes/educational-pipeline.md">Educational pipeline</a> · <a href="archetypes/trust-proof.md">Trust / proof</a> · <a href="archetypes/utility-service.md">Utility / service</a> · <a href="archetypes/participatory.md">Participatory</a> · <a href="archetypes/direct-response.md">Direct-response</a> · <a href="archetypes/community-advocacy.md">Community / advocacy</a> · <a href="archetypes/identity-reinforcement.md">Identity reinforcement</a></li>
@@ -2065,6 +2080,30 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <td>Smart</td>
 <td>Educational pipeline</td>
 <td>Soundtrak-own</td>
+</tr>
+<tr>
+<td>Heidi Health</td>
+<td><a href="entries/heidi-relief-on-repeat-2026.md">Relief, on repeat (Side Effects May Include…)</a></td>
+<td>2026</td>
+<td>B2B</td>
+<td>Health-Wellness</td>
+<td>Multi-step-campaign</td>
+<td>Hybrid</td>
+<td>Wild</td>
+<td>Attention/fame</td>
+<td>Operator-curated</td>
+</tr>
+<tr>
+<td>Apple</td>
+<td><a href="entries/apple-privacy-thats-iphone-2019.md">Privacy. That's iPhone.</a></td>
+<td>2019-ongoing</td>
+<td>B2C</td>
+<td>Tech-Consumer</td>
+<td>Always-on</td>
+<td>Big-idea</td>
+<td>Smart</td>
+<td>Aperture-setting</td>
+<td>Operator-curated</td>
 </tr>
 <tr>
 <td>Fletch (FletchPMM)</td>
@@ -3116,7 +3155,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>tenant\library\INDEX.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span>Source file: <code>tenant\library\INDEX.md</code></span>
   </footer>
 </body>
 </html>

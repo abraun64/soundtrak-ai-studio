@@ -119,7 +119,7 @@ def parse_plan_markdown(md_text: str) -> list:
             "desc": col(cells, "description", "desc"),
             "channel": col(cells, "channel") or "Other",
             "ships": col(cells, "ships"),
-            "review": col(cells, "review shape"),
+            "review": col(cells, "review format", "review shape"),  # SYS-096: new name, old fallback
             "form": col(cells, "form"),
             "copy_file": col(cells, "copy file"),
             "owner": col(cells, "owner agent", "owner"),

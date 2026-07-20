@@ -35,7 +35,7 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **Rollout Architecture v2** | The 6-phase campaign lifecycle backbone. Why the phases exist and what each produces. | `docs/specs/rollout-architecture.md` |
 | **Brief spec v2** | Campaign brief schema + grill-me interview discipline. | `docs/specs/brief.md` |
 | **Concept spec** | Creative trio (Safe/Smart/Wild) schema + CD outputs required. | `docs/specs/concept.md` |
-| **Plan spec v2** | Asset list schema (incl. Review shape + Copy file columns) + §N Phase readiness gate. | `docs/specs/plan.md` |
+| **Plan spec v2** | Asset list schema (incl. Review format + Copy file columns) + §N Phase readiness gate. | `docs/specs/plan.md` |
 | **Per-Step Brief spec** | CM → Producer dispatch envelope. What every brief must contain. | `docs/specs/per-step-brief.md` |
 | **Asset spec** | Asset folder structure standard + asset.yaml schema + gallery modal rules (3-block: rationale / gate questions / next steps). | `docs/specs/asset.md` |
 | **Brand Context spec** | Tenant brand context schema + BC slicing guide by asset form. | `docs/specs/brand-context.md` |
@@ -170,7 +170,7 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | Campaign dashboard | The campaign's home page. Phases + Artifacts, To Do, History. | `campaigns/<slug>/<slug>.md` |
 | Brief | Campaign strategy: who/what/why/budget/timeline/tech/people. | `campaigns/<slug>/brief.md` |
 | Concept | Selected creative concept. Big Idea, Key Message, 15-sec pitch, visuals. | `campaigns/<slug>/concepts/selected.md` |
-| Plan | Asset list with Review shape + Copy file columns. Phase readiness. | `campaigns/<slug>/plan.md` |
+| Plan | Asset list with Review format + Copy file columns. Phase readiness. | `campaigns/<slug>/plan.md` |
 | Gallery | Visual gallery of all campaign assets. Channel-grouped, with modal. | `campaigns/<slug>/gallery.html` |
 | Phase 5 Rollout | Day-1 deployment runbook for this campaign. | `campaigns/<slug>/phase-5-rollout.md` |
 | Phase 6 Cadence | Ongoing cycle runbook. Campaign DNA header. | `campaigns/<slug>/phase-6-cadence.md` |
@@ -211,7 +211,7 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **System architecture** | `reframe_cmo_force_multiplier.md` | Force multiplier, not replacement. All downstream flows from this. |
 | **Propagation** | `feedback_captured_rules_require_explicit_propagation.md` | Memory writes are inert until specs/agents/skills are updated. |
 | **Propagation** | `feedback_propagation_failure_modes_recur_across_dimensions.md` | Generalised: ANY artifact change needs downstream propagation. |
-| **Plan authoring** | `feedback_plan_declares_review_shape_and_copy_file.md` | Plan must declare Review shape + Copy file for every asset. Drives Producer, gallery, approval scope. |
+| **Plan authoring** | `feedback_plan_declares_review_shape_and_copy_file.md` | Plan must declare Review format + Copy file for every asset. Drives Producer, gallery, approval scope. |
 | **Gallery QA** | `feedback_cm_owns_gallery_qa_before_operator_surface.md` | CM checks gallery before operator sees it. 7-point checklist. |
 | **HTML deployment** | `feedback_html_web_page_folder_structure.md` | `index.html` + `images/` at root. No campaign files in the deployable folder. |
 | **Asset review** | `feedback_gallery_publish_aware_producer.md` | Producer ships asset.yaml + gallery-recognised headers. Gallery reads declarative metadata. |

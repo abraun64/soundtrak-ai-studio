@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -429,6 +429,8 @@ html, body {
   gap: 6px;
   font-size: 13px;
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 .crumb {
   color: var(--text-muted);
@@ -483,7 +485,7 @@ html, body {
 .library-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
 }
 .lib-link {
@@ -1654,6 +1656,37 @@ body.template-plan .pill--queued  { background: var(--code-bg);     color: var(-
 body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
 body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
 
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
 /* Cut & transferred — collapsed audit group below the live build */
 body.template-plan .asset-cards-archived {
   margin: 4px 0 28px;
@@ -1874,16 +1907,31 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
 .resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
 .resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
 <body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
-      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../../../../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link" href="../../../../../tenant/library/INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
-        <span class="page-header__template" aria-hidden="true">base</span>
       </div>
     </div>
   </header>
@@ -2068,13 +2116,79 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <li><strong>ONE batched approval per artifact class</strong> (operator-trio style): "here's the tenant baseline — Brand Context · Segments · Market · Compliance — approve / edit each." Compliance Profile additionally carries the counsel-review flag (§8 of its spec).</li>
 <li><strong>"No baseline needed for X" is a valid explicit outcome</strong> — never skipped silently.</li>
 <li>The Compliance Profile is <strong>operator-approved</strong> (and counsel where §8 requires); never auto-activated.</li>
+<li><strong>The same gate governs re-runs and section-scoped updates</strong> — a re-run diffs proposed changes against approved content and asks the operator to confirm; it <strong>never silently overwrites</strong> an approved baseline (see <em>Idempotent re-run + section-scoped update</em>).</li>
 </ul>
 <h2 id="run-once-refresh">Run-once + refresh</h2>
 <ul>
-<li>Phase 0 runs <strong>once per tenant</strong>. Tenant-baseline readiness surfaces on <code>campaigns/index</code>.</li>
+<li>Phase 0 <strong>completes once per tenant</strong>, but is <strong>safe to re-run any time</strong> as material accumulates (see <em>Idempotent re-run</em> below) — the first run establishes the baseline; later runs top up gaps or update one section, never redo the whole thing. Tenant-baseline readiness surfaces on <code>campaigns/index</code>.</li>
 <li>Refresh cadence: claim map per-campaign (existing rule); market + segments quarterly; <strong>Compliance Profile on regime change + periodic</strong> (its §10).</li>
 <li>Owner: CM orchestrates; later extractable to an <code>/establish-tenant</code> skill after 2–3 manual runs (per the existing skill-extraction discipline).</li>
 </ul>
+<h2 id="idempotent-re-run-section-scoped-update-sys-065">Idempotent re-run + section-scoped update (SYS-065)</h2>
+<p>"Set yourself up" / "onboard <code>&lt;tenant&gt;</code>" / <strong>"update my brand"</strong> is <strong>one idempotent workflow</strong>, not a one-shot. Re-running it as new material arrives — or to change a single part — is a first-class path, and it is <strong>safe</strong>: it keeps what's still right, only interviews for what's missing or changed, and <strong>never silently overwrites operator-approved baseline content</strong> (see <em>Gates</em>). This mirrors the promise the operator FAQ makes (<code>docs/playbooks/faq.md</code> → "Do I have to redo my whole setup…").</p>
+<h3 id="auto-detect-what-already-exists">Auto-detect — what already exists</h3>
+<p>Before interviewing, CM <strong>detects the current baseline state per section</strong> so it can skip what's present. Detection is mechanical (don't eyeball it):</p>
+<pre><code>python .claude/skills/campaign-manager/phase0_detect.py --tenant &lt;slug&gt;
+</code></pre>
+<p>It reads two signals per section — the <strong>file</strong> (<code>tenant-brand/&lt;slug&gt;*</code> / <code>tenant/&lt;slug&gt;/integrations.yaml</code>) and the <strong><code>baseline:</code> declaration</strong> in <code>tenant-brand/&lt;slug&gt;.yaml</code> — and reports each section as <code>present</code> (both agree), <code>missing</code> (interview it), or <code>partial</code> (file/declaration mismatch — reconcile with the operator, never silently). This is the read-only companion to <code>phase0_gate.py</code>: the <strong>gate</strong> answers "may a campaign start?"; the <strong>detector</strong> answers "what does this tenant already have, section by section?".</p>
+<ul>
+<li><strong>First run</strong> (all <code>missing</code>): the full baseline pass, exactly as today.</li>
+<li><strong>Re-run</strong> (some <code>present</code>): CM lists what's already established, confirms it in one line ("your voice, segments and market are set — leave them?"), and only interviews the <code>missing</code>/<code>partial</code> sections plus anything the operator names for update.</li>
+</ul>
+<h3 id="section-vocabulary-operator-update-verbs">Section vocabulary + operator update verbs</h3>
+<p>The baseline is addressable in six sections. Each maps to an artifact and an operator-facing verb — updating one section <strong>must not</strong> redo the others:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Artifact</th>
+<th>Operator says</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>brand-context</strong></td>
+<td><code>tenant-brand/&lt;tenant&gt;.md</code></td>
+<td>"update my brand", "refresh my brand context"</td>
+</tr>
+<tr>
+<td><strong>voice</strong></td>
+<td><code>tenant-brand/&lt;tenant&gt;.md</code> (voice/tone slice — same file, scoped edit)</td>
+<td>"update my voice", "change how it writes"</td>
+</tr>
+<tr>
+<td><strong>segments</strong></td>
+<td><code>tenant-brand/&lt;tenant&gt;-segments.md</code></td>
+<td>"update my segments", "update just my target segments"</td>
+</tr>
+<tr>
+<td><strong>market</strong></td>
+<td><code>tenant-brand/&lt;tenant&gt;-market.md</code></td>
+<td>"refresh my market / competitors"</td>
+</tr>
+<tr>
+<td><strong>compliance</strong></td>
+<td><code>tenant-brand/&lt;tenant&gt;-compliance.md</code></td>
+<td>"update my compliance rules / disclaimers"</td>
+</tr>
+<tr>
+<td><strong>channels</strong></td>
+<td><code>tenant/&lt;tenant&gt;/integrations.yaml</code></td>
+<td>"update my channels", "I added a new tool"</td>
+</tr>
+</tbody>
+</table>
+<p><code>voice</code> has no file of its own — it's the voice/tone slice of the Brand Context, reported and edited separately so "update just my voice" is a legible scoped verb that touches only that slice of <code>&lt;tenant&gt;.md</code>.</p>
+<p>A section-scoped update (<code>--section &lt;name&gt;</code> on the detector) interviews <strong>only</strong> that section, diffs the proposed change against the current approved content, and gates just that artifact class. It does <strong>not</strong> re-open the other five.</p>
+<h3 id="gates-preserved-hard-no-silent-overwrite">Gates preserved (hard — no silent overwrite)</h3>
+<p>The re-run/update path uses the <strong>same batched approval per artifact class</strong> as a first run (see <em>Gates</em>). A re-run or section update <strong>NEVER</strong> writes over operator-approved baseline content without confirmation:</p>
+<ol>
+<li><strong>Detect</strong> the current state (present / missing / partial).</li>
+<li>For any section being changed, <strong>draft the update and show the diff</strong> against the current approved artifact — what's added, what's changed, what's removed.</li>
+<li><strong>The operator approves the diff</strong> (per artifact class, batched) before anything is written.</li>
+<li>Only on explicit approval is the artifact rewritten and its <code>baseline:</code> entry / <code>Last updated</code> stamp refreshed; then re-render its HTML (per the render-on-every-state-change rule).</li>
+</ol>
+<p><code>partial</code> (file present but not declared, or declared but file missing) is surfaced for reconciliation, never auto-resolved. "No change needed for section X" is a valid <strong>explicit</strong> outcome, never a silent skip. This protects operator trust: an approved baseline is only ever changed by the operator saying yes to a specific diff.</p>
 <h2 id="tenant-marketmd-inline-schema-new-artifact"><code>&lt;tenant&gt;-market.md</code> — inline schema (NEW artifact)</h2>
 <p>The competitive + market-structure record (largely a <code>company-intelligence</code> capture). Durable per-tenant.</p>
 <pre><code class="language-markdown"># Market Landscape — &lt;Tenant&gt;
@@ -2119,7 +2233,7 @@ Per-campaign claim-map freshness scan (existing rule) + quarterly market review.
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>docs\specs\phase-0-tenant-baseline.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span>Source file: <code>docs\specs\phase-0-tenant-baseline.md</code></span>
   </footer>
 </body>
 </html>

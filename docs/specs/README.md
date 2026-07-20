@@ -14,7 +14,7 @@ The shape of the artifacts a campaign produces or inherits.
 |---|---|
 | [brief](brief.md) | Campaign brief schema + grill-me interview discipline |
 | [concept](concept.md) | Creative trio (Safe/Smart/Wild) + required CD outputs |
-| [plan](plan.md) | Asset list (Review shape + Copy file) + phase-readiness gate |
+| [plan](plan.md) | Asset list (Review format + Copy file) + phase-readiness gate |
 | [per-step-brief](per-step-brief.md) | CM → Producer dispatch envelope |
 | [asset](asset.md) | Asset folder + `asset.yaml` + gallery modal rules |
 | [brand-context](brand-context.md) | Tenant brand context + slicing by asset form |

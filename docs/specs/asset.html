@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -429,6 +429,8 @@ html, body {
   gap: 6px;
   font-size: 13px;
   line-height: 1.4;
+  flex: 1;
+  min-width: 0;
 }
 .crumb {
   color: var(--text-muted);
@@ -483,7 +485,7 @@ html, body {
 .library-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
 }
 .lib-link {
@@ -1654,6 +1656,37 @@ body.template-plan .pill--queued  { background: var(--code-bg);     color: var(-
 body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
 body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
 
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
 /* Cut & transferred — collapsed audit group below the live build */
 body.template-plan .asset-cards-archived {
   margin: 4px 0 28px;
@@ -1874,16 +1907,31 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
 .resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
 .resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
 <body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
-      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../../../../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Reference library">  <a class="lib-link" href="../../../../../tenant/library/INDEX.html" title="Unified reference library — 74 entries, faceted by audience/vertical/shape/source">📚 Library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
-        <span class="page-header__template" aria-hidden="true">base</span>
       </div>
     </div>
   </header>
@@ -1906,7 +1954,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 
 **Form**: &lt;e.g. LinkedIn organic post + 16:9 tile&gt;
 &lt;!-- STATUS_AUTO --&gt;   &lt;!-- the status line = this bare marker (no &quot;**Status**:&quot; prefix). Single source = asset.yaml (values: Draft / In Production / For Human Review / Approved / Archived); never hand-type a status (drift). Change via status-propagator. --&gt;
-   &lt;!-- Governance verdict (Phase-4); a status-line, stays at the top. Strips to nothing unless asset.yaml has a `compliance:` block. Safe to pre-seed (NO-RETROFIT no-op). --&gt;
+&lt;!-- COMPLIANCE_AUTO --&gt;   &lt;!-- Governance verdict (Phase-4); a status-line, stays at the top. Strips to nothing unless asset.yaml has a `compliance:` block. Safe to pre-seed (NO-RETROFIT no-op). --&gt;
 **Plan ref**: Asset #&lt;n&gt;
 **Target publish**: &lt;date&gt;     **Approved**: &lt;date&gt;     **Published**: &lt;date&gt;
 **Asset ID**: AST-&lt;n&gt;
@@ -2000,17 +2048,31 @@ Per `feedback_html_web_page_folder_structure.md`.
 
 ### Editable copy file — REQUIRED for any web / landing-page / long-form text asset
 
-Bundled file: `copy.md` sibling to `asset.md` in the asset folder. **Editorial twin** of the rendered HTML. Operator opens, edits prose directly, saves; Producer reads operator edits on next pass and mirrors them back into `index.html` + `page-copy.md`.
+Bundled file: `copy.md` sibling to `asset.md`. It is the **operator's edit surface** — the bare minimum to read and edit the copy, nothing else. The operator opens it, edits prose directly, saves; the Producer treats it as the authoritative copy source and mirrors edits into `index.html` on the next pass (if `copy.md` and `index.html` diverge, `copy.md` wins).
 
-Rules:
-- Clean copy ONLY — no type-spec annotations, no production notes, no Brand-verdict commentary (those live in `page-copy.md`, the annotated mirror).
-- Section structure mirrors `index.html` order with `§N — &lt;name&gt;` heads.
-- Every editable region exposed as plain Markdown (eyebrow, headers, sub-bodies, body paragraphs, captions, CTAs).
-- Verbatim external artifacts (e.g. comparison-target Generic AI box, external concept descriptors) marked `[VERBATIM — do not edit; &lt;source&gt;]`. Edits there reverted on next pass.
-- File header instructs operator on what they can / can't edit and where structural changes go (chat with CM, not edit-in-file).
-- Producer treats `copy.md` as the authoritative copy source. If `copy.md` and `index.html` diverge between passes, `copy.md` wins (operator has edited).
+**The whole file is four things, in this order. Nothing above the copy but a one-line orientation; nothing below but an optional preview link:**
 
-**Applies to**: landing pages · long-form articles · whitepaper sections · pricing/About pages · email single + sequences (operator may want to edit subject lines + body separately). **Does NOT apply to**: ad headline batches, social-post single bodies &lt;500 chars, microcopy, taglines (overhead &gt; value at small scale — operator edits in chat).
+1. **One-line header** — `# Asset #N — &lt;what it is&gt; — Editable copy`, then ONE line: where it goes (channel / live URL) + &quot;Edit below; the Producer mirrors your edits into the asset.&quot;
+2. **Constraints that bind the copy only** (≤4 bullets) — voice rules in one line; per-field character limits; any hard rule that changes the copy (e.g. keep the UTM string intact). Nothing else.
+3. **The copy**, as plainly-labelled editable fields (`**&lt;Field&gt;**: &lt;copy&gt;`), one per editable region. Verbatim external artifacts marked `[VERBATIM — do not edit; &lt;source&gt;]` (edits there revert on the next pass).
+4. **(optional) one** `↳ Preview in situ: &lt;link&gt;` line.
+
+**BANNED from copy.md** — this is the operator's edit surface, not the production record. Keep ALL of the following OUT: the strategic thesis / rationale · the &quot;Current state&quot; or version-history changelog · per-section design or production annotations (`[v2.x: the radial auto-cycles…]`) · Brand-verdict commentary · production / deployment notes (timing, tile render specs, ESP setup). **Every one of those lives in `asset.md`** (the asset record + its audit-history section), never here. Structural changes (add/remove a section) go through chat with CM, not in-file.
+
+**Field sets by asset type** — same skeleton; only the fields differ (social vs web is *not materially* different — just shorter fields with character caps):
+
+| Asset type | Editable fields |
+|---|---|
+| Social tile | Headline · Body · Hashtags · Image alt |
+| X / OG share card | Title (≤70 chars) · Description (≤200 chars) · Image alt |
+| Email (single / sequence) | Subject · Preheader · Body · CTA (per email) |
+| Web / landing / long-form | One labelled block per `§N — &lt;name&gt;` page section (Eyebrow / H1 / Sub-head / Body / Caption / CTA) |
+
+Social / card / email fields carry inline **character limits**; everything else is identical.
+
+**Applies to**: landing pages · long-form articles · whitepaper sections · pricing/About pages · email single + sequences · social tiles · OG/share cards. **Does NOT apply to**: ad headline batches, social-post single bodies &lt;500 chars, microcopy, taglines (operator edits in chat).
+
+**Copy-review contract (v3, 2026-07-03) — MANDATORY.** Every asset that carries ANY copy MUST expose a copy-review surface the gallery can attach as the View + Source edit action. Declare it explicitly via top-level `copy_file:` (the `copy.md`, or the asset's primary prose `.md` — `about.md`, `edition-01.md`, `reveal-post.md`, etc.). **HTML-only assets ship a plain-text extract as `copy.md`** so the reviewer can read + edit the copy without opening the rendered page. The builder auto-falls-back (ship:true `.md` → Plan `Copy file` → largest non-record prose `.md`) and prints a **WARNING** when a copy-bearing asset resolves NO copy surface — that warning is a contract breach, not noise. `copy_file: none` is honoured only for genuinely copy-free visual primitives (a bare logo/stamp); anything with words attaches a copy surface.
 
 ### Setup cookbook(s) — REQUIRED for any asset with technical setup
 Bundled into the asset, not as a separate Pre-flight item (unless cross-asset). Examples:
@@ -2099,6 +2161,14 @@ Once Approved:
 <p><strong>Enforcement (2026-06-01 update)</strong>: <code>build-gallery.py</code> now WARNS LOUDLY (stderr block + per-folder list) when asset.yaml is missing from any asset folder. Operator caught the recurrence on Soundtrak campaign — the rule was on the books but no automated check enforced it. Re-occurrence after this update = P1. Producer must ship asset.yaml on every: landing page · long-form article · whitepaper section · sales-kit asset (pitch deck / battle cards / email templates) · social post · case study · web tool. Exempt: ad headline batches, microcopy single bodies, taglines.</p>
 <p><strong>Companion campaign-level file — <code>gallery-config.yaml</code></strong> lives at the campaign root (<code>campaigns/&lt;slug&gt;/gallery-config.yaml</code>) and declares the tenant's channel taxonomy. Two top-level keys: <code>channels:</code> (ordered list — drives gallery section order + asset.yaml <code>default_channel</code> valid values) and <code>channel_summaries:</code> (per-channel human-readable description shown under each channel heading). Missing config → build-gallery.py WARNS LOUDLY and falls back to generic <code>["Foundation", "Misc"]</code> skeleton. CM authors this file at Phase 1 (Brief approval) so downstream Producers know what channels exist before they author asset.yaml. See <code>campaigns/acme-launch-2026q2/gallery-config.yaml</code> for a working example.</p>
 <p><strong>HTML / MD sibling inheritance (gallery convenience)</strong>: when an asset has <code>cookbook.md</code> declared in the asset.yaml <code>files:</code> block AND a rendered <code>cookbook.html</code> sibling exists on disk, the gallery treats the HTML as the rendered preview of the same artifact — it inherits visibility (ship) AND metadata (title + asset_name) from the MD's declaration, and the type auto-promotes from <code>Foundation</code> (right for the source MD) to <code>Instance</code> (right for the rendered preview that operator reviews). Producers don't need to dual-declare the source + render pair in asset.yaml; just declare the source.</p>
+<p><strong>Gallery-surface data contract — ALWAYS-POPULATED FIELDS (v3, 2026-07-03)</strong>: the gallery lightbox standardises its naming, its "What this is" lead, its copy-review action, and its Plan trace from <code>asset.yaml</code> — so every asset MUST carry the data that populates them. Non-negotiable per asset:</p>
+<ul>
+<li><strong><code>asset_name</code></strong> — REQUIRED. The lightbox primary title is <code>#&lt;asset_id&gt; · &lt;asset_name&gt;</code> (never a raw filename or a <code>_</code>-scaffolding name). Omit it and the title degrades to a filename.</li>
+<li><strong><code>asset_id</code></strong> — REQUIRED, matches the Plan <code>#</code> (zero-padding is fine: <code>"01"</code> matches Plan <code>1</code>). Drives the <code>#id · name</code> title AND the Plan-row trace.</li>
+<li><strong><code>rationale</code></strong> — REQUIRED. The "What this is" block ALWAYS renders; it resolves per-file <code>review:</code> → asset <code>rationale:</code>/<code>summary:</code> → the Plan row's <code>Notes</code>/<code>Form</code> → a type-based default — but a written <code>rationale:</code> is the intended source. Do not rely on the fallback.</li>
+<li><strong>per-file <code>title:</code></strong> — REQUIRED on every <code>ship: true</code> file. It's the lightbox subtitle (the specific file under the <code>#id · name</code> heading) and the clean tile subtitle. Absent → a humanised filename is used as a last resort.</li>
+<li><strong>A copy-review surface</strong> — REQUIRED for every asset that carries any copy. Declare a top-level <code>copy_file:</code> (a <code>copy.md</code>, or the primary prose <code>.md</code> — e.g. <code>about.md</code>, <code>edition-01.md</code>). HTML-only assets ship a short <strong>text extract</strong> as <code>copy.md</code> so a View + Source copy surface always exists. If you declare nothing, the builder falls back (ship:true <code>.md</code> → Plan <code>Copy file</code> name → largest non-record prose <code>.md</code>) and WARNS to stdout if it still finds none — a build WARNING here means the copy-review contract is unmet; fix it.</li>
+</ul>
 <p><strong>Gallery modal rule — three blocks only (v2, 2026-06-04)</strong>: the approval lightbox shows exactly three things and nothing else:</p>
 <ol>
 <li><strong>Rationale</strong> — from <code>asset.yaml</code> <code>rationale:</code> field. Combined description + why-it-exists. What this asset is and what problem it solves. Operator-facing, decision-useful, one paragraph.</li>
@@ -2109,8 +2179,8 @@ Once Approved:
 <p><strong><code>## Flags for Brand Manager</code></strong> is the internal-only sibling — explicitly excluded from gallery extraction. Internal Brand-vs-Producer discipline stays out of the operator review surface.</p>
 <p>Section extraction uses H2 keyword match (operator / open question / next step / decision); only <code>kind === questions</code> and <code>kind === next-steps</code> sections render. Any other H2 section whose header happens to match "operator" or "decision" but isn't a gate-questions or next-steps block will be excluded by the kind filter.</p>
 <pre><code class="language-yaml">asset_id: &quot;0a&quot;                              # matches Plan asset list ID + folder prefix
-asset_name: &quot;Email template uplift&quot;
-default_channel: Email                      # Email · LinkedIn · YouTube · Audio · Adviser Pack · Foundation
+asset_name: &quot;Welcome page + first email&quot;    # = the Plan row's name, verbatim (do not invent)
+default_channel: Substack                   # = the Plan row's Channel, verbatim — one of THIS campaign's valid channels (the CM injects them; never a generic list)
 status: &quot;For Human Review&quot;                  # REQUIRED — gallery badge + filter. Values: &quot;For Human Review&quot; / &quot;Approved&quot; / &quot;In Production&quot;
 rationale: &gt;
   One paragraph: what this asset is + why it exists / what problem it solves.
@@ -2174,7 +2244,7 @@ files:
 <p><strong>Per-file channel override</strong> (when a single asset bundle spans multiple channels — e.g. visual templates that each serve different platforms):</p>
 <pre><code class="language-yaml">files:
   templates-preview/T1-sb-talks-episode-card.png:
-    channel: LinkedIn                       # overrides default_channel
+    channel: &quot;LinkedIn + social&quot;            # overrides default_channel for this file — still a valid campaign Plan channel
     type: Instance
     template_source: &quot;templates-html/T1-sb-talks-episode-card.html&quot;
     title: &quot;T1 — Acme Co Talks episode card (sample render)&quot;
@@ -2188,7 +2258,7 @@ files:
 <p><strong>Schema:</strong></p>
 <pre><code class="language-yaml">deployment:
   # ↓ Inherited from Brief tech_stack via integrations.yaml channel_defaults.
-  # Producer reads asset.default_channel → looks up channel_defaults[Email] → gets platform.
+  # Producer reads asset.default_channel (= the Plan channel) → looks up channel_defaults[&lt;channel&gt;] → gets platform.
   # Producer SHOULD NOT manually override unless asset diverges from campaign default.
   destination_type: email                   # email | intranet | social | static-site | print | drive | api | none
   platform: &quot;Mailchimp&quot;                     # inherited; explicit here for asset-level audit trail
@@ -2225,7 +2295,7 @@ files:
 compliance:
   # Written by CM from the governance-manager return at the Phase-4 governance gate (W1).
   # OPTIONAL + NO-RETROFIT: absent on assets with no Compliance Profile / no governance
-  # review. The verdict surfaces on the asset preview via the 
+  # review. The verdict surfaces on the asset preview via the &lt;!-- COMPLIANCE_AUTO --&gt;
   # marker — place it in preview.md right after &lt;!-- STATUS_AUTO --&gt;; rendered by
   # operator_actions.inject_compliance_line (emoji-coded ✅/⏸️/⛔ + disclaimers + counsel +
   # not-legal-advice note). Absent block = marker strips to nothing = existing behaviour.
@@ -2243,7 +2313,7 @@ resonance:
   # OPTIONAL + NO-RETROFIT: present ONLY on external-touchpoint assets in campaigns with an
   # Insight Brief — absent on internal/Foundation assets and on campaigns predating the
   # Insights Manager. Surfaces TWO ways from this one block: (1) the asset preview, via the
-  #  marker placed at the BOTTOM of the asset record (render.py →
+  # &lt;!-- RESONANCE_AUTO --&gt; marker placed at the BOTTOM of the asset record (render.py →
   # operator_actions.inject_resonance_line renders a titled &quot;### 🧭 On Strategy — resonance
   # read&quot; closing section — verdict pill + why + Fix); (2) the gallery lightbox, where
   # build-gallery.py reads this block directly and renders an &quot;On Strategy&quot; panel (kind-strategy)
@@ -2334,7 +2404,7 @@ Live (operator confirmed publication; URL set)
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>docs\specs\asset.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span>Source file: <code>docs\specs\asset.md</code></span>
   </footer>
 </body>
 </html>

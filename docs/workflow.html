@@ -369,7 +369,7 @@
   --border-strong: #d1d5db;
   --text: #111827;
   --text-muted: #6b7280;
-  --text-subtle: #9ca3af;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
   --accent: #2563eb;
   --accent-soft: #eff6ff;
   --success: #10b981;
@@ -1669,7 +1669,8 @@ body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid va
 body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
 body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
 body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
-body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 4px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
 body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
 body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
 body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
@@ -1906,6 +1907,22 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
 .resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
 .resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
 <body class="template-base">
@@ -1913,9 +1930,8 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
     <div class="page-header__inner">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../tenant/library/INDEX.html" title="Unified reference library">📚 Library</a></nav>
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
-        <span class="page-header__template" aria-hidden="true">base</span>
       </div>
     </div>
   </header>
@@ -2087,7 +2103,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 - If operator points to existing brand assets (HTML guide, voice doc, prior campaign, URL) — CM/CD extract + normalise into the tenant's durable Brand Context record (<code>docs/specs/brand-context.md</code>).
 - If absent — authored in <strong>Phase 0 (tenant baseline)</strong> before the first campaign (<code>docs/specs/phase-0-tenant-baseline.md</code>), not during the campaign. Phase 1 inherits it.
 - <strong>Canva brand kit</strong>: set up in Phase 0 (palette + fonts + logos) so Producer can use it in Mode B for all subsequent assets. Captured as <code>canva_brand_kit_id</code> in the Brand Context record.
-- Brand Context is durable per-tenant — reused on subsequent campaigns for the same business, updated as needed.</p>
+- Brand Context is durable per-tenant — reused on subsequent campaigns for the same business, updated as needed. Updating it (or any baseline section) is an <strong>idempotent re-run of Phase 0</strong>: say "update my brand" (or "update my voice / segments / market / compliance / channels") and CM detects what already exists, keeps what's right, interviews only the named/missing part, and gates the diff before writing — never a full redo, never a silent overwrite. See <code>docs/specs/phase-0-tenant-baseline.md</code> §"Idempotent re-run + section-scoped update".</p>
 <p><strong>Practitioner frameworks layering</strong>:
 - The practitioner frameworks (<code>craft/frameworks/</code>) and the tenant Brand Context don't conflict — they layer.
 - Frameworks = the practitioner-level discipline (the strategic playbook + marketing philosophy). Applies across ALL campaigns.
@@ -2095,7 +2111,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 - Per-step briefs cite both sources inline when pulling voice/principle slices. See <a href="../craft/frameworks/README.md"><code>craft/frameworks/README.md</code></a> for how the frameworks are used.</p>
 <p><strong>Insight Brief (Insights Manager)</strong>: once the objective + target segment(s) are set, CM dispatches the <strong>Insights Manager</strong>, which runs a disciplined multi-source web sweep (<code>insight-scan</code>) and authors the <strong>Insight Brief</strong> (<code>docs/specs/insight-brief.md</code>) — the <em>human</em> insight that fuels the big idea (identity / motivation / fear / aspiration), paired with its <em>market</em> context, <strong>per segment</strong>, every claim evidence-backed, plus a restorable "considered &amp; cut" kill register. It cites the shared <strong>research library</strong> (<code>tenant/research-library/</code>) and the durable tenant <strong>audience-truths</strong> first. The distilled insights surface on the Brief; §1 for the selected segment becomes a fixed input to the CD's concept.</p>
 <p><strong>Output</strong>: a 1-page <strong>Brief</strong> (<code>docs/specs/brief.md</code>, including the "insights that matter" sections) + the <strong>Insight Brief</strong> + a normalised <strong>Brand Context</strong> record (<code>docs/specs/brand-context.md</code>). All rendered to HTML for operator review.</p>
-<p><strong>Operator approval</strong>: opens <code>brief.html</code> (and <code>brand-context.html</code> if newly created) in browser; confirms facts + insights are right; replies in chat with verdict.</p>
+<p><strong>Operator approval</strong> — the single Phase-1 gate is the <strong>Brief, and that one verdict covers the insights that inform it</strong>: the operator opens <code>brief.html</code> (and <code>brand-context.html</code> if newly created), which surfaces the per-segment <strong>insight digest</strong> (+ named evidence) above the fold so the approval is <em>informed</em>, not a rubber-stamp; confirms the facts <strong>and</strong> the insights are right; replies in chat with one explicit verdict. That verdict approves <strong>both</strong> the Brief and the Insight Brief — CM <strong>derives the Insight Brief's approved-state from it</strong> (SYS-067: approved-<em>as-part-of</em>-the-Brief, never a separate gate). <strong>Scoped send-back</strong>: if only the insights are off ("the insights on segment X are wrong"), CM re-dispatches just the <strong>Insights Manager</strong> with the correction, not the whole Brief.</p>
 <h3 id="phase-2-concept-design-creative-trio">Phase 2 — Concept Design (creative trio)</h3>
 <p>CD authors <strong>three campaign options</strong> for operator to choose from, building each <em>on</em> the Insight Brief §1 for the selected segment(s). Each option contains: key audience insight (from the Insight Brief) + big idea + key message + moodboard / creative treatment.</p>
 <p>Trio shape: Safe / Smart / Wild by default. One marked <strong>Recommended</strong> with rationale tying the call to the Brief's KPI.</p>
@@ -2128,9 +2144,9 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 - <strong>Mode B — Canva MCP</strong>: text-led tiles, brand-kit layouts, recurring templates (scoreboard tiles, social-post tiles, ad creative variants), simple PDFs. Producer calls Canva MCP with the brand kit ID + a generation prompt or template ID; Canva returns a design + export URL; Producer downloads to <code>campaigns/&lt;slug&gt;/assets/&lt;asset&gt;/</code>. Typography exact by definition (Canva is a layout tool, not a generator).
 - <strong>Mode C — HTML/CSS</strong>: pure markup output (email signature, simple text tiles, embedded web components).</p>
 <p><strong>Producer runs in-agent self-QA</strong>: copy 3-layer sub-edit + visual 3-layer sub-edit (where applicable). If self-QA fails after 3 cycles, refuse-to-surface — back to CM for rescope.</p>
-<p><strong>Governance Manager reviews for compliance</strong> (sequence: Producer → Governance → Brand). Fires when the tenant has a Compliance Profile (<code>docs/specs/compliance-profile.md</code>); verdict <strong>Clear / Clear-with-disclaimers / Hold-for-operator / Block</strong>. CM writes the verdict to the asset's <code>asset.yaml</code> <code>compliance:</code> block, and it surfaces on the asset preview via the <code>` marker. **No-op when the tenant has no Compliance Profile** — existing behaviour, NO-RETROFIT. Governance is *red-flag-for-human-review*, not legal advice: a</code>hold<code>/</code>blocked` verdict routes the asset to the operator, never auto-publishes.</p>
+<p><strong>Governance Manager reviews for compliance</strong> (sequence: Producer → Governance → Brand). Fires when the tenant has a Compliance Profile (<code>docs/specs/compliance-profile.md</code>); verdict <strong>Clear / Clear-with-disclaimers / Hold-for-operator / Block</strong>. CM writes the verdict to the asset's <code>asset.yaml</code> <code>compliance:</code> block, and it surfaces on the asset preview via the <code>&lt;!-- COMPLIANCE_AUTO --&gt;</code> marker. <strong>No-op when the tenant has no Compliance Profile</strong> — existing behaviour, NO-RETROFIT. Governance is <em>red-flag-for-human-review</em>, not legal advice: a <code>hold</code> / <code>blocked</code> verdict routes the asset to the operator, never auto-publishes.</p>
 <p><strong>Brand Manager reviews behind the scenes</strong>: severity-rated findings. Pass / Pass-with-Required-Changes / Pass-with-Notes / Fail. (Where no Compliance Profile exists, Brand Manager keeps the mandatories check as a fallback.)</p>
-<p><strong>Insights Manager — advisory resonance read</strong> (sequence: … → Brand → Insights → operator). On every <strong>external-touchpoint</strong> asset, the Insights Manager reads the finished asset against the Insight Brief §1 for its segment and returns <strong>On-insight / Mixed / Off-key</strong>, anchored to a specific insight. CM writes it to <code>asset.yaml</code> <code>resonance:</code>; it surfaces on the preview via the `` marker. <strong>This is advisory — it never gates, never blocks, never sends back; the operator still decides.</strong> No-op when the campaign has no Insight Brief or the asset is internal/Foundation (NO-RETROFIT).</p>
+<p><strong>Insights Manager — advisory resonance read</strong> (sequence: … → Brand → Insights → operator). On every <strong>external-touchpoint</strong> asset, the Insights Manager reads the finished asset against the Insight Brief §1 for its segment and returns <strong>On-insight / Mixed / Off-key</strong>, anchored to a specific insight. CM writes it to <code>asset.yaml</code> <code>resonance:</code>; it surfaces on the preview via the <code>&lt;!-- RESONANCE_AUTO --&gt;</code> marker. <strong>This is advisory — it never gates, never blocks, never sends back; the operator still decides.</strong> No-op when the campaign has no Insight Brief or the asset is internal/Foundation (NO-RETROFIT).</p>
 <p><strong>CM applies unambiguous fixes automatically</strong>:
 - If Brand returns Pass-with-Required-Changes and the fixes are surgical (swap a word, drop hashtags, fix a verbatim brand-guide violation), CM applies them.
 - If Brand Fails, CM sends back to Producer with the findings. Counts toward 3-strike rule.
@@ -2243,6 +2259,8 @@ docs/
 <li><strong>CM does not create intermediate gates.</strong> Phases 1–3 have 3 gates (one each). Phase 4 has 1 gate per asset.</li>
 <li><strong>CM never surfaces an un-QA'd asset.</strong> Brand verdict must clear before the operator sees the asset.</li>
 <li><strong>CM re-renders HTML on every markdown write.</strong> Stale HTML is a worse failure mode than no HTML.</li>
+<li><strong>CM never converts a directional/conversational signal into an approval.</strong> Only an explicit <em>Approved / send back / kill</em> advances a gate. Picking a concept direction, accepting a name, or expressing an operating preference is <strong>directional, not a verdict</strong> — and a re-authored/integrated artifact (e.g. a concept the CD renamed or reframed after the pick) is a <strong>new draft that must be re-surfaced for a fresh explicit approval</strong> before the next phase fires. Per <code>feedback_verdicts_must_be_explicit.md</code> + <code>feedback_cm_does_not_self_approve.md</code>.</li>
+<li><strong>✅ on any operator surface means an explicit operator verdict — nothing else.</strong> The Phase-1/2/3 gates are the <strong>Brief</strong>, the <strong>concept pick</strong>, and the <strong>Plan</strong>. The <strong>Insight Brief</strong> is approved <em>as part of</em> the Brief (SYS-067) — so it may carry a ✅ <strong>only once the Brief is approved</strong> (a state CM derives from that verdict), never a standalone or pre-approval tick. Genuinely ungated inputs — the concept <strong>moodboard</strong>, the concept <strong>trio menu</strong> — never carry a ✅. Marking any of these "✅" without the backing verdict fabricates an approval and erodes gallery trust.</li>
 </ol>
 <hr>
 <h2 id="success-criterion-mvp-viability-test">Success criterion (MVP viability test)</h2>
@@ -2252,7 +2270,7 @@ docs/
   </main>
 
   <footer class="page-footer">
-    <span>Source: <code>Marketing AI System\docs\workflow.md</code> · Markdown is authoritative · Re-rendered on CM's next invocation</span>
+    <span>Source file: <code>Marketing AI System\docs\workflow.md</code></span>
   </footer>
 </body>
 </html>

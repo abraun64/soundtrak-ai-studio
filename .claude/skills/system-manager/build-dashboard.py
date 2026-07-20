@@ -204,7 +204,7 @@ def render_audit(entries: list, recent: int = 20) -> str:
             '<div class="arow">'
             f'<span class="adate">{esc(entry.get("date", ""))}</span>'
             f'<span class="aref">{esc(entry.get("ref", ""))}</span>'
-            f'<span class="adetail">{esc(entry.get("detail", ""))}</span>'
+            f'<span class="adetail">{esc(entry.get("note") or entry.get("detail", ""))}</span>'
             f'<span class="aevent">{esc(entry.get("event", ""))}</span>'
             "</div>"
         )

@@ -2,7 +2,7 @@
 
 **Spec version**: v1 · 2026-06-15 (extracted from CM SKILL.md — operator flagged it as "overkill" inline; it's a real check, just not skill-body material).
 
-CM runs this **before surfacing any Phase-4 asset to the operator**. The operator should never be the one who catches a gallery issue — that's CM's job. Read the asset's `asset.yaml` and verify each row against the Plan's **Review shape** + **Copy file** columns.
+CM runs this **before surfacing any Phase-4 asset to the operator**. The operator should never be the one who catches a gallery issue — that's CM's job. Read the asset's `asset.yaml` and verify each row against the Plan's **Review format** + **Copy file** columns.
 
 | Check | Verify | Fix if wrong |
 |---|---|---|
