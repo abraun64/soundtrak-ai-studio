@@ -421,6 +421,16 @@ def _action_tier(a: dict) -> str:
     return "action" if str(a.get("priority") or "P1").upper() in ("P0", "P1") else "nice"
 
 
+def display_num(asset_id) -> str:
+    """Normalise an asset id to the ONE plan/gallery numbering convention (SYS-099):
+    strip an optional 'A' prefix + leading zeros, but keep a lone zero (A0 / 00 → 0).
+    So the dashboard To Do + tasks queue show '#8', matching the plan (#8) and the
+    gallery (#8 / #8.1) — not the zero-padded folder prefix '#08'. Non-numeric ids
+    (a rare sub-lettered '8b') pass through unchanged; empty → ''."""
+    s = re.sub(r"^[Aa]", "", str(asset_id or "")).strip()
+    return str(int(s)) if s.isdigit() else s
+
+
 def build_action_table(actions: list, campaign_dir: "Path", link_prefix: str = "") -> str:
     """The styled To Do table — priority pill · task + asset-context · why + page-hint ·
     time · descriptive link. ONE renderer shared by the dashboard (link_prefix="",
@@ -451,7 +461,7 @@ def build_action_table(actions: list, campaign_dir: "Path", link_prefix: str = "
             # Asset-level (reviews / approvals) → link to the GALLERY, the operator's
             # review-and-approve surface (thumbnails · zoom · decision panels) — not the
             # dense asset record. The "On the page" hint still describes what to check.
-            asset_ctx = f'#{a["asset_id"]} · {_html.escape(a["asset_name"])}'
+            asset_ctx = f'#{display_num(a["asset_id"])} · {_html.escape(a["asset_name"])}'
             if a.get("channel"):
                 asset_ctx += f' · {_html.escape(a["channel"])}'
             gallery_href = (link_prefix + "gallery.html") if link_prefix else "gallery.html"

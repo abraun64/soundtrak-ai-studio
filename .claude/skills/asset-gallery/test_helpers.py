@@ -85,6 +85,17 @@ STALE_CASES = [
     (1000, None, False),                 # no ship mtime -> no signal
 ]
 
+# The copy-staleness tripwire (asset_ship_mtime in run_check) EXEMPTS binary visual
+# surfaces: a re-rendered/imported tile (.png from Canva, a Playwright PNG render) must
+# not flag the article copy.md as stale. Guard the exempt/non-exempt split so it can't
+# regress silently (the 2026-07-21 Canva-tile false-positive class).
+EXEMPT_SUFFIX_CASES = [
+    (".png", True), (".jpg", True), (".jpeg", True), (".webp", True),
+    (".gif", True), (".svg", True), (".mp4", True), (".mov", True),
+    (".html", False), (".md", False), (".pptx", False),   # copy-authored surfaces still trip
+    (".pdf", False), (".csv", False), (".docx", False),
+]
+
 
 def _run() -> int:
     fails = []
@@ -100,7 +111,11 @@ def _run() -> int:
         got = stale(cm, sm)
         if got != exp:
             fails.append(f"  _copy_stale_vs_render({cm!r}, {sm!r}) = {got!r}, expected {exp!r}")
-    total = len(SHIPS_CASES) + len(NID_CASES) + len(STALE_CASES)
+    for suffix, exp in EXEMPT_SUFFIX_CASES:
+        got = suffix in _bg._COPY_SYNC_EXEMPT_SUFFIXES
+        if got != exp:
+            fails.append(f"  {suffix!r} in _COPY_SYNC_EXEMPT_SUFFIXES = {got!r}, expected {exp!r}")
+    total = len(SHIPS_CASES) + len(NID_CASES) + len(STALE_CASES) + len(EXEMPT_SUFFIX_CASES)
     if fails:
         print(f"FAIL — {len(fails)}/{total} build-gallery parser cases failed:")
         print("\n".join(fails))

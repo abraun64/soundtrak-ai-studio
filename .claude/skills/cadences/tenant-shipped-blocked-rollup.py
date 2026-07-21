@@ -56,7 +56,11 @@ def shipped_this_period(tenant: str, now: float) -> list[tuple[str, int, str]]:
                 age = int((now - ay.stat().st_mtime) / 86400)
                 if age <= PERIOD_DAYS:
                     snippet = (status[:70] + "…") if len(status) > 70 else status
-                    out.append((f"{camp.name}/{ay.parent.name}", age, snippet))
+                    # SYS-099 — prefix the ONE plan/gallery number (#8, not the folder's
+                    # zero-padded 08-…) so the cadence standup names assets consistently.
+                    _m = re.match(r"^(\d+)", ay.parent.name)
+                    _n = f"#{int(_m.group(1))} · " if _m else ""
+                    out.append((f"{_n}{camp.name}/{ay.parent.name}", age, snippet))
     out.sort(key=lambda r: r[1])
     return out
 

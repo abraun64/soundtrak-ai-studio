@@ -1316,7 +1316,8 @@ body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weigh
 body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
 body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
 body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
-body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+/* SYS-099 — the asset number reads at a glance (was a faint grey suffix, easy to miss). */
+body.template-plan .pv3 .c-item .rid { color: var(--accent); font-weight: 700; }
 body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
 body.template-plan .pv3 .row-more { margin-top: 5px; }
 body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }

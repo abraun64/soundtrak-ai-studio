@@ -300,6 +300,18 @@ files:
   #     (e.g. preview.html thumbnails but full-html-preview/index.html is what ships),
   #     declare the real deliverable path here. "View in full" opens this file instead.
   #     Use when: complex interactive HTML pages that Playwright can't thumbnail cleanly.
+  #
+  # copy_file: "trailer-copy.md"   (or  copy_file: true)   — PER-TILE edit-copy source (SYS-099)
+  #   — By DEFAULT every tile's ✏️ Edit-copy button opens the ASSET-level `copy_file` (above).
+  #     That is correct for a single-deliverable folder, and for a folder built around ONE
+  #     unified copy source that mirrors into every surface (e.g. an edition whose `copy.md`
+  #     mirrors into the article + the trailer). But when a folder ships DELIVERABLES WITH
+  #     GENUINELY SEPARATE COPY — an article tile and a paired social tile whose words differ
+  #     — declare each tile's own source here so its button opens THAT deliverable's copy, not
+  #     a folder-level default. String = a path (relative to the asset folder). `true` = THIS
+  #     file IS its own copy surface (an inherited HTML tile resolves to its `.md` sibling).
+  #   — Precedence: per-tile `copy_file` → asset-level `copy_file` → fallback chain. Without a
+  #     per-tile value the old per-folder behaviour is unchanged, so this is purely additive.
 
 files:
   master-template.html:
@@ -333,6 +345,28 @@ files:
 ```
 
 See `.claude/agents/producer/AGENT.md` Step 4.5 for the full schema + type/role definitions + gallery-publish discipline.
+
+### Multi-deliverable folders — file-naming convention (SYS-099)
+
+When one asset folder ships **several deliverables** (the gallery sub-numbers them `N.1 / N.2 / N.3`
+per SYS-097), the files inside must stay **legible** so the operator — and the edit-copy mirror
+pipeline — can tell which file belongs to which deliverable. Two rules:
+
+1. **Number the deliverable's files with its sub-number.** A deliverable that surfaces as tile `5.2`
+   carries its sub-number on its own files: `05.2-trailer-tile.html`, `05.2-trailer-copy.md`,
+   `05.2-trailer-tile.png`. Shared/foundation files (the asset record, a folder-wide moodboard)
+   keep the plain asset prefix. This makes the folder self-documenting: a stray file's number tells
+   you which tile it feeds. (A single-deliverable folder needs no sub-numbers — keep the plain names.)
+2. **One canonical, declared edit-copy per deliverable — never an ad-hoc fork.** Each deliverable's
+   editable copy is a single file, declared as that tile's `copy_file` (above). Do **not** hand-create
+   parallel working copies like `Linkedin-copy-AB edits.md` — a file nothing points to strands the
+   operator's edits (the button opens the stale canonical) and the mirror pipeline can't find them.
+   If copy must be edited, edit the **declared** file; the render + the button both follow it.
+
+> **Why (SYS-099):** the lightbox edit-copy button used to resolve once per FOLDER, so every tile in a
+> multi-deliverable folder opened the same file. Combined with ad-hoc fork filenames, an operator's live
+> edits could sit in a file the button never opened. Per-tile `copy_file` + numbered files close both gaps —
+> the button follows explicit data, and the folder reads at a glance. See `feedback_edit_copy_syncs_with_render`.
 
 ---
 

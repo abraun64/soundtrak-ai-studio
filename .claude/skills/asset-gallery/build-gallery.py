@@ -764,6 +764,16 @@ def _normalize_asset_id(raw) -> str:
 # later in one work session is fine; a mirror skipped across sessions sits ~a day behind.
 COPY_RENDER_DRIFT_SECONDS = 14400  # 4 hours
 
+# Binary visual surfaces are NOT authored from copy_file, so they are EXEMPT from the
+# copy-staleness tripwire (asset_ship_mtime). A .png/.jpg ship surface is either (a) a
+# second-order render of an HTML/MD surface — already covered by that surface's own mtime
+# in this same check — or (b) an independent operator import (e.g. a tile built in Canva
+# and dropped in). Either way it moves on its own clock, unrelated to copy.md; counting it
+# would fire a false "copy.md is stale" every time a tile is re-rendered or imported. These
+# suffixes stay counted in the SEPARATE gallery-staleness check (newest_ship_mtime), which
+# legitimately requires gallery.html to be newer than ANY ship file, images included.
+_COPY_SYNC_EXEMPT_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg", ".mp4", ".mov"}
+
 
 def _copy_stale_vs_render(copy_mtime, ship_mtime, threshold: float = COPY_RENDER_DRIFT_SECONDS) -> bool:
     """True if the edit-copy is STALE against the shipped surface — i.e. `ship_mtime` is
@@ -968,6 +978,22 @@ def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict
     else:
         groupby_toggle_html = ""
 
+    # SYS-097 — display number with 4.1 / 4.2 / 4.3 sub-numbers when one asset number has
+    # several deliverable tiles; plain "N" for a single-tile asset (leading zeros stripped).
+    _num_groups: dict = {}
+    for _t in tiles:
+        _num_groups.setdefault(_normalize_asset_id(_t.get("asset_id")), []).append(_t)
+    for _nid, _ts in _num_groups.items():
+        if not _nid:
+            for _t in _ts:
+                _t["display_num"] = ""
+            continue
+        _base = str(int(_nid)) if _nid.isdigit() else _nid
+        if len(_ts) == 1:
+            _ts[0]["display_num"] = _base
+        else:
+            for _i, _t in enumerate(_ts, 1):
+                _t["display_num"] = f"{_base}.{_i}"
     tiles_json = json.dumps(tiles, ensure_ascii=False)
     foundation_json = json.dumps(foundation_docs, ensure_ascii=False)
 
@@ -1056,6 +1082,18 @@ def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict
             'The contract: Plan <code>Ships</code> = asset.yaml <code>ship:true</code> = gallery tiles, 1:1. '
             'Reconcile by updating the Plan or the asset.</div>'
             f'<ul style="margin:0;padding-left:2px;list-style:none;font-size:13px;">{_rows}</ul></details>'
+        )
+
+    # SYS-098 — the reconciliation DETAIL moves to the BOTTOM of the gallery; only a compact
+    # deviation alert stays at the top (and only when there ARE deviations), so the gallery
+    # leads with the assets while a real Plan mismatch still catches the eye.
+    reconciliation_top_html = ""
+    if reconciliation and not _rec.get("ok") and _devs:
+        reconciliation_top_html = (
+            '<div class="plan-reconciliation-alert" style="background:rgba(245,158,11,0.10);'
+            'border:1px solid #f59e0b;border-left:3px solid #f59e0b;border-radius:6px;margin:14px 24px 0;'
+            'padding:8px 16px;font-size:12px;color:#b45309;font-weight:600;">'
+            f'⚠️ {len(_devs)} deviation(s) from the approved Plan — see "Plan reconciliation" at the bottom.</div>'
         )
 
     html = f"""<!DOCTYPE html>
@@ -1438,11 +1476,13 @@ main.page-main {{ padding: 24px 24px 64px; }}
   {groupby_toggle_html}
 </div>
 
-{reconciliation_banner_html}
+{reconciliation_top_html}
 
 {strategy_banner_html}
 
 <main id="gallery" class="page-main"></main>
+
+{reconciliation_banner_html}
 
 <div class="lightbox" id="lightbox">
   <button class="nav-arrow prev" onclick="event.stopPropagation(); navigateLightbox(-1);" aria-label="Previous">‹</button>
@@ -1522,7 +1562,7 @@ function renderTileCard(t) {{
   const videoOverlay = t.is_video ? '<span class="tile-video-overlay" aria-hidden="true"></span><span class="tile-duration-badge">▶ video</span>' : '';
   // v3: name line = plain plan name; subtitle = plain plan description (fallback to file title).
   const nameCore = t.asset_name || t.file_title || t.title || t.name;
-  const nameLine = (t.asset_id ? '#' + t.asset_id + ' · ' : '') + nameCore;
+  const nameLine = (t.display_num ? '#' + t.display_num + ' · ' : (t.asset_id ? '#' + t.asset_id + ' · ' : '')) + nameCore;
   const sub = t.plan_desc || t.file_title || t.title || '';
   const subLine = (sub && sub !== nameCore) ? sub : '';
   return `
@@ -2072,7 +2112,10 @@ def run_check(campaign_dir: Path) -> int:
                         failures.append(f"{d.name}: ship:true file missing on disk -> {rel}")
                     else:
                         newest_ship_mtime = max(newest_ship_mtime, fp.stat().st_mtime)
-                        if rel != copy_rel:
+                        # Copy-staleness tripwire excludes binary visual surfaces (see
+                        # _COPY_SYNC_EXEMPT_SUFFIXES): a re-rendered/imported tile must not
+                        # flag the article copy as stale.
+                        if rel != copy_rel and Path(rel).suffix.lower() not in _COPY_SYNC_EXEMPT_SUFFIXES:
                             asset_ship_mtime = max(asset_ship_mtime, fp.stat().st_mtime)
                 for key in ("production_file", "view_source", "copy_file"):
                     v = fmeta.get(key)
@@ -2649,8 +2692,26 @@ def main():
 
             # Change 4 — resolve the copy-review surface with the full fallback chain,
             # then warn ONCE per asset if a copy-bearing asset has no copy surface.
+            # SYS-099: resolve PER DELIVERABLE, not per folder. A multi-deliverable asset
+            # (e.g. an edition + its LinkedIn trailer in one folder) must point each tile's
+            # edit-copy button at ITS OWN source, not one folder-level default. Precedence:
+            #   1. this tile's own `files:` entry `copy_file` — a string path to its editable
+            #      source, or `true` meaning THIS file is its own copy surface
+            #   2. the asset-level `copy_file` (single-deliverable folders — unchanged)
+            _tile_cf = file_meta.get("copy_file")
+            if _tile_cf is True:
+                # this file IS its own copy; point at the .md (an inherited html tile swaps
+                # to its md sibling, which is the real editable source)
+                _own = rel_to_asset
+                if _own.lower().endswith(".html"):
+                    _own = _own[:-len(".html")] + ".md"
+                tile_copy_file_val = _own
+            elif isinstance(_tile_cf, str) and _tile_cf.strip():
+                tile_copy_file_val = _tile_cf.strip()
+            else:
+                tile_copy_file_val = asset_meta.get("copy_file", "")
             copy_file_resolved = _resolve_copy_file(
-                asset_meta.get("copy_file", ""), asset_dir, campaign_dir,
+                tile_copy_file_val, asset_dir, campaign_dir,
                 files_block=files_block, plan_row=plan_row)
             if asset_dir not in _copy_checked_dirs:
                 _copy_checked_dirs.add(asset_dir)

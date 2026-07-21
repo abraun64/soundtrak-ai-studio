@@ -10,6 +10,30 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+## [1.4.0] — 2026-07-21
+
+### Added
+- **A readability check before anything reaches you.** Every operator surface is now checked to read clearly for a marketer who didn't write it — no internal codes, file names, or jargon — before it is put in front of you for review, so what you are asked to approve is always plain and self-explanatory.
+- **One consistent "Campaign DNA" panel at the top of every artifact.** The Brief, Insight Brief, Concept, Plan and dashboard now all open with the same compact summary — objective, big idea, primary KPI — the one you already know from the dashboard, instead of a different crammed header on each page.
+- **A "For review" status on campaign boards.** The dashboard now distinguishes work the AI is still producing from work waiting on your review, so you can see at a glance whose court the ball is in.
+- **Consistent asset numbering across the plan and the gallery.** Every asset carries one number, with sub-numbers for the several deliverables under it, so you can map any gallery tile straight to its plan row and back — and each deliverable is uniquely referenceable.
+- **A subtle product footer with a one-click licence link on every rendered page** — clear attribution, and the licence is always one click away.
+- **Total human time on every campaign dashboard**, shown next to total AI cost — the two halves of "what has this campaign cost me".
+
+### Changed
+- **A whole-of-product plain-language and usability pass.** Every operator surface was reviewed and reworked for a non-author to act on: plain English throughout, one consistent name for your action-items, a coherent breadcrumb on every page, tables that stay legible on a laptop, friendlier empty states, and accessibility-grade (WCAG AA) contrast — done at the shared template layer, so every surface improved at once.
+- **Briefs now follow one canonical template.** Every Brief reads the same way, in the same order, in plain section names — understandable by someone who did not write it — with a structure check that keeps it consistent across campaigns.
+- **The Insight Brief opens with what matters** — a lean "what the campaign is + who it is for" block — and now uses the full screen width like the other surfaces.
+- **The campaign dashboard leads with the numbers that matter.** KPIs and Budget are open by default, redundant and internal blocks were dropped, and the metadata header paragraph was removed from every artifact so each page opens on its useful content.
+- **The gallery leads with your assets, not a QA audit.** A plan-vs-produced mismatch still catches the eye, but only when there is a genuine deviation.
+- **Fewer ways for surfaces to quietly disagree.** The tenant hub, baseline page and campaign dashboard now single-source a tenant's status and summary, and the operator guides are single-sourced too, so one edit reaches the page you actually open.
+- **The Plan's asset table uses a self-evident column name** instead of internal "review shape" wording.
+
+### Fixed
+- **Every "Edit copy" button opens the right file.** In an asset with several deliverables, each one's button now resolves to its own current source instead of a shared folder default — so you never open the wrong or a stale copy.
+- **AI-cost figures stay trustworthy as caching varies** — per-phase and per-campaign costs are now caching-aware, rather than one blended rate that drifts as cache-heavy and cache-light work mix.
+- **Documented examples render faithfully** — the render step no longer consumes marker text shown inside code examples in the reference docs, making a full re-render of every surface safe.
+
 ## [1.3.0] — 2026-07-14
 
 ### Added

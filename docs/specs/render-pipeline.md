@@ -39,6 +39,19 @@ The cross-campaign surfaces are **generated**, not hand-authored. `operator_acti
 - **Phase 5/6 plan-gate collapse** (`collapse_phase_plan_actions`, applied to both tasks.html and the dashboard To Do): when a campaign has a `phase-5-rollout.md` / `phase-6-cadence.md`, that doc is the execution checklist, so its phase's `blocks_launch` **step** actions are removed from the task lists and replaced by **one** *"Approve the Phase N plan"* gate row **while the doc's `**Plan status**` line says Draft**. Approval = trim that line to `✅ Approved` → the gate clears on next render. Non-step actions tagged to the phase stay visible. The dashboard's blocker COUNT (`derive_blocks_launch`) re-scans `asset.yaml` independently and is unaffected. Index-card surface links for these docs read **🚀 Execute & Launch** / **🔄 Manage & Report**.
 - **Brand-recs queue footer** (`_split_rec_pointers` + `_rec_pointer_footer`): an `operator_action` whose `where` targets `tenant-brand/_recommendations-queue.md` is an asset-verdict recommendation (durable, no time pressure), so it is **not** a task row — it renders as one muted footer line at the **bottom** of that campaign's group ("📋 Items queued from asset verdicts — no time pressure. See the recommendations queue ↗"), linking to the rendered `_recommendations-queue.html`. Applies to both tasks.html and the dashboard To Do.
 
+### One asset-number convention across every surface (SYS-097 / SYS-099)
+
+Each asset carries **one number** — its Plan id with the `A`-prefix and leading zeros stripped, but a lone zero kept (`A8` → **#8**, `A0` → **#0**, folder `08-…` → **#8**). That same `#N` is rendered everywhere the asset is named, so an operator can trace any item back to the Plan at a glance:
+
+| Phase | Surface | Where the number is produced |
+|---|---|---|
+| 3 | **plan.html** | `render.py transform_plan` — `#N` badge before the name (accent, bold) |
+| 4 | **gallery.html** | `build-gallery.py display_num` — `#N`, or `#N.1 / #N.2` sub-numbers when one asset ships several deliverable tiles |
+| 5 | **dashboard To Do + tasks.html** | `operator_actions.display_num(asset_id)` — `#N · name` on each action row |
+| 6 | **cadence rollup** | `tenant-shipped-blocked-rollup.py` — `#N · camp/NN-folder` on shipped lines |
+
+The rule of thumb: **never surface the raw zero-padded folder prefix (`#08`)** — always normalise through the shared logic so the Plan (#8), the gallery (#8 / #8.1) and the task rows (#8) read as the same asset. The gallery's deep-link anchor (`gallery.html#<asset_id>`) is the one exception — it matches the raw tile id and is functional, not displayed.
+
 ## Current fragility points
 
 1. **No Python version floor.** Any of the five scripts could break silently on Python 3.10 vs 3.14 behavioral differences. Playwright in particular has version-specific behavior.

@@ -520,8 +520,16 @@ def transform_plan(body_html: str) -> str:
         for r in rows:
             tp = ('<span class="tpill tpill--setup">Setup</span>' if r["is_setup"]
                   else '<span class="tpill tpill--asset">Asset</span>')
-            rid_l = f' <span class="rid">#{r["id"]}</span>' if r["id"].isdigit() else ""
-            item = f'<span class="rnm">{r["name"]}</span>{rid_l}'
+            # SYS-097/SYS-099 — show the asset number on the plan, matching the gallery
+            # convention ("#N · Name"). Strip the "A" prefix, then normalise digits via int()
+            # so leading zeros drop but ZERO survives (A4 → 4, A14 → 14, 04 → 4, A0 → 0 — the
+            # old `.lstrip("0")` turned "A0" into an empty string, so the top row rendered
+            # numberless). Setup (S-) rows stay unnumbered. Rendered as a visible badge BEFORE
+            # the name so the number reads at a glance, not a faint grey suffix.
+            _digits = re.sub(r"^[Aa]", "", str(r["id"]))
+            _rn = str(int(_digits)) if _digits.isdigit() else ""
+            rid_l = f'<span class="rid">#{_rn}</span> ' if _rn != "" else ""
+            item = f'{rid_l}<span class="rnm">{r["name"]}</span>'
             if r["desc"]:
                 item += f'<span class="rds">{html_lib.escape(r["desc"])}</span>'
             extra = []
