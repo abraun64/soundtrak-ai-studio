@@ -2,6 +2,13 @@
 
 *The AI studio that 10Xs your marketing — from Soundtrak Consulting.*
 
+> **⚠️ COMMERCIAL USE IS NOT PERMITTED.**
+> This software is licensed only for the **internal business use** of you and your own company
+> (including marketing your own business). **Agency use, client work, SaaS or hosted offerings,
+> resale, OEM use, and any other commercialisation require a separate commercial licence** from
+> Soundtrak Consulting. **By cloning, downloading, installing, or using this repository you agree
+> to the licence** — see [`LICENSE`](LICENSE). Not open source.
+
 A multi-agent marketing system built on Claude Code. A **Campaign Manager** skill
 orchestrates specialist agents (Creative Director, Brand Manager, Producer, Governance,
 Insights) to take a campaign from brief to shipped, brand-checked assets - with the

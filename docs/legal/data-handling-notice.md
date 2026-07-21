@@ -13,6 +13,13 @@
   **your own agreement with Anthropic and Anthropic's terms and privacy policy** — please review
   those. Soundtrak Consulting is not a party to that processing.
 
+- **You must comply with your AI provider's Acceptable Use Policy.** As a condition of using this
+  software, you must comply with the terms, usage policies, and **Acceptable Use Policy** of Anthropic
+  (and of any other AI or LLM provider you configure it to use) — including their restrictions on
+  prohibited content and uses. You use your own API keys and account; **you are solely responsible for
+  all activity under them**, and any suspension, ban, rate-limit, or cost your provider applies is
+  between you and that provider. Soundtrak Consulting has no responsibility for it.
+
 - **Third‑party publishing tools.** If you connect publishing or analytics tools (e.g. an email
   platform, social accounts, web analytics), any data you send to them is governed by **those
   providers' terms**. Credentials are stored on your machine as environment variables and are

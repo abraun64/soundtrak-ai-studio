@@ -10,6 +10,17 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+## [1.5.0] — 2026-07-21
+
+### Changed
+- **Hardened the license for public release.** The PolyForm Internal Use License now carries a complete set of Soundtrak Additional Terms: the **licensor is identified** (Andrew Braun trading as Soundtrak Consulting, ABN 76 312 469 616); a **binding governing-law + exclusive-jurisdiction clause** (Victoria, Australia) with a global carve-out for non-excludable mandatory laws; **survival**, **no-professional-advice**, **compliance**, **third-party-software**, **export/sanctions**, **individual-claims**, and **one-year limitation** clauses; a **broadened indemnity** (AI outputs, infringing prompts/content, privacy, regulatory investigations); and an explicit **third-party-beneficiary** right for Andrew Braun. A second review pass then added an **indemnity carve-out** for the Protected Parties' own gross negligence or wilful misconduct (the Australian Unfair-Contract-Terms fix), an **output-ownership** clause (you retain the rights in what you generate, subject to the AI providers' terms), an explicit **order of precedence** (the Soundtrak Additional Terms prevail over the PolyForm base on any conflict), and a condition that your use complies with your **AI provider's Acceptable Use Policy**. Internal drafting notes were removed.
+
+### Added
+- A prominent **commercial-use notice** at the top of the README, a **`CONTRIBUTING.md`** (no unsolicited contributions; CLA required if invited), and a **`COMMERCIAL-LICENSE.md`** pointer for agency/SaaS/OEM/resale enquiries.
+
+### Fixed
+- **Gallery "Edit copy" buttons open the right deliverable.** In an asset that ships several deliverables, a ship-complete markdown deliverable (for example an article's `edition.md`) now opens its own source from the gallery, instead of falling back to a shared folder-level copy file.
+
 ## [1.4.0] — 2026-07-21
 
 ### Added

@@ -2708,6 +2708,13 @@ def main():
                 tile_copy_file_val = _own
             elif isinstance(_tile_cf, str) and _tile_cf.strip():
                 tile_copy_file_val = _tile_cf.strip()
+            elif rel_to_asset.lower().endswith(".md") and not _NON_COPY_MD_RE.search(Path(rel_to_asset).name):
+                # SYS-099 follow-up: a ship:true .md deliverable IS its own copy surface.
+                # Its edit-copy button must open the tile's OWN markdown, not a shared
+                # folder-level copy.md. This is what makes the article tile `edition.md`
+                # open edition.md (and `trailer.md` open trailer.md) instead of the folder's
+                # `copy_file: copy.md`. An explicit per-tile copy_file (above) still overrides.
+                tile_copy_file_val = rel_to_asset
             else:
                 tile_copy_file_val = asset_meta.get("copy_file", "")
             copy_file_resolved = _resolve_copy_file(

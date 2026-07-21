@@ -1,9 +1,12 @@
 # License — Soundtrak AI Studio
 
-> The PolyForm text below is reproduced verbatim; the wrapper above it is
-> Soundtrak's, and the plain-language summary does **not** override the license text, which controls.
+> This license has two parts: the **Soundtrak Additional Terms** (the wrapper below the summary) and the
+> **PolyForm Internal Use License 1.0.0** (reproduced verbatim further below, the base). The plain-language
+> summary is a summary only and does **not** override the license text, which controls. In the event of any
+> conflict between the PolyForm base text and the Soundtrak Additional Terms, the **Soundtrak Additional Terms
+> prevail to the maximum extent permitted by law**.
 
-Copyright © 2026 Soundtrak Consulting. All rights reserved except as expressly granted below.
+Copyright © 2026 Andrew Braun trading as Soundtrak Consulting (ABN 76 312 469 616). All rights reserved except as expressly granted below.
 
 The **Soundtrak AI Studio** ("the software") is licensed under the
 **PolyForm Internal Use License 1.0.0** — full text below.
@@ -18,9 +21,11 @@ The **Soundtrak AI Studio** ("the software") is licensed under the
 
 ## ⚠️ No warranty · use entirely at your own risk · no liability
 
-> *(These Soundtrak Additional Terms are drafted to give the broadest protection the law allows. They supplement, and where permitted strengthen, the "No Liability" clause of the PolyForm license below. No wording can stop a person from filing a claim; what these terms do is disclaim warranties, place the risk on the user, cap liability at effectively nil, and give the people behind the project a complete defence.)*
+> *(These Soundtrak Additional Terms supplement, and where permitted strengthen, the "No Liability" clause of the PolyForm license below. The license text is what legally controls.)*
 
 These Additional Terms are a condition of, and are accepted as part of, your license to the software.
+
+**Who these terms are with (the Licensor).** The licensor of the software is **Andrew Braun trading as Soundtrak Consulting (ABN 76 312 469 616)**, of Victoria, Australia — referred to in these Additional Terms as "Soundtrak Consulting", "we", or "us".
 
 **Acceptance — by downloading, you agree.** By downloading, cloning, copying, installing, accessing, running, or otherwise using the software (or any part of it, or any work based on it), you acknowledge that you have read and understood these terms and agree to be bound by them. **If you do not agree, do not download, access, or use the software.**
 
@@ -37,19 +42,37 @@ These Additional Terms are a condition of, and are accepted as part of, your lic
 
 You are solely responsible for backing up your data and systems, for your own security controls, and for ensuring your use of the software and its output is lawful and compliant in your jurisdiction.
 
+**Ownership of output.** As between you and the Licensor, you retain all rights you may have in the output you generate through your use of the software, and the Licensor claims no ownership of it. Your rights in output are subject to the terms of the underlying third-party AI providers and to any third-party rights in the material you input. The Licensor makes no representation that any output is original, protectable by intellectual-property rights, non-infringing, or free to use, and you are responsible for reviewing and clearing rights in it before relying on, publishing, or distributing it.
+
+**No professional advice.** The software does not provide legal, accounting, financial, tax, compliance, medical, or other professional advice, and no output is a substitute for advice from a qualified professional. You remain solely responsible for obtaining independent professional advice where appropriate before acting on the software or its output.
+
+**Your compliance is your responsibility.** You are solely responsible for ensuring that your use of the software and any output complies with all laws, regulations, industry codes, and contractual obligations applicable in your jurisdiction — including privacy, data-protection, consumer-protection, intellectual-property, advertising, electronic-messaging/anti-spam, employment, and AI-specific laws. The software may transmit prompts, metadata, or content you choose to work on to third-party AI providers and to any other services you connect; you are responsible for ensuring you have the right to transmit that information. See `data-handling-notice.md`.
+
 **No liability — to the maximum extent permitted by law.** To the maximum extent permitted by law, in no event will the Protected Parties be liable to you or to any third party for any loss or damage of any kind arising out of or in connection with these terms, the software, its output, or your use of or inability to use it — whether the claim is in contract, tort (including negligence), statute, or any other theory, and whether or not a Protected Party was advised of, knew of, or should have known of the possibility of that loss or damage. This applies to all loss or damage, including (without limitation) direct, indirect, incidental, special, consequential, exemplary, and punitive loss or damage, and any loss of profit, revenue, goodwill, business, opportunity, data, or anticipated savings, and any business-interruption or security-incident cost. **To the extent any liability cannot lawfully be excluded but can be limited, the Protected Parties' total aggregate liability for all claims is limited, at the relevant Protected Party's option, to re-supplying the software or to AUD $100 — whichever is lower.** The software is supplied free of charge, and this allocation of risk is a fundamental basis on which it is made available.
 
-**Indemnity.** To the maximum extent permitted by law, you will indemnify, defend, and hold harmless the Protected Parties from and against all claims, demands, proceedings, liabilities, damages, losses, penalties, fines, and costs (including reasonable legal costs) arising out of or in connection with your download, use, modification, or distribution of the software or its output, your breach of these terms, or your violation of any law or any third-party right.
+**Indemnity.** To the maximum extent permitted by law, you will indemnify, defend, and hold harmless the Protected Parties from and against all claims, demands, proceedings, liabilities, damages, losses, penalties, fines, and costs (including reasonable legal costs) arising out of or in connection with your download, use, modification, or distribution of the software or its output, your breach of these terms, or your violation of any law or any third-party right — including (without limitation) any claim arising from: (a) your use of, or reliance on, any AI-generated output; (b) any content, prompt, brief, or material you supply to or process with the software, including any allegation that it infringes intellectual-property, privacy, or other rights; (c) any privacy or data-protection breach; and (d) any regulatory investigation, inquiry, or proceeding relating to your use. This indemnity does not apply to the extent that a claim or loss is directly caused by the gross negligence or wilful misconduct of the Protected Parties.
 
-**Who is protected ("Protected Parties").** These disclaimers, exclusions, limitations, and indemnities are for the benefit of, and may be relied on and enforced by, **Soundtrak Consulting, Andrew Braun, and each of their respective related entities, owners, directors, officers, employees, agents, and contributors** — each a "Protected Party". **Andrew Braun is named individually and deliberately: to the extent the law allows, no claim arising from the software lies against him personally.**
+**Who is protected ("Protected Parties").** These disclaimers, exclusions, limitations, and indemnities are for the benefit of, and may be relied on and enforced by, **Soundtrak Consulting, Andrew Braun, and each of their respective related entities, owners, directors, officers, employees, agents, and contributors** — each a "Protected Party". **Andrew Braun is named individually and deliberately: to the extent the law allows, no claim arising from the software lies against him personally. Andrew Braun is an intended third-party beneficiary of these terms and may rely upon and enforce every disclaimer, exclusion, limitation of liability, and indemnity in them.**
 
 **Your non-excludable rights.** Some laws (for example, the Australian Consumer Law) imply guarantees or confer rights and remedies that cannot lawfully be excluded, restricted, or modified. **Nothing in these terms excludes, restricts, or modifies any such right, guarantee, or remedy that you have and that cannot lawfully be excluded.** Where the law allows a Protected Party to limit (rather than exclude) its liability for breach of such a right, that liability is limited as set out above. If any part of these terms is held unenforceable, it is severed and the remainder continues in force, and each disclaimer, exclusion, and limitation operates independently of the others.
+
+## General
+
+**Survival.** The provisions relating to disclaimers of warranty, assumption of risk, exclusion and limitation of liability, indemnity, no professional advice, your compliance, intellectual property and trademarks, governing law, and dispute resolution survive any expiry or termination of your licenses (including termination under the PolyForm "Violations" clause below) and continue to apply.
+
+**Individual claims.** To the maximum extent permitted by law, any claim relating to the software may only be brought in your individual capacity, and not as a plaintiff or class member in any purported class, representative, or collective proceeding.
+
+**Time limit for claims.** To the maximum extent permitted by law, any claim relating to the software or its output must be commenced within one (1) year after the cause of action first arises, unless a longer period applies that cannot lawfully be excluded.
+
+**Third-party software.** The software uses and integrates with third-party software, AI models, services, and APIs (for example, AI providers such as Anthropic, and any publishing or analytics tools you connect). Each of these remains subject to its own license and terms, which govern your use of it. These terms grant you no rights in that third-party software, and the Protected Parties are not responsible for it.
+
+**Export and sanctions.** You represent that you are not located in, under the control of, or a national or resident of, any jurisdiction subject to applicable export-control or economic-sanctions restrictions that would make your download or use of the software unlawful, and that you will not use or export the software in violation of any such restriction.
 
 ## Trademarks
 This license covers the **code only**. It grants **no rights** to the "Soundtrak" name, logo, or other Soundtrak marks — see `TRADEMARK.md`.
 
-## Governing law
-The PolyForm Internal Use License is intentionally jurisdiction‑neutral, which keeps it usable worldwide. Soundtrak Consulting intends any dispute under or relating to these terms to be governed by the **laws of Australia**, without limiting the license's worldwide application. Your counsel should confirm whether and how to attach a binding governing‑law and forum clause.
+## Governing law and jurisdiction
+The PolyForm Internal Use License is intentionally jurisdiction‑neutral, which keeps the software usable worldwide, and these Additional Terms keep it so. These terms are governed by the **laws of Victoria, Australia** — **except where the mandatory laws of another jurisdiction apply to you and cannot lawfully be excluded**, in which case those mandatory laws apply to that extent. The parties submit to the **exclusive jurisdiction of the courts of Victoria, Australia and the Federal Court of Australia** for any dispute under or relating to these terms, except that Soundtrak Consulting may seek urgent or injunctive relief in any court of competent jurisdiction. Choosing this governing law does not limit the license's worldwide application, nor deprive you of the protection of any mandatory law that applies to you and cannot be excluded.
 
 ---
 

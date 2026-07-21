@@ -1,7 +1,7 @@
 # NOTICE
 
 Soundtrak AI Studio
-Copyright © 2026 Soundtrak Consulting.
+Copyright © 2026 Andrew Braun trading as Soundtrak Consulting (ABN 76 312 469 616).
 
 Licensed under the PolyForm Internal Use License 1.0.0 — see `LICENSE.md`.
 "Soundtrak", "Soundtrak AI Studio", and the Soundtrak logo are trademarks of
