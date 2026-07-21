@@ -1788,7 +1788,7 @@ function openLightbox(idx) {{
   document.getElementById('lb-source').href = (t.view_source || t.source) || '#';
   // Change 1 — standardised naming: primary title = "#<id> · <asset_name>" (never a raw
   // filename or a _scaffolding name); the specific file is a smaller subtitle line.
-  const idPart = t.asset_id ? ('#' + t.asset_id) : '';
+  const idPart = t.display_num ? ('#' + t.display_num) : (t.asset_id ? ('#' + t.asset_id) : '');
   const namePart = t.asset_name || t.title || t.file_title || t.name;
   document.getElementById('lb-title').textContent = idPart ? (idPart + ' · ' + namePart) : namePart;
   const subEl = document.getElementById('lb-subtitle');
@@ -1872,7 +1872,7 @@ function openLightbox(idx) {{
     const pr = t.plan_row || {{}};
     const hasPlan = pr && Object.keys(pr).length > 0;
     if (hasPlan) {{
-      const num = t.asset_id || (pr['#'] || '?');
+      const num = (String(t.asset_id || '').replace(/^0+(?=[0-9])/, '')) || (pr['#'] || '?');
       // Plain-language Plan context — WHERE it sits + WHAT you're approving. No raw
       // Ships file-list / "Review shape" codes (jargon): the operator already sees the
       // produced tiles, and the plain description is in "What this is" below.
@@ -1955,7 +1955,10 @@ function openLightbox(idx) {{
     t.operator_sections.forEach(sec => {{
       if (sec.kind !== 'questions') return;  // drop next-steps + info kinds from the modal
       const countSuffix = sec.question_count > 0 ? ` · ${{sec.question_count}} item${{sec.question_count === 1 ? '' : 's'}}` : '';
-      const isResolved = /answer|resolv|closed/i.test(sec.header);
+      // Gate CLOSED (asset Approved / Archived / Declined → open_question_count gated to 0 server-side):
+      // its gate questions were resolved at approval, so route them to the collapsed audit history,
+      // never show them as open. Only an open-gate asset (count > 0) shows live 🟠 questions.
+      const isResolved = t.open_question_count === 0 || /answer|resolv|closed/i.test(sec.header);
       if (isResolved) {{
         auditHtml += `<div class="lb-operator-block kind-info" style="margin-bottom:8px;">
           <div class="lb-op-head">${{sec.header}}${{countSuffix}}</div>
@@ -2112,10 +2115,19 @@ def run_check(campaign_dir: Path) -> int:
                         failures.append(f"{d.name}: ship:true file missing on disk -> {rel}")
                     else:
                         newest_ship_mtime = max(newest_ship_mtime, fp.stat().st_mtime)
-                        # Copy-staleness tripwire excludes binary visual surfaces (see
-                        # _COPY_SYNC_EXEMPT_SUFFIXES): a re-rendered/imported tile must not
-                        # flag the article copy as stale.
-                        if rel != copy_rel and Path(rel).suffix.lower() not in _COPY_SYNC_EXEMPT_SUFFIXES:
+                        # Copy-staleness tripwire excludes two kinds of ship surface the
+                        # asset-level copy_file is NOT the source for, so neither can
+                        # false-flag it as stale:
+                        #   1. binary visual surfaces (see _COPY_SYNC_EXEMPT_SUFFIXES) — a
+                        #      re-rendered/imported tile.
+                        #   2. surfaces that are their OWN copy source (per-file
+                        #      `copy_file: true`) — a directly-authored sibling deliverable
+                        #      (e.g. a Substack-Notes notes.md) that lives alongside the
+                        #      issue/trailer but is edited in place, not mirrored from
+                        #      copy.md. It has no upstream copy_file to drift from.
+                        _self_copy = fmeta.get("copy_file") is True
+                        if (rel != copy_rel and not _self_copy
+                                and Path(rel).suffix.lower() not in _COPY_SYNC_EXEMPT_SUFFIXES):
                             asset_ship_mtime = max(asset_ship_mtime, fp.stat().st_mtime)
                 for key in ("production_file", "view_source", "copy_file"):
                     v = fmeta.get(key)
@@ -2769,7 +2781,10 @@ def main():
                     channel = model_row["channel"]          # plain-language plan channel
                 if model_row.get("name"):
                     asset_meta = dict(asset_meta)           # don't mutate the shared cache
-                    asset_meta["asset_name"] = model_row["name"]
+                    # Strip markdown emphasis (**bold**, `code`) — the Plan authors names in bold,
+                    # but the tile grid + lightbox title render as plain textContent, so the markers
+                    # would show as literal "**…**". Titles are plain text.
+                    asset_meta["asset_name"] = re.sub(r"[*`]", "", str(model_row["name"])).strip()
                 plan_desc = model_row.get("desc") or ""     # plain-language plan description
                 tile_wave = model_row.get("wave")
                 tile_stage = model_row.get("stage") or ""

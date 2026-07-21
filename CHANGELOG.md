@@ -10,6 +10,9 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Gallery lightbox numbering + resolved-question handling.** The lightbox header and its Plan reference now show the same number as the tile (e.g. `#6.3` for the deliverable, `#6` for the Plan asset — not the raw zero-padded folder id). And once an asset is **approved**, its gate questions move to the collapsed "Audit history — resolved questions" section instead of still appearing as open — so an approved asset no longer looks like it has questions outstanding.
+
 ## [1.5.0] — 2026-07-21
 
 ### Changed
