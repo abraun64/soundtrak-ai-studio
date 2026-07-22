@@ -137,9 +137,12 @@ defines what's "system" (= what ships).
   `CHANGELOG.md` (Added / Changed / Fixed / Removed).
 - To CUT a release: rename `[Unreleased]` to the new version + today's date, add a fresh empty
   `[Unreleased]` above it (SemVer — MAJOR breaking · MINOR feature · PATCH fix); tag the commit
-  `git tag -a vX.Y.Z -m "…"`; run `python .claude/lib/build_seed.py --out <dir> --git`; eyeball,
-  then push the Seed to the public repo (the human-gated step — the agent is hard-blocked from
-  pushing master-derived content to a public repo).
+  `git tag -a vX.Y.Z -m "…"`; run `python .claude/lib/build_seed.py --git` (SYS-102: `--out`
+  now defaults to a SINGLE reusable dir OUTSIDE the OneDrive-synced tree — `~/seed-build`,
+  overwritten each cut; the version lives in the git tag + CHANGELOG, not the folder name.
+  NEVER point `--out` inside OneDrive/the checkout — build_seed warns if you do, and the debris
+  would sync to the cloud); eyeball, then push the Seed to the public repo (the human-gated
+  step — the agent is hard-blocked from pushing master-derived content to a public repo).
 Releases are periodic CUTS, not per-commit syncs: decide per-release what's ready; experimental
 work waits in the master until a release is cut.
 

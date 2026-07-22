@@ -349,15 +349,23 @@ def _plan_ships_count(ships_val: str) -> int | None:
 
 
 def compute_plan_reconciliation(plan_table: dict[str, dict], tiles: list[dict],
-                                foundation_docs: list[dict]) -> dict:
-    """Change 5 — reconcile Plan `Ships` vs produced gallery tiles (the 1:1 contract:
-    Plan Ships = asset.yaml ship:true = gallery tiles). Returns a dict with a list of
+                                foundation_docs: list[dict],
+                                declared_by_id: dict[str, int] | None = None) -> dict:
+    """Change 5 — reconcile Plan `Ships` vs what SHIPS. Returns a dict with a list of
     deviations (each: {kind, asset, detail}) + an ok flag. Pure/read-only.
+
+    SYS-101 — the ship-COUNT check compares the Plan against the asset.yaml `ship:true`
+    DECLARATIONS (via `declared_by_id`), not just the rendered tiles. asset.yaml is the
+    authoritative statement of what should ship; comparing declarations catches a
+    deliverable that was added/removed in Phase 4 but never propagated back to the Plan
+    even when it doesn't render a tile (a non-tiling prose deliverable, an edit-surface
+    mislabel). When no declaration count is available for an asset (yaml-less folder) the
+    check falls back to the produced tile count (the pre-SYS-101 behaviour).
 
     Deviation kinds:
       not-in-plan       — a produced asset id has no matching Plan row
       not-produced      — a Plan row (Ships != —) has no produced tiles
-      ship-count        — Plan Ships count != actual produced tile count for an asset
+      ship-count        — Plan Ships count != declared ship:true count (or tile count) for an asset
       renamed           — asset_name doesn't match the Plan row's Asset name
     """
     deviations: list[dict] = []
@@ -400,12 +408,19 @@ def compute_plan_reconciliation(plan_table: dict[str, dict], tiles: list[dict],
             })
             continue
 
-        if g and planned is not None and g["count"] != planned:
-            deviations.append({
-                "kind": "ship-count",
-                "asset": f"#{raw_key} · {plan_name}",
-                "detail": f"Plan Ships count = {planned}, produced ship tiles = {g['count']} — reconcile the Plan or the asset.yaml ship flags.",
-            })
+        # SYS-101 — compare the Plan against the DECLARED ship:true count (authoritative)
+        # when we have it, else the produced tile count. This catches an asset-mix change
+        # that landed in asset.yaml but never propagated to the Plan Ships column.
+        declared = (declared_by_id or {}).get(nid)
+        if g and planned is not None:
+            actual = declared if declared is not None else g["count"]
+            basis = "declared ship:true" if declared is not None else "produced ship tiles"
+            if actual != planned:
+                deviations.append({
+                    "kind": "ship-count",
+                    "asset": f"#{raw_key} · {plan_name}",
+                    "detail": f"Plan Ships count = {planned}, {basis} = {actual} — reconcile the Plan Ships column or the asset.yaml ship flags (SYS-101: an asset-mix change must propagate to the Plan same-turn).",
+                })
 
         # 4. renamed vs Plan (compare on a loose normalised form)
         if g and plan_name and g["names"]:
@@ -785,6 +800,21 @@ def _copy_stale_vs_render(copy_mtime, ship_mtime, threshold: float = COPY_RENDER
     if copy_mtime is None or ship_mtime is None:
         return False
     return (ship_mtime - copy_mtime) > threshold
+
+
+def _render_stale_vs_source(source_mtime, render_mtime, threshold: float = COPY_RENDER_DRIFT_SECONDS) -> bool:
+    """SYS-109 — the REVERSE of _copy_stale_vs_render: True if a RENDERED surface is behind its
+    edited SOURCE — i.e. `source_mtime` is newer than `render_mtime` by more than `threshold`
+    (the source, e.g. edition.md / storyboard.md / a per-file copy_file, was edited but the
+    derived .html/.png was NOT regenerated: a producer edit or operator send-back that never
+    re-rendered, or a subagent that died before wiring its output in). The threshold skips the
+    normal mid-edit window (source authored, re-render pending in the same session); past it,
+    a render still behind its source is a missed regeneration showing stale content. Either
+    mtime None -> no signal. Pure; unit-tested in test_helpers.py so the direction can't
+    regress silently."""
+    if source_mtime is None or render_mtime is None:
+        return False
+    return (source_mtime - render_mtime) > threshold
 
 def build_breadcrumb(campaign_slug: str) -> str:
     """Match the breadcrumb pattern used by render-html templates."""
@@ -1989,12 +2019,37 @@ function openLightbox(idx) {{
     </div>`;
   }}
 
-  // Audit history — resolved/answered questions, collapsed at the very bottom.
-  // (Campaign strategy DNA now lives ONCE at the top of the gallery page, not per-modal.)
+  // SYS-105 — Upload pack: the portable parts (clean copy + composed-block PNGs) and
+  // exactly WHERE each goes, for an asset authored in HTML but published to an image-only
+  // / WYSIWYG / paste environment (Substack, Mailchimp, LinkedIn native, most CMS editors).
+  if (t.portable && ((t.portable.images && t.portable.images.length) || t.portable.copy)) {{
+    const p = t.portable;
+    let rows = '';
+    if (p.copy) rows += `<li><strong>${{p.copy}}</strong> <span style="color:var(--text-muted);">— paste as the body</span></li>`;
+    (p.images || []).forEach(im => {{
+      const where = im.where ? ` <span style="color:var(--text-muted);">— ${{im.where}}</span>` : '';
+      const plat = im.platform ? ` <span style="color:var(--text-subtle);"> [${{im.platform}}]</span>` : '';
+      rows += `<li><strong>portable/${{im.name}}.png</strong>${{where}}${{plat}}</li>`;
+    }});
+    metaHtml += `<div class="lb-operator-block kind-upload">
+      <div class="lb-op-head">📦 Upload pack — what ships &amp; where</div>
+      <p style="margin:0 0 4px; color:var(--text-muted);">Authored in HTML but published to a paste / image-only environment — upload these parts:</p>
+      <ul style="margin:4px 0 0; padding-left:18px; font-size:12px; line-height:1.6;">${{rows}}</ul>
+      ${{p.folder ? `<p style="margin:6px 0 0; color:var(--text-subtle); font-size:11px;">Folder: <code>${{p.folder}}</code></p>` : ''}}
+    </div>`;
+  }}
+
+  // SYS-106 part 2 — gate questions at approval, collapsed at the bottom, labelled by their
+  // TRUE disposition instead of the old blanket "resolved" (which over-claimed: a waived or
+  // deferred question is not "resolved"). Each question's disposition (resolved / waived /
+  // deferred → Phase-X) is recorded in the asset audit by CM at the approval gate; a DEFERRED
+  // question also graduates to that phase's operator_actions, so it re-surfaces on the
+  // dashboard To Do — it is not lost here. ("hidden is not resolved.")
   if (auditHtml) {{
     metaHtml += `<details style="margin-top:10px; border-top:1px solid var(--border); padding-top:8px;">
-      <summary style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-subtle); font-weight:600; cursor:pointer; user-select:none;">🗄 Audit history — resolved questions</summary>
-      <div style="margin-top:8px;">${{auditHtml}}</div>
+      <summary style="font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-subtle); font-weight:600; cursor:pointer; user-select:none;">🗄 Gate questions — disposition at approval (resolved · waived · deferred)</summary>
+      <div style="margin-top:8px;">${{auditHtml}}
+      <p style="font-size:11px; color:var(--text-muted); margin:6px 0 0;">Each question was resolved, waived, or <b>deferred</b> at approval. A deferred question re-surfaces on the dashboard To&nbsp;Do at its target phase — it is not closed here.</p></div>
     </details>`;
   }}
 
@@ -2158,6 +2213,51 @@ def run_check(campaign_dir: Path) -> int:
                     f"output was updated but {copy_rel} was not re-synced — update it, then re-render"
                 )
 
+        # SYS-109 — REVERSE staleness: a RENDERED surface OLDER than its edited SOURCE. The
+        # forward check above catches render-ahead-of-copy (published output moved ahead, copy
+        # behind); this catches source-ahead-of-render — a producer edit / operator send-back
+        # written into the source (edition.md / storyboard.md / a per-file copy_file) that was
+        # never regenerated, or a subagent that died before wiring its output in. Undetected,
+        # the lightbox shows stale content. Per-file source->render pairs first:
+        if isinstance(files_block, dict):
+            for rel, fmeta in files_block.items():
+                fmeta = fmeta or {}
+                if fmeta.get("ship") is not True:
+                    continue
+                fp = d / rel
+                if not fp.exists():
+                    continue
+                for src_key in ("copy_file", "view_source"):
+                    s = fmeta.get(src_key)
+                    if not (isinstance(s, str) and s.strip()):
+                        continue
+                    sp = d / s
+                    try:
+                        same = sp.exists() and sp.resolve() == fp.resolve()
+                    except OSError:
+                        same = False
+                    if not sp.exists() or same:
+                        continue
+                    if _render_stale_vs_source(sp.stat().st_mtime, fp.stat().st_mtime):
+                        failures.append(
+                            f"{d.name}: render '{rel}' is STALE — OLDER than its source '{s}' "
+                            f"(source {_dt.fromtimestamp(sp.stat().st_mtime):%Y-%m-%d %H:%M} > "
+                            f"render {_dt.fromtimestamp(fp.stat().st_mtime):%Y-%m-%d %H:%M}): the source was "
+                            f"edited but '{rel}' was not regenerated — re-render it (SYS-109)"
+                        )
+        # asset-level: the edit-copy source newer than the NEWEST rendered surface (so every
+        # surface it drives is behind it).
+        if copy_rel:
+            cf = d / copy_rel
+            if (cf.exists() and asset_ship_mtime
+                    and _render_stale_vs_source(cf.stat().st_mtime, asset_ship_mtime)):
+                failures.append(
+                    f"{d.name}: rendered surface(s) are STALE — older than the edit-copy '{copy_rel}' "
+                    f"(copy {_dt.fromtimestamp(cf.stat().st_mtime):%Y-%m-%d %H:%M} > "
+                    f"newest render {_dt.fromtimestamp(asset_ship_mtime):%Y-%m-%d %H:%M}): '{copy_rel}' was "
+                    f"edited but the surface(s) it drives were not regenerated — re-render (SYS-109)"
+                )
+
     print(f"=== GALLERY QA CHECK — {campaign_dir.name} ===")
     if not folders:
         print("(no asset folders — nothing to check)")
@@ -2269,6 +2369,22 @@ def main():
     # Load asset.yaml + Plan asset table — declarative metadata source-of-truth
     asset_yamls = load_asset_yamls(assets_dir)
     print(f"Loaded {len(asset_yamls)} asset.yaml files for declarative metadata.")
+
+    # SYS-101 — declared ship:true count per asset id, the authoritative "what should
+    # ship" figure the Plan reconciliation compares against (not just rendered tiles).
+    declared_ship_by_id: dict[str, int] = {}
+    for adir, meta in asset_yamls.items():
+        aid = meta.get("asset_id") or ""
+        if not aid:
+            m = re.match(r"^(0[a-e]|\d+[a-z]?)", adir.name)
+            aid = m.group(1) if m else ""
+        nid = _normalize_asset_id(str(aid))
+        if not nid:
+            continue
+        fblock = meta.get("files") or {}
+        declared_ship_by_id[nid] = sum(
+            1 for v in fblock.values() if isinstance(v, dict) and v.get("ship") is True
+        )
 
     # Per-asset asset.yaml audit — warn loudly on missing
     if assets_dir.exists():
@@ -2505,6 +2621,53 @@ def main():
         print(f"Ship filter: {len(kept)} ship tiles kept, {hidden} production scaffolds hidden. Use --view all to see everything.")
         visual_files = kept
 
+    # === SYS-101 (safety net) — a standalone ship:true prose .md deliverable tiles as a
+    # text card, so a declared prose ship can never silently vanish from the gallery.
+    # A ship:true .md is SUPPRESSED here only when it is already REPRESENTED by a visual
+    # tile: either a same-stem visual sibling (X.md rendered as X.html/X.png) OR another
+    # ship-visible file names it as its `copy_file` edit-source (e.g. issue-header.html's
+    # copy_file: edition.md — the issue tile already carries that body). Otherwise it gets
+    # its own chrome-free text tile. Explicit `ship: true` only (undeclared / ship:false
+    # prose stays a related doc), so this is additive and low-regression.
+    md_ship_tiles: list[Path] = []
+    if VIEW_MODE != "all":
+        kept_visual = set(visual_files)
+        for md in md_files:
+            try:
+                asset_folder = md.relative_to(assets_dir).parts[0]
+            except (ValueError, IndexError):
+                continue
+            adir = assets_dir / asset_folder
+            meta = asset_yamls.get(adir, {})
+            fblock = meta.get("files") or {}
+            rel_to_asset = str(md.relative_to(adir)).replace("\\", "/")
+            fmeta = fblock.get(rel_to_asset, {})
+            if fmeta.get("ship") is not True:
+                continue
+            if _NON_COPY_MD_RE.search(md.name):
+                continue
+            stem = md.stem.lower()
+            if any(v.parent == md.parent and v.stem.lower() == stem
+                   and v.suffix.lower() in (".html", ".png", ".mp4") for v in kept_visual):
+                continue
+            is_copy_source = False
+            for other_rel, other_meta in fblock.items():
+                if not isinstance(other_meta, dict) or other_meta.get("ship") is not True:
+                    continue
+                cf = other_meta.get("copy_file")
+                if isinstance(cf, str) and cf.strip():
+                    cf_norm = cf.strip().replace("\\", "/")
+                    if cf_norm == rel_to_asset or Path(cf_norm).name == md.name:
+                        is_copy_source = True
+                        break
+            if is_copy_source:
+                continue
+            md_ship_tiles.append(md)
+        if md_ship_tiles:
+            visual_files.extend(md_ship_tiles)
+            print(f"SYS-101: {len(md_ship_tiles)} standalone ship:true prose .md deliverable(s) tiled as text cards.")
+    md_ship_set = set(md_ship_tiles)
+
     # === Template ↔ sample-render PNG pair deduplication ===
     # When templates-html/X.html and templates-preview/X.png coexist for the same stem,
     # the PNG is the visual deliverable (review the brand discipline when populated);
@@ -2617,6 +2780,17 @@ def main():
                 # Ensure the download action appears even if no explicit production_file declared
                 if not prod_file_rel:
                     prod_file_rel = rel_str
+            elif f.suffix.lower() == ".md":
+                # SYS-101 — a standalone ship:true prose .md deliverable. Render it
+                # chrome-free (the deliverable alone, no operator-panel chrome) and shoot
+                # that. Its own markdown is the edit-copy source (resolved downstream).
+                clean_html = thumbs_dir / (thumb_name.rsplit(".", 1)[0] + ".clean.html")
+                if render_clean_copy(f, clean_html):
+                    ok = thumb_for_html(page, clean_html, thumb_path, full_out_path=full_path, vertical=False)
+                    full_relative = f"gallery-thumbs/{full_path.name}"
+                    view_source_rel = f"gallery-thumbs/{clean_html.name}"
+                else:
+                    ok = False
             else:
                 # TEXT-deliverable assets ship the asset-RECORD render (asset.html /
                 # preview.html) as their preview — that carries operator-panel chrome.
@@ -2649,6 +2823,9 @@ def main():
 
             related_docs = []
             for md in mds_by_asset_dir.get(asset_dir, []):
+                # SYS-101 — a .md that is itself a ship tile is NOT also a related doc.
+                if md in md_ship_set or md == f:
+                    continue
                 md_rel = md.relative_to(campaign_dir).as_posix()
                 # Pull yaml-declared title if available so lightbox shows
                 # readable doc names instead of bare filenames
@@ -2796,6 +2973,20 @@ def main():
                 tile_stage = "Unplanned"
                 channel = "Not in the plan yet"
 
+            # SYS-105 — portable pack manifest (clean copy + composed-block PNGs) for
+            # non-web upload, surfaced in the lightbox "Upload pack" section.
+            _portable_raw = asset_meta.get("portable") or {}
+            portable_tile = {}
+            if _portable_raw:
+                portable_tile = {
+                    "images": [
+                        {"name": im.get("name"), "where": im.get("where"), "platform": im.get("platform")}
+                        for im in (_portable_raw.get("images") or []) if im.get("name")
+                    ],
+                    "copy": _portable_raw.get("copy"),
+                    "folder": f"assets/{asset_folder_name}/portable" if asset_folder_name else "portable",
+                }
+
             tiles.append({
                 "name": f.name,
                 "rel_path": rel_str,
@@ -2811,6 +3002,7 @@ def main():
                 "vertical": vertical,
                 "mtime": mtime,
                 "related_docs": related_docs,
+                "portable": portable_tile,   # SYS-105 — Upload pack (non-web assets)
                 "asset_id": asset_id_str,
                 "asset_name": asset_meta.get("asset_name", ""),
                 "title": tile_title_yaml,
@@ -2944,7 +3136,8 @@ def main():
             print(f"  WARNING: {w}")
 
     # Change 5 — Plan reconciliation (Plan Ships = ship:true tiles = gallery tiles, 1:1).
-    reconciliation = compute_plan_reconciliation(plan_table, tiles, foundation_docs)
+    reconciliation = compute_plan_reconciliation(plan_table, tiles, foundation_docs,
+                                                 declared_by_id=declared_ship_by_id)
     print(f"\n=== PLAN RECONCILIATION — {args.campaign} ===")
     if reconciliation["ok"]:
         print(f"✓ Reflects the approved Plan — {reconciliation['n_produced_assets']} produced asset(s) "

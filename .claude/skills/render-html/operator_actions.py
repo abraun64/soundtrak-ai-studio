@@ -236,6 +236,15 @@ def _set_campaign_dir(campaign_dir: Path) -> None:
     _LAST_CAMPAIGN_DIR = campaign_dir
 
 
+def _norm_gate_id(x) -> str:
+    """Normalise an asset id / gate reference to a common form so a gate list matches the
+    asset folders regardless of formatting: '02' / 'A2' / 2 / '2' -> '2'; '18' -> '18'."""
+    s = re.sub(r"[^0-9a-z]", "", str(x).lower())
+    if s[:1] == "a":
+        s = s[1:]
+    return s.lstrip("0") or s or ""
+
+
 def scan_campaign(campaign_dir: Path) -> list[dict]:
     """Walk every asset.yaml under campaign_dir/assets/ and collect pending operator_actions.
     Each returned dict carries the action fields plus asset_id, asset_name, asset_dir for context."""
@@ -243,6 +252,10 @@ def scan_campaign(campaign_dir: Path) -> list[dict]:
         return []
     assets_dir = campaign_dir / "assets"
     out: list[dict] = []
+    # SYS-112 prong B — collect the set of Approved asset ids so a campaign-level gate that
+    # declares `gates: [ids]` can DERIVE its completion from asset states (done when all its
+    # gated assets are Approved) instead of a hand-marked status that drifts.
+    approved_ids: set[str] = set()
     # An early-phase campaign (no assets/ dir yet) still has campaign-level
     # operator_actions in campaign.yaml (e.g. "pick a concept") — skip the asset walk
     # but STILL read those below, so the operator's next action always surfaces.
@@ -262,6 +275,8 @@ def scan_campaign(campaign_dir: Path) -> list[dict]:
             continue
         if not isinstance(data, dict):
             continue
+        if str(data.get("status") or "").strip().strip("'\"").lower() == "approved":
+            approved_ids.add(_norm_gate_id(asset_id))
         actions = data.get("operator_actions") or []
         if not isinstance(actions, list):
             continue
@@ -313,7 +328,18 @@ def scan_campaign(campaign_dir: Path) -> list[dict]:
         for raw in camp_actions:
             if not isinstance(raw, dict):
                 continue
-            if str(raw.get("status") or "pending").lower() == "done":
+            # SYS-112 prong B — a gate that declares `gates: [asset_ids]` DERIVES its
+            # completion from asset states: done (dropped) when all its gated assets are
+            # Approved, pending (surfaced) otherwise — no hand-set status to drift. An
+            # action WITHOUT `gates` keeps the stored-status behaviour (external blockers
+            # like "send your ABN" can't be derived).
+            gates = raw.get("gates")
+            if isinstance(gates, list) and gates:
+                gate_ids = {_norm_gate_id(g) for g in gates if _norm_gate_id(g)}
+                if gate_ids and gate_ids <= approved_ids:
+                    continue  # derived DONE
+                # else fall through — derived PENDING, surface it
+            elif str(raw.get("status") or "pending").lower() == "done":
                 continue
             out.append({
                 "asset_id": "",
@@ -700,15 +726,32 @@ def render_actions_table_md(actions: list[dict], campaign_dir: "Path") -> str:
     actions = collapse_phase_plan_actions(actions, campaign_dir)
     actions, rec_ptrs = _split_rec_pointers(actions)
     rec_footer = _rec_pointer_footer(rec_ptrs, "")
+
+    # SYS-104 (dashboard parity) — surface assets sitting in "For Human Review" ADDITIVELY,
+    # so the campaign dashboard's To Do reflects per-asset review progress the same way the
+    # cross-campaign tasks.html does. Without this, the dashboard showed only the coarse
+    # wave-level operator_actions and hid the fact that N assets are waiting on the operator.
+    # The dashboard is ON the campaign, so the gallery link is relative.
+    awaiting = sum(1 for a in scan_assets(campaign_dir)
+                   if "For Human Review" in str(a.get("status_display", "")))
+    review_ptr = ""
+    if awaiting > 0:
+        review_ptr = (
+            f'\n\n<p class="task-pointer" style="margin:8px 0 0;"><strong>{awaiting} asset'
+            f'{"s" if awaiting != 1 else ""} awaiting your review</strong> — '
+            f'<a href="gallery.html">open the gallery to review + approve ↗</a></p>'
+        )
+
     foot = (
         "\n\n<small>🔴 Blocker = unblocks downstream work · 🟡 Action · ⚪ Nice-to-have. "
         "Auto-generated from `operator_actions:` in each asset.yaml. "
         "Mark done: `propagate.py --campaign <slug> --asset <NN> --task <id> --done`.</small>"
     )
     if not actions:
-        head = "_No pending operator actions. All clear._" if not rec_ptrs else ""
-        return head + ("\n\n" + rec_footer if rec_footer else "") + foot
-    return build_action_table(actions, campaign_dir, "") + rec_footer + foot
+        head = ("_No pending operator actions._" if awaiting > 0
+                else "_No pending operator actions. All clear._") if not rec_ptrs else ""
+        return head + review_ptr + ("\n\n" + rec_footer if rec_footer else "") + foot
+    return build_action_table(actions, campaign_dir, "") + review_ptr + rec_footer + foot
 
 
 def scan_assets(campaign_dir: Path) -> list[dict]:
@@ -1027,6 +1070,64 @@ def human_time_total(markdown_text: str) -> str:
     return f"**~{int(round(total_min))} min**"
 
 
+def _sum_ht_minutes(s: str) -> float:
+    """Sum every '~N min' / '~N.N hr' token in a free-text time string → minutes.
+    Handles compound strings ('~1h 30m') by summing all matches."""
+    total = 0.0
+    for m in _HT_RE.finditer(s or ""):
+        total += float(m.group(1)) * (60 if m.group(2).lower().startswith("h") else 1)
+    return total
+
+
+def _fmt_ht_minutes(total_min: float) -> str:
+    """Format a minute total the SAME way human_time_total does, so the derived
+    per-phase cell is re-parseable by _HT_RE and folds cleanly into the total row."""
+    if total_min >= 90:
+        hrs = total_min / 60
+        return f"~{int(hrs)} hr" if hrs.is_integer() else f"~{hrs:.1f} hr"
+    return f"~{int(round(total_min))} min"
+
+
+def derive_phase_human_time(phase_id, campaign_dir: Path):
+    """Per-phase human-in-the-loop time, DERIVED from the operator-action `time:`
+    estimates assigned to that phase (each action already carries `time:` + `phase:`).
+    The human-time analogue of ledger.phase_cost_cell — so the Human Time cell can't
+    read blank while the phase still has operator actions to do (the recurring
+    'human time not calculated' gap). Returns a formatted string, or None when the
+    phase has no timed actions to sum."""
+    try:
+        cy = scan_campaign_yaml(campaign_dir)
+    except Exception:  # noqa: BLE001
+        return None
+    pid = str(phase_id).strip()
+    total, found = 0.0, False
+    for a in (cy.get("operator_actions") or []):
+        if not isinstance(a, dict):
+            continue
+        if str(a.get("phase") or "").strip() != pid:
+            continue
+        mins = _sum_ht_minutes(str(a.get("time") or ""))
+        if mins > 0:
+            found = True
+            total += mins
+    return _fmt_ht_minutes(total) if found else None
+
+
+_PHASE_HT_BLANK = {"", "—", "-", "–", "tbd", "n/a", "na", "none"}
+
+
+def _phase_human_time_cell(ph: dict, campaign_dir: Path) -> str:
+    """Resolve the Human Time cell for one phase row. A hand-set value wins; a blank
+    ('—' / missing) or an explicit <!-- PHASE_HUMAN_TIME:N --> marker auto-derives
+    from the phase's operator-action times so it can never surface blank while the
+    phase still has timed work (mirrors the ai_cost PHASE_COST marker)."""
+    raw = str(ph.get("human_time") or "").strip()
+    wants_derive = raw.lower() in _PHASE_HT_BLANK or "PHASE_HUMAN_TIME" in raw
+    if wants_derive:
+        return derive_phase_human_time(ph.get("id"), campaign_dir) or "—"
+    return raw
+
+
 def render_campaign_dna(campaign_dir: Path) -> str:
     """SYS-089 — the shared compact Campaign DNA header injected at the top of every artifact
     surface (Brief / Insight Brief / Concept / Plan), so each one opens on a consistent "you are
@@ -1123,9 +1224,10 @@ def render_phases_table_md(phases: list[dict], campaign_dir: Path) -> str:
         if len(rendered) > 1:
             archive.append((str(ph.get("id", "")), str(ph.get("title", "")), rendered[1:]))
         status = _derive_phase_status(ph, campaign_dir)
+        human_time = _phase_human_time_cell(ph, campaign_dir)
         lines.append(
             f"| {ph.get('id','')} | {ph.get('title','')} | {status} | "
-            f"{ph.get('window','—')} | {ph.get('human_time','—')} | {ph.get('ai_cost','—')} | {artifacts_md or '—'} |"
+            f"{ph.get('window','—')} | {human_time} | {ph.get('ai_cost','—')} | {artifacts_md or '—'} |"
         )
     lines.append("")
     lines.append(
@@ -1262,6 +1364,11 @@ def render_cross_campaign_actions_md(campaigns: list[dict]) -> str:
         total_assets = len(assets)
         approved = sum(1 for a in assets if "Approved" in a["status_display"])
         pending_assets = total_assets - approved
+        # SYS-104 — assets sitting in "For Human Review" are waiting on the OPERATOR
+        # specifically (distinct from "In Production", which is still the machine's turn).
+        # This count must surface even when the campaign ALSO has coarse, wave-level
+        # operator_actions, or per-asset review progress is invisible in the queue.
+        awaiting_review = sum(1 for a in assets if "For Human Review" in a["status_display"])
         pill_cls, pill_txt = _phase_pill(phases, total_assets, camp["campaign_dir"])
         disp = _html.escape(str(camp_yaml.get("nickname") or camp["name"]))
         dash = f"{slug}/dashboard.html"
@@ -1283,21 +1390,38 @@ def render_cross_campaign_actions_md(campaigns: list[dict]) -> str:
         # group, below the actionable rows (asset-verdict items, no time pressure).
         rec_footer = _rec_pointer_footer(rec_ptrs, f"{slug}/")
 
+        # SYS-104 — a pointer to the assets currently in "For Human Review", so
+        # per-asset review progress is visible whether or not the campaign also has
+        # coarse operator_actions. Links to the gallery (the review + approve surface).
+        review_pointer = ""
+        if awaiting_review > 0:
+            review_pointer = (
+                f'<p class="task-pointer"><strong>{awaiting_review} asset'
+                f'{"s" if awaiting_review != 1 else ""} awaiting your review</strong> — '
+                f'<a href="{_html.escape(f"{slug}/gallery.html")}">open the gallery to review + approve ↗</a></p>'
+            )
+
         if actions:
             total_open += len(actions)
             itemised_campaigns += 1
             table = build_action_table(actions, camp["campaign_dir"], f"{slug}/")
-            blocks.append(f'<details class="task-group" open>{header}{table}{rec_footer}</details>')
+            # The review pointer is ADDITIVE here — the coarse wave gates above it no
+            # longer hide the per-asset review count (the SYS-104 fix).
+            blocks.append(f'<details class="task-group" open>{header}{table}{review_pointer}{rec_footer}</details>')
+        elif awaiting_review > 0:
+            pointer_campaigns += 1
+            blocks.append(
+                f'<details class="task-group" open>{header}{review_pointer}{rec_footer}</details>'
+            )
         elif pending_assets > 0:
-            # Pending work exists but isn't itemised in asset.yaml — pointer row.
+            # Pending work exists but no asset is operator-gated yet (all In Production) —
+            # a softer pointer so the campaign still appears (completeness).
             pointer_campaigns += 1
             blocks.append(
                 f'<details class="task-group" open>{header}'
                 f'<p class="task-pointer">{pending_assets} asset'
-                f'{"s" if pending_assets != 1 else ""} awaiting your review. '
-                f'<a href="{_html.escape(dash)}">Open the dashboard To Do ↗</a> '
-                '<small>(not yet itemised here — add <code>operator_actions</code> to each '
-                f'asset.yaml to list them as individual rows)</small></p>{rec_footer}</details>'
+                f'{"s" if pending_assets != 1 else ""} in production (none awaiting you yet). '
+                f'<a href="{_html.escape(dash)}">Open the dashboard ↗</a></p>{rec_footer}</details>'
             )
         else:
             # Only recommendation-queue pointers remain — show just the footer.

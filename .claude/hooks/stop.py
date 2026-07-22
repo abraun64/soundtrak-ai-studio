@@ -25,7 +25,16 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 STATE_PATH = PROJECT_ROOT / ".claude" / "state" / "dirty-campaigns.json"
-CAMPAIGNS_DIR = PROJECT_ROOT / "campaigns"
+# campaigns/ is canonical in the MAIN checkout — resolve via the shared helper so a
+# worktree session's edits to main's campaigns/ still re-render (SYS-104). CODE paths
+# below stay on PROJECT_ROOT (the running checkout's own scripts/templates); only the
+# DATA dir redirects. Falls back to PROJECT_ROOT/campaigns on any resolver error.
+sys.path.insert(0, str(PROJECT_ROOT / ".claude" / "lib"))
+try:
+    import repo_paths
+    CAMPAIGNS_DIR = repo_paths.data_root(PROJECT_ROOT) / "campaigns"
+except Exception:
+    CAMPAIGNS_DIR = PROJECT_ROOT / "campaigns"
 RENDER_HTML = PROJECT_ROOT / ".claude" / "skills" / "render-html" / "render.py"
 RENDER_TEMPLATE = PROJECT_ROOT / ".claude" / "skills" / "render-html" / "templates" / "base.html"
 BUILD_GALLERY = PROJECT_ROOT / ".claude" / "skills" / "asset-gallery" / "build-gallery.py"
@@ -153,6 +162,53 @@ def build_gallery(slug):
     ])
 
 
+def gallery_check(slug):
+    """SYS-094 (safe increment) — run the read-only pre-surface gallery QA (build-gallery
+    --check / SYS-003) automatically after a rebuild, so the stale-mirror class (an asset's
+    edit-copy left behind its rendered surface — the 2026-07-09 Edition-#1 bug) is caught
+    BEFORE the asset reaches the operator, not only when --check is run by hand. Runs after
+    the rebuild, so a transient 'gallery stale' clears and only genuine content drift
+    remains. Returns (clean, detail). Non-blocking: the caller emits a stderr advisory."""
+    if not (CAMPAIGNS_DIR / slug).exists():
+        return True, ""
+    try:
+        result = subprocess.run(
+            ["python", str(BUILD_GALLERY), "--campaign", slug, "--check"],
+            cwd=str(PROJECT_ROOT), capture_output=True, text=True,
+            encoding="utf-8", errors="replace", timeout=60,
+        )
+        if result.returncode == 0:
+            return True, ""
+        return False, (result.stdout or result.stderr or "").strip()[-900:]
+    except Exception:
+        return True, ""  # a check failure must never crash the hook
+
+
+def freshness_guarantee():
+    """SYS-112 prong A — THE GUARANTEE. Verify every operator surface (dashboard · gallery ·
+    tasks · index · tenant home) against the newest of its data inputs, and rebuild any that
+    are behind — regardless of the dirty ledger. Runs EVERY turn, so a data change that was
+    never flagged dirty (a hand edit, a dead subagent, a missed re-render) can't leave a
+    stale surface for the operator. The cheap mtime check gates the rebuild, so quiet turns
+    cost almost nothing. Non-fatal; a surface STILL behind its data after a rebuild is a loud
+    hard-blocker (something is broken)."""
+    try:
+        import surface_freshness  # resolves DATA to the main checkout itself (SYS-103)
+    except Exception:
+        return
+    try:
+        healed, still = surface_freshness.heal()
+    except Exception as e:
+        print(f"[state-hook] surface-freshness pass errored (non-fatal): {e}", file=sys.stderr)
+        return
+    if healed:
+        print(f"[state-hook] ✓ surface-freshness: rebuilt {len(healed)} surface(s) the "
+              f"dirty-ledger missed: {', '.join(healed)} (SYS-112)", file=sys.stderr)
+    if still:
+        print(f"[state-hook] 🔴 SURFACE STILL STALE after rebuild — do NOT trust: "
+              f"{', '.join(still)}. Investigate (SYS-112).", file=sys.stderr)
+
+
 def newest_mtime_in_campaign(slug):
     root = CAMPAIGNS_DIR / slug
     if not root.exists():
@@ -222,13 +278,41 @@ def git_has_changes(repo_path: Path) -> bool:
         return False
 
 
-def git_commit(repo_path: Path, message: str) -> bool:
-    """Stage all changes and commit. Returns True on success."""
+# SYS-108 — generated / derivable surfaces that must NOT ride a WORKTREE auto-backup onto
+# the branch. In a worktree these are either main-owned (built from main's data via
+# data_root) or transient; letting the blanket `git add .` sweep them into a branch commit
+# is what let a broken tenant-home regeneration nearly reach main on a merge (2026-07-22
+# near-miss). Sources (tenant-brand/*.yaml, everything under system/*.yaml) are NOT here —
+# only the built artifacts. Excluded only in a worktree; main's backup is unchanged.
+_WORKTREE_GENERATED_EXCLUDES = [
+    "tenant-brand/*-home.md",     # tenant home pages — built by build-tenant-home.py
+    "tenant-brand/*-home.html",
+    "system/dashboard.html",      # System Manager board — built by build-dashboard.py
+    ".claude/state",              # hook state (dirty ledger, latency log) — transient
+]
+
+
+def git_commit(repo_path: Path, message: str, exclude: list[str] | None = None) -> bool:
+    """Stage all changes and commit. When `exclude` is given, those generated/derivable
+    pathspecs are unstaged after `git add` so they don't ride the commit (SYS-108) — they
+    stay dirty and rebuild from source. Returns True on success, False if nothing real was
+    left to commit or on error (both non-fatal to the hook)."""
     try:
         subprocess.run(
-            ["git", "add", "."],
+            ["git", "add", "-A"],
             cwd=str(repo_path), capture_output=True, timeout=15, check=True,
         )
+        if exclude:
+            subprocess.run(
+                ["git", "reset", "-q", "--"] + exclude,
+                cwd=str(repo_path), capture_output=True, timeout=15,
+            )
+            # if the only changes were excluded generated files, there's nothing to back up
+            if subprocess.run(
+                ["git", "diff", "--cached", "--quiet"],
+                cwd=str(repo_path), capture_output=True, timeout=15,
+            ).returncode == 0:
+                return False
         subprocess.run(
             ["git", "commit", "-m", message],
             cwd=str(repo_path), capture_output=True, timeout=15, check=True,
@@ -260,12 +344,19 @@ def auto_backup(session_summary: str):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     commit_msg = f"auto-backup: {ts}\n\n{session_summary}" if session_summary else f"auto-backup: {ts}"
 
+    # SYS-108 — in a worktree, keep generated surfaces out of the branch backup.
+    try:
+        _in_worktree = repo_paths.is_worktree(PROJECT_ROOT)
+    except Exception:
+        _in_worktree = False
+
     backed_up = []
     for label, path in [("system", SYSTEM_ROOT), ("campaigns", CAMPAIGNS_ROOT)]:
         if not (path / ".git").exists():
             continue
+        exclude = _WORKTREE_GENERATED_EXCLUDES if (label == "system" and _in_worktree) else None
         if git_has_changes(path):
-            if git_commit(path, commit_msg):
+            if git_commit(path, commit_msg, exclude=exclude):
                 git_push_background(path)
                 backed_up.append(label)
 
@@ -317,6 +408,7 @@ def main():
         # work (system/tenant edits, fresh setup) so a session is never lost. (Retro-5,
         # operator-authorised: previously gated behind campaign-dirtiness, which silently
         # skipped pure-system turns — the reason a system-only branch never got pushed.)
+        freshness_guarantee()   # SYS-112 — verify + heal surfaces even on a no-dirty turn
         auto_backup("")
         return 0
 
@@ -347,6 +439,16 @@ def main():
             ok, err = build_gallery(slug)
             if ok:
                 rebuild_log.append(f"gallery:{slug}")
+                # SYS-094 (safe increment) — auto-run the pre-surface QA so a stale
+                # edit-copy / drifted representation is flagged BEFORE the operator
+                # trusts the surface, not only on a manual --check. Non-blocking: the
+                # Stop hook can't gate the response, so this is a loud stderr advisory.
+                clean, detail = gallery_check(slug)
+                if not clean:
+                    print(f"[state-hook] ⚠ PRE-SURFACE QA — {slug}: stale / drifted asset "
+                          f"representation detected. Sync the edit-copy to its shipped "
+                          f"surface before trusting the gallery (SYS-094):\n{detail}",
+                          file=sys.stderr)
             else:
                 failures.append(f"gallery:{slug}: {err}")
 
@@ -400,6 +502,11 @@ def main():
                     status_drift_warnings.append(f"{slug}: {n} NEW")
             except Exception:
                 pass  # advisory only; never crash the hook
+
+    # SYS-112 — THE GUARANTEE: after the dirty-ledger drain (an optimisation), verify every
+    # surface against its data and heal anything still behind, so a missed/unflagged change
+    # can't leave a stale surface. Runs regardless of what the ledger did.
+    freshness_guarantee()
 
     if failures:
         msg = (

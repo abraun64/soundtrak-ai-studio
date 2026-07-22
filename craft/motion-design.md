@@ -48,6 +48,7 @@ Motion design starts with storyboarding — frame-by-frame or beat-by-beat plan 
 | Field | What goes here |
 |---|---|
 | **Frame # / Beat #** | Sequential identifier |
+| **Frame (rendered still)** | A rendered thumbnail of the beat, so the storyboard reads as image + text *(operator rule, 2026-07-22)* |
 | **Time** | Start time + duration (e.g. 0:00–0:03) |
 | **Visual** | What the camera shows; subject, framing, action |
 | **Camera move** | Static / pan / zoom / track / handheld / drone |
@@ -60,6 +61,7 @@ Motion design starts with storyboarding — frame-by-frame or beat-by-beat plan 
 ### Storyboard discipline
 
 - **Storyboard is a REQUIRED FIRST GATE for any video** *(operator rule, 2026-07-08)* — the storyboard is produced and **signed off by the operator BEFORE any motion is produced**. Do not animate or generate the video until the storyboard is approved. This is a named exception to "no intermediate gates on sub-deliverables": for video, iterating on a storyboard is ~10× cheaper than iterating on the produced motion, so the checkpoint pays for itself.
+- **Every storyboard ships a Frame column** *(operator rule, 2026-07-22)* — a rendered still per beat, sitting beside that beat's text, so the operator reviews the shot composition as image + text before approving the motion. Capture each frame by seeking the animation/build to the beat's mid-time and screenshotting.
 - **Storyboard BEFORE animating** — iterating in After Effects (or any motion build) is 10× more expensive than iterating on a storyboard.
 - **Surface the storyboard as its own reviewable artifact** (a gallery tile / gate surface), not buried in the asset record — kill bad concepts cheaply.
 - **Storyboard is the brief** that the motion designer (or AI generation tool) executes against.

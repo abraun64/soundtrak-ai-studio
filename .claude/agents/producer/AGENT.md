@@ -176,9 +176,21 @@ When dispatched on a cadenced campaign's Wave 0 / Phase 4 assets:
 
 **Why**: the cadence skill is the operator's Phase 6 entry point. Without it, `phase-6-cadence.md` references a skill that doesn't exist. Per `feedback_cadence_skill_is_phase3_deliverable.md`.
 
+### Step 4.4c — Portable pack (mandatory for any NON-WEBSITE asset — SYS-105)
+
+**HTML is your authoring format, not the delivery format.** UNLESS the asset is a genuine website page (deployed AS HTML), its destination — Substack, Mailchimp, LinkedIn native, a CMS rich-text editor — will NOT accept your HTML/CSS. Right-click "save image" can't capture an HTML/CSS-composed graphic block (a masthead of `<div>`s, an SVG+`<div>` evidence card), so the brand design is lost on paste unless you export each block to a PNG.
+
+So for every non-website asset, ship a **portable pack** alongside the HTML:
+1. **Classify by destination.** Read `deployment.platform` / `default_channel`. Ships AS HTML (website) → skip this step. Otherwise it needs portable parts.
+2. **Declare a `portable:` manifest** in `asset.yaml` (schema in [asset.md](../../docs/specs/asset.md#portable-pack--required-for-any-non-website-asset-sys-105)): `source_html`, `copy`, optional `fonts`, and an `images:` list — each with `name`, `selector` (the CSS selector of the composed block), `where` (where it goes on upload), and `platform`.
+3. **Run the shared exporter** — `python .claude/lib/export_portable_assets.py --asset <asset_dir>` — which renders the HTML and screenshots each declared block to `portable/<name>.png` at 2×. Do NOT copy a per-asset render script; the one tool reads your manifest.
+4. **Keep the pack `ship: false`** (production output, not gallery tiles — one tile per asset stays). It auto-surfaces in the lightbox "📦 Upload pack" section from your manifest, so the operator sees exactly what to upload and where.
+
 ### Step 4.5 — Gallery publish discipline (mandatory; do this BEFORE returning to CM)
 
 **CM runs a gallery QA check on everything you return** before it reaches the operator. If your asset.yaml is incomplete, CM will fix it — but that's wasted time. Get it right before returning.
+
+**Deterministic re-render + self-verify (SYS-110) — the LAST thing you do, not left to memory.** If you edited a source that drives a rendered surface (`edition.md`/`copy.md` → `issue-header.html`; `storyboard.md` → `storyboard.html`; any `.md`/`.html` → its `.png`), you MUST regenerate the derived surface and then **prove it on disk** before returning: (a) re-read/grep the source to confirm your edit actually landed (an exact-string edit over Unicode-dense copy — en-dashes, arrows, middots — can silently fail to match); (b) run `python .claude/skills/asset-gallery/build-gallery.py --campaign <slug> --check` and confirm it PASSES — its staleness gate now flags a render left BEHIND its edited source (SYS-109), so a skipped re-render is caught here, not by the operator. Do NOT return "done" on a rendered surface older than its source or a check that FAILs. (The Stop hook re-runs this at turn-end as a backstop, but a partial return still wastes a cycle — verify first.)
 
 CM checks (against the Plan's Ships, Review shape, and Copy file columns):
 - **`ship: true` set on EXACTLY the files named in the Plan's `Ships` column — one tile each, 1:1.** This is the plan-dictates-the-assets contract: the plan declares the outputs, you build exactly those, the gallery tiles exactly those. A sales deck whose Ships = `HTML + PPTX` → both `ship: true` (two tiles). A video whose Ships = `storyboards + MP4s` → both gated outputs `ship: true`. **Everything else is `ship: false`**: the asset record (`asset.html`), render-pipeline sources (`slide.html`, `build-pptx.py`, `remotion/*`), embedded component images (`images/*`), deploy wrappers (`modal-embed.html`), copy mirrors (`copy.md`). ⚠️ **GOTCHA**: a file declared in the `files:` block with NO `ship` flag + `type: Instance` **defaults to SHOWN** — so a captioned-but-not-shipped component will wrongly tile. Be explicit: set `ship: false` on every non-output. (Enforced by `check-state` Layer G; per `feedback_plan_ships_column_is_gallery_contract.md`.)

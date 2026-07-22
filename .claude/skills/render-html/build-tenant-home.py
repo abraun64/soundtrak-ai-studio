@@ -31,9 +31,19 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-RENDER = ROOT / ".claude" / "skills" / "render-html" / "render.py"
-TENANT_BRAND = ROOT / "tenant-brand"
-CAMPAIGNS = ROOT / "campaigns"
+RENDER = ROOT / ".claude" / "skills" / "render-html" / "render.py"  # CODE — running checkout
+# tenant-brand/ + campaigns/ are DATA, canonical in the MAIN checkout. Resolve via the
+# shared helper so a worktree session reads the real campaigns (not an absent worktree
+# campaigns/, which silently rendered every tenant home as "No active campaigns yet" —
+# the SYS-103 blind spot, third instance) and writes the homes back to main.
+sys.path.insert(0, str(ROOT / ".claude" / "lib"))
+try:
+    import repo_paths
+    _DATA = repo_paths.data_root(ROOT)
+except Exception:
+    _DATA = ROOT
+TENANT_BRAND = _DATA / "tenant-brand"
+CAMPAIGNS = _DATA / "campaigns"
 
 sys.path.insert(0, str(ROOT / ".claude" / "skills" / "render-html"))
 import operator_actions as oa  # noqa: E402

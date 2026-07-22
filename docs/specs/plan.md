@@ -108,6 +108,11 @@ The Phase-4 asset gallery **derives** its channels, names, descriptions, depende
 
 `check-state` enforces the floor: any asset folder on disk with no plan row is flagged as drift (Layer E), and the gallery shows an unmatched tile in a visible "not in the plan yet" group rather than hiding it — so an unreconciled addition surfaces immediately instead of rotting the plan.
 
+**The gallery reconciliation is the closing guard on the count (SYS-101).** The `Ships` ↔ `ship:true` ↔ tile chain used to be checkable only by eye, and a deliverable added in Phase 4 could land in `asset.yaml` while the `Ships` column stayed stale — invisibly, because the check compared *rendered tiles* and a non-tiling deliverable (a prose `.md`) never moved the count. Two closes:
+
+- **The gallery tiles every `ship:true` deliverable, prose included.** A `ship:true` `.md` that isn't already represented by a visual tile (no same-stem render, and not named as another ship tile's `copy_file` edit-source) renders its own chrome-free **text-deliverable card**. So "every declared ship shows" holds for prose, not just images/HTML — a declared prose ship can no longer silently vanish from the gallery.
+- **Reconciliation compares the Plan against the `ship:true` DECLARATIONS, not just the tiles.** `build-gallery` counts the `ship:true` files in `asset.yaml` (authoritative) and flags a `ship-count` deviation when that differs from the `Ships` count — so an asset-mix change that reached `asset.yaml` but not the `Ships` column is caught loudly at the next build even if it renders no visual tile. The corollary discipline: `ship:true` is **one flag per distinct `Ships` output**; a prose edit-surface that is merely the `copy_file` of a visual tile (the article body behind an issue header, a trailer's copy behind its tile) stays `ship:false` — it's an input to a shown deliverable, not a second deliverable.
+
 ### Asset list discipline — cadence-skill rule (v2 addition)
 
 **For campaigns where `cadence_shape.type` is `ongoing` or `hybrid`**, the Asset list MUST include a per-tenant cadence skill scaffold as a Phase 4 (Asset Production) deliverable:

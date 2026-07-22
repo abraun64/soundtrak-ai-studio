@@ -27,27 +27,61 @@ Usage:
     campaigns = DATA / "campaigns"
 """
 from __future__ import annotations
+import subprocess
 from pathlib import Path
 
 
+def _path_heuristic_main(p: Path) -> Path | None:
+    """Main checkout via the in-tree `<main>/.claude/worktrees/<name>` layout.
+    Returns the main root, or None if `p` isn't under such a path."""
+    parts = p.parts
+    for i in range(len(parts) - 1):
+        if parts[i] == ".claude" and parts[i + 1] == "worktrees":
+            return Path(*parts[:i]) if i > 0 else p
+    return None
+
+
+def _git_main_root(p: Path) -> Path | None:
+    """Main working tree of a LINKED git worktree, via git — works for ANY worktree
+    location (SYS-104: the WorktreeCreate hook checks worktrees out under
+    %LOCALAPPDATA%\\claude-worktrees\\<name>, NOT <main>/.claude/worktrees, so the
+    path heuristic alone misses them and data tools silently no-op).
+
+    A linked worktree's common git dir is `<main>/.git` (elsewhere than `<p>/.git`);
+    its parent is the main working tree. Returns None from the main checkout itself,
+    a non-worktree, or on any git error (caller falls back to repo_root)."""
+    try:
+        out = subprocess.run(
+            ["git", "-C", str(p), "rev-parse", "--path-format=absolute", "--git-common-dir"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if out.returncode != 0:
+            return None
+        common = Path(out.stdout.strip()).resolve()
+        main = common.parent
+        # Only a redirect if git points the common dir somewhere OTHER than this
+        # checkout's own root — i.e. we really are a linked worktree.
+        if main != p and main.exists():
+            return main
+    except (OSError, ValueError, subprocess.SubprocessError):
+        pass
+    return None
+
+
 def is_worktree(path) -> bool:
-    """True if `path` is inside a `.claude/worktrees/<name>` checkout."""
-    parts = Path(path).resolve().parts
-    return any(
-        parts[i] == ".claude" and parts[i + 1] == "worktrees"
-        for i in range(len(parts) - 1)
-    )
+    """True if `path` is a linked worktree (either the in-tree
+    `.claude/worktrees/<name>` layout or any git linked worktree)."""
+    p = Path(path).resolve()
+    return _path_heuristic_main(p) is not None or _git_main_root(p) is not None
 
 
 def data_root(repo_root) -> Path:
     """Canonical root for DATA dirs (campaigns/, system/, tenant-brand/).
 
-    From the main checkout, returns repo_root unchanged. From a worktree
-    (<main>/.claude/worktrees/<name>), returns the main checkout above it.
+    From the main checkout, returns repo_root unchanged. From a worktree — whether
+    the in-tree `<main>/.claude/worktrees/<name>` layout OR a git linked worktree
+    anywhere on disk — returns the main checkout. Falls back to repo_root on any
+    git error, so behaviour degrades safely to the running checkout.
     """
     p = Path(repo_root).resolve()
-    parts = p.parts
-    for i in range(len(parts) - 1):
-        if parts[i] == ".claude" and parts[i + 1] == "worktrees":
-            return Path(*parts[:i]) if i > 0 else p
-    return p
+    return _path_heuristic_main(p) or _git_main_root(p) or p

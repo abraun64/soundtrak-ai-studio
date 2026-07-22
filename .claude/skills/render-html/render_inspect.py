@@ -58,6 +58,8 @@ except Exception:  # pragma: no cover - defensive; keep a local copy in sync
 # PHASE_COST:N is a cost-cell sentinel that is NOT caught by the *_AUTO/_MARKER
 # regex above but is exactly the "silently blank section" class this loop targets.
 _PHASE_COST_RE = re.compile(r"<!--\s*PHASE_COST:\d+\s*-->")
+# PHASE_HUMAN_TIME:N is the human-time twin of PHASE_COST — same silently-blank class.
+_PHASE_HT_RE = re.compile(r"<!--\s*PHASE_HUMAN_TIME:\d+\s*-->")
 
 # A "long unbroken line" heuristic for pre/code overflow (no whitespace to wrap on).
 _LONG_LINE_CHARS = 130
@@ -250,6 +252,11 @@ def check_residual_markers(html_text: str, surface: str) -> list[Violation]:
         out.append(Violation(
             "unresolved-marker", "<!-- PHASE_COST:N -->",
             "a per-phase cost sentinel survived render (cost cell is blank)",
+            auto_fixable=False))
+    for _ in _PHASE_HT_RE.finditer(html_text):
+        out.append(Violation(
+            "unresolved-marker", "<!-- PHASE_HUMAN_TIME:N -->",
+            "a per-phase human-time sentinel survived render (human-time cell is blank)",
             auto_fixable=False))
     if 'class="render-warn"' in html_text:
         out.append(Violation(

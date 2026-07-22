@@ -28,6 +28,7 @@ _spec.loader.exec_module(_bg)
 ships = _bg._plan_ships_count
 nid = _bg._normalize_asset_id
 stale = _bg._copy_stale_vs_render
+rev_stale = _bg._render_stale_vs_source   # SYS-109 reverse direction
 DRIFT_S = _bg.COPY_RENDER_DRIFT_SECONDS  # 14400 (4h) at time of writing
 
 # (input, expected) — grow this list whenever a parser bug is found.
@@ -85,6 +86,22 @@ STALE_CASES = [
     (1000, None, False),                 # no ship mtime -> no signal
 ]
 
+# _render_stale_vs_source(source_mtime, render_mtime): the SYS-109 REVERSE direction —
+# True iff the SOURCE is NEWER than the render by more than the 4h window (source edited,
+# derived surface never regenerated: the 2026-07-22 storyboard case). Render newer than
+# source (the healthy render-after-edit order) NEVER flags; either None is no-signal.
+# (source_mtime, render_mtime, expected).
+REV_STALE_CASES = [
+    (1000, 1000, False),                 # equal -> not stale
+    (1000 + _T - 1, 1000, False),        # source ahead but within window -> not stale
+    (1000 + _T + 1, 1000, True),         # source ahead past window -> STALE (render behind)
+    (1000 + 86400, 1000, True),          # source a day ahead of render -> STALE
+    (1000, 1000 + 86400, False),         # render AHEAD of source (normal render-after-edit) -> not stale
+    (1000, 1000 + _T + 5, False),        # render newer, never flags regardless of gap
+    (None, 1000, False),                 # no source mtime -> no signal
+    (1000, None, False),                 # no render mtime -> no signal
+]
+
 # The copy-staleness tripwire (asset_ship_mtime in run_check) EXEMPTS binary visual
 # surfaces: a re-rendered/imported tile (.png from Canva, a Playwright PNG render) must
 # not flag the article copy.md as stale. Guard the exempt/non-exempt split so it can't
@@ -111,11 +128,16 @@ def _run() -> int:
         got = stale(cm, sm)
         if got != exp:
             fails.append(f"  _copy_stale_vs_render({cm!r}, {sm!r}) = {got!r}, expected {exp!r}")
+    for src, rnd, exp in REV_STALE_CASES:
+        got = rev_stale(src, rnd)
+        if got != exp:
+            fails.append(f"  _render_stale_vs_source({src!r}, {rnd!r}) = {got!r}, expected {exp!r}")
     for suffix, exp in EXEMPT_SUFFIX_CASES:
         got = suffix in _bg._COPY_SYNC_EXEMPT_SUFFIXES
         if got != exp:
             fails.append(f"  {suffix!r} in _COPY_SYNC_EXEMPT_SUFFIXES = {got!r}, expected {exp!r}")
-    total = len(SHIPS_CASES) + len(NID_CASES) + len(STALE_CASES) + len(EXEMPT_SUFFIX_CASES)
+    total = (len(SHIPS_CASES) + len(NID_CASES) + len(STALE_CASES)
+             + len(REV_STALE_CASES) + len(EXEMPT_SUFFIX_CASES))
     if fails:
         print(f"FAIL — {len(fails)}/{total} build-gallery parser cases failed:")
         print("\n".join(fails))

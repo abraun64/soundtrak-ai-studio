@@ -127,6 +127,52 @@ def _duplicates(seq) -> list[str]:
     return dupes
 
 
+def _structural_problems(store: str) -> list[str]:
+    """SYS-107 — catch malformations the line-based id scan is blind to:
+      1. DUPLICATE KEYS within one item — a lost `- id:` line merges two tickets into a
+         single mapping, and yaml.safe_load silently keeps the LAST value per key (the
+         2026-07-22 Decompile incident: SYS-101 parsed as the Decompile ticket, clobbering
+         its `done` status invisibly).
+      2. an item with no `id:` at all.
+    Returns problem strings; empty if the store parses cleanly (or pyyaml is unavailable —
+    the line-based checks still run, so the guard degrades safely)."""
+    try:
+        import yaml
+    except Exception:
+        return []
+
+    class _UniqueKeyLoader(yaml.SafeLoader):
+        def construct_mapping(self, node, deep=False):
+            seen = set()
+            for k_node, _v in node.value:
+                k = self.construct_object(k_node, deep=deep)
+                if k in seen:
+                    raise yaml.constructor.ConstructorError(
+                        None, None,
+                        f"duplicate key {k!r} in one item — a lost `- id:` line merging two items?",
+                        k_node.start_mark,
+                    )
+                seen.add(k)
+            return super().construct_mapping(node, deep=deep)
+
+    text = _read(STORES[store])
+    if not text.strip():
+        return []
+    try:
+        data = yaml.load(text, Loader=_UniqueKeyLoader)
+    except yaml.YAMLError as e:
+        return [f"{store}: malformed — {str(e).splitlines()[0]}"]
+    problems: list[str] = []
+    for i, item in enumerate((data or {}).get("items") or []):
+        if not isinstance(item, dict):
+            problems.append(f"{store}: item #{i} is not a mapping")
+        elif not item.get("id"):
+            problems.append(
+                f"{store}: an item has no `id:` (title: {str(item.get('title') or '')[:50]!r})"
+            )
+    return problems
+
+
 def _worktree_banner() -> None:
     if _IN_WORKTREE:
         print(
@@ -165,6 +211,10 @@ def cmd_check() -> int:
     overlap = sorted(set(backlog_ids) & set(idea_ids))
     for sid in overlap:
         problems.append(f"id {sid} is live in BOTH backlog.yaml and ideas.yaml")
+
+    # SYS-107 — structural malformation (duplicate keys within one item / missing id)
+    for store in ("backlog", "ideas"):
+        problems.extend(_structural_problems(store))
 
     if problems:
         print("SYS-025 id guard: COLLISION", file=sys.stderr)

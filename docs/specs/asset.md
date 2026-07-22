@@ -158,6 +158,42 @@ How the operator confirms it's working. Names exact places to look and what succ
 
 **Ship-complete contract**: the operator opens the asset, reads from top to bottom, and ends with a deployed working thing. No "go figure out the technical setup" handoffs.
 
+### Portable pack — REQUIRED for any NON-WEBSITE asset (SYS-105)
+
+**HTML is the authoring/preview format, not the delivery format.** UNLESS an asset is a genuine website page (deployed AS HTML to Netlify / a CMS-as-HTML), the destination — Substack, Mailchimp, LinkedIn native, most CMS rich-text editors — does **not** accept arbitrary HTML/CSS. Right-click "save image" only works on true `<img>`/SVG; it CANNOT capture an HTML/CSS-composed graphic block (a masthead built from `<div>`s, an evidence card of SVG + `<div>`s) — exactly where the brand design lives. So each such block must be **rendered to a standalone PNG**, or the design is lost on paste.
+
+Every non-website asset therefore ships a **portable pack**: the clean copy (already `copy.md`, pasted as the body) **plus a PNG of every embeddable composed visual block**. Declare it with a top-level `portable:` manifest in `asset.yaml` — the shared exporter `.claude/lib/export_portable_assets.py` (the INVERSE of render-html: HTML → copy + PNGs) reads it, renders `source_html` in headless chromium with brand fonts pinned, and screenshots each block at 2× into a `portable/` subfolder:
+
+```yaml
+portable:
+  source_html: issue-header.html     # the HTML whose blocks are exported
+  copy: copy.md                      # the paste-ready body (pointer)
+  fonts: soundtrak                    # optional tenant font set (pins brand fonts)
+  images:
+    - name: masthead
+      selector: "header.masthead"    # CSS selector of the composed block
+      where: "Substack post header image"   # WHERE it goes on upload
+      platform: Substack
+    - name: evidence
+      selector: ".art-evidence"
+      where: "embed inline after the intro"
+      platform: Substack
+```
+
+Run: `python .claude/lib/export_portable_assets.py --asset <asset_dir>`. The pack is **production output** (`ship: false` — NOT extra gallery tiles; one tile per asset stays). It surfaces in the asset's gallery **lightbox** as an "📦 Upload pack — what ships & where" section (rendered from the `portable:` manifest), so the operator opens the tile and sees exactly what to upload and where. First cut covers Substack + Mailchimp + the article/email/social forms; extend to CMS as adapters land.
+
+### Single-source render for cadenced newsletter headers (SYS-094, forward-only)
+
+The stale-mirror class (2026-07-09): an edition's body lived verbatim in BOTH `edition.md` AND the hand-authored `issue-header.html`, so a rework of one silently left the other stale. The fix is to stop hand-copying — `issue-header.html` becomes a **build artifact derived from one source**:
+
+- `edition.md` — the article body (THE single source for the prose)
+- `header.yaml` — the per-edition data (kicker · headline · standfirst · evidence values · hero)
+- a **slotted look-kit template** (`{{SLOT}}` placeholders — the constant chrome)
+
+`python .claude/lib/render_issue_header.py --asset <asset_dir>` renders them into `issue-header.html` (body from `edition.md` markdown, with light conventions: first para after the first `##` → `.lede`, a `> ` blockquote → `.pull`, an `<!-- HERO -->` marker → the hero `<figure>` from `header.yaml`). The output carries a **provenance stamp** — content hashes of its sources — so a content-based staleness check can supersede the mtime heuristic (`_copy_stale_vs_render`). Because the body is rendered, not mirrored, `issue-header.html` can no longer drift from `edition.md`.
+
+**FORWARD-ONLY.** This is the authoring path for **NEW editions (The Debrief #5 onward)**. Editions **#1–#4 are approved + frozen** and are NOT regenerated (their headers are hand-authored, signed off). To adopt at #5: derive the slotted template once from the latest approved edition's `issue-header.html` (replace its per-edition values with `{{SLOT}}`s so it reproduces the approved chrome), then author each new edition as `edition.md` + `header.yaml` and render. Remaining tail: wire `build-gallery`'s staleness check to read the provenance stamp (content-hash) instead of mtime.
+
 ## 2. Sub-edit verdicts (Producer self-QA)
 
 - **Copy 3-layer**: Pass / Pass-with-fixes / Fail
@@ -195,8 +231,16 @@ How the operator confirms it's working. Names exact places to look and what succ
 
 Numbered list of operator-facing decisions Producer needs the operator to make at the approval gate. Be specific. Surface trade-offs. Include Producer's recommended default per question so operator can `approve as-recommended` to accept all defaults.
 
-1. **<Question name>**: <body of question + Producer's recommended default + tradeoff>
+1. **<Question name>** _(blocks: gate)_: <body of question + Producer's recommended default + tradeoff>
 2. ...
+
+**Blocking class + disposition at approval (SYS-106 — "hidden is not resolved").** Every gate question carries a **blocking class** — `gate` (default; must be settled to approve) · `phase-5` · `phase-6` · `publish` (legitimately answered LATER, at that phase). Write it inline as `_(blocks: <class>)_` after the question name. On the Phase-4b **approval**, each open question gets an explicit **disposition** — never left dangling, never silently hidden:
+
+- **resolved** — the approved state or the operator's approval note answers it (CM auto-resolves these; record the answer).
+- **waived** — the operator consciously drops it (record why).
+- **deferred → Phase-X** — a non-`gate`-class question carried to the phase where it's actually answered. It **graduates** to that phase's `operator_actions` (in `campaign.yaml`) so it re-surfaces on the dashboard To Do — NOT lost. A `gate`-class question **cannot** be deferred (it must be resolved or waived to approve).
+
+Dispositions are recorded in the asset audit (`## 5. Production notes` / the record's audit block). The gallery renders each question's disposition truthfully (resolved / waived / deferred→where) rather than hiding all approved-asset questions under a blanket "resolved" heading.
 
 ## 7. What the operator does next
 
