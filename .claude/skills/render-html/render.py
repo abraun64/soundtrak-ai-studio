@@ -103,6 +103,8 @@ def infer_template(markdown_path: Path) -> str:
         return "plan"
     if stem in ("concept-trio", "selected", "safe", "smart", "wild"):
         return "concept-trio"  # all concept pages share the concept styling
+    if parent == "tenant-brand" and stem.endswith("-phase0"):
+        return "index"  # the phase-0 baseline is a WIDE operator dashboard (status + library tables), not the narrow brand-context reading column
     if parent == "tenant-brand" or ("brand" in stem and "context" in stem):
         return "brand-context"
     return "base"
@@ -842,6 +844,84 @@ def find_project_root(path: Path) -> Path:
     return p.parent  # fallback
 
 
+# Which governing spec each operator surface follows, so every rendered surface can
+# carry a "Schema this follows →" link a human-in-the-loop can click to jump to the
+# spec and edit the structure. Keyed by the surface's canonical identity (mostly the
+# inferred template; a couple are refined by path in _surface_spec_key below).
+# EDIT THIS DICT to point a surface at a different spec. (key -> (spec_stem, label))
+SURFACE_SPECS = {
+    "brief":           ("brief",                   "Brief spec"),
+    "brand-context":   ("brand-context",           "Brand Context spec"),
+    "concept-trio":    ("concept",                 "Concept spec"),
+    "plan":            ("plan",                     "Plan spec"),
+    "asset-preview":   ("asset",                    "Asset spec"),
+    "dashboard":       ("dashboard",                "Dashboard spec"),
+    "tasks":           ("dashboard",                "Dashboard spec — Task-entry format"),
+    "index":           ("dashboard",                "Operator-surface spec"),
+    "insight-brief":   ("insight-brief",            "Insight Brief spec"),
+    "phase-5-rollout": ("phase-5-rollout",          "Phase 5 Rollout spec"),
+    "phase-6-cadence": ("phase-6-cadence",          "Phase 6 Cadence spec"),
+    "phase0":          ("phase-0-tenant-baseline",  "Phase 0 Tenant Baseline spec"),
+    "tenant-home":     ("phase-0-tenant-baseline",  "Phase 0 Tenant Baseline spec"),
+}
+
+
+def _surface_spec_key(markdown_path: Path, template_name: str) -> str | None:
+    """Resolve which SURFACE_SPECS entry governs this surface. Returns None for
+    anything that isn't a recognised operator surface (incl. the specs themselves —
+    a spec IS the schema, so it never links to one)."""
+    stem = markdown_path.stem
+    parent = markdown_path.parent.name
+    if parent == "specs":
+        return None  # a spec doc is the schema; don't append a self-referential footer
+    if stem in ("phase-5-rollout", "phase-6-cadence"):
+        return stem
+    if parent == "tenant-brand" and stem.endswith("-phase0"):
+        return "phase0"
+    if parent == "tenant-brand" and stem.endswith("-home"):
+        return "tenant-home"
+    if template_name in SURFACE_SPECS:
+        return template_name
+    return None
+
+
+def schema_footer_html(spec_stem: str, label: str, rel_href: str) -> str:
+    """The standard, self-contained (inline-styled so it survives every template's
+    CSS) 'Schema this follows' footer shared by all operator surfaces."""
+    return (
+        '<hr style="margin-top:2.5em;border:none;border-top:1px solid #e8e7e2;">\n'
+        '<p class="schema-follows" style="font-size:13px;color:#8a8a8a;margin:1em 0 0;">'
+        '<strong style="color:#6a6a6a;font-weight:600;">📐 Schema this follows:</strong> '
+        f'<a href="{rel_href}" style="color:#b8302f;">{label}</a> '
+        '<span style="color:#a5a5a5;">— edit the spec to change this surface’s structure</span>'
+        '</p>'
+    )
+
+
+def append_schema_footer(body_html: str, markdown_path: Path, output_path: Path,
+                         template_name: str, project_root: Path) -> str:
+    """Append the standard 'Schema this follows' link to the governing spec on every
+    operator surface. Idempotent: strips any pre-existing (hand-authored) schema line
+    first so re-renders never duplicate it."""
+    # Strip any pre-existing "Schema this follows" line (hand-authored list item or
+    # paragraph) so the injected footer is the single, consistent source.
+    body_html = re.sub(r'<li>\s*(?:<[^>]+>\s*)*Schema this follows.*?</li>\s*',
+                       '', body_html, flags=re.IGNORECASE | re.DOTALL)
+    body_html = re.sub(r'<p>\s*(?:<[^>]+>\s*)*Schema this follows.*?</p>\s*',
+                       '', body_html, flags=re.IGNORECASE | re.DOTALL)
+
+    key = _surface_spec_key(markdown_path, template_name)
+    if not key:
+        return body_html
+    spec_stem, label = SURFACE_SPECS[key]
+    spec_html = project_root / "docs" / "specs" / f"{spec_stem}.html"
+    try:
+        rel = os.path.relpath(spec_html, start=output_path.resolve().parent).replace(os.sep, "/")
+    except Exception:
+        return body_html
+    return body_html + "\n" + schema_footer_html(spec_stem, label, rel)
+
+
 def humanize_slug(slug: str) -> str:
     """Turn 'the-signal-amp-2026q2' into 'The Signal Amp 2026q2'. Strip .html / .md."""
     name = slug.replace(".html", "").replace(".md", "")
@@ -1565,6 +1645,9 @@ def render(markdown_path: Path, template_name: str, output_path: Path, extra_con
     styles = load_styles()
 
     project_root = find_project_root(output_path)
+    # Every operator surface carries a "Schema this follows →" link to its governing
+    # spec, so a human in the loop can jump to the spec and edit the structure.
+    body_html = append_schema_footer(body_html, markdown_path, output_path, template_name, project_root)
     breadcrumb_html = build_breadcrumb(output_path, project_root)
     library_nav_html = build_library_nav(output_path, project_root)
     # SYS-090 — relative prefix from this surface to the repo root, so the footer's

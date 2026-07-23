@@ -218,6 +218,40 @@ def _library_block(slug: str) -> str:
     )
 
 
+def _research_library_block(slug: str) -> str:
+    """The Insights (research) library block — mirrors _library_block but for the shared
+    tenant/research-library (the evidence base the Insights Manager cites). Same browse-link +
+    add-CTA pattern so the two libraries read consistently on the baseline surface."""
+    entries_dir = ROOT / "tenant" / "research-library"
+    index = entries_dir / "INDEX.html"
+    files = sorted((p for p in entries_dir.glob("*.md") if p.stem.upper() != "INDEX"),
+                   key=lambda p: -p.stat().st_mtime) if entries_dir.exists() else []
+    n = len(files)
+    recent = ", ".join(f"`{p.stem}`" for p in files[:5]) if files else "_none yet_"
+    idx_link = ("[browse the Research library index](../tenant/research-library/INDEX.html)"
+                if index.exists() else "_(no INDEX yet)_")
+    prompt = (f"Add an insight to the {slug} research library. "
+              f"Insight to add: [state the finding, its named source + link, the segment or claim it "
+              f"supports, and why it matters for {slug}].")
+    prompt_js = prompt.replace("`", "").replace("\\", "\\\\").replace("'", "\\'")
+    cta = (
+        f'<button class="p0-cta" style="display:inline-block;margin:8px 0;padding:10px 16px;'
+        f'background:#e63c3c;color:#fff;border:0;border-radius:6px;font-weight:600;cursor:pointer;'
+        f'font-family:system-ui,sans-serif;" onclick="var t=\'{prompt_js}\';'
+        f'if(window.sendPrompt){{sendPrompt(t);}}else{{if(navigator.clipboard)navigator.clipboard.writeText(t);'
+        f'this.textContent=\'\\u2713 Prompt copied — paste it into Claude\';}}">'
+        f'➕ Add a research insight</button>'
+    )
+    return (
+        f"**{n} entries** in the shared research (insights) library — {idx_link}.\n\n"
+        f"Most recent: {recent}.\n\n"
+        f"{cta}\n\n"
+        f"<small>The evidence base the Insights Manager cites per campaign. The button sends the "
+        f"add-prompt straight to Claude when this page is opened in the app; from a plain browser it "
+        f'copies the prompt for you to paste. Or just tell Claude: "add to the research library: …".</small>'
+    )
+
+
 def _audit_block(rows: list[dict]) -> str:
     dated = [r for r in rows if r["state"] in ("complete", "drafted") and r["date"]]
     dated.sort(key=lambda r: r["date"], reverse=True)
@@ -239,6 +273,7 @@ def build(slug: str) -> int:
     summary = str(tenant.get("summary") or "")
     st = foundation_status(slug, tenant)   # SYS-092 — shared with the tenant home
     rows = st["rows"]
+    own = [r for r in rows if not r["shared"]]   # the tenant's OWN items (audit history + counts)
     done, total, pct = st["done"], st["total"], st["pct"]
     gaps = ""
     if st["drafted"]:
@@ -265,6 +300,10 @@ _The durable per-business foundation every campaign inherits as FIXED INPUT. Bui
 
 {_library_block(slug)}
 
+## Insights (research) library
+
+{_research_library_block(slug)}
+
 ## Audit history
 
 {_audit_block(own)}
@@ -282,7 +321,7 @@ _The durable per-business foundation every campaign inherits as FIXED INPUT. Bui
         print(f"  render FAILED for {slug}: {res.stderr.strip()}", file=sys.stderr)
         return 1
     print(f"  Phase-0 surface: {md_path.name} -> {html_path.name}  "
-          f"({done}/{total} established, {len(drafted)} drafted, {len(todo)} to do)")
+          f"({done}/{total} established, {st['drafted']} drafted, {st['todo']} to do)")
     return 0
 
 

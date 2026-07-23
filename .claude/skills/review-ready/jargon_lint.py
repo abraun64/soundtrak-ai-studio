@@ -32,6 +32,18 @@ DENYLIST = [
     (r"\bSDT\b",                         "SDT",                 "plain-language the behavioural driver (not the acronym)"),
     (r"\bmoral[- ]disgust\b",            "moral-disgust",       "plain-language the driver"),
     (r"\bTBD\b",                         "TBD-as-status",       "say what's pending + when it resolves, not a bare 'TBD'"),
+    # Code identifiers + execution internals — belong in the collapsible detail blocks
+    # for whoever runs it, NEVER the lead prose (SYS-118, esp. Phase-5 launch + Phase-6 cadence).
+    (r"\b[\w-]+\.(?:py|sh|ps1|js|bat)\b", "script name", "describe what the step does, not the script that runs it"),
+    (r"\bexit[- ]?code[s]?\b",           "exit code",           "say 'passed' / 'failed', not the exit code"),
+    (r"\bhero[- ]?scrub\b",              "hero-scrub",          "'the screenshot privacy check'"),
+    (r"\bcontent[- ]?subedit\b",         "content-subedit",     "'the copy clean-up pass'"),
+    (r"\bnav[- ]?crop\b",                "nav-crop",            "'crop the browser chrome out of the screenshot'"),
+    (r"\bau[- ]?sender[- ]?id\b",        "au-sender-id",        "'the legal sender footer (business name + ABN)'"),
+    (r"\breceipts?[- ]guardrail\b",      "receipts-guardrail",  "'the evidence-only rule'"),
+    (r"\bmulti[- ]?tenant\b",            "multi-tenant",        "'runs for more than one client'"),
+    (r"\bdogfood\w*\b",                  "dogfood",             "'we use it on our own campaigns'"),
+    (r"\bUTM\b",                         "UTM",                 "'the tagged tracking link'"),
 ]
 
 # Marketing-industry-accepted — documented so the cold-reader + humans know the bar.
@@ -52,11 +64,31 @@ def visible_text(raw: str, is_html: bool) -> str:
 
 
 def lint(path: Path) -> list[dict]:
+    """SYS-118 — flag jargon in the LEAD PROSE only. Technical detail is allowed (and
+    expected) inside the collapsible blocks (`<details>`) and code (fenced ``` or inline
+    `spans`) that carry the execution 'how' for whoever runs it. So those zones are
+    skipped, and only the plain-language prose a non-technical reader acts on is checked."""
     raw = path.read_text(encoding="utf-8", errors="replace")
     is_html = path.suffix.lower() == ".html"
     findings = []
+    in_details = False   # inside a <details> collapsible (technical zone) — skip
+    in_fence = False     # inside a ``` fenced code block — skip
     for i, line in enumerate(raw.splitlines(), 1):
+        if line.strip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        low = line.lower()
+        if "<details" in low:
+            in_details = True
+        if in_details:
+            if "</details>" in low:
+                in_details = False
+            continue
         text = visible_text(line, is_html)
+        text = re.sub(r"`[^`]*`", " ", text)              # allow technical terms in inline `code` spans
+        text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)  # keep link TEXT, drop the URL (not prose jargon)
         for pat, label, fix in DENYLIST:
             for m in re.finditer(pat, text, re.I):
                 findings.append({"line": i, "term": m.group(0).strip(), "label": label, "fix": fix})

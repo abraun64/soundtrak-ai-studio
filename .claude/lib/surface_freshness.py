@@ -25,6 +25,7 @@ Usage:
 """
 from __future__ import annotations
 import argparse
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -39,14 +40,37 @@ except Exception:
     DATA = ROOT
 CAMPAIGNS = DATA / "campaigns"
 TENANT_BRAND = DATA / "tenant-brand"
-RENDER = ROOT / ".claude" / "skills" / "render-html" / "render.py"
-BASE_TMPL = ROOT / ".claude" / "skills" / "render-html" / "templates" / "base.html"
-BUILD_GALLERY = ROOT / ".claude" / "skills" / "asset-gallery" / "build-gallery.py"
-BUILD_TENANT = ROOT / ".claude" / "skills" / "render-html" / "build-tenant-home.py"
+# SYS-116: the surfaces we heal are MAIN-canonical (they live under DATA), so render them with
+# MAIN's canonical renderer — NOT the running checkout's. From a worktree, ROOT is the worktree
+# and its render code may be stale/unlanded; rendering main's dashboard.html with it silently
+# clobbers the surface (a worktree's stale code reverted a landed fix — the bug this fixes). DATA
+# is the main checkout root, so DATA/.claude/... is main's code. From the main checkout DATA==ROOT.
+_CODE = DATA
+RENDER = _CODE / ".claude" / "skills" / "render-html" / "render.py"
+BASE_TMPL = _CODE / ".claude" / "skills" / "render-html" / "templates" / "base.html"
+BUILD_GALLERY = _CODE / ".claude" / "skills" / "asset-gallery" / "build-gallery.py"
+BUILD_TENANT = _CODE / ".claude" / "skills" / "render-html" / "build-tenant-home.py"
 
 EPSILON = 2.0  # seconds — absorb git-checkout same-stamp + sub-second render timing
 
 _SKIP_DIR = ("/gallery-thumbs/",)
+
+# SYS-116: mtime-freshness is necessary but NOT sufficient — a surface can be NEWER than its data
+# yet contain an UNRESOLVED auto-inject sentinel (rendered by stale code that didn't know the
+# marker). That reads as a blank/broken section while passing the mtime check. So a surface that
+# still carries any of these sentinels is treated as STALE and rebuilt (with main's code, above);
+# if it survives a rebuild, heal() reports it loudly instead of letting it through silently.
+_SENTINEL_RE = re.compile(
+    r"<!--\s*(?:[A-Z0-9_]*(?:_AUTO|_MARKER|AUTO_INJECT)[A-Z0-9_]*"
+    r"|PHASE_COST:\d+|PHASE_HUMAN_TIME:\d+)\s*-->"
+)
+
+
+def _has_sentinel(p: Path) -> bool:
+    try:
+        return bool(_SENTINEL_RE.search(p.read_text(encoding="utf-8", errors="replace")))
+    except OSError:
+        return False
 
 
 def _mtime(p: Path) -> float:
@@ -122,13 +146,13 @@ def stale_surfaces(scope_campaign: str | None = None) -> list[dict]:
         # dashboard.html ← every .md/.yaml in the campaign (operator_actions, plan, brief,
         # the dashboard md itself). Exclude the generated surfaces so it isn't newer-than-self.
         dash_data = _newest_under(cd, suffixes=(".md", ".yaml"), skip_generated={dash, gallery})
-        if dash.exists() and dash_data and _mtime(dash) < dash_data - EPSILON:
+        if dash.exists() and ((dash_data and _mtime(dash) < dash_data - EPSILON) or _has_sentinel(dash)):
             stale.append({"surface": f"{slug}/dashboard.html", "kind": "dashboard",
                           "slug": slug, "out": dash, "data_mtime": dash_data, "out_mtime": _mtime(dash)})
 
         # gallery.html ← every asset file (asset.yaml + ship files: html/png/mp4/md).
         gal_data = _newest_under(assets)
-        if gallery.exists() and gal_data and _mtime(gallery) < gal_data - EPSILON:
+        if gallery.exists() and ((gal_data and _mtime(gallery) < gal_data - EPSILON) or _has_sentinel(gallery)):
             stale.append({"surface": f"{slug}/gallery.html", "kind": "gallery",
                           "slug": slug, "out": gallery, "data_mtime": gal_data, "out_mtime": _mtime(gallery)})
 
@@ -141,7 +165,7 @@ def stale_surfaces(scope_campaign: str | None = None) -> list[dict]:
         )
         for name in ("tasks", "index"):
             out = CAMPAIGNS / f"{name}.html"
-            if out.exists() and cross_data and _mtime(out) < cross_data - EPSILON:
+            if out.exists() and ((cross_data and _mtime(out) < cross_data - EPSILON) or _has_sentinel(out)):
                 stale.append({"surface": f"{name}.html", "kind": "cross", "name": name,
                               "out": out, "data_mtime": cross_data, "out_mtime": _mtime(out)})
 
@@ -161,7 +185,7 @@ def stale_surfaces(scope_campaign: str | None = None) -> list[dict]:
                     _mtime(TENANT_BRAND / f"{tenant}.yaml"),
                     _mtime(TENANT_BRAND / f"{tenant}-home.md"),
                 )
-                if t_data and _mtime(home) < t_data - EPSILON:
+                if (t_data and _mtime(home) < t_data - EPSILON) or _has_sentinel(home):
                     stale.append({"surface": f"tenant-brand/{tenant}-home.html", "kind": "tenant",
                                   "tenant": tenant, "out": home, "data_mtime": t_data, "out_mtime": _mtime(home)})
     return stale
@@ -169,7 +193,9 @@ def stale_surfaces(scope_campaign: str | None = None) -> list[dict]:
 
 def _run(args: list[str]) -> bool:
     try:
-        r = subprocess.run(["python"] + args, cwd=str(ROOT), capture_output=True,
+        # SYS-116: run from the main checkout (DATA) so the canonical renderer's relative
+        # resolution + any imports come from main, matching the main-canonical surface it writes.
+        r = subprocess.run(["python"] + args, cwd=str(DATA), capture_output=True,
                            text=True, encoding="utf-8", errors="replace", timeout=180)
         return r.returncode == 0
     except Exception:

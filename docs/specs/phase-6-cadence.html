@@ -1675,7 +1675,8 @@ body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weigh
 body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
 body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
 body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
-body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+/* SYS-099 — the asset number reads at a glance (was a faint grey suffix, easy to miss). */
+body.template-plan .pv3 .c-item .rid { color: var(--accent); font-weight: 700; }
 body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
 body.template-plan .pv3 .row-more { margin-top: 5px; }
 body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
@@ -1939,7 +1940,17 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
   <main class="page-main">
     <article class="content">
       <h1 id="phase-6-ongoing-cadence-spec">Phase 6 Ongoing Cadence — Spec</h1>
-<p><strong>Spec version</strong>: v2 · 2026-06-15 — aligned to the shared operator-runbook spine introduced in <code>phase-5-rollout.md</code> v2. (v1 2026-06-03 per Rollout Architecture v2 §6.)</p>
+<p><strong>Spec version</strong>: v4 · 2026-07-23 — <strong>§3 cycle-history + §4 KPI tables removed</strong> (operator decision): they can't be auto-maintained from external tools (Substack / LinkedIn / Mailchimp aren't auto-read), so a hand-kept table goes stale and erodes trust in every surface. Cycle count lives on the <strong>data-driven dashboard</strong>; KPI reads come <strong>on demand from the marketing-forensic-analyst</strong> (in §3 close, or any time), reading real exported data. NEW: the <strong>"the system IS the martech stack" principle</strong> + the maintenance mechanism (which session, how it stays current), both below and surfaced to the operator in Step 5. (v3 2026-07-23 defined-layout; v2 2026-06-15 shared-spine; v1 2026-06-03 per Rollout Architecture v2 §6.)</p>
+<p><strong>The canonical section order</strong> (every Phase-6 cadence page follows this): <strong>§0</strong> overview → <strong>✋ sign-off</strong> → <strong>§1</strong> the cycle (plain-language steps) → <strong>§2</strong> escalation paths → <strong>§3</strong> what close looks like → <em>for the record</em> (links). No other top-level sections — <strong>no cycle-history table, no KPI table</strong>, no "procedural refinements", no standalone "who runs it" (fold into §0). Tracking + reporting are handled by the system + the analyst, never a hand-kept page table (see the principle below).</p>
+<hr>
+<h2 id="the-system-is-the-martech-stack-the-load-bearing-principle">The system IS the martech stack (the load-bearing principle)</h2>
+<p>A Phase-6 cadence page is <strong>not a passive doc the operator maintains in a separate tool</strong> — the AI system (<strong>claude.ai + the AI Studio workspace + the render pipeline</strong>) <em>is</em> the campaign-management layer. Three consequences the spec must always get right, and the page must make obvious to the operator:</p>
+<ol>
+<li><strong>State lives in the files, not the chat.</strong> The campaign's memory is <code>campaign.yaml</code> (phase, cadence entries, operator actions) + the campaign folder — never a chat session. So <strong>any</strong> workspace session recognises the ongoing campaign: CM / the cadence skill read that data on startup and know exactly where things stand. A brand-new fortnightly asset-production session picks up the thread with no hand-off.</li>
+<li><strong>The operator never hand-edits the surface.</strong> At the end of a cycle, the <em>same</em> session that produced the edition updates the DATA (the cadence entry) and RE-RENDERS the surfaces (dashboard + cadence page). Surfaces are a projection of the data ("operator surfaces are generated from data"). <strong>Step 5 (Track) states this to the operator in plain words.</strong></li>
+<li><strong>The system maintains what it can see; the analyst reads what it can't.</strong> Cycle count / editions shipped / phase status live in <code>campaign.yaml</code> → auto-rendered (the dashboard). KPI numbers (subscribers, opens, engagement) live in EXTERNAL tools the system doesn't auto-read → so they are NOT put in a hand-kept table (it would go stale); they're read <strong>on demand by the marketing-forensic-analyst</strong> from real exported data. <strong>This is why the §3 cycle-history and §4 KPI tables were removed.</strong></li>
+</ol>
+<p><strong>Surface it, don't bury it</strong>: §0 and Step 5 must make clear to the operator that claude.ai + the AI Studio ARE the martech stack — the same chat that writes the edition also keeps the campaign's records and surfaces current, in one loop, in the workspace.</p>
 <p><strong>What this is</strong>: the per-campaign <strong>operator runbook for steady state</strong> — what the operator opens on cadence day and executes top to bottom. <strong>Authored by CM at the END of Phase 4, alongside <code>phase-5-rollout.md</code></strong> (both seed from Plan §N) — only for cadenced campaigns (<code>cadence_shape.type</code> != "one-off").</p>
 <p><strong>Stored</strong>: <code>campaigns/&lt;slug&gt;/phase-6-cadence.md</code> (markdown authoritative) + rendered <code>phase-6-cadence.html</code>. <strong>Canonical filename</strong> — not <code>cadence-playbook.md</code> (a legacy drift; retrofits rename to this).</p>
 <p><strong>Authored from</strong>: Plan §N.2 + Brief §Tech/Human/Cadence + <code>tenant/&lt;name&gt;/integrations.yaml</code> + Phase 5 closure learnings.</p>
@@ -1952,19 +1963,19 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <tr>
 <th>Section</th>
 <th>Phase 5</th>
-<th>Phase 6 (this spec)</th>
+<th>Phase 6 (this spec, v3)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Cold-start context</td>
 <td>§0 At a glance</td>
-<td>§0 At a glance</td>
+<td>§0 At a glance (fold "who runs it" in here)</td>
 </tr>
 <tr>
-<td><strong>Atomic step checklist</strong> (shared step unit)</td>
+<td><strong>The cycle's steps</strong> (plain-language numbered steps)</td>
 <td>§2 setup &amp; deploy (once)</td>
-<td><strong>§1 this cycle's checklist (repeats)</strong></td>
+<td><strong>§1 the cycle (repeats)</strong></td>
 </tr>
 <tr>
 <td>Failure / escalation</td>
@@ -1972,23 +1983,23 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <td>§2 escalation paths</td>
 </tr>
 <tr>
-<td>Status + history</td>
+<td>Wrap / close</td>
+<td>—</td>
+<td><strong>§3 what close looks like</strong></td>
+</tr>
+<tr>
+<td>Tracking / reporting</td>
 <td>§6 gate banner</td>
-<td>§3 cycle history</td>
+<td>dashboard (auto, data-driven) + analyst on demand — <strong>NOT a page table</strong></td>
 </tr>
 <tr>
 <td>One-time module</td>
 <td>§3 training &amp; handoff</td>
 <td>—</td>
 </tr>
-<tr>
-<td>Recurring module</td>
-<td>—</td>
-<td>§4 KPI tracking · §5 refinements</td>
-</tr>
 </tbody>
 </table>
-<p>The <strong>step unit</strong> (see <code>phase-5-rollout.md</code> §"The step unit") and the <strong>data-driven status + checkbox overlay</strong> rule are identical here. Phase 6 cycle steps are lighter than Phase 5 deploy steps — <em>Rollback</em> is usually n/a for a repeating step — but the anatomy (title · owner · method · time · verify · status) and the discipline (atomic, honest times, data-driven status) are the same.</p>
+<p>Both phases share the <strong>numbered-step format</strong> (§1 here = §2 there): each step leads with a plain-language "What this is" a non-technical reader can act on, carries its own check, and pushes any command/path detail into a collapsible (SYS-118). Phase 6 cycle steps are lighter than Phase 5 deploy steps — <em>Rollback</em> is usually n/a for a repeating step — but the discipline (atomic, honest times, plain language, data-driven status) is the same. <strong>The §1 format is the operator-preferred prose steps, NOT a 7-column table</strong> (the v2 table shape is retired).</p>
 <hr>
 <h2 id="schema">Schema</h2>
 <pre><code class="language-markdown"># Phase 6 Ongoing Cadence — &lt;Campaign Name&gt;
@@ -2000,9 +2011,10 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 **Plan status**: 🟡 Draft — awaiting your sign-off  /  ✅ Approved — the cadence may run
 
 ## §0 Campaign overview
-**Reuse the dashboard's 🧭 Campaign DNA block verbatim** (as Phase 5 does), then add a **cycle-workflow visual** — an Acme Co-style `&lt;pre&gt;` timeline of what happens each cycle/week (passive trigger → operator opens Code → runs the cadence skill → answers N questions → reviews gallery → adapter pushes → operator sends/posts → done · total time), with the **Phase-6 assets linked directly inside the workflow** (`&lt;a&gt;` links inside the `&lt;pre&gt;`).
-- **No separate key-asset thumbnail table** for Phase 6 — the workflow links the assets it uses; add one &quot;→ all assets in the Gallery&quot; line.
-- Close §0 with: who runs it · &quot;cycle complete when …&quot; · total operator time.
+**Reuse the dashboard's 🧭 Campaign DNA block** — Big Idea · Key message · 15-sec pitch · KPI · Full concept — **REQUIRED, identical to Phase 5**. Phase 6 MUST carry the campaign overview, not only cadence-specific rows (this was missed on The Debrief 2026-07-23 and corrected). Then add a **&quot;how the cadence runs&quot; block** (how often · each edition · who produces it · why it matters) below it.
+- **§0 carries a &quot;Quick links&quot; row** — **[Gallery] · [Plan] · [Dashboard]** (Phase 6 also the editorial calendar) — inside the campaign-overview table, so the operator jumps to the gallery and the plan from the TOP of the page, not only the footer. **This applies to BOTH the Phase-5 rollout and the Phase-6 cadence §0** (operator request 2026-07-23).
+- **No separate key-asset thumbnail table** for Phase 6 — link the assets from the Quick-links row + &quot;→ all assets in the Gallery&quot;.
+- Close §0 with: who runs it (fold the standalone &quot;who runs it&quot; here) · &quot;cycle complete when …&quot; (in §1) · total operator time.
 (Phase 5 keeps its key-asset visual table; Phase 6 swaps it for this cycle-workflow because the *flow* is what the operator needs to internalise, not a static asset grid.)
 
 ## ✋ Sign off this plan first   ← operator approval gate (added 2026-06-15)
@@ -2019,22 +2031,29 @@ Built at the end of Phase 4 alongside the Phase 5 doc — a **Draft you approve 
 
 **To approve**: reply `approve Phase 6 plan` → CM trims the **Plan status** line to `✅ **Approved** — the cadence may run (approved &lt;date&gt;)` and re-renders → the gate row drops and the cadence runs. Until then it's a proposal.
 
-## §1 This cycle's checklist
-**Cycle &lt;N&gt;** · &lt;episode/issue title&gt; · &lt;recorded/authored date&gt; · Target ship &lt;date&gt;
+## §1 The cycle (numbered steps + one review)
+*Plain-language numbered steps the operator works top to bottom each cycle. Each step = a &quot;What this is&quot; a non-technical reader can act on + a checkbox; any command/path detail lives in a collapsible, never the lead prose (SYS-118). Atomic (one action per step), honest on time. Fold the running order / &quot;what to pick&quot; INTO Step 1 — no separate running-order section.*
 
-| # | Step | Owner | Method | Time | Verify | Status |
-|---|---|---|---|---|---|---|
-| 1 | &lt;trigger — passive, e.g. &quot;new episode airs Wed&quot;&gt; | n/a | — | — | — | 🟢 |
-| 2 | &lt;operator opens Claude Code on cadence day&gt; | &lt;role&gt; | manual | 1 min | session loads | ⏳ |
-| 3 | &lt;runs slash command — e.g. /weekly-episode-pack&gt; | &lt;role&gt; | slash cmd | 5 min | CM interviews | ⏳ |
-| 4 | &lt;answers N structured questions&gt; | &lt;role&gt; | chat | &lt;min&gt; | inputs captured | ⏳ |
-| 5 | &lt;reviews approved assets in gallery&gt; | &lt;role&gt; | gallery.html | &lt;min&gt; | tiles on-brand | ⏳ |
-| 6 | &lt;adapter-handled step fires&gt; | CM (auto) | API | &lt;sec&gt; | draft created | ⏳ |
-| 7 | &lt;operator manual step — Send, social post, etc.&gt; | &lt;role&gt; | &lt;UI&gt; | &lt;min&gt; | live | ⏳ |
-| ... | | | | | | |
+### Step 1 — &lt;pick / trigger&gt;
+**What this is**: &lt;plain explanation&gt;. &lt;If there's a running order or a backlog to pick from, it goes HERE — folded into the pick.&gt;
+**How — the exact words to type**: `&lt;the literal prompt&gt;` (the normal case) · `&lt;variant&gt;` (a specific pick).
+&lt;details&gt;&lt;summary&gt;Setup — do this first&lt;/summary&gt; open a Claude session in the workspace; any path/option detail here, not above. &lt;/details&gt;
+| ✓ | Check |
+|---|---|
+| ☐ | &lt;plain check for this step&gt; |
+
+### Step 2 … Step N — &lt;same shape, one action each&gt;
+**What this is**: &lt;plain explanation of what the system produces or what the operator does&gt;.
+**Where to find it** (on any &quot;the system produced X&quot; step): &lt;the output folder + the gallery&gt;, so the operator knows where to review.
+**Review in the same chat** (on the review step): the operator reads the draft and replies in plain words in the SAME session that produced it (&quot;approve it&quot; / &quot;change the headline to …&quot;); it revises in place.
+| ✓ | Check |
+|---|---|
+| ☐ | &lt;plain check&gt; |
 
 **Cycle complete when**: &lt;criterion&gt;. Total operator time: ~&lt;min&gt;.
-Status is data-driven (cadence entry / propagator → dashboard Phase-6 row); interactive checkboxes are a personal overlay, never the source of truth.
+
+**The final step is always &quot;Track&quot; — and it's where the loop closes.** The operator tells the chat the cycle is done (+ any numbers worth noting); the SAME session records the cadence entry in `campaign.yaml` and re-renders the surfaces. The operator does NOT hand-edit the page. Because state is in the files, any session — even a fresh asset-production one — recognises the campaign. KPI numbers are NOT tabled on the page; real reads come from the analyst on demand (§3). Say this to the operator in Step 5, plainly: *claude.ai + the AI Studio are your martech stack — the same chat that writes the edition keeps its records current.*
+Status is data-driven (the cadence entry in `campaign.yaml` → dashboard Phase-6 row); the interactive checkboxes are a personal overlay, never the source of truth.
 
 ## §2 Escalation paths
 | If this happens | Do this | Then (fallback) |
@@ -2043,32 +2062,30 @@ Status is data-driven (cadence entry / propagator → dashboard Phase-6 row); in
 | ... | | |
 (Sourced from `tenant/&lt;name&gt;/integrations.yaml#escalation`. Don't duplicate — cross-reference.)
 
-## §3 Cycle history (last 8 cycles; older → collapsible)
-| Cycle | Title | Ship date | Operator | Send count | Open rate | Notes |
-|---|---|---|---|---|---|---|
-| &lt;N&gt; | &lt;title&gt; | &lt;date&gt; | &lt;name&gt; | &lt;count&gt; | &lt;%&gt; | &lt;notes&gt; |
+## §3 What close looks like (when the campaign wraps)
+Even an always-on cadence has a defined wrap (the KPI window is read, or the tenant retires the engine). Closing is not &quot;stop publishing&quot; — it's a short set of concrete moves (per `campaign-report.md` → `retro.md` → graduate):
+1. **Pull the numbers** — export the performance data into `reads/` (or hand over the paths).
+2. **Get the results report** — hand the files to the **marketing-forensic-analyst** → a standalone HTML readout (KPIs vs target, biggest funnel leak, what actually drove growth; every claim tagged, never invented). This IS the results readout.
+3. **Run the retro + graduate** — per `retro.md`, scope = campaign-end: what worked / didn't → system updates, PLUS the graduation pass (winning templates → `tenant/library/`; tactical learnings → the tenant playbook; brand drift → the recs queue).
+4. **Write the wrap note** — in the tenant voice: lead with one striking number, honest about misses, specific learnings.
 
-## §4 KPI tracking
-Against Brief §Goal &amp; KPI:
-- **Primary**: &lt;metric + target + current&gt;
-- **Secondary**: ...
-**Cycle-over-cycle trend**: &lt;observations&gt;
-
-## §5 Procedural refinements
-Living log of cycle-over-cycle improvements (what changed + why):
-- &lt;date&gt;: &lt;refinement&gt;
+Then the campaign **freezes** (read-only history); future campaigns inherit from the tenant layer, not this folder.
 </code></pre>
 <hr>
 <h2 id="drafting-discipline">Drafting discipline</h2>
 <ul>
-<li><strong>§1 is THE thing.</strong> Operator opens this on cadence day, executes top to bottom, done. Everything else is reference.</li>
-<li><strong>Step rows are atomic</strong> — one operator action OR one automated step per row. Don't batch. (Same unit as Phase 5 §2.)</li>
+<li><strong>§1 is THE thing.</strong> Operator opens this on cadence day, works the numbered steps top to bottom, done. Everything else is reference.</li>
+<li><strong>Steps are atomic + plain.</strong> One operator action (or one automated step) per numbered step. Don't batch. Each step leads with a plain "What this is"; the review step says to review IN THE SAME CHAT that produced the draft; a produce step says WHERE the output lands (folder + gallery).</li>
+<li><strong>Jargon-free prose (SYS-118).</strong> No code identifiers (<code>hero_scrub.py</code>, exit codes), internal jargon (dogfood, multi-tenant, receipts guardrail), or unexplained acronyms in the lead prose — plain language a non-technical operator can act on. Command/path detail goes in a <code>&lt;details&gt;</code> collapsible only.</li>
+<li><strong>Fold the running order into Step 1.</strong> No separate "running order" section — the pick + its options live in Step 1.</li>
 <li><strong>Honest times.</strong> If a step takes 10 min, write 10.</li>
-<li><strong>Data-driven status + checkbox overlay</strong> — identical rule to Phase 5: the dashboard's Phase-6 row is the truth (cadence entries with <code>status: done</code> / propagator); checkboxes are personal tracking only.</li>
+<li><strong>Data-driven status + checkbox overlay</strong> — identical to Phase 5: the dashboard's Phase-6 row is the truth (cadence entries with <code>status: done</code>); checkboxes are personal tracking only.</li>
+<li><strong>Checkboxes must be real inputs, not glyphs.</strong> Every check cell uses <code>&lt;input type="checkbox" class="phase6-cb"&gt;</code> + the small persistence script (localStorage; see the reference implementation) so it is actually clickable and remembers across a visit. <strong>NEVER a static <code>☐</code> / <code>☑</code> glyph</strong> — it renders but can't be ticked (the 2026-07-23 bug). Include a "clear for a new cycle" reset, since the checklist repeats each cycle.</li>
 <li><strong>Escalation mirrors integrations.yaml</strong> — cross-reference, don't duplicate.</li>
-<li><strong>Cycle history bounded</strong> — last 8 visible; older rows archive to a <code>&lt;details&gt;</code> collapsible.</li>
+<li><strong>The system maintains the surface, not the operator.</strong> The cycle's own session records the cadence entry + re-renders; the operator never hand-edits. State is in the files, so any session recognises the campaign (the system IS the martech stack — see the principle above).</li>
+<li><strong>No hand-kept KPI or cycle-history tables.</strong> Cycle count → the data-driven dashboard; KPI → the analyst on demand from real data. Don't put a KPI or cycle-history table on the page — it can't be auto-filled from external tools and will go stale.</li>
+<li><strong>§3 close is always present</strong> — even an always-on cadence defines its wrap (pull numbers → results report → retro + graduate → wrap note → freeze).</li>
 <li><strong>No phase-number drift</strong> — storage keys, classes, headers, history labels all say <em>Phase 6</em>.</li>
-<li><strong>Living-document</strong> — refinements log in §5; §1 always reflects current best practice.</li>
 </ul>
 <hr>
 <h2 id="mode-specific-guidance">Mode-specific guidance</h2>
@@ -2095,6 +2112,7 @@ Living log of cycle-over-cycle improvements (what changed + why):
   </main>
 
   <footer class="page-footer">
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../../docs/legal/LICENSE.html">Licence</a> · <a href="../../docs/legal/NOTICE.html">Notice</a></span>
     <span>Source file: <code>docs\specs\phase-6-cadence.md</code></span>
   </footer>
 </body>

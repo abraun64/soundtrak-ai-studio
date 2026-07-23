@@ -2,7 +2,7 @@
 
 **The system's own dashboard.** Everything in the system lives in one of the document classes below. If you're cold-starting and don't know where something is, start here.
 
-**Last updated**: 2026-07-14
+**Last updated**: 2026-07-23
 **Version**: v3
 
 > **Kept fresh by `nav-audit`** (`.claude/skills/nav-audit/nav_audit.py`) — diffs this index against the specs/skills/agents/playbooks on disk and flags anything missing, any dead link, a stale stamp, and the oldest-untouched docs. It runs as part of `system-smoke-test` (so any "run smoke test" catches index drift) and on demand ("run nav audit"). When you add a spec/skill/agent/playbook, add a row here — the audit will catch it if you forget.
@@ -58,6 +58,7 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **Dashboard spec** | Per-campaign dashboard structure (7-block) + the auto-injection markers (STATUS / PHASES / OPERATOR_ACTIONS / …). | `docs/specs/dashboard.md` |
 | **Gallery QA spec** | Pre-surface gallery checklist + the Plan-Ships ⇄ gallery-tile contract (check before the operator sees it). | `docs/specs/gallery-qa.md` |
 | **Data Architecture spec** | Storage model — markdown authoritative, HTML rendered, OneDrive + Git dual-backed; render-pipeline contract. | `docs/specs/data-architecture.md` |
+| **Surface Freshness spec** | SYS-112: the "impossible to show stale" guarantee — every operator surface is verified against its data inputs' mtimes and healed (re-rendered) before an operator ever sees it; the class-fix for the stale-snapshot bug family. | `docs/specs/surface-freshness.md` |
 | **System Manager spec** | The System-layer owner: backlog + idea inbox + audit schema, the operator dashboard (To Do split "Needs you" / "AI can action" + audit history), and the capture / triage / retro / groom workflows. | `docs/specs/system-manager.md` |
 | **Agent I/O Contract spec** | Structured dispatch + return envelopes for CM↔agent handoffs (machine-checkable orchestration: ship-file existence, explicit verdicts, cost capture). WIRED (additive) — SYS-004 Steps 2-3: validator (`agent-io` skill) + agents emit + CM validates; Step 4 (sole source of truth) gated. | `docs/specs/agent-io-contract.md` |
 | **Standalone Deployment spec** | Retro-5: packaging the system as a clean single-tenant "Seed" — ship/tenant/personal manifest, the `build_seed` allowlist cut + leak scan, Phase-0 hard gate, install doctor, the phased plan + safety model. | `docs/specs/standalone-deployment.md` |
@@ -123,6 +124,8 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **system-drift-watcher** | Cross-campaign drift scan (stale dashboards · zombie To-Do rows · in-flight Producers · stale cross-refs). | "check system drift", "anything stale?" | `.claude/skills/system-drift-watcher/` |
 | **cm-audit** | Surface-currency audit — every operator surface (dashboard/gallery/tasks/index/tenant-home) re-rendered after its data source changed. | "run cm audit", "are the surfaces current?" | `.claude/skills/cm-audit/` |
 | **nav-audit** | Keeps this index honest — diffs `NAVIGATION_INDEX.md` against specs/skills/agents/playbooks on disk; flags missing entries, dead links, stale stamp + oldest docs. | "run nav audit", "is the navigation index fresh?" | `.claude/skills/nav-audit/` |
+| **brief-lint** | The STRUCTURE gate on a campaign Brief (SYS-085) — checks it against the locked canonical section template: missing mandatory sections, non-canonical headings, out-of-order sections, missing Approval-record. Sibling to review-ready. | "lint this brief", "is this brief canonical?" | `.claude/skills/brief-lint/` |
+| **review-ready** | The READABILITY gate (SYS-087) CM runs on every operator surface before surfacing it — deterministic jargon lint + LLM cold-reader pass; checks it reads for a marketer who didn't write it. Sibling to content-subedit (published copy). | "is this review-ready?", "run the readability gate" | `.claude/skills/review-ready/` |
 | **docs-audit** | The CONTENT/STRUCTURE layer over nav-audit — reads INSIDE the docs: stale agent-count prose (five/six after the 7th agent), class tables that lost a column, `docs/public/` behind the roster/specs, and §9/§10/§11 coverage vs disk (SYS-018/SYS-026 drift class). | "run docs audit", "are the docs consistent?", "is the agent count right everywhere?" | `.claude/skills/docs-audit/` |
 | **cadences** | Four proactive scheduled sweeps — competitor/library scan · tenant brand-drift · stale-asset/surface · per-tenant shipped/blocked rollup. Surface-only (file deduped inbox ideas, never auto-ship). | Scheduled (weekly/monthly) via Windows tasks | `.claude/skills/cadences/` |
 | **system-manager** | Owner of the System layer — maintains the system-improvement backlog + idea inbox + audit history and the operator dashboard (To Do split Needs-you / AI-can-action + audit history), independent of any campaign. Capture / triage / retro / groom. | "system idea: …", "triage the inbox", "run a system retro", "/system-manager" | `.claude/skills/system-manager/` |

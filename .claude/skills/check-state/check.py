@@ -322,6 +322,76 @@ def check_campaign_yaml_drift(campaign_dir: Path, asset_folders: list[Path]) -> 
     return issues
 
 
+# --- Layer K (SYS-120): produced-but-unpublished deliverables ------------------
+# A finished deliverable sitting in an asset folder but never DECLARED in asset.yaml
+# (neither ship:true nor ship:false) is invisible to the gallery and every downstream
+# surface. Every OTHER check here reconciles only what is DECLARED, so a file never
+# declared at all slips every net (the 8-walkthrough-finals miss). Flag it so the
+# operator declares ship:true (to tile it) or ship:false (to suppress it).
+_FINAL_BINARY_EXTS = {".mp4", ".mov", ".webm", ".gif", ".pdf", ".pptx", ".docx", ".key", ".xlsx"}
+_FINAL_WEB_EXTS = {".html", ".png", ".jpg", ".jpeg"}          # only flagged in DEDICATED output dirs
+_FINAL_OUTPUT_DIRS = ("finals", "exports", "final", "out", "deliverables")
+# Never a shippable final: render sources, build tools, retina/thumb/poster exports,
+# preview scaffolds, underscore-prefixed intermediates, remotion/template render trees.
+_NON_FINAL_RE = re.compile(
+    r"(-render\.html$)|(^build-.*\.py$)|(@2x)|(thumb)|(poster)|(-preview\.)|(^_)|(remotion)|(template)|(scaffold)|(\.tmp$)",
+    re.IGNORECASE,
+)
+
+
+def check_undeclared_finals(asset_folders) -> list[str]:
+    """Layer K (SYS-120) — produced-but-unpublished. Scans each asset folder's OUTPUT
+    locations for finished-deliverable files not accounted for in asset.yaml. Tuned for
+    near-zero false positives: binaries (mp4/pdf/pptx/…) are flagged in the folder root,
+    the images/ dir, and dedicated output dirs; web finals (html/png) ONLY in dedicated
+    output dirs (finals/ etc.), because the root + images/ legitimately hold render
+    sources and components. Render-pipeline sources, thumbs, posters, @2x, and
+    _intermediates are skipped."""
+    import yaml
+    issues = []
+    for af in asset_folders:
+        ay = af / "asset.yaml"
+        if not ay.exists():
+            continue
+        try:
+            data = yaml.safe_load(ay.read_text(encoding="utf-8")) or {}
+        except Exception:
+            continue
+        if not isinstance(data, dict):
+            continue
+        declared = set()
+        fb = data.get("files")
+        if isinstance(fb, dict):
+            for k in fb:
+                declared.add(str(k).replace("\\", "/").lstrip("./"))
+        for key in ("copy_file", "production_file", "view_source", "template_source"):
+            v = data.get(key)
+            if isinstance(v, str) and v:
+                declared.add(v.replace("\\", "/").lstrip("./"))
+        scan = [(af, _FINAL_BINARY_EXTS)]                     # root: binaries only
+        img = af / "images"
+        if img.is_dir():
+            scan.append((img, _FINAL_BINARY_EXTS))           # images/: binaries only (components live here)
+        for sub in _FINAL_OUTPUT_DIRS:
+            d = af / sub
+            if d.is_dir():
+                scan.append((d, _FINAL_BINARY_EXTS | _FINAL_WEB_EXTS))
+        for scan_dir, exts in scan:
+            for f in sorted(scan_dir.iterdir()):
+                if not f.is_file() or f.suffix.lower() not in exts:
+                    continue
+                if _NON_FINAL_RE.search(f.name):
+                    continue
+                rel = str(f.relative_to(af)).replace("\\", "/")
+                if rel in declared or f.name in declared:
+                    continue
+                issues.append(
+                    f"  {af.name}/{rel} — produced but unpublished (not in asset.yaml): "
+                    f"declare ship:true to tile it, or ship:false to suppress it"
+                )
+    return issues
+
+
 def _plan_ships_index(plan_text: str):
     """Find the 0-based column index of the `Ships` column in the plan asset
     table header, or None if this plan predates the Ships column."""
@@ -631,6 +701,16 @@ def report_campaign(campaign_dir: Path) -> int:
         print("  (no pending action sits in a phase the campaign has already moved past)")
     else:
         for line in board_issues:
+            print(line)
+            issue_count += 1
+
+    # produced-but-unpublished sweep (Layer K — SYS-120)
+    print(f"\n--- produced-but-unpublished cross-check ---")
+    final_issues = check_undeclared_finals(asset_folders)
+    if not final_issues:
+        print("  (no finished deliverable sits in an asset folder undeclared in asset.yaml)")
+    else:
+        for line in final_issues:
             print(line)
             issue_count += 1
 

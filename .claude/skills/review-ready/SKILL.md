@@ -31,8 +31,19 @@ surface prove it reads for the reviewer **before** the CM surfaces it for approv
 
 The CM runs this on EVERY operator surface **immediately before surfacing it for review** —
 same non-negotiable shape as content-subedit on copy assets. Surfaces in scope: Brief ·
-Insight Brief · Concept (trio + selected) · Plan · campaign dashboard · each asset preview.
+Insight Brief · Concept (trio + selected) · Plan · campaign dashboard · each asset preview ·
+**Phase-5 launch rollout · Phase-6 cadence runbook** (SYS-118 — a non-technical operator, or a
+delegated teammate, must be able to run a launch or a cadence from the surface alone).
 Not advisory: a surface that fails the gate is not surfaced until it's fixed.
+
+**The standard (SYS-118): plain prose, technical detail in collapsibles only.** The MAIN PROSE
+must read for a non-technical human — no code identifiers (`hero_scrub.py`, exit codes,
+slash-command internals), no internal jargon (dogfood, multi-tenant, content-subedit, UTM,
+au-sender-id, nav-crop), no unexplained acronyms. The execution "how" belongs in the clearly
+marked collapsible `<details>` blocks and code spans, for whoever runs it — NEVER the lead prose.
+The lint enforces exactly this: it skips `<details>` blocks and code (fenced ``` + inline `spans`),
+so it flags jargon **only** in the plain prose a reader acts on. This EXTENDS the plain-language
+rule (docs/specs/plan.md "Name + Description") from asset names to the full operator prose.
 
 ## The two layers
 

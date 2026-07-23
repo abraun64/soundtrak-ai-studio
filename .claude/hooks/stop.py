@@ -26,19 +26,24 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 STATE_PATH = PROJECT_ROOT / ".claude" / "state" / "dirty-campaigns.json"
 # campaigns/ is canonical in the MAIN checkout — resolve via the shared helper so a
-# worktree session's edits to main's campaigns/ still re-render (SYS-104). CODE paths
-# below stay on PROJECT_ROOT (the running checkout's own scripts/templates); only the
-# DATA dir redirects. Falls back to PROJECT_ROOT/campaigns on any resolver error.
+# worktree session's edits to main's campaigns/ still re-render (SYS-104).
+# SYS-116: the RENDER SCRIPTS that write those MAIN-canonical surfaces must ALSO come from
+# the main checkout — not PROJECT_ROOT. From a worktree, PROJECT_ROOT's render code may be
+# stale/unlanded, and rendering main's dashboard.html/gallery.html/tenant-home with it silently
+# clobbers the surface (a worktree's stale code reverted a landed fix). data_root() is the main
+# checkout root, so CODE_ROOT/.claude/... is main's canonical code. From main, CODE_ROOT==PROJECT_ROOT.
 sys.path.insert(0, str(PROJECT_ROOT / ".claude" / "lib"))
 try:
     import repo_paths
-    CAMPAIGNS_DIR = repo_paths.data_root(PROJECT_ROOT) / "campaigns"
+    CODE_ROOT = repo_paths.data_root(PROJECT_ROOT)
+    CAMPAIGNS_DIR = CODE_ROOT / "campaigns"
 except Exception:
+    CODE_ROOT = PROJECT_ROOT
     CAMPAIGNS_DIR = PROJECT_ROOT / "campaigns"
-RENDER_HTML = PROJECT_ROOT / ".claude" / "skills" / "render-html" / "render.py"
-RENDER_TEMPLATE = PROJECT_ROOT / ".claude" / "skills" / "render-html" / "templates" / "base.html"
-BUILD_GALLERY = PROJECT_ROOT / ".claude" / "skills" / "asset-gallery" / "build-gallery.py"
-BUILD_TENANT_HOME = PROJECT_ROOT / ".claude" / "skills" / "render-html" / "build-tenant-home.py"
+RENDER_HTML = CODE_ROOT / ".claude" / "skills" / "render-html" / "render.py"
+RENDER_TEMPLATE = CODE_ROOT / ".claude" / "skills" / "render-html" / "templates" / "base.html"
+BUILD_GALLERY = CODE_ROOT / ".claude" / "skills" / "asset-gallery" / "build-gallery.py"
+BUILD_TENANT_HOME = CODE_ROOT / ".claude" / "skills" / "render-html" / "build-tenant-home.py"
 
 DASHBOARD_TRIGGER_REASONS = {
     "dashboard_md", "asset_record_md", "asset_artifact", "plan_md",

@@ -1675,7 +1675,8 @@ body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weigh
 body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
 body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
 body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
-body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+/* SYS-099 — the asset number reads at a glance (was a faint grey suffix, easy to miss). */
+body.template-plan .pv3 .c-item .rid { color: var(--accent); font-weight: 700; }
 body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
 body.template-plan .pv3 .row-more { margin-top: 5px; }
 body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
@@ -1939,8 +1940,9 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
   <main class="page-main">
     <article class="content">
       <h1 id="phase-5-launch-day-1-rollout-spec">Phase 5 Launch / Day-1 Rollout — Spec</h1>
-<p><strong>Spec version</strong>: v2 · 2026-06-15 — unified schema from the Acme Co + Acme Co Phase-5 artifact review.
-(v1 2026-06-03 per Rollout Architecture v2 §5; v2 merges the Acme Co <code>phase-5-rollout</code> and Acme Co <code>launch-runbook</code> into one shape: Acme Co's step anatomy + Acme Co's overview/interactive gate + ownership-model-scaled training + data-driven status.)</p>
+<p><strong>Spec version</strong>: v2.2 · 2026-07-23 — the <strong>sign-off gate is no longer a separate section</strong>; it is now the FIRST thing inside <strong>§1 Before you start</strong> (sign off, then pre-flight), so the operator approves and pre-flights in one place. (Operator ask — act immediately + standard for all future campaigns.)
+<strong>Spec version</strong>: v2.1 · 2026-07-23 — three operator-experience refinements from The Debrief review: (a) the <strong>personal progress tracker moves to the top</strong> (after §0, above the checklists) so the operator sees their progress before the work; (b) a <strong>standalone internal-promo one-pager</strong> (<code>internal-promo.html</code>) becomes a standard Phase-5 output; (c) <strong>§3 handoff is never fully skipped</strong> — always assume whoever executes the launch is not who built the campaign.
+(v2 · 2026-06-15 — unified schema from the Acme Co + Acme Co Phase-5 artifact review: Acme Co's step anatomy + Acme Co's overview/interactive gate + ownership-model-scaled training + data-driven status. v1 2026-06-03 per Rollout Architecture v2 §5.)</p>
 <p><strong>What this is</strong>: the single self-contained per-campaign artifact for taking a campaign from <strong>"assets Approved" → "live"</strong> (and, where the tenant self-runs, <strong>handed over</strong>). One doc covers setup + deploy + training + dry-run + verification. <strong>CM authors it — together with <code>phase-6-cadence.md</code> (for cadenced campaigns) — at the END of Phase 4</strong>, the moment all assets are Approved (both seed from Plan §N "Phase 5 + 6 readiness"; don't wait for a phase to "start").</p>
 <p><strong>Stored</strong>: <code>campaigns/&lt;slug&gt;/phase-5-rollout.md</code> (markdown authoritative) + rendered <code>phase-5-rollout.html</code>.</p>
 <p><strong>Authored from</strong>: Plan §N "Phase 5 + 6 readiness" + Brief §Tech Setup + §Human Roles + §Cadence Shape + <code>tenant/&lt;name&gt;/integrations.yaml</code> + the tenant baseline.</p>
@@ -1965,12 +1967,20 @@ message · 15-sec pitch · KPI floor · Full concept link), then add:
 - **Key assets going live** — a small visual table (Preview thumbnail → links to the full render · Asset · What it is) of **3–5 highlight assets**, pulled from `gallery-thumbs/`, with a link to the full **Gallery**. (The Acme Co foundation-assets pattern.)
 - **What this phase puts live** — one line listing the deployables + the goals.
 - **How launch day flows** — one line.
+- **Link to the internal-promo one-pager** — a `&gt; 📣` callout at the top of the doc pointing at `internal-promo.html` (the standard promo output, below).
 
 A cold reader gets the whole picture — campaign + visuals — before any step. **Reuse &gt; rewrite.**
 
-## ✋ Sign off this plan first   ← operator approval gate (added 2026-06-15)
+## 📊 Personal progress tracker   ← MOVED HERE (v2.1): after §0, ABOVE the checklists
+A `&lt;div id=&quot;phase5-progress&quot;&gt;` counter banner sits **near the top** — after §0, before §1 — so
+the operator sees how far through they are *before* the checklists, not buried at the foot. It's a personal
+overlay (localStorage, counts every `input.phase5-cb`); it states plainly that the **dashboard Phase-5 row is
+the real scoreboard**. The trailing `&lt;script&gt;` populates it by id, so the div renders correctly even though
+it appears above the checkboxes it counts. (The DATA-DRIVEN gate banner is separate — it stays in §6.)
 
-This rollout was **built at the end of Phase 4** from the Plan + the assets actually produced — so it starts as a **Draft you approve before anything runs**. Two things to check:
+## §1 Before you start — sign off, then pre-flight   ← v2.2: the sign-off gate is now the FIRST thing INSIDE §1 (no separate &quot;✋ Sign off&quot; section)
+
+**First — sign off this plan.** This rollout was **built at the end of Phase 4** from the Plan + the assets actually produced — so it starts as a **Draft you approve before anything runs**. Two things to check:
 
 1. **Is the plan complete + right?** Walk §2's steps — is anything missing (a deploy step, a publish step, a verify)? Add it.
 2. **Gaps to close first** — assets / cookbooks this rollout NEEDS that don't exist yet (often a Phase-4 miss — a deploy cookbook, a logo/icon set, a referenced file). CM surfaces them here at build time; if any, **produce them BEFORE executing** (they go back to Phase 4 / Producer).
@@ -1987,8 +1997,7 @@ This rollout was **built at the end of Phase 4** from the Plan + the assets actu
 
 **To approve**: reply `approve Phase 5 plan` → CM trims the **Plan status** line to `✅ **Approved** — execution may begin (approved &lt;date&gt;)` (removing the Draft half) and re-renders tasks + dashboard → the gate row drops and you start working §2. **To send back**: name what to produce first (it re-enters Phase 4). Until approved, the steps below are a proposal, not a to-do.
 
-## §1 Pre-flight
-Binary readiness gates before ANY step starts:
+**Then — pre-flight.** Binary readiness gates before ANY step starts:
 - [ ] All produced assets `status: Approved` (check-state reports zero drift)
 - [ ] Credentials at the keyboard (list exactly which, per step)
 - [ ] No in-flight Producer/Brand runs that would change asset state mid-deploy
@@ -2011,8 +2020,10 @@ Setup steps already satisfied for an existing/already-running tenant collapse to
 
 ☑ &lt;interactive checkbox: &quot;Step N complete&quot;&gt;
 
-## §3 Training &amp; handoff   ← CONDITIONAL on ownership_model (see table below)
-*(the operator-runs → the whole section is &quot;N/A — the operator runs the cadence.&quot;)*
+## §3 Training &amp; handoff   ← DEPTH scales with ownership_model (see table); never fully skipped
+*(v2.1: **always assume whoever executes the launch is not who built the campaign.** Even `the operator-runs`
+gets a **light** §3 — pre-session reading + a single walk-through of the publish path + any skill/engine
+install handoff — so a delegate could run it cold. Only the DEPTH scales, not the existence of the section.)*
 - **§3.1 Pre-session reading** — links the tenant operator reads in advance.
 - **§3.2 Day-1 live session** (&lt;duration&gt; — depth per ownership_model) — numbered agenda.
 - **§3.3 First-N-weeks support** — the operator's commitment + cadence + SLA.
@@ -2026,11 +2037,29 @@ event fires, first asset live, spend within cap, etc.). Each row binary.
 ## §5 Failure modes
 Symptom → diagnosis → fix. The 3–6 most likely break points and how to chase them.
 
-## §6 Status + history
+## §6 Status + audit history
 - **Live gate banner** — DATA-DRIVEN: reads the dashboard's Phase-5 blocker count
   (propagator → asset.yaml/campaign.yaml → dashboard). Not browser-local.
-- **History table** — date · event · status.
+- **Audit history table** — date · event · status. **The rollout plan can change from operator feedback;
+  every material change is logged here** (a re-authored step, a moved gate, an added asset), so the doc
+  carries its own change record rather than silently mutating.
 </code></pre>
+<h2 id="standard-output-the-internal-promo-one-pager-v21">Standard output — the internal-promo one-pager (v2.1)</h2>
+<p>Alongside <code>phase-5-rollout.md/.html</code>, Phase 5 ships <strong><code>campaigns/&lt;slug&gt;/internal-promo.html</code></strong> — a
+self-contained, brand-styled HTML one-pager the <strong>marketing team uses to promote the campaign to other
+teams internally</strong> (not a published/audience asset). It is derived from material already in §0:</p>
+<ul>
+<li><strong>Hero</strong> — the Big Idea + the one-line key message + the 15-sec pitch (reuse §0 verbatim).</li>
+<li><strong>Why it lands</strong> — the audience insight in 2–3 sentences (from the concept).</li>
+<li><strong>The launch face</strong> — the same 3–5 key-asset thumbnails as §0, each linking to its full render.</li>
+<li><strong>A facts strip</strong> — cadence · audience · growth goal (KPI) · any sibling/context.</li>
+<li><strong>"How your team can use it"</strong> — 3–4 concrete cross-team angles (Sales forwards an edition; CS cites a
+  lesson in a QBR; everyone subscribes + reshares; talent/employer-brand). This block is what makes it a
+  <em>promotion</em> tool, not just a summary.</li>
+<li><strong>CTA + footer</strong> — subscribe / see-all-assets / full-concept links; a footer marking it internal-only.</li>
+</ul>
+<p>Self-contained inline CSS + the tenant brand palette; thumbnails referenced from <code>gallery-thumbs/</code>
+(relative paths — it lives in the campaign folder). The rollout header links to it with a <code>&gt; 📣</code> callout.</p>
 <hr>
 <h2 id="the-step-unit-two-audiences-2-reused-by-phase-6-1">The step unit — TWO AUDIENCES (§2 — reused by Phase 6 §1)</h2>
 <p>Every step is written for a <strong>non-technical operator first</strong>, with the technical execution
@@ -2085,8 +2114,8 @@ Any technical info an IT engineer needs MUST be in the block — present but not
 <tr>
 <td><code>the operator-runs</code></td>
 <td>minimal (already on the operator's machine)</td>
-<td><strong>N/A — skip §3</strong></td>
-<td>n/a</td>
+<td><strong>light</strong> — pre-read + one publish-path walk-through + skill/engine install handoff (a delegate could run it cold)</td>
+<td>ad-hoc</td>
 </tr>
 <tr>
 <td><code>the operator-runs-then-tenant</code></td>
@@ -2103,7 +2132,7 @@ Any technical info an IT engineer needs MUST be in the block — present but not
 <tr>
 <td><code>outsourced-to-the operator</code></td>
 <td>full standup on the operator's machine</td>
-<td><strong>N/A — skip §3</strong></td>
+<td><strong>light</strong> — internal handoff so any studio operator could run it</td>
 <td>the operator runs indefinitely</td>
 </tr>
 </tbody>
@@ -2120,6 +2149,10 @@ Any technical info an IT engineer needs MUST be in the block — present but not
 <li><strong>One gate, stated once</strong> in the header and the §6 banner. No competing "Phase 5 closes when…" statements.</li>
 <li><strong>No phase-number drift.</strong> Storage keys, CSS classes, section headers, and history labels all say <em>Phase 5</em>. (v1 Acme Co artifact had <code>phase4</code> storage keys + a "Phase 6 status" header inside a Phase 5 doc — do not reproduce.)</li>
 <li><strong>§0 reuses the dashboard Campaign DNA + adds key-asset visuals</strong> — don't write a bespoke overview; reuse the 🧭 Campaign DNA block verbatim, then a small thumbnail table of 3–5 highlight assets (from <code>gallery-thumbs/</code>) + a Gallery link. Rich, but reuse &gt; rewrite.</li>
+<li><strong>Progress tracker at the top (v2.1)</strong> — the personal checkbox-counter banner goes after §0, above the checklists, not at the foot. The DATA-DRIVEN gate banner is separate and stays in §6. Storage key + CSS class say <em>phase5</em> (no phase-number drift).</li>
+<li><strong>Ship the internal-promo one-pager (v2.1)</strong> — always author <code>internal-promo.html</code> (self-contained, brand-styled, cross-team promotion) from §0 material + a "how your team can use it" block; link it from the rollout header. It is internal-only — never an audience/published asset.</li>
+<li><strong>Creator ≠ implementer (v2.1)</strong> — never fully skip §3. Author every rollout so a delegate who did not build the campaign could execute the launch from this doc alone; scale §3's depth by ownership_model, but always include pre-read + one walk-through + any skill/engine install handoff.</li>
+<li><strong>Audit history (v2.1)</strong> — §6 carries a dated change-log; when operator feedback changes the plan, log the change there rather than silently editing.</li>
 </ul>
 <hr>
 <h2 id="relationship-to-phase-6-shared-spine">Relationship to Phase 6 (shared spine)</h2>
@@ -2180,6 +2213,7 @@ Any technical info an IT engineer needs MUST be in the block — present but not
   </main>
 
   <footer class="page-footer">
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../../docs/legal/LICENSE.html">Licence</a> · <a href="../../docs/legal/NOTICE.html">Notice</a></span>
     <span>Source file: <code>docs\specs\phase-5-rollout.md</code></span>
   </footer>
 </body>

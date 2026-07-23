@@ -214,6 +214,8 @@ On approval: Asset Status → Approved. If publish needs a human action, CM crea
 
 Once assets are Approved, the campaign deploys. Each asset ships complete (copy + visuals + setup / deploy / verify cookbooks) so there's no "go figure out the technical bit" handoff; CM creates publish tasks in `tasks.html` for any human action. Full schema: [`docs/specs/phase-5-rollout.md`](specs/phase-5-rollout.md).
 
+**For ongoing/hybrid cadence campaigns, the Phase-6 cadence runbook is a Phase-5 DRAFT deliverable** (SYS-117): CM authors `phase-6-cadence.md` *alongside* the launch rollout (both at the end of Phase 4 / start of Phase 5), so the launch executor sees the steady state they are launching into and the rollout's link to the cadence page always resolves. **Only the ARTIFACTS are concurrent — EXECUTION stays sequential**: the cadence cannot run until the launch publishes Edition #1. The runbook is activated at Edition-#1 go-live. The Phase-5 gap check verifies the linked cadence page exists on disk (a rollout must never link to a cadence page that was never built — the dead-`phase-6-cadence.html` class). One-off campaigns have no Phase 6 and are unaffected.
+
 ### Phase 6 — Ongoing Cadence
 
 Recurring publish + read cycles per the campaign's cadence schedule (`campaign.yaml` `cadence:`). At wrap, CM proposes graduation candidates UP to the tenant layer in one operator decision (the three-layer rule). Tenant cadence skills (where extracted) run here.

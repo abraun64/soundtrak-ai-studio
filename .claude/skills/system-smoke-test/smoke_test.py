@@ -117,6 +117,25 @@ if CAMP.is_dir():
     check("L2", "campaigns/index.html", (CAMP / "index.html").exists())
     check("L2", "campaigns/tasks.html", (CAMP / "tasks.html").exists())
 
+    # SYS-112 — the dashboard's phases table MUST be auto-derived via <!-- PHASES_AUTO -->,
+    # never hand-authored, or the phase Status / Human Time / AI Cost / Artifacts drift
+    # silently (the reopened-SYS-112 bug: a hand table never sees the derive). Flag any
+    # dashboard md that hand-authors a "| Phase | … |" table instead of the marker.
+    import re as _phre
+    _hand_phases = []
+    for c in active:
+        md = c / f"{c.name}.md"
+        if not md.exists():
+            continue
+        txt = md.read_text(encoding="utf-8", errors="replace")
+        if "<!-- PHASES_AUTO -->" in txt:
+            continue
+        if _phre.search(r"(?im)^\s*\|\s*Phase\s*\|", txt):
+            _hand_phases.append(c.name)
+    check("L2", "phases tables auto-derived (SYS-112 <!-- PHASES_AUTO -->)", not _hand_phases,
+          ("hand-authored phases table — convert to <!-- PHASES_AUTO -->: " + ", ".join(_hand_phases))
+          if _hand_phases else "")
+
     # SYS-043 — a rendered operator surface must not ship with an unprocessed
     # *_AUTO / *_MARKER sentinel (a swallowed inject = a silently blank section).
     # The render guard now leaves a VISIBLE placeholder; this catches any surface

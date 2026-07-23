@@ -1173,56 +1173,47 @@ def render_phases_table_md(phases: list[dict], campaign_dir: Path) -> str:
         if _tslug and (_repo / "tenant-brand" / f"{_tslug}-phase0.html").exists():
             lines.append(
                 "| 0 | Foundation — brand tenant baseline (inherited) | Inherited | — | — | — | "
-                f"[Brand foundation](../../tenant-brand/{_tslug}-phase0.html) |"
+                f"[Brand foundations](../../tenant-brand/{_tslug}-phase0.html) |"
             )
     except Exception:  # noqa: BLE001
         pass
-    # SYS-030: the Artifacts column shows ONE authoritative link per phase (the primary,
-    # always listed first); any other / superseded docs drop to the collapsed archive below
-    # so the gate is unambiguous about what to review.
+    # The Artifacts column shows the author's FULL DECLARED set (campaign.yaml phases[].artifacts) —
+    # e.g. Brief + Insights, Selected concept + Trio — so the operator sees the key documents for a
+    # phase, not just one (operator ask 2026-07-23). Auto-derived artifacts (asset.yaml tagged
+    # phase:N) that the author did NOT declare drop to the collapsed archive. Supersedes the
+    # SYS-030 one-link rule (which lost the second key doc); the author curates the column by what
+    # they list in `artifacts:`.
+    def _render_art(art):
+        if not isinstance(art, dict):
+            return None
+        t = str(art.get("title") or "")
+        h = str(art.get("href") or "")
+        if not t:
+            return None
+        is_link = bool(h) and not h.startswith("#") and (campaign_dir / h.split("#")[0]).exists()
+        if not is_link:
+            return t
+        cell = f"[{t}]({h})"
+        # BB2 (SYS-073): also surface the markdown Source when it exists — a subtle, low-prominence
+        # link so the underlying doc is reachable without cluttering the row.
+        base = h.split("#")[0]
+        if base.endswith(".html") and (campaign_dir / (base[:-5] + ".md")).exists():
+            cell += f' <a class="src-link" href="{base[:-5] + ".md"}" title="Open the source document">src</a>'
+        return cell
+
     archive: list = []  # (phase_id, phase_title, [demoted rendered artifact strings])
     for ph in phases:
-        artifacts_md = ""
-        # 1. Declared artifacts (campaign.yaml phases[].artifacts)
-        declared = list(ph.get("artifacts") or [])
-        # 2. Auto-derived artifacts (asset.yaml entries tagged phase:N)
-        auto = scan_phase_artifacts(campaign_dir, ph.get("id"))
-        # Dedupe by href (prefer declared title if both reference same target)
-        seen_hrefs = set()
-        merged: list[dict] = []
-        for art in declared:
-            if isinstance(art, dict):
-                h = str(art.get("href") or "")
-                if h:
-                    seen_hrefs.add(h)
-                merged.append(art)
-        for art in auto:
-            if art["href"] not in seen_hrefs:
-                seen_hrefs.add(art["href"])
-                merged.append(art)
-        rendered: list = []
-        for art in merged:
-            if not isinstance(art, dict):
-                continue
-            t = str(art.get("title") or "")
-            h = str(art.get("href") or "")
-            if not t:
-                continue
-            is_link = bool(h) and not h.startswith("#") and (campaign_dir / h.split("#")[0]).exists()
-            if is_link:
-                cell = f"[{t}]({h})"
-                # BB2 (SYS-073): also surface the markdown Source when it exists — a subtle,
-                # low-prominence link so the underlying doc is reachable without cluttering the row.
-                base = h.split("#")[0]
-                if base.endswith(".html") and (campaign_dir / (base[:-5] + ".md")).exists():
-                    cell += f' <a class="src-link" href="{base[:-5] + ".md"}" title="Open the source document">src</a>'
-                rendered.append(cell)
-            else:
-                rendered.append(t)
-        # Only the PRIMARY (first) artifact stays in the column; the rest go to the archive.
-        artifacts_md = rendered[0] if rendered else ""
-        if len(rendered) > 1:
-            archive.append((str(ph.get("id", "")), str(ph.get("title", "")), rendered[1:]))
+        declared = [a for a in (ph.get("artifacts") or []) if isinstance(a, dict) and a.get("title")]
+        declared_hrefs = {str(a.get("href") or "") for a in declared if a.get("href")}
+        auto = [a for a in scan_phase_artifacts(campaign_dir, ph.get("id"))
+                if str(a.get("href") or "") not in declared_hrefs]
+        col_cells = [c for c in (_render_art(a) for a in declared) if c]
+        arch_cells = [c for c in (_render_art(a) for a in auto) if c]
+        if not col_cells and arch_cells:   # no declared artifacts → promote the first auto to the column
+            col_cells = [arch_cells.pop(0)]
+        artifacts_md = " · ".join(col_cells)
+        if arch_cells:
+            archive.append((str(ph.get("id", "")), str(ph.get("title", "")), arch_cells))
         status = _derive_phase_status(ph, campaign_dir)
         human_time = _phase_human_time_cell(ph, campaign_dir)
         lines.append(

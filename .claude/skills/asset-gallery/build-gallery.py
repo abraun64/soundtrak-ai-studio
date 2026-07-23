@@ -1362,6 +1362,25 @@ def build_html(campaign_slug: str, tiles: list[dict], foundation_docs: list[dict
   border: none; cursor: pointer; font-family: inherit;
 }}
 .lightbox-close {{ background: var(--text-muted); }}
+/* SYS-115 — one-click verdict buttons (copy a paste-ready prompt; static-HTML safe). */
+.lightbox-header .lb-verdict {{
+  font-size: 12px; padding: 6px 12px; border-radius: 4px; cursor: pointer;
+  font-family: inherit; font-weight: 600; color: #fff; background: #1f9d55;
+  border: 1px solid #1b8a4b;
+}}
+.lightbox-header .lb-verdict:hover {{ background: #1b8a4b; }}
+.lightbox-header .lb-verdict.sendback {{
+  color: var(--text); background: var(--surface); border: 1px solid var(--border); font-weight: 500;
+}}
+.lightbox-header .lb-verdict.sendback:hover {{ border-color: var(--accent); }}
+.gallery-toast {{
+  position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%) translateY(10px);
+  background: var(--text); color: var(--surface); padding: 11px 18px; border-radius: 6px;
+  font-size: 13px; font-family: inherit; box-shadow: 0 6px 20px rgba(17,24,39,0.28);
+  opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease;
+  z-index: 3000; max-width: 80vw;
+}}
+.gallery-toast.show {{ opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }}
 
 /* Two-column body: asset (left, ~62%) + metadata (right, ~38%) */
 .lightbox-body {{
@@ -1527,6 +1546,8 @@ main.page-main {{ padding: 24px 24px 64px; }}
         <a id="lb-copy" href="#" target="_blank" style="display:none;">✏️ Edit copy</a>
         <a id="lb-production" href="#" download style="display:none;">📥 Download</a>
         <a id="lb-folder" href="#" target="_blank" title="Open asset folder in file browser">📁 Open folder</a>
+        <button id="lb-approve" class="lb-verdict" style="display:none;" onclick="copyVerdict('approve')" title="Copy a ready-to-paste approval prompt for this asset">✓ Approve</button>
+        <button id="lb-sendback" class="lb-verdict sendback" style="display:none;" onclick="copyVerdict('sendback')" title="Copy a ready-to-paste send-back prompt (add your note after pasting)">⤺ Send back</button>
         <button class="lightbox-close" onclick="closeLightbox()">Close (Esc)</button>
         <span class="nav-hint">← / → to navigate</span>
       </div>
@@ -1541,6 +1562,7 @@ main.page-main {{ padding: 24px 24px 64px; }}
   </div>
   <button class="nav-arrow next" onclick="event.stopPropagation(); navigateLightbox(1);" aria-label="Next">›</button>
 </div>
+<div id="gallery-toast" class="gallery-toast" role="status" aria-live="polite"></div>
 
 <script>
 const TILES = {tiles_json};
@@ -1550,6 +1572,7 @@ const CHANNEL_ORDER = {json.dumps(all_channels)};
 const TYPE_ORDER = {json.dumps(TYPE_ORDER)};
 const TYPE_META = {json.dumps(TYPE_META, ensure_ascii=False)};
 const CAMPAIGN_DNA = {json.dumps(campaign_dna, ensure_ascii=False)};
+const CAMPAIGN_SLUG = {json.dumps(campaign_slug)};   // SYS-115 — for the paste-ready verdict prompt
 // v3 plan-mirror flags (all inert when HAS_STAGE is false — legacy behaviour).
 const HAS_STAGE = {json.dumps(has_stage)};
 const STAGE_ORDER = {json.dumps(STAGE_ORDER)};
@@ -1792,6 +1815,41 @@ function render() {{
   document.getElementById('gallery').innerHTML = html || '<p style="color:var(--slate6); padding:24px;">No assets match current filters.</p>';
 }}
 
+// SYS-115 — a small, sticky-ish toast. `sticky` keeps it up (used for the copy fallback).
+function showToast(msg, sticky) {{
+  const el = document.getElementById('gallery-toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  if (!sticky) el._t = setTimeout(() => el.classList.remove('show'), 2600);
+}}
+
+// SYS-115 — build a paste-ready operator-verdict prompt for the tile in the open lightbox and
+// copy it to the clipboard. The gallery is static HTML with no backend, so this does NOT approve
+// directly — it copies the exact instruction the operator pastes into Claude, which runs the CM
+// Phase-4 approval flow. Data-driven from the tile so the id/name/campaign can't be mis-referenced.
+function copyVerdict(kind) {{
+  const t = TILES[lightboxIdx];
+  if (!t) return;
+  const num = t.display_num || t.asset_id || '';
+  const name = t.asset_name || t.title || t.file_title || t.name || 'this asset';
+  const idPart = num ? ('#' + num + ' ') : '';
+  const prompt = (kind === 'approve')
+    ? ('Approve asset ' + idPart + '— ' + name + ' (campaign ' + CAMPAIGN_SLUG + ')')
+    : ('Send back asset ' + idPart + '— ' + name + ' (campaign ' + CAMPAIGN_SLUG + ') — <your change request here>');
+  const ok = (kind === 'approve')
+    ? 'Copied — paste into Claude to approve'
+    : 'Copied — add your note, then paste into Claude';
+  const done = () => showToast(ok);
+  const fail = () => {{ window.prompt('Copy this, then paste into Claude:', prompt); }};
+  if (navigator.clipboard && navigator.clipboard.writeText) {{
+    navigator.clipboard.writeText(prompt).then(done).catch(fail);
+  }} else {{
+    fail();
+  }}
+}}
+
 function openLightbox(idx) {{
   lightboxIdx = idx;
   const t = TILES[idx];
@@ -1821,6 +1879,11 @@ function openLightbox(idx) {{
   const idPart = t.display_num ? ('#' + t.display_num) : (t.asset_id ? ('#' + t.asset_id) : '');
   const namePart = t.asset_name || t.title || t.file_title || t.name;
   document.getElementById('lb-title').textContent = idPart ? (idPart + ' · ' + namePart) : namePart;
+  // SYS-115 — verdict buttons show ONLY on an asset at its gate (For Human Review), never on an
+  // already-Approved / In-Production / Foundation tile.
+  const atGate = (t.status === 'For Human Review');
+  document.getElementById('lb-approve').style.display = atGate ? '' : 'none';
+  document.getElementById('lb-sendback').style.display = atGate ? '' : 'none';
   const subEl = document.getElementById('lb-subtitle');
   // Subtitle = the per-file title if present, else a humanised filename. Suppress when it
   // would merely echo the primary name.
@@ -2270,6 +2333,20 @@ def run_check(campaign_dir: Path) -> int:
             f"(gallery {_dt.fromtimestamp(gallery.stat().st_mtime):%Y-%m-%d %H:%M} < "
             f"newest {_dt.fromtimestamp(newest_ship_mtime):%Y-%m-%d %H:%M}); rebuild it"
         )
+
+    # SYS-120 — produced-but-unpublished: a finished deliverable sitting in an asset
+    # folder but never declared in asset.yaml is invisible to the gallery. Reuse the
+    # check-state layer (single source of the detection logic), report as warnings.
+    try:
+        import sys as _sys
+        _cs = str(ROOT / ".claude" / "skills" / "check-state")
+        if _cs not in _sys.path:
+            _sys.path.insert(0, _cs)
+        import check as _checkstate
+        for _line in _checkstate.check_undeclared_finals(folders):
+            warnings.append(_line.strip())
+    except Exception:
+        pass
 
     print(f"asset folders: {len(folders)} · gallery.html: {'present' if gallery.exists() else 'MISSING'}")
     for w in warnings:
