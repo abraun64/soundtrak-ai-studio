@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operator Guide — Soundtrak AI Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#111110;--red:#e63c3c;--cream:#faf9f5;--paper:#ffffff;
+    --slate800:#3c3c38;--slate700:#4a4a46;--slate600:#787770;
+    --slate200:#e8e7e2;--slate100:#f5f4f0;--navy:#1a2a5e;--redlight:#fdeaea;
+    --serif:'Fraunces',Georgia,serif;--sans:'Inter',-apple-system,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-weight:400;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .topnav{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 36px;border-bottom:1px solid var(--slate200);background:var(--paper);flex-wrap:wrap;}
+  .topnav .brandline{display:flex;align-items:center;gap:9px;font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--slate700);font-weight:600;}
+  .topnav .brandline .dot{width:7px;height:7px;border-radius:50%;background:var(--red);}
+  .topnav .navlinks{display:flex;gap:20px;font-size:14px;}
+  .topnav a{color:var(--slate700);text-decoration:none;}
+  .topnav a:hover{color:var(--red);}
+  .topnav a.here{color:var(--red);font-weight:600;}
+  .wrap{max-width:1060px;margin:0 auto;padding:46px 36px 80px;}
+  h1{font-family:var(--serif);font-weight:600;font-size:46px;line-height:1.06;letter-spacing:-.015em;margin:6px 0 6px;}
+  .tag{font-family:var(--serif);font-size:20px;color:var(--red);font-weight:500;margin:0 0 18px;}
+  .lede{font-size:19px;color:var(--slate800);max-width:64ch;margin:0 0 28px;}
+  .lede b{font-weight:600;color:var(--ink);}
+  .know{border:1px solid var(--slate200);background:var(--slate100);border-radius:10px;padding:18px 20px;margin:0 0 30px;}
+  .know b{color:var(--ink);font-weight:600;}
+  .know ol{margin:8px 0 0;padding-left:20px;}
+  .know li{font-size:14.5px;color:var(--slate800);margin:5px 0;}
+  .map{border-top:1px solid var(--slate200);border-bottom:1px solid var(--slate200);padding:20px 0;margin:0 0 12px;}
+  .map .mt{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate600);font-weight:600;margin-bottom:13px;}
+  .map ol{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,auto);grid-auto-flow:column;gap:9px 28px;}
+  .map li{counter-increment:s;font-size:14.5px;display:flex;align-items:baseline;gap:11px;}
+  .map li::before{content:counter(s);flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;font-weight:600;}
+  .map li.x::before{content:"\2726";background:var(--red);}
+  .map a{color:var(--ink);text-decoration:none;}.map a:hover{color:var(--red);}
+  .map .gate{color:var(--slate600);font-size:12.5px;}
+  .stage{margin-top:18px;}
+  .stage details{border:1px solid var(--slate200);border-radius:11px;background:var(--paper);overflow:hidden;}
+  .stage summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:13px;padding:17px 20px;}
+  .stage summary::-webkit-details-marker{display:none;}
+  .stage summary .sn{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--serif);font-size:15px;font-weight:600;}
+  .stage summary.x .sn{background:var(--red);}
+  .stage summary .sh{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.1;}
+  .stage summary .stag{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--slate600);font-weight:600;margin-left:auto;white-space:nowrap;}
+  .sbody{padding:4px 22px 24px;}
+  .intro{font-size:15.5px;color:var(--slate700);max-width:68ch;margin:0 0 18px;}
+  .intro b{color:var(--ink);font-weight:600;}
+  .do{margin-top:18px;}
+  .do h4,.checklist h4,.approve h4{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;margin:0 0 7px;}
+  .do h4{color:var(--slate600);}
+  .do p{font-size:14.5px;color:var(--slate800);margin:0;}
+  .do code,.approve code,.intro code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;background:var(--slate100);padding:1px 6px;border-radius:4px;color:var(--navy);font-weight:600;}
+  .checklist{margin-top:16px;}
+  .checklist h4{color:var(--slate600);}
+  .checklist ul{list-style:none;margin:0;padding:0;}
+  .checklist li{display:flex;align-items:flex-start;gap:9px;font-size:14.5px;color:var(--slate800);padding:4px 0;}
+  .checklist .cbx{flex:0 0 auto;width:15px;height:15px;border:1.6px solid var(--navy);border-radius:4px;margin-top:3px;}
+  .approve{margin-top:16px;border:1px solid var(--red);background:var(--redlight);border-radius:9px;padding:13px 16px;}
+  .approve h4{color:var(--red);}
+  .approve p{font-size:14.5px;color:var(--ink);margin:0;}
+  .approve b{font-weight:600;}
+  .frame{background:var(--paper);border:1px solid var(--slate200);border-radius:10px;overflow:hidden;margin-top:8px;}
+  .chrome{display:flex;align-items:center;gap:7px;padding:10px 15px;border-bottom:1px solid var(--slate200);background:var(--slate100);}
+  .chrome .tl{width:10px;height:10px;border-radius:50%;background:var(--slate200);}
+  .chrome .addr{margin-left:8px;font-size:12px;color:var(--slate600);font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .board{padding:24px 28px 28px;}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--navy);background:#eef0f7;border:1px solid #dfe3ef;border-radius:999px;padding:3px 12px;}
+  .chip .sq{width:8px;height:8px;border-radius:2px;background:var(--navy);}
+  .arts{list-style:none;margin:0;padding:0;}
+  .arts li{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--slate200);font-size:14px;}
+  .arts li:last-child{border-bottom:0;}
+  .layer{border:1px solid var(--slate200);border-radius:9px;padding:15px 19px;background:var(--paper);}
+  .layer + .layer{margin-top:13px;}
+  .layer .lh{font-family:var(--serif);font-size:18px;font-weight:600;}
+  .layer .ls{font-size:13.5px;color:var(--slate700);margin-top:2px;}
+  .layer.sys{border-left:4px solid var(--navy);border-radius:0 9px 9px 0;}
+  .layer.ten{border-left:4px solid var(--slate600);border-radius:0 9px 9px 0;}
+  .layer.camp{border-left:4px solid var(--red);border-radius:0 9px 9px 0;}
+  .flowtag{display:flex;justify-content:space-between;font-size:12.5px;color:var(--slate600);margin:12px 2px 0;gap:14px;flex-wrap:wrap;}
+  .flowtag b{color:var(--navy);font-weight:600;}
+  .dna{width:100%;border-collapse:collapse;margin-top:4px;}
+  .dna td{padding:8px 0;border-bottom:1px solid var(--slate200);font-size:14px;vertical-align:top;}
+  .dna tr:last-child td{border-bottom:0;}
+  .dna td.k{width:108px;color:var(--slate600);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;padding-right:14px;white-space:nowrap;}
+  .dtable{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px;}
+  .dtable th{text-align:left;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);font-weight:600;background:#eef0f7;padding:8px 10px;border-bottom:1px solid #dfe3ef;}
+  .dtable td{padding:9px 10px;border-bottom:1px solid var(--slate200);vertical-align:top;color:var(--slate800);}
+  .dtable tr:last-child td{border-bottom:0;}
+  .dtable .ph{font-weight:600;color:var(--ink);}
+  .sh3{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--slate600);font-weight:600;margin:22px 0 4px;}
+  .sh3:first-child{margin-top:0;}
+  .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:8px;}
+  .tcard{border:1px solid var(--slate200);border-radius:9px;padding:14px 15px;background:var(--paper);}
+  .tcard.rec{border-color:var(--red);box-shadow:0 0 0 1px var(--red);}
+  .tcard .tk{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate600);font-weight:600;}
+  .tcard.rec .tk{color:var(--red);}
+  .tcard .ti{font-family:var(--serif);font-size:16px;font-weight:600;line-height:1.15;margin:7px 0 5px;}
+  .tcard .td{font-size:12.5px;color:var(--slate700);line-height:1.4;}
+  .tcard .rb{display:inline-block;margin-top:9px;font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--red);background:var(--redlight);border-radius:999px;padding:2px 9px;}
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:6px;}
+  .tile{border:1px solid var(--slate200);border-radius:8px;overflow:hidden;background:var(--paper);}
+  .tile .thumb{height:64px;background:var(--slate100);border-bottom:1px solid var(--slate200);display:flex;align-items:center;justify-content:center;color:var(--slate600);font-size:11px;}
+  .tile .meta{padding:9px 11px;}
+  .tile .tn{font-size:13px;font-weight:600;line-height:1.2;}
+  .tile .tsub{font-size:11px;color:var(--slate600);font-style:italic;margin-top:2px;}
+  .tile .ttags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+  .tg{font-size:9px;font-weight:600;padding:2px 7px;border-radius:999px;white-space:nowrap;}
+  .tg.appr{background:#eef0f7;color:var(--navy);}.tg.prog{background:var(--slate100);color:var(--slate700);}
+  .tg.rev{background:var(--redlight);color:var(--red);}.tg.fmt{background:var(--cream);border:1px solid var(--slate200);color:var(--slate700);}
+  .tg.q{background:var(--redlight);color:var(--red);}.tg.typ{background:#eef0f7;color:var(--navy);}
+  .chgrp{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate600);font-weight:600;margin:16px 0 7px;}.chgrp:first-child{margin-top:0;}
+  .modal{border:1px solid var(--slate200);border-radius:10px;overflow:hidden;background:var(--paper);margin-top:14px;}
+  .modalbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 15px;border-bottom:1px solid var(--slate200);background:var(--slate100);flex-wrap:wrap;}
+  .modalbar .mt{font-size:13px;font-weight:600;color:var(--ink);}
+  .modalbar .mt .ap-st{color:var(--navy);font-weight:500;font-size:11px;}
+  .mbtns{display:flex;gap:7px;flex-wrap:wrap;}
+  .mbtn{font-size:11px;font-weight:500;border:1px solid var(--slate200);background:var(--paper);border-radius:6px;padding:5px 10px;color:var(--slate700);white-space:nowrap;}
+  .mbtn.pri{border-color:#dfe3ef;background:#eef0f7;color:var(--navy);}
+  .modalbody{display:grid;grid-template-columns:1.5fr 1fr;}
+  .assetfull{border-right:1px solid var(--slate200);background:var(--cream);min-height:200px;}
+  .ctxpane{padding:14px 16px;}
+  .ctxpane .sec{padding:11px 0;border-bottom:1px solid var(--slate200);font-size:12.5px;color:var(--slate800);line-height:1.5;}
+  .ctxpane .sec:first-child{padding-top:0;}.ctxpane .sec:last-child{border-bottom:0;}
+  .ctxpane h5{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate600);font-weight:600;margin:0 0 5px;}
+  .idx2{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+  .idxc2{border:1px solid var(--slate200);border-left:4px solid var(--navy);border-radius:0 9px 9px 0;padding:13px 15px;background:var(--paper);}
+  .idxc2 .top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .idxc2 .badge{font-size:11px;font-weight:500;color:var(--navy);background:#eef0f7;border:1px solid #dfe3ef;border-radius:6px;padding:2px 9px;white-space:nowrap;}
+  .idxc2 .it{font-family:var(--serif);font-size:16px;font-weight:600;margin:8px 0 1px;}
+  .idxc2 .sub2{font-size:12px;color:var(--slate600);}
+  .navbtns{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
+  .navbtn{font-size:11px;border:1px solid var(--slate200);border-radius:999px;padding:3px 9px;color:var(--slate700);background:var(--paper);}
+  .inboxpill{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;font-size:13px;font-weight:500;border-radius:8px;padding:8px 14px;margin:6px 0 10px;}
+  .inboxpill .ct{background:#fff;color:var(--navy);border-radius:999px;font-size:11px;font-weight:600;padding:1px 8px;}
+  .syscard{border:1px solid var(--slate200);border-left:3px solid var(--navy);border-radius:0 8px 8px 0;padding:11px 14px;margin-bottom:9px;}
+  .syscard .id{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--slate600);}
+  .syscard .ti2{font-size:14px;font-weight:600;margin:4px 0 3px;}
+  .syscard .de{font-size:12.5px;color:var(--slate700);line-height:1.4;}
+  .sysh{font-size:12px;font-weight:600;color:var(--slate800);border-bottom:1px solid var(--slate200);padding-bottom:6px;margin:14px 0 11px;}
+  .sysh .ct{color:var(--slate600);font-weight:400;}
+  .howto{border:1px solid var(--slate200);border-radius:8px;margin-top:12px;background:var(--paper);}
+  .howto summary{cursor:pointer;padding:10px 14px;font-size:13px;font-weight:600;}
+  .howbody{padding:2px 14px 12px;font-size:12.5px;color:var(--slate700);line-height:1.5;}
+  .cbxs{display:inline-block;width:13px;height:13px;border:1.5px solid var(--slate600);border-radius:3px;vertical-align:-1px;}
+  .note{font-size:13px;color:var(--slate700);margin-top:11px;line-height:1.55;}
+  .note b{color:var(--ink);font-weight:600;}
+  .bmeta{font-size:12px;color:var(--slate600);margin:3px 0 15px;line-height:1.5;}
+  .bmeta b{color:var(--slate700);}
+  .atag{display:inline-block;font-size:9px;font-weight:600;letter-spacing:.03em;padding:1px 7px;border-radius:999px;vertical-align:1px;}
+  .atag.read{background:#e8f0e8;color:#3a6b3a;}
+  .atag.ai{background:#fbeede;color:#9a6a1a;}
+  .bwhy{border-left:3px solid var(--navy);background:#eef2fb;border-radius:0 8px 8px 0;padding:12px 15px;font-size:13px;color:var(--slate800);line-height:1.5;margin:4px 0 2px;}
+  .blist{margin:4px 0 0;padding-left:18px;}
+  .blist li{font-size:13px;color:var(--slate800);margin:6px 0;line-height:1.45;}
+  .blist b{color:var(--ink);font-weight:600;}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;background:var(--slate100);padding:1px 5px;border-radius:4px;color:var(--navy);}
+  .vidhold{max-width:600px;margin:10px auto 4px;border:2px dashed #cbc9c0;border-radius:12px;background:var(--paper);aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:22px;}
+  .vidhold .vptri{width:54px;height:54px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:19px;padding-left:4px;}
+  .vidhold .vh{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink);}
+  .vidhold .vs{font-size:12.5px;color:var(--slate600);max-width:48ch;line-height:1.5;margin-top:4px;}
+  .vidhold .vbadge{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate600);font-weight:600;border:1px solid var(--slate200);border-radius:999px;padding:2px 10px;}
+  .actions{margin-top:20px;background:#f6f4ef;border:1px solid var(--slate200);border-radius:13px;padding:12px 18px 16px;}
+  .actions > :first-child{margin-top:0;}
+  .actions > :last-child{margin-bottom:0;}
+  .footer{margin-top:50px;border-top:2px solid var(--ink);padding-top:18px;font-size:13px;color:var(--slate600);}
+  .footer a{color:var(--navy);}
+  /* expand/collapse affordance (chevron on each section) */
+  .stage > details > summary::after{content:"";flex:0 0 auto;width:9px;height:9px;margin-left:2px;border-right:2px solid var(--slate600);border-bottom:2px solid var(--slate600);transform:rotate(45deg);transition:transform .2s,border-color .2s;}
+  .stage > details[open] > summary::after{transform:rotate(-135deg);}
+  .stage > details > summary:hover::after{border-color:var(--red);}
+  /* embedded demo video */
+  .demovid{max-width:780px;margin:12px auto 6px;border:1px solid var(--slate200);border-radius:12px;overflow:hidden;background:#000;}
+  .demovid video{display:block;width:100%;height:auto;}
+  .democap{text-align:center;font-size:13px;color:var(--slate700);max-width:62ch;margin:0 auto;}
+  /* YouTube walkthrough thumbnail */
+  .vwatch{display:block;position:relative;max-width:270px;border:1px solid var(--slate200);border-radius:10px;overflow:hidden;margin:0 auto 18px;text-decoration:none;background:var(--paper);}
+  .vwatch .vthumb{position:relative;aspect-ratio:16/9;background:#000;}
+  .vwatch .vthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.94;transition:opacity .2s;}
+  .vwatch:hover .vthumb img{opacity:1;}
+  .vwatch .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:35px;border-radius:9px;background:rgba(230,60,60,.94);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;padding-left:2px;box-shadow:0 3px 12px rgba(0,0,0,.4);}
+  .vwatch .vlabel{display:block;padding:9px 13px;font-size:13px;font-weight:600;color:var(--ink);border-top:1px solid var(--slate200);}
+  .vwatch .vlabel .vsub{color:var(--slate600);font-weight:400;}
+  .vwatch:hover .vlabel{color:var(--red);}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="brandline"><span class="dot"></span> Soundtrak AI Studio</div>
+  <div class="navlinks">
+    <a href="help.html">Help &amp; guides</a>
+    <a href="deployment-guide.html">Deployment</a>
+    <a class="here" href="operator-guide.html">Operator guide</a>
+  </div>
+</nav>
+<div class="wrap">
+  <h1>Operator Guide</h1>
+
+  <div class="callout">
+    <b>Before the how-to — the thing that makes this different: you own it.</b> This isn't a website you log
+    into or an app you rent. It's a copy of the whole system that lives on <b>your</b> computer:
+    <ul>
+      <li><b>You own it</b> — yours to run indefinitely, no seat licence, no lock-in.</li>
+      <li><b>It's all readable</b> — how it works, your brand profile, and every asset it makes are plain
+        files you can open, read, and change.</li>
+      <li><b>You run and control it</b> — the AI does the work; you make the calls, and steer it in plain English.</li>
+      <li><b>Your data stays yours</b> — on your machine; the only thing that leaves is what you type into a session.</li>
+    </ul>
+    <span class="muted">It's a premium, licensed product — yours to run for your own business's marketing,
+    not to resell or run for other people's clients. Transparent and yours to control, <b>not</b> open-source.</span>
+  </div>
+  <p class="tag">The AI studio that 10Xs your marketing.</p>
+  <p class="lede">Everything you do, stage by stage — from starting your first campaign to shipping each piece and keeping it running. You mostly <b>answer questions and approve work in chat</b>; this guide shows you <b>what you'll see</b>, <b>what to get done</b>, and <b>exactly what you approve to move on</b>. Written for someone who has never used the system before.</p>
+
+  <div class="know">
+    <b>Four things worth knowing first:</b>
+    <ol>
+      <li><b>You're in charge.</b> The studio drafts and checks the work, but nothing goes out without your yes. Push back whenever something feels off.</li>
+      <li><b>It works in stages, on purpose.</b> Your business was set up once during install (see the <a href="deployment-guide.html">Deployment guide</a>); from there you advance each campaign stage by <b>approving</b> it — that gate is the red box in every stage below.</li>
+      <li><b>It's a conversation, not a wizard.</b> You type plain‑English requests; it asks questions back and does the work. The screens shown here regenerate themselves — you read them, you don't maintain them.</li>
+      <li><b>One chat per job.</b> A fresh chat for each campaign, and another for each system retro. Your work lives in files, so a new chat always picks up where you left off.</li>
+    </ol>
+  </div>
+
+  <div class="map">
+    <div class="mt">Your journey at a glance</div>
+    <ol>
+      <li><a href="#s1">Start a campaign — the brief</a> <span class="gate">— approve the brief</span></li>
+      <li><a href="#s2">Pick a creative concept</a> <span class="gate">— choose one of three</span></li>
+      <li><a href="#s3">Approve the campaign plan</a> <span class="gate">— approve the plan</span></li>
+      <li><a href="#s4">Produce &amp; approve each asset</a> <span class="gate">— approve each piece</span></li>
+      <li><a href="#s5">Launch</a> <span class="gate">— approve the launch plan</span></li>
+      <li><a href="#s6">Manage &amp; report</a> <span class="gate">— ongoing campaigns</span></li>
+      <li class="x"><a href="#sx">Improve the studio</a> <span class="gate">— ongoing, optional</span></li>
+    </ol>
+  </div>
+
+  <div class="stage">
+    <details open>
+      <summary><span class="sn">&#9656;</span><span class="sh">How it all fits together</span><span class="stag">Orientation</span></summary>
+      <div class="sbody">
+        <p class="intro">The fastest way to get it is to watch the studio work — <b>Claude on one side, your operator surfaces on the other</b>. The short tour below walks a single request from start to a finished, approved piece; the stages after it break that same loop down, step by step.</p>
+        <div class="demovid">
+          <video controls preload="metadata" poster="media/demo-poster.jpg">
+            <source src="media/studio-walkthrough-demo.mp4" type="video/mp4">
+            Your browser can't play embedded video. <a href="media/studio-walkthrough-demo.mp4">Download the tour</a>.
+          </video>
+        </div>
+        <p class="democap">A side‑by‑side tour: Claude on one side, your operator surfaces on the other — one request becoming a finished, approved piece, end to end.</p>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage" id="s1">
+    <details>
+      <summary><span class="sn">1</span><span class="sh">Start a campaign — the brief</span><span class="stag">Phase 1</span></summary>
+      <div class="sbody">
+        <a class="vwatch" href="https://youtu.be/ojBmf7RzqDE" target="_blank" rel="noopener"><span class="vthumb"><img src="media/thumb-p1.jpg" alt="Phase 1 walkthrough" loading="lazy"><span class="vplay">&#9654;</span></span><span class="vlabel">Watch the Phase 1 walkthrough <span class="vsub">· on YouTube</span></span></a>
+        <p class="intro">In a <b>new chat</b> (one per campaign), type <code>start a campaign: &lt;what it's for&gt;</code>. The studio interviews you and drafts a one‑page <b>brief</b> — one goal, one measure of success, who it's for, the offer — and opens the campaign's <b>dashboard</b>: the single page that answers "where am I, what's next?".</p>
+
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">campaigns/acme-q3-leadgen/brief.html</span></div>
+          <div class="board">
+            <div style="font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.12">Acme Co — Q3 Lead‑Gen — Brief v1</div>
+            <div class="bmeta"><b>Operator:</b> you &nbsp;·&nbsp; <b>Tenant:</b> Acme Co &nbsp;·&nbsp; <b>Type:</b> Demand / lead‑gen &nbsp;·&nbsp; <b>Status:</b> <span style="color:var(--navy)">✅ Approved by operator 2026‑06‑28</span></div>
+            <div class="sh3">Why this campaign</div>
+            <div class="bwhy"><span class="atag read">Your read</span> Plenty of traffic, too few qualified demos — the top of the funnel is the bottleneck. The fastest unlock isn't more reach, it's <i>showing</i> the product solve the prospect's own problem so the demo books itself. One quarter, one motion, one number that proves it.</div>
+            <div class="sh3">Business objective</div>
+            <ul class="blist">
+              <li><b>Primary objective</b> <span class="atag read">Your read</span> — book qualified demos from small‑business owners by letting them watch the product work on their own brief.</li>
+              <li><b>Campaign shape — CM‑inferred</b> <span class="atag ai">AI synthesis</span> — market‑facing; the concept trio will be campaign ideas. <i>(Confirm this read.)</i></li>
+              <li><b>Why this one, now</b> <span class="atag read">Your read</span> — Q3 is the buying window; competitors lead with features, not proof.</li>
+              <li><b>Split‑rule check</b> — ONE objective (demos), ONE KPI; not split across audiences.</li>
+            </ul>
+            <div class="sh3">Goal &amp; KPI</div>
+            <ul class="blist">
+              <li><b>Primary KPI</b> <span class="atag read">Your read</span> — 30 qualified demos booked by 30 Sep, measured off the booking form.</li>
+              <li><b>KPI‑scale sanity gate</b> <span class="atag ai">AI synthesis</span> — a demo‑booking number matched to a demo‑led campaign. Correct match. ✅</li>
+            </ul>
+            <div style="font-size:11.5px;color:var(--slate600);font-style:italic;margin-top:12px;border-top:1px solid var(--slate200);padding-top:9px">…plus The offer · Audience (from your segment map) · Insights that matter · Single‑minded proposition — each colour‑tagged <span class="atag read">Your read</span> vs <span class="atag ai">AI synthesis</span> so you always see what's yours and what the studio proposed.</div>
+          </div>
+        </div>
+        <div class="note"><b>It also opens your campaign dashboard</b> — your day‑to‑day home for this campaign (its locked strategy, every phase's status, time + cost, and your To‑Do). That's the second screen under <b>Your home base</b>, below.</div>
+        <div class="actions">
+        <div class="do"><h4>What you do</h4><p>Answer the brief interview (short, ~15 min). Read the one‑page brief it drafts.</p></div>
+        <div class="checklist"><h4>✅ You're done when</h4>
+          <ul>
+            <li><span class="cbx"></span>The goal and the one success measure are right.</li>
+            <li><span class="cbx"></span>The audience and offer match what you meant.</li>
+          </ul>
+        </div>
+        <div class="approve"><h4>→ To continue, you approve</h4><p>Say <b>"approve the brief"</b> (or send it back with a note). Approving fires the Creative Director and opens the concepts.</p></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage" id="s2">
+    <details>
+      <summary><span class="sn">2</span><span class="sh">Pick a creative concept (one big idea)</span><span class="stag">Phase 2</span></summary>
+      <div class="sbody">
+        <a class="vwatch" href="https://youtu.be/A0KsqCZ29YA" target="_blank" rel="noopener"><span class="vthumb"><img src="media/thumb-p2.jpg" alt="Phase 2 walkthrough" loading="lazy"><span class="vplay">&#9654;</span></span><span class="vlabel">Watch the Phase 2 walkthrough <span class="vsub">· on YouTube</span></span></a>
+        <p class="intro">The Creative Director comes back with <b>three</b> creative directions — one safe, one smart, one bold — with <b>one recommended</b> and the reasons why. You read them and choose. You can also steer ("sharpen the bold one") and it re‑works around your call.</p>
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">campaigns/acme-q3-leadgen/concepts/concept-trio.html</span></div>
+          <div class="board">
+            <div style="font-family:var(--serif);font-size:18px;font-weight:600;margin-bottom:3px">Three directions — pick one</div>
+            <div style="font-size:12px;color:var(--slate600);margin-bottom:14px">Reply in chat with the one to run with.</div>
+            <div class="trio">
+              <div class="tcard"><div class="tk">Safe</div><div class="ti">The proof reel</div><div class="td">Show the product solving a real, named problem end‑to‑end. Low risk, clear.</div></div>
+              <div class="tcard rec"><div class="tk">Smart ★ Recommended</div><div class="ti">Your brief, our output</div><div class="td">Prospects submit their own brief and watch it become finished work, live. Self‑selects qualified demos.</div><span class="rb">Why: best fit to the KPI</span></div>
+              <div class="tcard"><div class="tk">Bold</div><div class="ti">The public teardown</div><div class="td">Tear down a real brief in public, in the comments. High ceiling, higher craft demand.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+        <div class="do"><h4>What you do</h4><p>Read all three and the recommendation's rationale. Decide which direction fits — or ask for a tweak first.</p></div>
+        <div class="checklist"><h4>✅ You're done when</h4>
+          <ul>
+            <li><span class="cbx"></span>You've read all three and the "why" on the recommended one.</li>
+            <li><span class="cbx"></span>You've settled on the direction (after any tweak).</li>
+          </ul>
+        </div>
+        <div class="approve"><h4>→ To continue, you approve</h4><p>Reply <b>"go with the Smart one"</b> (or whichever). That locks the concept and the studio drafts the plan.</p></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage" id="s3">
+    <details>
+      <summary><span class="sn">3</span><span class="sh">Approve the campaign plan</span><span class="stag">Phase 3</span></summary>
+      <div class="sbody">
+        <a class="vwatch" href="https://youtu.be/AJQLbxg859E" target="_blank" rel="noopener"><span class="vthumb"><img src="media/thumb-p3.jpg" alt="Phase 3 walkthrough" loading="lazy"><span class="vplay">&#9654;</span></span><span class="vlabel">Watch the Phase 3 walkthrough <span class="vsub">· on YouTube</span></span></a>
+        <p class="intro">The studio lays out <b>exactly what it will make</b> — every asset, what each one outputs, and the order. One page. You approve it before anything gets produced, so there are no surprises.</p>
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">campaigns/acme-q3-leadgen/plan.html</span></div>
+          <div class="board">
+            <div class="sh3">The asset list</div>
+            <table class="dtable">
+              <thead><tr><th>#</th><th>Asset</th><th>Output</th><th>Channel</th></tr></thead>
+              <tbody>
+                <tr><td class="ph">1</td><td>Demo‑invite email</td><td>HTML email</td><td>Email</td></tr>
+                <tr><td class="ph">2</td><td>Demo landing page</td><td>HTML + images</td><td>Web</td></tr>
+                <tr><td class="ph">3</td><td>5‑reasons carousel</td><td>image ×3</td><td>Social</td></tr>
+                <tr><td class="ph">4</td><td>Launch post</td><td>text</td><td>Social</td></tr>
+                <tr><td class="ph">5</td><td>Pitch deck</td><td>HTML + PPT</td><td>Sales kit</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="actions">
+        <div class="do"><h4>What you do</h4><p>Check the asset list matches the campaign — the right pieces, the right channels, nothing missing or excess.</p></div>
+        <div class="checklist"><h4>✅ You're done when</h4>
+          <ul>
+            <li><span class="cbx"></span>The asset list is what you want made.</li>
+            <li><span class="cbx"></span>Each asset's output is clear.</li>
+          </ul>
+        </div>
+        <div class="approve"><h4>→ To continue, you approve</h4><p>Say <b>"approve the campaign plan"</b>. Production begins — the studio builds each asset in turn.</p></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage" id="s4">
+    <details>
+      <summary><span class="sn">4</span><span class="sh">Produce &amp; approve each asset</span><span class="stag">Phase 4</span></summary>
+      <div class="sbody">
+        <a class="vwatch" href="https://youtu.be/atSYmsfs0zY" target="_blank" rel="noopener"><span class="vthumb"><img src="media/thumb-p4.jpg" alt="Phase 4 walkthrough" loading="lazy"><span class="vplay">&#9654;</span></span><span class="vlabel">Watch the Phase 4 walkthrough <span class="vsub">· on YouTube</span></span></a>
+        <p class="intro">The studio produces each asset — written, brand‑checked, compliance‑checked — and lays them out by channel in the <b>gallery</b>. You review and approve each one. This is where most of your time goes, one piece at a time.</p>
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">campaigns/acme-q3-leadgen/gallery.html</span></div>
+          <div class="board">
+            <div class="chgrp">Web</div>
+            <div class="tiles">
+              <div class="tile"><div class="thumb">page</div><div class="meta"><div class="tn">Demo landing page</div><div class="tsub">single conversion page</div><div class="ttags"><span class="tg rev">For review</span><span class="tg fmt">HTML</span><span class="tg q">1 question</span></div></div></div>
+            </div>
+            <div class="chgrp">Social</div>
+            <div class="tiles">
+              <div class="tile"><div class="thumb">carousel</div><div class="meta"><div class="tn">5‑reasons carousel</div><div class="tsub">3‑tile set</div><div class="ttags"><span class="tg appr">✓ Approved</span><span class="tg fmt">image ×3</span><span class="tg typ">Variant</span></div></div></div>
+              <div class="tile"><div class="thumb">post</div><div class="meta"><div class="tn">Launch post</div><div class="tsub">organic LinkedIn</div><div class="ttags"><span class="tg prog">In progress</span><span class="tg fmt">text</span></div></div></div>
+            </div>
+            <div class="chgrp">Email</div>
+            <div class="tiles">
+              <div class="tile"><div class="thumb">email</div><div class="meta"><div class="tn">Demo invite</div><div class="tsub">Wk 1 opener</div><div class="ttags"><span class="tg appr">✓ Approved</span><span class="tg fmt">HTML email</span></div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="note">Each tile shows its <b>status</b> (✓ Approved · In progress · For review), its <b>type</b> (a normal output, or a reusable <b>Template</b>/<b>Variant</b>), the <b>format</b> (HTML · PPT · image · text), and any <b>open questions</b> still on it.</div>
+        <p class="intro" style="margin-top:18px">Click any tile and it opens full for <b>review</b> — the asset on the left, everything you need to judge it on the right, file buttons up top.</p>
+        <div class="modal">
+          <div class="modalbar">
+            <div class="mt">Demo landing page <span class="ap-st">— approved draft · deploy‑ready</span></div>
+            <div class="mbtns"><span class="mbtn pri">View in full</span><span class="mbtn">Edit copy (.md)</span><span class="mbtn">Open folder</span><span class="mbtn">Close (Esc)</span></div>
+          </div>
+          <div class="modalbody">
+            <div class="assetfull">
+              <div style="padding:16px 20px">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;margin-bottom:18px"><span style="font-weight:600">Acme Co</span><span style="color:var(--slate600)">Home · Work · Services</span></div>
+                <div style="font-family:var(--serif);font-size:22px;line-height:1.14;font-weight:600">See it work on <span style="color:var(--red)">your brief</span> — in 60 seconds.</div>
+                <div style="font-size:12.5px;color:var(--slate700);margin-top:9px;max-width:38ch">Give us the brief you'd give an agency. Watch the studio turn it into finished work, live.</div>
+                <div style="margin-top:12px;display:inline-block;background:var(--ink);color:#fff;font-size:11px;padding:7px 13px;border-radius:6px">Book a demo</div>
+                <div style="margin-top:16px;height:72px;background:var(--ink);border-radius:6px"></div>
+              </div>
+            </div>
+            <div class="ctxpane">
+              <div class="sec"><h5>What this is</h5>Public landing page at acme.example/demo.</div>
+              <div class="sec"><h5>Files</h5><span style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--navy)">assets/02-landing-page/</span><div style="color:var(--slate600);font-size:11.5px;margin-top:3px">index.html + images/ + deploy cookbook.</div></div>
+              <div class="sec"><h5>Open questions · gate · 1 item</h5><div style="font-size:12px"><b>GA4 event wiring</b> — form‑submit + scroll events need running first (cookbook, ~30 min).</div></div>
+              <div class="sec"><h5>On strategy <span style="text-transform:none;letter-spacing:0;font-weight:400;color:var(--slate600)">(advisory · never gates)</span></h5><span style="color:var(--navy);font-weight:600">Strong</span> — leads with the prospect's problem.</div>
+            </div>
+          </div>
+        </div>
+        <div class="note"><b>The buttons up top open the files:</b> <b>View in full</b> (the rendered asset) · <b>Edit copy (.md)</b> (the words) · <b>Open folder</b> (the deployable files) · <b>Close (Esc)</b>.</div>
+        <div class="actions">
+        <div class="do"><h4>What you do</h4><p>Open each "For review" tile. Read the asset in full, work any open questions (the gate), use the top buttons to open the live page / copy / folder.</p></div>
+        <div class="checklist"><h4>✅ You're done when</h4>
+          <ul>
+            <li><span class="cbx"></span>You've reviewed the creative design of the asset.</li>
+            <li><span class="cbx"></span>You've reviewed the copy for the asset.</li>
+            <li><span class="cbx"></span>You've reviewed the final output of the asset.</li>
+            <li><span class="cbx"></span>You've resolved any outstanding questions (or deferred them to launch).</li>
+          </ul>
+        </div>
+        <div class="approve"><h4>→ To continue, you approve</h4><p>You <b>don't approve from the screen</b> — give your verdict <b>in chat</b>: <b>"approve the landing page"</b>, or <b>"send it back — tighten the subhead"</b>, or <b>"archive/delete it"</b>. Repeat for each asset until all are approved.</p></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage" id="s5">
+    <details>
+      <summary><span class="sn">5</span><span class="sh">Launch</span><span class="stag">Phase 5</span></summary>
+      <div class="sbody">
+        <a class="vwatch" href="https://youtu.be/Mhsg8qanYa4" target="_blank" rel="noopener"><span class="vthumb"><img src="media/thumb-p5.jpg" alt="Phase 5 walkthrough" loading="lazy"><span class="vplay">&#9654;</span></span><span class="vlabel">Watch the Phase 5 walkthrough <span class="vsub">· on YouTube</span></span></a>
+        <p class="intro">Each approved piece either <b>publishes</b> (where the studio is connected to your tools) or gives you simple <b>copy‑paste steps</b> — you always do the final "send". The studio lays out the go‑live plan; you approve it, then work down the list.</p>
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">campaigns/acme-q3-leadgen/phase-5-rollout.html</span></div>
+          <div class="board">
+            <div class="sh3">Launch plan — what goes live, and how</div>
+            <table class="dtable">
+              <thead><tr><th style="width:22px"></th><th>Asset</th><th>How it goes live</th></tr></thead>
+              <tbody>
+                <tr><td><span class="cbxs"></span></td><td>Demo‑invite email</td><td>Pushed to your email tool as a draft → <b>you hit send</b></td></tr>
+                <tr><td><span class="cbxs"></span></td><td>Demo landing page</td><td>Copy‑paste deploy steps (cookbook) → publish to acme.example/demo</td></tr>
+                <tr><td><span class="cbxs"></span></td><td>Launch post</td><td>Ready caption + image → <b>you post to LinkedIn</b></td></tr>
+              </tbody>
+            </table>
+            <details class="howto"><summary>▸ Publishing a post — for whoever posts to LinkedIn</summary><div class="howbody">Each post ships with a ready caption and image — whoever publishes just copies and posts. After posting, tell the studio "mark the launch post done" and it updates the tracker.</div></details>
+          </div>
+        </div>
+        <div class="actions">
+        <div class="do"><h4>What you do</h4><p>Approve the launch plan, then work down it — publish where the studio is connected, follow the copy‑paste steps elsewhere, and do the final send yourself.</p></div>
+        <div class="checklist"><h4>✅ You're done when</h4>
+          <ul>
+            <li><span class="cbx"></span>You've approved the launch plan.</li>
+            <li><span class="cbx"></span>You've completed the launch tasks.</li>
+          </ul>
+        </div>
+        <div class="approve"><h4>→ To continue, you approve</h4><p>Say <b>"approve Phase 5 plan"</b> before any step goes live. A one‑off campaign is done here; an ongoing one moves to <b>Manage &amp; Report</b>.</p></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage" id="s6">
+    <details>
+      <summary><span class="sn">6</span><span class="sh">Manage &amp; Report</span><span class="stag">Phase 6 · ongoing campaigns</span></summary>
+      <div class="sbody">
+        <a class="vwatch" href="https://youtu.be/9eYRdg8KvkU" target="_blank" rel="noopener"><span class="vthumb"><img src="media/thumb-p6.jpg" alt="Phase 6 walkthrough" loading="lazy"><span class="vplay">&#9654;</span></span><span class="vlabel">Watch the Phase 6 walkthrough <span class="vsub">· on YouTube</span></span></a>
+        <p class="intro">For anything ongoing, the studio runs a simple <b>weekly rhythm</b> — one or two moves a week. You read the numbers it reports, make the occasional call, and it closes out at the end. <i>(A one‑off campaign skips this stage.)</i></p>
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">campaigns/acme-q3-leadgen/phase-6-cadence.html</span></div>
+          <div class="board">
+            <table class="dtable">
+              <thead><tr><th style="width:22px"></th><th style="width:86px">Week</th><th>What you do</th></tr></thead>
+              <tbody>
+                <tr><td><span class="cbxs"></span></td><td class="ph">Wk 1</td><td>Keep half an eye on the live pieces daily (~5 min). No decisions.</td></tr>
+                <tr><td><span class="cbxs"></span></td><td class="ph">Wk 3</td><td><b>First read</b> (~30 min): the studio reports the numbers; small, reversible tweaks only.</td></tr>
+                <tr><td><span class="cbxs"></span></td><td class="ph">Wk 4</td><td><b>The big call</b> (~60 min): shift budget from the weakest channel to the strongest. Write down <i>why</i>.</td></tr>
+                <tr><td><span class="cbxs"></span></td><td class="ph">Wk 6</td><td><b>Close the campaign</b>: results report → retro → graduate the learnings → freeze.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="actions">
+        <div class="do"><h4>What you do</h4><p>Approve the ongoing‑management plan, then follow the weekly moves — read the studio's numbers, make the one budget call, and let it report + close out at the end.</p></div>
+        <div class="checklist"><h4>✅ You're done when</h4>
+          <ul>
+            <li><span class="cbx"></span>You've approved the ongoing‑management plan.</li>
+            <li><span class="cbx"></span>You've completed this cycle's tasks.</li>
+            <li><span class="cbx"></span>You're following the weekly moves.</li>
+          </ul>
+        </div>
+        <div class="approve"><h4>→ To continue, you approve</h4><p>Say <b>"approve Phase 6 plan"</b>, then approve each cycle as it comes. A closed campaign freezes — its learnings graduate up to sharpen the next one.</p></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage">
+    <details>
+      <summary><span class="sn">&#9656;</span><span class="sh">Your home base — all campaigns</span><span class="stag">Where you land</span></summary>
+      <div class="sbody">
+        <p class="intro">Two screens you live in: the <b>All Campaigns</b> list (where you start each session), and any one campaign's <b>Dashboard</b> (its day‑to‑day home). Both shown below.</p>
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">campaigns/index.html</span></div>
+          <div class="board">
+            <div style="font-family:var(--serif);font-size:19px;font-weight:600">All campaigns</div>
+            <div style="font-size:12px;color:var(--slate600);margin:2px 0 14px"><span style="color:var(--red)">●</span> Active · last updated 28 Jun</div>
+            <div class="idx2">
+              <div class="idxc2"><div class="top"><span class="chip"><span class="sq"></span>Acme Co</span><span class="badge">Phase 2 · Concepts</span></div><div class="it">Q3 Lead‑Gen Campaign</div><div class="sub2">demo‑led lead generation</div><div class="navbtns"><span class="navbtn">Dashboard</span><span class="navbtn">Brief</span><span class="navbtn">Concept</span><span class="navbtn">Plan</span><span class="navbtn">Gallery</span></div></div>
+              <div class="idxc2"><div class="top"><span class="chip"><span class="sq"></span>Acme Co</span><span class="badge">Phase 4 · Production</span></div><div class="it">Brand Refresh</div><div class="sub2">visual + voice refresh</div><div class="navbtns"><span class="navbtn">Dashboard</span><span class="navbtn">Plan</span><span class="navbtn">Gallery</span><span class="navbtn">Launch</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="note">Each card shows the phase, how it's tracking, and quick links to that campaign's <b>Dashboard · Brief · Concept · Plan · Gallery</b>. "View all tasks" rolls every campaign's to‑dos into one queue.</div>
+
+        <p class="intro" style="margin-top:20px"><b>Click a campaign</b> → its <b>Dashboard</b>, the day‑to‑day home for that one campaign:</p>
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">campaigns/acme-q3-leadgen/dashboard.html</span></div>
+          <div class="board">
+            <div style="font-size:12px;color:var(--slate600);margin-bottom:11px">All Campaigns &rsaquo; <span style="color:var(--navy);font-weight:500">Acme Co · Q3 Lead‑Gen Campaign</span></div>
+            <div class="sh3">Campaign DNA — the locked strategy at a glance</div>
+            <table class="dna">
+              <tr><td class="k">Big idea</td><td>Let prospects watch the product solve <i>their own</i> problem — a 60‑second "your brief, our output" reel.</td></tr>
+              <tr><td class="k">Key message</td><td>See it work on your brief, then decide.</td></tr>
+              <tr><td class="k">KPI floor</td><td>30 qualified demos booked by 30 Sep · <span style="color:var(--navy);font-weight:600">4 booked ✓</span></td></tr>
+              <tr><td class="k">Concept</td><td>Smart <span style="color:var(--navy)">(selected ✓)</span></td></tr>
+            </table>
+            <div class="sh3" style="margin-top:20px">Phases &amp; artifacts</div>
+            <table class="dtable">
+              <thead><tr><th>Phase</th><th>Step</th><th>Status</th><th>Human time</th><th>AI cost</th></tr></thead>
+              <tbody>
+                <tr><td class="ph">4</td><td>Asset production</td><td><span style="color:var(--red);font-weight:600">● 1 awaiting you</span></td><td>~10 min</td><td>~$2.10</td></tr>
+                <tr><td class="ph">5</td><td>Launch</td><td style="color:#a7a69f">Pending</td><td>—</td><td>—</td></tr>
+                <tr><td class="ph">6</td><td>Manage &amp; Report</td><td style="color:#a7a69f">Pending</td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="note"><b>The dashboard tracks everything for you:</b> the locked strategy (Campaign DNA), every phase with its status, the human time + AI cost each step took, and a prioritised <b>To‑Do</b> with the <i>why</i> behind each action. You read it; it maintains itself.</div>
+      </div>
+    </details>
+  </div>
+
+  <div class="stage" id="sx">
+    <details>
+      <summary class="x"><span class="sn">&#10022;</span><span class="sh">Improve the studio</span><span class="stag">Ongoing · optional</span></summary>
+      <div class="sbody">
+        <a class="vwatch" href="https://youtu.be/50Bt5IrdzMQ" target="_blank" rel="noopener"><span class="vthumb"><img src="media/thumb-retro.jpg" alt="Retrospectives walkthrough" loading="lazy"><span class="vplay">&#9654;</span></span><span class="vlabel">Watch the Retro walkthrough <span class="vsub">· on YouTube</span></span></a>
+        <p class="intro">The studio can get better at <i>your</i> business over time. In a <b>fresh chat</b> named <i>Retro</i>, type <code>/system-manager</code>. Capture ideas as they occur, and run a retro every few weeks — the System Manager turns them into a prioritised to‑do list and tracks the history.</p>
+        <p>The studio also learns from the <b>examples you give it</b>. Save standout work as you spot it ("save this as a good example") and it joins your <b>reference library</b> — the collection of campaigns and pieces it draws on when creating your work. The library won't refresh on its own, but once a week the studio suggests fresh examples worth adding and reminds you if it hasn't grown in a couple of weeks, so it never quietly goes stale. You always decide what goes in.</p>
+        <div class="frame">
+          <div class="chrome"><span class="tl"></span><span class="tl"></span><span class="tl"></span><span class="addr">system/dashboard.html</span></div>
+          <div class="board">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap">
+              <div><div style="font-family:var(--serif);font-size:18px;font-weight:600">System operator dashboard</div><div style="font-size:12px;color:var(--slate600)">Updated 29 Jun</div></div>
+              <div class="mbtns"><span class="mbtn pri">Run a retro</span><span class="mbtn">Capture an idea</span></div>
+            </div>
+            <div class="inboxpill">Inbox <span class="ct">3</span> untriaged · triage →</div>
+            <div class="sysh">Needs you <span class="ct">· a decision is blocking these</span></div>
+            <div class="syscard"><div><span class="id">SYS‑012</span></div><div class="ti2">Add a "first 90 days" onboarding email sequence</div><div class="de">A reusable welcome sequence every new campaign can start from.</div></div>
+            <div class="sysh">AI can action <span class="ct">· no input needed</span></div>
+            <div class="syscard"><div><span class="id">SYS‑016</span></div><div class="ti2">Add a LinkedIn document‑post format</div><div class="de">Native PDF document posts, not image sets.</div></div>
+          </div>
+        </div>
+        <div class="actions">
+        <div class="do"><h4>What you do</h4><p>Capture an idea any time (<code>capture an idea: …</code> or <code>add to backlog: …</code>); run a retro every few weeks (<code>run a system retro</code>) to turn lessons into the board above.</p></div>
+        <div class="checklist"><h4>How to read it</h4>
+          <ul>
+            <li><span class="cbx"></span><b>Inbox</b> — decide which captured ideas to work on (triage them into the backlog).</li>
+            <li><span class="cbx"></span><b>Needs you</b> — improvements blocked on a decision only you can make.</li>
+            <li><span class="cbx"></span><b>AI can action</b> — improvements the studio can just carry out.</li>
+          </ul>
+        </div>
+        <div class="approve"><h4>The habit that compounds</h4><p>Do this in a <b>fresh chat</b>, separate from campaigns. Over time it's how the studio gets sharper at <i>your</i> marketing.</p></div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <p class="footer">Soundtrak AI Studio — Operator Guide. Screens are illustrative (sample data); your real surfaces regenerate themselves. Stuck? See <a href="help.html">Help &amp; guides</a> or just ask the studio "how does X work?".</p>
+</div>
+<script>
+(function(){
+  function openStage(id){
+    if(!id) return;
+    var el = document.getElementById(id);
+    if(!el) return;
+    var d = el.querySelector('details');
+    if(d) d.open = true;
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  // Clicking a journey-map link opens that stage's box (and scrolls to it).
+  document.querySelectorAll('.map a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href').slice(1);
+      if(!document.getElementById(id)) return;
+      e.preventDefault();
+      openStage(id);
+      if(history.replaceState) history.replaceState(null, '', '#'+id);
+    });
+  });
+  // Also open the right box on a direct hash link / back-forward navigation.
+  if(location.hash) openStage(location.hash.slice(1));
+  window.addEventListener('hashchange', function(){ openStage(location.hash.slice(1)); });
+})();
+</script>
+</body>
+</html>

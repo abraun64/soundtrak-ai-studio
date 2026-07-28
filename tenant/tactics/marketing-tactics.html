@@ -1,0 +1,3417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing Tactics — Master Reference — Marketing AI System</title>
+  <style>/* Marketing AI System — social/email in-situ mockup chrome.
+ * Renders collapsed (feed) + expanded (clicked-open) states per form.
+ * Loaded automatically alongside system.css for all templates.
+ * Form-specific tokens live under .mock-<form> scopes so they don't bleed.
+ */
+
+/* --- Mockup zone layout (sits above markdown narrative) --- */
+.mockups {
+  margin: 0 0 32px 0;
+}
+.mockups:empty { display: none; }
+
+.mock-variant {
+  margin: 0 0 40px 0;
+}
+.mock-variant__label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
+  padding: 0 4px;
+}
+
+.mock-states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .mock-states { grid-template-columns: 1fr; }
+}
+
+.mock-state {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mock-state__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin: 0 0 14px 0;
+  text-align: center;
+}
+
+/* --- LinkedIn post chrome --- */
+.mock-li {
+  --li-bg: #f3f2ef;
+  --li-card-bg: #ffffff;
+  --li-text: #000000e6;
+  --li-text-secondary: #00000099;
+  --li-text-tertiary: #00000066;
+  --li-border: #00000014;
+  --li-accent: #0a66c2;
+  --li-hover: #00000008;
+}
+.mock-li .mock-state { background: var(--li-bg); }
+.mock-li .li-card {
+  width: 100%;
+  max-width: 552px;
+  background: var(--li-card-bg);
+  border: 1px solid var(--li-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--li-text);
+}
+.mock-li .li-header {
+  display: flex;
+  padding: 12px 16px 8px;
+  align-items: center;
+  gap: 8px;
+}
+.mock-li .li-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1a2a5e;
+  color: #f8f5ee;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "Caveat", "Segoe Script", cursive;
+}
+.mock-li .li-author { flex: 1; min-width: 0; }
+.mock-li .li-author-name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.mock-li .li-author-title { font-size: 12px; color: var(--li-text-secondary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-author-meta { font-size: 12px; color: var(--li-text-tertiary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-more { color: var(--li-text-secondary); font-size: 20px; padding: 4px 8px; }
+.mock-li .li-body {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--li-text);
+}
+.mock-li .li-body p { margin: 0 0 8px; }
+.mock-li .li-see-more {
+  color: var(--li-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 16px 8px;
+  user-select: none;
+}
+.mock-li .li-image {
+  width: 100%;
+  display: block;
+  background: #f8f5ee;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+.mock-li .li-reactions {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--li-text-secondary);
+  border-bottom: 1px solid var(--li-border);
+}
+.mock-li .li-reaction-icons { display: inline-flex; vertical-align: middle; }
+.mock-li .li-reaction-icons span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: -3px;
+  border: 1.5px solid #fff;
+  font-size: 10px;
+  text-align: center;
+  line-height: 13px;
+  color: white;
+}
+.mock-li .li-r-like { background: #378fe9; }
+.mock-li .li-r-insight { background: #f5b800; color: #333 !important; }
+.mock-li .li-r-celebrate { background: #6dae4f; }
+.mock-li .li-reactions-left { display: flex; align-items: center; gap: 6px; }
+.mock-li .li-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px;
+}
+.mock-li .li-action {
+  text-align: center;
+  padding: 8px 4px;
+  color: var(--li-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mock-li .li-comments {
+  border-top: 1px solid var(--li-border);
+  padding: 12px 16px;
+  background: #fafafa;
+}
+.mock-li .li-comment { display: flex; gap: 8px; margin-bottom: 12px; }
+.mock-li .li-comment:last-child { margin-bottom: 0; }
+.mock-li .li-c-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: #ddd;
+  color: #555; font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-li .li-c-body {
+  background: #f3f2ef; border-radius: 0 8px 8px 8px;
+  padding: 8px 12px; font-size: 13px; line-height: 1.4; flex: 1;
+}
+.mock-li .li-c-author { font-weight: 600; margin-bottom: 2px; }
+.mock-li .li-c-meta { font-size: 11px; color: var(--li-text-tertiary); margin-top: 4px; }
+
+/* --- Email chrome (inbox row + opened state) --- */
+.mock-email {
+  --em-bg: #f6f8fc;
+  --em-card-bg: #ffffff;
+  --em-text: #202124;
+  --em-text-secondary: #5f6368;
+  --em-border: #e5e7eb;
+  --em-accent: #1a73e8;
+  --em-unread: #f3f7fd;
+}
+.mock-email .mock-state { background: var(--em-bg); }
+.mock-email .em-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--em-card-bg);
+  border: 1px solid var(--em-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Google Sans", Roboto, -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--em-text);
+  font-size: 14px;
+}
+.mock-email .em-inbox-toolbar {
+  background: var(--em-bg);
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--em-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-inbox-row {
+  display: grid;
+  grid-template-columns: 28px 180px 1fr 80px;
+  gap: 12px;
+  padding: 10px 16px;
+  align-items: center;
+  background: var(--em-unread);
+  font-weight: 600;
+}
+.mock-email .em-star { color: #d1d5db; font-size: 16px; }
+.mock-email .em-from { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock-email .em-snippet { font-size: 14px; color: var(--em-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.mock-email .em-snippet b { font-weight: 600; }
+.mock-email .em-snippet .em-preview { color: var(--em-text-secondary); font-weight: 400; }
+.mock-email .em-date { text-align: right; font-size: 12px; color: var(--em-text-secondary); }
+
+/* Opened state */
+.mock-email .em-opened-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-subject { font-size: 20px; font-weight: 400; margin: 0 0 12px 0; color: var(--em-text); }
+.mock-email .em-meta-row { display: flex; gap: 12px; align-items: center; }
+.mock-email .em-sender-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--em-accent);
+  color: white; font-weight: 600; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-email .em-sender-name { font-size: 14px; font-weight: 600; }
+.mock-email .em-sender-email { font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-sent-meta { margin-left: auto; font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-opened-body {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--em-text);
+}
+.mock-email .em-opened-body p { margin: 0 0 14px 0; }
+.mock-email .em-opened-body a { color: var(--em-accent); }
+.mock-email .em-opened-body h1, .mock-email .em-opened-body h2, .mock-email .em-opened-body h3 {
+  margin: 20px 0 10px 0;
+}
+
+/* --- Twitter / X (stub) --- */
+.mock-tw {
+  --tw-bg: #ffffff;
+  --tw-text: #0f1419;
+  --tw-text-secondary: #536471;
+  --tw-border: #eff3f4;
+  --tw-accent: #1d9bf0;
+}
+.mock-tw .mock-state { background: #f7f9fa; }
+.mock-tw .tw-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--tw-bg);
+  border: 1px solid var(--tw-border);
+  border-radius: 16px;
+  padding: 16px;
+  font-family: "Chirp", -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--tw-text);
+}
+.mock-tw .tw-header { display: flex; gap: 10px; }
+.mock-tw .tw-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: #1a2a5e;
+  color: #f8f5ee; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-tw .tw-name { font-weight: 700; font-size: 15px; }
+.mock-tw .tw-handle { color: var(--tw-text-secondary); font-size: 14px; }
+.mock-tw .tw-body { font-size: 15px; line-height: 1.4; margin: 10px 0; white-space: pre-wrap; }
+.mock-tw .tw-image { width: 100%; border-radius: 16px; border: 1px solid var(--tw-border); margin: 10px 0 0; display: block; }
+
+/* --- Instagram (stub) --- */
+.mock-ig {
+  --ig-bg: #ffffff;
+  --ig-text: #262626;
+  --ig-text-secondary: #8e8e8e;
+  --ig-border: #dbdbdb;
+}
+.mock-ig .mock-state { background: #fafafa; }
+.mock-ig .ig-card {
+  width: 100%;
+  max-width: 470px;
+  background: var(--ig-bg);
+  border: 1px solid var(--ig-border);
+  border-radius: 8px;
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--ig-text);
+  overflow: hidden;
+}
+.mock-ig .ig-header { display: flex; gap: 10px; align-items: center; padding: 12px; }
+.mock-ig .ig-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;
+}
+.mock-ig .ig-handle { font-weight: 600; font-size: 14px; }
+.mock-ig .ig-image { width: 100%; display: block; border: none; border-radius: 0; margin: 0; aspect-ratio: 1 / 1; object-fit: cover; }
+.mock-ig .ig-caption { padding: 12px; font-size: 14px; line-height: 1.4; }
+.mock-ig .ig-caption b { font-weight: 600; margin-right: 6px; }
+
+/* --- Substack (stub) --- */
+.mock-sub {
+  --sub-bg: #ffffff;
+  --sub-text: #1a1a1a;
+  --sub-text-secondary: #6b6b6b;
+  --sub-border: #e5e5e5;
+  --sub-accent: #ff6719;
+}
+.mock-sub .mock-state { background: #f5f5f5; }
+.mock-sub .sub-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--sub-bg);
+  border: 1px solid var(--sub-border);
+  border-radius: 4px;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--sub-text);
+}
+.mock-sub .sub-pub { font-size: 12px; color: var(--sub-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+.mock-sub .sub-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0; }
+.mock-sub .sub-subtitle { font-size: 16px; color: var(--sub-text-secondary); margin: 0 0 16px 0; }
+.mock-sub .sub-image { width: 100%; border: 1px solid var(--sub-border); margin: 0 0 16px 0; display: block; border-radius: 0; }
+.mock-sub .sub-body { font-size: 16px; line-height: 1.6; }
+
+/* --- Stub-form placeholder note --- */
+.mock-stub-note {
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-style: italic;
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  margin-top: 8px;
+  max-width: 600px;
+}
+
+/* --- Asset-preview page main container width --- */
+.page-main--asset-preview { max-width: var(--max-width-wide); }
+.content--narrative { /* inherits .content baseline */ }
+
+/* Marketing AI System — clean-default-minimal system UI
+ * Stripe/Linear aesthetic. System fonts. Generous whitespace.
+ * No external font dependencies.
+ */
+
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --success: #10b981;
+  --success-soft: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-soft: #fffbeb;
+  --danger: #ef4444;
+  --danger-soft: #fef2f2;
+  --code-bg: #f3f4f6;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --max-width: 880px;          /* prose-narrow — for Brief / Brand Context reading */
+  --max-width-wide: 1480px;    /* dashboard / plan / tasks / index / asset-preview — tables + comparisons */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Header --- */
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.page-header__inner {
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.page-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
+}
+.crumb {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.crumb-link {
+  color: var(--accent);
+}
+.crumb-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-decoration: underline;
+}
+.crumb-current {
+  color: var(--text);
+  font-weight: 600;
+}
+.crumb-sep {
+  color: var(--text-subtle);
+  user-select: none;
+}
+.page-header__template {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  opacity: 0.6;
+}
+/* Refresh control (SYS-014) — top-right of every operator surface; reloads the page
+   so the operator doesn't reach for the browser refresh. */
+.refresh-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); font-size: 14px; line-height: 1;
+  cursor: pointer; padding: 0; font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.refresh-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.page-header__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.library-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.lib-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.lib-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+.lib-link--current {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* --- Main content --- */
+.page-main {
+  max-width: var(--max-width-wide);
+  margin: 48px auto;
+  padding: 0 32px;
+}
+
+/* Prose-narrow templates (Brief, Brand Context) get a narrower line length for readability */
+.template-brief .page-main,
+.template-brand-context .page-main {
+  max-width: var(--max-width);
+}
+
+.content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 56px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Typography --- */
+.content h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+.content h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 40px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.content h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 28px 0 8px 0;
+}
+.content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 24px 0 8px 0;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+}
+.content p {
+  margin: 0 0 16px 0;
+}
+.content ul, .content ol {
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+.content li { margin-bottom: 4px; }
+
+.content strong { font-weight: 600; color: var(--text); }
+.content em { font-style: italic; }
+
+.content code {
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+}
+.content pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+.content pre code {
+  background: none;
+  padding: 0;
+}
+
+.content a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.content a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.content blockquote {
+  border-left: 3px solid var(--border-strong);
+  padding: 4px 16px;
+  margin: 0 0 16px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* --- Tables --- */
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 20px 0;
+  font-size: 14px;
+}
+.content table th {
+  text-align: left;
+  font-weight: 600;
+  background: var(--bg);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border-strong);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.content table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content table tr:last-child td { border-bottom: none; }
+.content table tr:hover td { background: var(--bg); }
+
+/* --- Status badges (used in inline markdown via spans or by templates) --- */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+}
+.badge--draft { background: var(--code-bg); color: var(--text-muted); }
+.badge--approved { background: var(--success-soft); color: var(--success); }
+.badge--awaiting { background: var(--warning-soft); color: var(--warning); }
+.badge--blocked { background: var(--danger-soft); color: var(--danger); }
+.badge--live { background: var(--accent-soft); color: var(--accent); }
+
+/* --- HR --- */
+.content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* --- Images --- */
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+/* --- Footer --- */
+.page-footer {
+  max-width: var(--max-width-wide);
+  margin: 32px auto;
+  padding: 16px 32px;
+  font-size: 12px;
+  color: var(--text-subtle);
+  text-align: center;
+}
+.page-footer code {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+/* --- Collapsible details/summary (decision-first / reference-collapsed pattern) --- */
+.content details {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 24px 0;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+.content details[open] {
+  background: var(--surface);
+}
+.content details summary {
+  padding: 14px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+.content details summary::-webkit-details-marker { display: none; }
+.content details summary::before {
+  content: "▸";
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 12px;
+}
+.content details[open] summary::before {
+  transform: rotate(90deg);
+}
+.content details summary:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.content details summary strong {
+  font-weight: 600;
+}
+.content details > *:not(summary) {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.content details > *:last-child {
+  padding-bottom: 16px;
+}
+.content details summary + * {
+  margin-top: 12px;
+}
+/* Expanded content inside details should keep all the proper typography */
+.content details h2,
+.content details h3,
+.content details h4 {
+  margin-top: 24px;
+}
+.content details h2:first-of-type,
+.content details h3:first-of-type,
+.content details h4:first-of-type {
+  margin-top: 12px;
+}
+.content details table {
+  margin-bottom: 16px;
+}
+
+/* --- Checkboxes in lists (task lists) --- */
+.content ul.task-list,
+.content ul.task-list li {
+  list-style: none;
+  padding-left: 0;
+}
+.content input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* --- Dashboard-specific: richer card treatment for collapsible sections --- */
+/* The dashboard's <details> blocks are the operator's primary navigation. They */
+/* need to read as cards, not as plain disclosure rows. Scoped via body class so */
+/* Brief / Concept / Plan / Asset surfaces keep their lighter treatment. */
+body.template-dashboard .content details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, border-left-color 0.2s, transform 0.15s;
+}
+body.template-dashboard .content details:hover {
+  box-shadow: var(--shadow-md);
+  border-left-color: var(--accent);
+}
+body.template-dashboard .content details[open] {
+  background: var(--surface);
+  border-left-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+body.template-dashboard .content details summary {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  background: linear-gradient(to right, var(--bg) 0%, var(--surface) 60%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+body.template-dashboard .content details[open] summary {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 70%);
+}
+body.template-dashboard .content details summary::before {
+  content: "›";
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-muted);
+  width: 14px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+body.template-dashboard .content details[open] summary::before {
+  color: var(--accent);
+  transform: rotate(90deg) translateX(-1px);
+}
+body.template-dashboard .content details summary:hover {
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 80%);
+  color: var(--accent);
+}
+body.template-dashboard .content details > *:not(summary) {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+body.template-dashboard .content details > *:first-of-type:not(summary) {
+  padding-top: 8px;
+}
+body.template-dashboard .content details > *:last-child {
+  padding-bottom: 20px;
+}
+
+/* Color-vary the left-border per card position so 8 stacked cards aren't monotone */
+body.template-dashboard .content details:nth-of-type(8n+1) { border-left-color: #6366f1; } /* indigo */
+body.template-dashboard .content details:nth-of-type(8n+2) { border-left-color: #ec4899; } /* pink */
+body.template-dashboard .content details:nth-of-type(8n+3) { border-left-color: #8b5cf6; } /* violet */
+body.template-dashboard .content details:nth-of-type(8n+4) { border-left-color: #06b6d4; } /* cyan */
+body.template-dashboard .content details:nth-of-type(8n+5) { border-left-color: #10b981; } /* emerald */
+body.template-dashboard .content details:nth-of-type(8n+6) { border-left-color: #f59e0b; } /* amber */
+body.template-dashboard .content details:nth-of-type(8n+7) { border-left-color: #ef4444; } /* red */
+body.template-dashboard .content details:nth-of-type(8n+8) { border-left-color: #64748b; } /* slate */
+body.template-dashboard .content details:hover,
+body.template-dashboard .content details[open] {
+  /* On hover/open, accent wins over the nth-child color */
+  border-left-color: var(--accent);
+}
+
+/* Above-the-fold dashboard surfaces (🚨 Next actions / 🎯 Stage + next gate) — */
+/* lift these visually above the collapsed cards via top-of-page treatment */
+body.template-dashboard .content h2 {
+  font-size: 22px;
+  margin-top: 36px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+body.template-dashboard .content h2:first-of-type {
+  margin-top: 8px;
+}
+body.template-dashboard .content h3 {
+  font-size: 17px;
+  color: var(--text);
+  margin-top: 24px;
+}
+
+/* The 🚨 Next actions table — make it visually distinct as the highest-priority surface */
+body.template-dashboard .content > h2:first-of-type + table,
+body.template-dashboard .content > h2 + table {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+body.template-dashboard .content table th {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================================
+ * Brief — prose-narrow surface polish (added 2026-06-12, HTML-surface retro).
+ * Restrained: it's a reading document. Metadata header · callout blockquotes ·
+ * attribution + HARD inline tags. Tags are general (.content) so any prose
+ * surface that uses them inherits; layout bits scoped to template-brief.
+ * ========================================================================== */
+
+/* Metadata block (first paragraph after the H1: Operator · Tenant · Type · Status) */
+body.template-brief .content > h1 + p {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+body.template-brief .content > h1 + p strong { color: var(--text); font-weight: 600; }
+
+/* "Why this campaign" (first H2's paragraph) — the load-bearing framing — is the
+ * one accent callout on the page. */
+body.template-brief .content > h2:first-of-type + p {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  margin: 0 0 22px 0;
+  font-size: 15.5px;
+  color: var(--text);
+}
+
+/* Blockquotes (rescope / history / context notes) — neutral, not accent. They
+ * read as reference asides and belong at the bottom of the brief. */
+body.template-brief .content blockquote {
+  background: var(--bg);
+  border-left: 4px solid var(--border-strong);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 18px;
+  margin: 0 0 22px 0;
+  color: var(--text-muted);
+  font-style: normal;
+}
+body.template-brief .content blockquote p:last-child { margin-bottom: 0; }
+
+/* Attribution markers — the brief's signature [who-said-what] discipline */
+.content .attr {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.content .attr--operator { background: var(--success-soft); color: var(--success); }  /* the operator's read */
+.content .attr--ext      { background: var(--accent-soft);  color: var(--accent); }   /* AI extension */
+.content .attr--syn      { background: var(--warning-soft); color: var(--warning); }  /* AI synthesis */
+
+/* HARD mandatory flags */
+.content .hard-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 7px;
+  border-radius: 5px;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ============================================================================
+ * Concept pages — dense strategy docs (added 2026-06-12, HTML-surface retro).
+ * It's a reading document; the win is lifting the load-bearing lines (Big Idea,
+ * Key Message, radio script) out of the prose and giving sections clear rhythm.
+ * ========================================================================== */
+
+/* Clear section rhythm so a long concept scans */
+body.template-concept-trio .content h2 {
+  margin-top: 40px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+body.template-concept-trio .content h2:first-of-type { margin-top: 8px; }
+body.template-concept-trio .content h3 { margin-top: 26px; color: var(--text); }
+
+/* The Big Idea — first section's lead line — is the page's hero callout */
+body.template-concept-trio .content > h2:first-of-type + p {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  margin: 0 0 22px 0;
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* Key message + 15-second radio script (blockquotes) become accent callouts */
+body.template-concept-trio .content blockquote {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 18px;
+  margin: 0 0 20px 0;
+  color: var(--text);
+  font-style: normal;
+  font-size: 15.5px;
+}
+body.template-concept-trio .content blockquote p:last-child { margin-bottom: 0; }
+
+/* Revision-history / freshness-check tables read as quiet audit, not headline */
+body.template-concept-trio .content h2:last-of-type ~ table { font-size: 13px; }
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .page-main { padding: 0 16px; margin: 24px auto; }
+  .content { padding: 28px 24px; border-radius: var(--radius); }
+  .content h1 { font-size: 26px; }
+  .content h2 { font-size: 19px; }
+  .page-header { padding: 12px 16px; }
+}
+
+/* --- Print --- */
+@media print {
+  .page-header, .page-footer { display: none; }
+  .content { border: none; box-shadow: none; padding: 0; }
+}
+
+/* ============================================================================
+ * Dashboard header strip + unified status/priority system (added 2026-06-12,
+ * operator HTML-surface fine-tuning retro). Replaces the dense top metadata
+ * paragraph with a structured, scannable strip. All scoped to the dashboard so
+ * Brief / Concept / Plan / Asset surfaces are untouched.
+ * ========================================================================== */
+
+/* The header strip — name + status pills + one-line "where we are" + recent wins */
+.content .dash-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 8px 0;
+}
+.content .dash-header__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.content .dash-header__eyebrow {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 2px 0;
+}
+.content .dash-header__title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+.content .dash-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Unified status pill system — the single status vocabulary across the dashboard.
+ * Replaces the ad-hoc 🟢🔵🔴🟡 emoji mix. Reuses the soft/strong token pairs. */
+.content .pill {
+  display: inline-block;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.55;
+  white-space: nowrap;
+}
+.content .pill--active   { background: var(--accent-soft);  color: var(--accent); }
+.content .pill--approved { background: var(--success-soft); color: var(--success); }
+.content .pill--live     { background: #ecfeff;             color: #0e7490; }
+.content .pill--review   { background: var(--warning-soft); color: var(--warning); }
+.content .pill--blocked  { background: var(--danger-soft);  color: var(--danger); }
+.content .pill--queued   { background: var(--code-bg);      color: var(--text-muted); }
+.content .pill--pending  { background: var(--code-bg);      color: var(--text-subtle); }
+.content .pill--cut      { background: var(--code-bg);      color: var(--text-subtle); text-decoration: line-through; }
+
+/* The one-line "where we are" sentence — the dense Stage paragraph's replacement */
+.content .dash-where {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+.content .dash-where strong { color: var(--text); font-weight: 600; }
+
+/* "Recently approved" chip row — keeps the wins visible without opening History */
+.content .dash-recent {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.content .dash-recent__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  margin-right: 2px;
+}
+.content .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Operator-surfaces nav row — the quartet links, styled as a clean toolbar */
+.content .dash-surfaces {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px 0 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  font-size: 13px;
+}
+.content .dash-surfaces a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.content .dash-surfaces a:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+.content .dash-surfaces a.is-primary {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* Unified priority tags for To Do rows — one vocabulary (Now / Next / Later)
+ * replacing the four prior schemes (Priority 1-6 / D1-D5 / P2-P8 / Whenever).
+ * Authored inline in table cells today; auto-emitted by render.py in iteration 2. */
+body.template-dashboard .prio {
+  display: inline-block;
+  min-width: 46px;
+  text-align: center;
+  padding: 2px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+body.template-dashboard .prio--now   { background: var(--danger-soft);  color: var(--danger); }
+body.template-dashboard .prio--next  { background: var(--warning-soft); color: var(--warning); }
+body.template-dashboard .prio--later { background: var(--code-bg);      color: var(--text-muted); }
+
+/* ============================================================================
+ * Campaigns index — cross-campaign surface (added 2026-06-12, HTML-surface retro).
+ * The Active block is the hero: campaign CARDS, not a plain table. Reference
+ * tables below are visually demoted so the active campaigns lead the eye.
+ * ========================================================================== */
+
+/* Active campaigns — card grid (replaces the auto 3-column table) */
+body.template-index .camp-grid {
+  display: grid;
+  /* auto-FILL (not auto-fit): keep empty tracks so a single card in a per-tenant
+     section stays ~half-width instead of stretching to fill the row. */
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 16px;
+  margin: 4px 0 8px 0;
+}
+body.template-index .camp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.15s, border-left-color 0.2s;
+}
+body.template-index .camp-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+body.template-index .camp-card:nth-of-type(5n+1) { border-left-color: #6366f1; }
+body.template-index .camp-card:nth-of-type(5n+2) { border-left-color: #06b6d4; }
+body.template-index .camp-card:nth-of-type(5n+3) { border-left-color: #10b981; }
+body.template-index .camp-card:nth-of-type(5n+4) { border-left-color: #f59e0b; }
+body.template-index .camp-card:nth-of-type(5n+5) { border-left-color: #ec4899; }
+body.template-index .camp-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+body.template-index .camp-card__headL {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+body.template-index .camp-card__headR {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+body.template-index .camp-card__name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--text);
+}
+body.template-index .camp-card__formal {
+  font-size: 12px;
+  color: var(--text-subtle);
+  line-height: 1.3;
+}
+/* Context links (Brand context) — quiet, right-aligned under the phase pill */
+body.template-index .camp-card__context {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 10px;
+}
+body.template-index .camp-card__context a {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+body.template-index .camp-card__context a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+/* "View all tasks" CTA — prominent button under the active campaign cards */
+body.template-index .index-tasks-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 22px auto 8px auto;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  text-decoration: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.15s, background 0.15s;
+}
+body.template-index .index-tasks-cta:hover {
+  background: #1d4ed8;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  border: none;
+}
+body.template-index .index-tasks-cta__icon { font-size: 15px; line-height: 1; }
+body.template-index .index-tasks-cta__text { display: inline; }
+body.template-index .index-tasks-cta__label { font-size: 14px; font-weight: 600; }
+body.template-index .index-tasks-cta__sub { display: none; }
+body.template-index .index-tasks-cta__arrow { font-size: 16px; font-weight: 400; }
+
+/* Archived campaigns — collapsed list below the active grid */
+body.template-index .camp-archived { margin-top: 20px; }
+body.template-index .camp-archived ul { margin: 8px 0 0; padding-left: 20px; }
+body.template-index .camp-archived li { margin-bottom: 4px; font-size: 14px; }
+body.template-index .camp-archived__formal { color: var(--text-subtle); font-size: 12px; }
+body.template-index .camp-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+body.template-index .camp-card__surfaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+body.template-index .camp-card__surfaces a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-index .camp-card__surfaces a:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+
+/* Section headings — active leads; reference sections sit quieter below the rule */
+body.template-index .content h2 {
+  font-size: 20px;
+  margin-top: 36px;
+}
+body.template-index .content h2:first-of-type { margin-top: 8px; }
+body.template-index .content h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-top: 24px;
+}
+
+/* Reference tables (cross-campaign / specs / playbooks / infra) — demoted: compact + muted */
+body.template-index .content hr ~ table {
+  font-size: 13px;
+}
+body.template-index .content hr ~ table td {
+  padding: 7px 12px;
+  color: var(--text-muted);
+}
+body.template-index .content hr ~ table td a { color: var(--accent); }
+
+/* ============================================================================
+ * Tasks — cross-campaign To Do (added 2026-06-12, HTML-surface retro).
+ * Grouped per campaign with phase context + priority pills so the operator can
+ * see which campaign, which phase, and whether a decision unblocks or is optional.
+ * ========================================================================== */
+body.template-tasks .task-summary {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 4px 0 20px 0;
+}
+body.template-tasks .task-group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin: 0 0 18px 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+body.template-tasks .task-group__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+body.template-tasks .task-group__name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+body.template-tasks .task-group__dash {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+body.template-tasks .task-group__dash:hover { color: var(--accent); }
+/* SYS-012 — per-campaign collapse: each task group is a <details>, header is its <summary> */
+body.template-tasks details.task-group > summary.task-group__head { cursor: pointer; list-style: none; }
+body.template-tasks details.task-group > summary.task-group__head::-webkit-details-marker { display: none; }
+body.template-tasks details.task-group > summary.task-group__head::before {
+  content: "\25B8"; /* chevron */
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.15s ease;
+}
+body.template-tasks details.task-group[open] > summary.task-group__head::before { transform: rotate(90deg); }
+body.template-tasks .task-tools { display: flex; justify-content: flex-end; margin: 0 0 14px; }
+body.template-tasks .task-toggle-all {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-tasks .task-toggle-all:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.content .task-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  font-size: 14px;
+}
+.content .task-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.content .task-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content .task-table tr:last-child td { border-bottom: none; }
+.content .task-table tr:hover td { background: var(--bg); }
+.content .task-table td:nth-child(4) { color: var(--text-muted); white-space: nowrap; }
+.content .task-pointer {
+  margin: 0;
+  padding: 14px 18px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.content .task-pointer a { font-weight: 600; }
+/* Low-key footer pointer to the tenant Brand-recs queue (asset-verdict items —
+   durable, no time pressure). Sits under a group's task table, visually demoted. */
+.content .task-pointer--rec {
+  border-top: 1px dashed var(--border);
+  margin: 6px 0 0;
+  padding: 9px 18px 2px;
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+.content .task-pointer--rec strong { color: var(--text-muted); font-weight: 600; }
+/* Richer task cells — asset context under the title, "what you'll do" under why */
+.content .task-asset {
+  font-size: 12px;
+  color: var(--text-subtle);
+  margin-top: 3px;
+}
+.content .task-hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.content .task-hint__label {
+  font-weight: 700;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  margin-right: 4px;
+}
+
+/* ============================================================================
+ * Plan — per-asset cards (added 2026-06-15, HTML-surface retro).
+ * render.py transform_plan() rewrites the markdown asset-list TABLE into these
+ * cards at render time; the markdown table stays authoritative (check-state /
+ * Ships contract). Cut + transferred rows collapse into .asset-cards-archived.
+ * ========================================================================== */
+
+/* Section rhythm — the asset list is the headline; supporting tables sit quieter */
+body.template-plan .content h1 { margin-bottom: 4px; }
+body.template-plan .content h2 {
+  font-size: 21px;
+  margin-top: 40px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+body.template-plan .content h2:first-of-type { margin-top: 14px; }
+
+/* Metadata block (Concept selected · Approved · Status) reads as quiet eyebrow */
+body.template-plan .content > h1 + p {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}
+body.template-plan .content > h1 + p strong { color: var(--text); font-weight: 600; }
+
+/* The card grid — ~3 across (⅓ width) so each card stays easy to read */
+body.template-plan .asset-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 14px;
+  margin: 12px 0 8px;
+  align-items: start;
+}
+body.template-plan .asset-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 15px 18px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.12s ease;
+}
+body.template-plan .asset-card:hover { box-shadow: var(--shadow-md); }
+/* Color-vary the left border so a long stack isn't monotone */
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+1) { border-left-color: #6366f1; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+2) { border-left-color: #06b6d4; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+3) { border-left-color: #10b981; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+4) { border-left-color: #f59e0b; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+5) { border-left-color: #ec4899; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+6) { border-left-color: #8b5cf6; }
+
+body.template-plan .asset-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+body.template-plan .asset-card__num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+body.template-plan .asset-card__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+body.template-plan .asset-card__name strong { font-weight: 600; }
+body.template-plan .asset-card__head .pill { margin-left: auto; }
+
+/* Ships — the output manifest, the load-bearing line */
+body.template-plan .asset-card__ships {
+  font-size: 14px;
+  margin: 10px 0 8px;
+  padding: 8px 12px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+body.template-plan .asset-card__ships-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 6px;
+}
+body.template-plan .asset-card__ships code {
+  background: var(--surface);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Description — the deliverable, incl. variation count */
+body.template-plan .asset-card__desc {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 9px 0 0;
+}
+body.template-plan .asset-card__vars {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 5px;
+  padding: 0 6px;
+  margin-left: 2px;
+}
+/* Output format(s) — the manifest line */
+body.template-plan .asset-card__out {
+  font-size: 13px;
+  margin: 9px 0 2px;
+  padding: 7px 11px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+body.template-plan .asset-card__out-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 6px;
+}
+body.template-plan .asset-card__out code {
+  background: var(--surface);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Meta chips — owner / phase / target / review shape / copy / depends */
+body.template-plan .asset-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 7px;
+  margin: 8px 0 2px;
+}
+body.template-plan .asc-chip {
+  font-size: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 9px;
+  color: var(--text);
+  line-height: 1.5;
+}
+body.template-plan .asc-chip__k {
+  color: var(--text-subtle);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  margin-right: 5px;
+}
+body.template-plan .asc-chip code { background: transparent; padding: 0; }
+
+/* Notes — demoted to click-to-expand so the card head stays scannable */
+body.template-plan .asset-card__notes { margin-top: 10px; }
+body.template-plan .asset-card__notes summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 12.5px;
+  list-style: none;
+}
+body.template-plan .asset-card__notes summary::before { content: "▸ "; }
+body.template-plan .asset-card__notes[open] summary::before { content: "▾ "; }
+body.template-plan .asset-card__notes summary::-webkit-details-marker { display: none; }
+body.template-plan .asset-card__notes > div {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
+}
+
+/* Status pills on the cards */
+body.template-plan .asset-card .pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+body.template-plan .pill--shipped,
+body.template-plan .pill--ok      { background: var(--success-soft); color: #047857; }
+body.template-plan .pill--review  { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pill--prog    { background: #dbeafe; color: #1d4ed8; }
+body.template-plan .pill--queued  { background: var(--code-bg);     color: var(--text-muted); }
+body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
+body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
+
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
+/* Cut & transferred — collapsed audit group below the live build */
+body.template-plan .asset-cards-archived {
+  margin: 4px 0 28px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+}
+body.template-plan .asset-cards-archived summary {
+  padding: 13px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+body.template-plan .asset-cards-archived .asset-cards { margin: 0 14px 16px; }
+body.template-plan .asset-cards-archived .asset-card {
+  opacity: 0.7;
+  border-left-style: dashed;
+}
+body.template-plan .asset-cards-archived .asset-card:hover { opacity: 1; }
+
+/* Supporting tables (phasing / pre-flight / status snapshot) — compact + quiet */
+body.template-plan .content table { font-size: 13.5px; }
+body.template-plan .content table th {
+  background: var(--accent-soft);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+/* Channel/type groups — section the live cards by medium (Web · Email · …) */
+body.template-plan .asset-group { margin: 18px 0; }
+body.template-plan .asset-group__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px;
+}
+body.template-plan .asset-group__title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  white-space: nowrap;
+}
+body.template-plan .asset-group__count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--code-bg);
+  border-radius: 999px;
+  padding: 1px 9px;
+}
+body.template-plan .asset-group__head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* History & audit trail — pushed to the very bottom of the plan */
+body.template-plan .plan-tail-label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  margin: 8px 0 6px;
+}
+
+/* Collapsed AI/process sections (roster, fast-lane, workflows, version history…) */
+body.template-plan details.plan-collapsed {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 14px 0;
+}
+body.template-plan details.plan-collapsed > summary {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  list-style: none;
+}
+body.template-plan details.plan-collapsed > summary::-webkit-details-marker { display: none; }
+body.template-plan details.plan-collapsed > summary::before { content: "⚙ "; opacity: 0.6; }
+body.template-plan details.plan-collapsed[open] > summary {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+body.template-plan details.plan-collapsed > *:not(summary) { padding-left: 18px; padding-right: 18px; }
+body.template-plan details.plan-collapsed > *:first-of-type:not(summary) { padding-top: 10px; }
+body.template-plan details.plan-collapsed > *:last-child { padding-bottom: 14px; }
+/* H2 inside a collapsed section is now the summary; drop its in-flow heading look */
+body.template-plan details.plan-collapsed h3 { margin-top: 16px; border-bottom: none; }
+
+/* Open questions — highlighted callout (the operator must act on these) */
+body.template-plan .plan-oq {
+  border: 1px solid var(--warning);
+  background: var(--warning-soft);
+  border-radius: var(--radius-lg);
+  padding: 2px 22px 18px;
+  margin: 24px 0;
+}
+body.template-plan .plan-oq h2 {
+  border-bottom: none;
+  color: #b45309;
+}
+body.template-plan .plan-oq h2::before { content: "❓ "; }
+body.template-plan .plan-oq table { background: var(--surface); }
+body.template-plan .plan-oq > ol,
+body.template-plan .plan-oq > ul { margin-bottom: 4px; }
+
+/* Channel workstreams — the reframed Phasing summary (count · timing · status) */
+body.template-plan .workstreams {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 12px 0 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+body.template-plan .ws-row {
+  display: grid;
+  grid-template-columns: 1.1fr 2.6fr 0.6fr 1.1fr;
+  align-items: baseline;
+  gap: 14px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+body.template-plan .ws-row:last-child { border-bottom: none; }
+body.template-plan .ws-row:hover { background: var(--bg); }
+body.template-plan .ws-row--head {
+  background: var(--accent-soft);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+body.template-plan .ws-row--head:hover { background: var(--accent-soft); }
+body.template-plan .ws-row__ch { font-weight: 650; color: var(--text); }
+body.template-plan .ws-row--head .ws-row__ch { font-weight: 700; color: var(--text-muted); }
+body.template-plan .ws-row__desc { color: var(--text-muted); line-height: 1.45; }
+body.template-plan .ws-row__more { color: var(--text-subtle); font-size: 11.5px; white-space: nowrap; }
+body.template-plan .ws-row__n { color: var(--text-muted); font-size: 12.5px; white-space: nowrap; }
+body.template-plan .ws-row__t {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+}
+
+/* ── Tenant layer — logical grouping on the flat structure (2026-06-15) ──────── */
+/* Breadcrumb UP from a campaign dashboard to its tenant home. */
+.tenant-breadcrumb {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: -2px 0 18px;
+}
+.tenant-breadcrumb a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.tenant-breadcrumb a:hover { text-decoration: underline; }
+
+/* Tenant section header on the master index (campaigns grouped under their tenant). */
+.tenant-section {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 30px 0 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+  font-size: 18px;
+  font-weight: 700;
+}
+.tenant-section a { color: var(--text); text-decoration: none; }
+.tenant-section a:hover { color: var(--accent); }
+.tenant-section__count { font-size: 12px; font-weight: 500; color: var(--text-subtle); }
+
+/* Per-card tenant eyebrow label on the master index (Option A — flat 2-up grid,
+   tenant identity per card instead of section headers). */
+body.template-index .camp-card__tenant {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-decoration: none;
+  margin-bottom: 3px;
+}
+body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
+
+/* Governance verdict pill on asset previews (COMPLIANCE_AUTO marker). */
+.gov-verdict {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.9em;
+  padding: 1px 8px;
+  border-radius: 5px;
+}
+.gov-verdict.gov--clear   { background: var(--success-soft); color: var(--success); }
+.gov-verdict.gov--hold    { background: var(--warning-soft); color: var(--warning); }
+.gov-verdict.gov--blocked { background: var(--danger-soft);  color: var(--danger); }
+.gov-verdict.gov--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* Insights Manager advisory resonance read on external-touchpoint asset previews
+   (RESONANCE_AUTO marker). Advisory, never a gate — softer register than governance. */
+.resonance-read {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.9em;
+  padding: 1px 8px;
+  border-radius: 5px;
+}
+.resonance-read.res--on      { background: var(--success-soft); color: var(--success); }
+.resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
+.resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
+.resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
+</style>
+</head>
+<body class="template-base">
+  <header class="page-header">
+    <div class="page-header__inner">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <div class="page-header__right">
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../../docs/guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
+        <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <article class="content">
+      <h1 id="marketing-tactics-master-reference">Marketing Tactics — Master Reference</h1>
+<p>Exhaustive menu of marketing tactics grouped by theme, with a <strong>named-plays</strong> layer up top for the higher-order strategic mechanics that combine them. The <strong>Creative Director</strong> draws on this at Phase 2 when shaping each concept's channel mix and tactical mechanics; the <strong>Campaign Manager</strong> uses it at Phase 3 to compose the Plan's asset list, and slices relevant tactic definitions into Per-Step Briefs at Phase 4a. <em>(Updated 2026-06-16 — see changelog at bottom.)</em></p>
+<p><strong>This is the menu, not a script.</strong> Picking tactics is a strategic call — fit to audience, channel, effort tier, and phase goal. Tactics that don't earn their place don't go in the plan.</p>
+<p><strong>Channel column</strong> distinguishes:
+- <strong>Owned</strong> — channels you control (your site, your email list, your social profiles)
+- <strong>Earned</strong> — coverage you don't pay for (press, awards, organic mentions)
+- <strong>Paid</strong> — channels where reach costs money (search ads, social ads, sponsorship)</p>
+<hr>
+<h2 id="named-plays-strategic-mechanics-start-here">Named plays — strategic mechanics (start here)</h2>
+<p>The tables below are a menu of tactic <em>types</em>. These <strong>named plays</strong> are the higher-order layer: each combines several menu tactics into one strategic move with a specific job-to-be-done. Reach for a play when its <em>condition</em> matches, then assemble it from the menu rows it cites. Worked external precedents live in <code>tenant/library/</code>. <em>(Added 2026-06-16 from the operator's a client strategy deck — patterns generalised, not the client specifics.)</em></p>
+<h3 id="friction-reduction-utility-the-cost-of-staying-calculator">Friction-reduction utility — "the cost of staying" calculator</h3>
+<ul>
+<li><strong>Mechanic:</strong> an interactive tool that takes the user's current situation and returns one personalised, specific number that quantifies the cost of <em>not</em> acting — "you left $847 on the table last year," or "this migration takes 90 seconds, not a weekend." Pair the honest calculation with a one-click next step.</li>
+<li><strong>Job:</strong> beat <em>inertia</em>, not ignorance. In considered categories the barrier is rarely awareness — it's that the status quo requires no effort and the gain feels marginal. This play amplifies the <em>pain of staying</em> (a concrete dollar figure) while lowering the <em>friction of switching</em> (it does the hard part for them).</li>
+<li><strong>Reach for it when:</strong> an incumbent-dominated, high-switching-cost market where the prospect already half-suspects they're overpaying.</li>
+<li><strong>Assembles:</strong> Templates &amp; tools · Landing page optimisation (CRO) · Customer journey mapping.</li>
+</ul>
+<h3 id="proprietary-data-content-engine-act-like-a-media-company">Proprietary-data content engine — "act like a media company"</h3>
+<ul>
+<li><strong>Mechanic:</strong> a recurring, multi-format briefing (newsletter + podcast + short-form video + community post) whose hook is data only <em>you</em> have — "X% of our N users did Y yesterday." Add a monthly data-release for earned media (a legitimate editorial story, not an ad) and a rapid-response "news-jacking" cut tied to live events.</li>
+<li><strong>Job:</strong> <em>create</em> new intent rather than only harvest existing intent — reach the ~80% who aren't in-market today, build an owned audience you can re-market to at near-zero marginal cost, and lower long-run CAC as the audience compounds. First-party behavioural data is the one editorial angle competitors cannot copy.</li>
+<li><strong>Reach for it when:</strong> you sit on unique first-party behavioural data in a considered category, and performance CAC is rising as you compete for the same in-market pool.</li>
+<li><strong>Assembles:</strong> Newsletters (editorial) · Podcasts (owned) · YouTube Shorts · Digital PR / link earning · Research reports.</li>
+</ul>
+<h3 id="lifecycle-behavioural-trigger-matrix">Lifecycle behavioural-trigger matrix</h3>
+<ul>
+<li><strong>Mechanic:</strong> a precision (not broadcast) set of triggered sequences — each keyed to one behaviour or attribute (cash balance over $X · dormant &gt;180 days · engaged-with-calculator), each with a defined target segment and an expected conversion outcome. Build it as a table: trigger → sequence → target → expected outcome.</li>
+<li><strong>Job:</strong> convert and cross-sell the <em>existing</em> base — the highest LTV:CAC opportunity in any programme, because these users have already cleared the trust hurdle. Each message is calibrated to where the customer actually is, not a generic blast.</li>
+<li><strong>Reach for it when:</strong> a multi-product, behaviourally-rich user base and a marketing-automation stack that can fire on events.</li>
+<li><strong>Assembles:</strong> Nurture / drip sequences · Usage-triggered campaigns · Renewal / upsell / cross-sell · Customer journey mapping.</li>
+</ul>
+<h3 id="trojan-horse-hero-feature">Trojan-horse hero feature</h3>
+<ul>
+<li><strong>Mechanic:</strong> lead a performance or brand push with <em>one</em> differentiating feature stated plainly — no feature list — chosen because most people want it or because it uniquely reframes the category. Make that single message the hero across your highest-reach placements.</li>
+<li><strong>Job:</strong> cut through clutter and own a distinctive wedge. A single, repeated hero claim out-performs a cluttered "we do everything" message and gives the brand a memorable entry point.</li>
+<li><strong>Reach for it when:</strong> a crowded category where competitors all run feature-list messaging.</li>
+<li><strong>Assembles:</strong> hero creative · Out-of-Home · Paid Search &amp; Performance. <strong>Precedent:</strong> Apple "Shot on iPhone" (see library).</li>
+</ul>
+<h3 id="wrapped-shareable-data-mechanic">"Wrapped" shareable-data mechanic</h3>
+<ul>
+<li><strong>Mechanic:</strong> an annual or periodic, personalised data recap engineered for organic sharing — each user's "year in review" (their best moment, their rank versus the community, their stats) rendered as a celebratory graphic with a built-in CTA.</li>
+<li><strong>Job:</strong> manufacture an organic-referral moment and a retention spike out of data you already hold. The user does the distribution because the artefact flatters them.</li>
+<li><strong>Reach for it when:</strong> you hold per-user data that can be framed as a status or progress story.</li>
+<li><strong>Assembles:</strong> AI-powered personalisation · UGC campaigns · Social — Organic. <strong>Precedent:</strong> Spotify Wrapped (see library).</li>
+</ul>
+<h3 id="channel-as-jtbd-one-creative-idea-per-channels-job">Channel-as-JTBD — one creative idea per channel's job</h3>
+<ul>
+<li><strong>Mechanic:</strong> before writing creative, define the audience's specific job-to-be-done <em>on that channel</em>, then design the idea and the "why it works" to that job — rather than reusing one execution everywhere. LinkedIn = social-signalling → a founder-led document ad; a rational-investor subreddit = validate the mathematically-correct path → a no-BS AMA with raw data; a sports portal = social currency → a pattern-interrupt that redirects the punter mindset.</li>
+<li><strong>Job:</strong> lift relevance and trust by matching the message to the mindset the channel puts people in, and reach a high-value audience via a premium/contextual channel where rivals aren't bidding.</li>
+<li><strong>Reach for it when:</strong> planning a multi-channel push — run it as a discipline, one row per channel (audience · JTBD · creative idea · why it works).</li>
+<li><strong>Assembles:</strong> any paid/owned channel rows, planned per-channel rather than once.</li>
+</ul>
+<hr>
+<h2 id="content-marketing">Content Marketing</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Blog posts / articles</td>
+<td>Long-form editorial content published on owned site to educate, engage, and attract organic search traffic.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Pillar pages</td>
+<td>Comprehensive 3,000–10,000 word hub pages on a core topic, linking to cluster content for SEO authority.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>White papers</td>
+<td>In-depth research or thought-leadership documents used for lead generation (gated) or credibility.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>eBooks</td>
+<td>Longer-form downloadable guides, typically gated behind a lead capture form.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Case studies</td>
+<td>Documented customer success stories showing measurable outcomes; strong sales-enablement asset.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Research reports / State of the Industry</td>
+<td>Original data studies published annually; drive earned media and backlinks.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Infographics</td>
+<td>Visual distillation of data or processes; highly shareable on social and press.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Templates &amp; tools</td>
+<td>Free downloadable resources (spreadsheets, calculators, frameworks) that attract qualified leads.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Checklists &amp; cheat sheets</td>
+<td>Quick-reference one-pagers; low-friction lead magnets.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Glossaries / wikis</td>
+<td>SEO-rich reference pages targeting definition and how-to queries.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Data visualisations / interactive charts</td>
+<td>Embeddable graphics that earn editorial links and social shares.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Newsletters (editorial)</td>
+<td>Curated or original written content delivered by email on a regular cadence.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Content hubs / resource centres</td>
+<td>Organised libraries of articles, videos, and downloads grouped by topic.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Listicles</td>
+<td>Numbered post formats ('10 ways to…') optimised for clicks and shares.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Opinion / thought-leadership pieces</td>
+<td>POV articles authored by executives or subject matter experts.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>FAQs</td>
+<td>Structured Q&amp;A content targeting search intent; also feeds chatbot and AI overviews.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Content syndication</td>
+<td>Republishing or distributing content through third-party networks and partner publications to extend reach.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Content localisation / transcreation</td>
+<td>Voice-preserving adaptation of content across languages, markets, and cultural contexts — beyond literal translation.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="seo">SEO</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>On-page optimisation</td>
+<td>Title tags, meta descriptions, heading structure, keyword placement, image alt text.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Technical SEO</td>
+<td>Site speed, Core Web Vitals, crawlability, structured data / schema markup, XML sitemaps.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Link building / outreach</td>
+<td>Earning backlinks via digital PR, guest posts, broken-link building, and resource page outreach.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Local SEO / Google Business Profile</td>
+<td>Optimising for 'near me' queries, Google Maps placement, review management.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Topical authority mapping</td>
+<td>Building comprehensive content clusters so search engines recognise domain expertise.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Voice search optimisation</td>
+<td>Targeting conversational, long-tail queries suited to Siri, Alexa, Google Assistant.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>AI search / AEO</td>
+<td>Structuring content to appear in AI-generated answers (ChatGPT, Perplexity, Google AI Overviews).</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Image &amp; video SEO</td>
+<td>Optimising alt text, filenames, captions, and YouTube metadata for visual search.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Programmatic SEO</td>
+<td>Automating the creation of thousands of landing pages from structured data to capture long-tail traffic.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>International / multilingual SEO</td>
+<td>Hreflang, country-specific domains, localised content for global markets.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>App Store Optimisation (ASO)</td>
+<td>Optimising an app's store listing — title, keyword field, screenshots, ratings/reviews — to rank and convert in the App Store / Google Play.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Directory &amp; marketplace submissions</td>
+<td>Listing the product in startup / SaaS / AI / MCP / no-code and review directories (Product Hunt, G2, Capterra, category lists) for backlinks, referral traffic, and buyer discovery.</td>
+<td>Owned / Earned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="paid-search-performance">Paid Search &amp; Performance</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Google Search Ads (PPC)</td>
+<td>Text ads served on Google search results pages, charged per click.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Microsoft / Bing Search Ads</td>
+<td>PPC ads on Bing and Microsoft-network search results.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Google Display Network (GDN)</td>
+<td>Banner, responsive, and native ads across millions of partner sites.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Google Performance Max</td>
+<td>AI-driven campaigns that run across Search, Display, YouTube, Gmail, and Maps simultaneously.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Google Shopping / PLA ads</td>
+<td>Product listing ads showing image, price, and rating in search results.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Retargeting / remarketing</td>
+<td>Serving ads to users who have previously visited your site or engaged with your content.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Dynamic Search Ads (DSA)</td>
+<td>Google auto-generates headlines based on site content to capture untargeted queries.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Demand Gen campaigns</td>
+<td>Google's visual, audience-based campaigns across YouTube, Discover, and Gmail.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>App install campaigns (UAC)</td>
+<td>Automated campaigns driving mobile app downloads across Google's network.</td>
+<td>Paid</td>
+</tr>
+</tbody>
+</table>
+<h2 id="social-media-organic">Social Media — Organic</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LinkedIn posts &amp; articles</td>
+<td>B2B thought-leadership posts, carousels, native articles, and company updates.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Instagram posts &amp; Reels</td>
+<td>Photo and short-video content; strong for lifestyle, brand, and product.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>TikTok videos</td>
+<td>Short-form vertical video; algorithm-driven discovery; entertainment-first format.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Facebook posts &amp; groups</td>
+<td>Community building, organic reach (declining), and Facebook Group engagement.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>X (Twitter) threads</td>
+<td>Real-time commentary, thought-leadership threads, and community engagement.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>YouTube videos (long-form)</td>
+<td>Evergreen how-to, documentary, and review content on the world's second-largest search engine.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>YouTube Shorts</td>
+<td>Sub-60-second vertical videos benefiting from YouTube's algorithm.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Pinterest pins &amp; boards</td>
+<td>Visual discovery platform; strong for DIY, fashion, food, and home categories.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Snapchat Stories</td>
+<td>Ephemeral content for younger demographics.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Threads posts</td>
+<td>Text-first social from Meta; growing in engagement communities.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>BeReal / emerging platforms</td>
+<td>Authenticity-first platforms targeted at Gen Z audiences.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Social listening &amp; community management</td>
+<td>Monitoring brand mentions, responding to comments, and moderating brand communities.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Hashtag campaigns</td>
+<td>Branded hashtags to aggregate UGC and expand organic reach.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Social polls &amp; interactive content</td>
+<td>Native polls, quizzes, and Q&amp;A stickers to drive engagement.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="social-media-paid">Social Media — Paid</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Meta (Facebook &amp; Instagram) Ads</td>
+<td>Image, video, carousel, and collection ads across Meta's network with precise interest and lookalike targeting.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>LinkedIn Ads</td>
+<td>Sponsored content, message ads, dynamic ads, and lead gen forms for B2B audiences.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>TikTok Ads</td>
+<td>In-feed, TopView, Brand Takeover, Branded Hashtag Challenge, and Spark Ads.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>X (Twitter) Promoted</td>
+<td>Promoted tweets, trends, and accounts for reach and engagement.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Pinterest Ads</td>
+<td>Promoted pins and shopping ads reaching high-intent discovery audiences.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Snapchat Ads</td>
+<td>Full-screen immersive ads and AR Lenses for younger demographics.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Reddit Ads</td>
+<td>Promoted posts targeting niche subreddit communities with high-intent audiences.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>YouTube Ads (pre-roll, bumper, etc.)</td>
+<td>Skippable / non-skippable in-stream, bumper, and masthead video ads.</td>
+<td>Paid</td>
+</tr>
+</tbody>
+</table>
+<h2 id="email-marketing">Email Marketing</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nurture / drip sequences</td>
+<td>Automated multi-email journeys triggered by sign-up or behaviour, moving leads down the funnel.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Welcome series</td>
+<td>First-impression sequence sent immediately after a subscriber joins.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Promotional / campaign emails</td>
+<td>One-time sends promoting offers, launches, or events.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Abandoned cart emails</td>
+<td>Triggered emails recovering shoppers who left items in cart.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Re-engagement / win-back campaigns</td>
+<td>Targeting inactive subscribers or lapsed customers to renew interest.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Transactional emails</td>
+<td>Order confirmations, receipts, shipping updates — high open rates.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Personalised recommendation emails</td>
+<td>Product/content recommendations based on past behaviour or preferences.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>A/B tested subject lines</td>
+<td>Systematic testing of subject line variables to optimise open rates.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>SMS / MMS marketing</td>
+<td>Text-based direct messages for promotions, alerts, and transactional updates.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Plain-text sales emails</td>
+<td>Low-design, 1-to-1 style emails from a named sender; higher response rates in B2B.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Email preference centres</td>
+<td>Giving subscribers control over frequency and topics to reduce churn.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="events-experiential">Events &amp; Experiential</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Webinars</td>
+<td>Live or recorded online presentations; powerful for lead gen and nurture in B2B.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Virtual summits</td>
+<td>Multi-session online events aggregating expert speakers; large list-building opportunity.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>In-person conferences (hosted)</td>
+<td>Owned events that position the brand as a category leader.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Trade show / expo presence</td>
+<td>Exhibiting or sponsoring at industry events to generate pipeline.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Roadshows</td>
+<td>Multi-city in-person events targeting specific regions or customer segments.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>User conferences / customer summits</td>
+<td>Annual flagship events for existing customers (Dreamforce model).</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Executive roundtables</td>
+<td>Invitation-only, peer-to-peer dinners or lunches for senior decision-makers.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Workshops &amp; masterclasses</td>
+<td>Skill-building sessions that deliver value while deepening brand relationships.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Pop-up experiences / activations</td>
+<td>Physical brand installations in high-traffic locations for awareness and PR.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Hackathons</td>
+<td>Brand-sponsored developer or creative competitions driving engagement and product feedback.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Sponsorship of third-party events</td>
+<td>Brand placement at events owned by others (naming rights, speaking slots, booths).</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Online community events (AMAs, live Q&amp;As)</td>
+<td>Scheduled live interactions within owned or third-party communities.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="video-audio">Video &amp; Audio</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TV commercials (TVCs)</td>
+<td>Broadcast advertising on free-to-air and cable television.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Connected TV / OTT ads</td>
+<td>Programmatic video ads served on streaming platforms (Hulu, Foxtel, etc.).</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Online video ads (pre-roll / mid-roll)</td>
+<td>Skippable and non-skippable video ads on YouTube and publisher sites.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Explainer / product demo videos</td>
+<td>Short animated or live-action videos explaining a product or concept.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Customer testimonial videos</td>
+<td>Video case studies featuring real customers sharing outcomes.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Docuseries / brand documentaries</td>
+<td>Long-form storytelling that builds brand affinity and earned media.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Live streaming (LinkedIn Live, YouTube Live, etc.)</td>
+<td>Real-time video content for launches, AMAs, and events.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Podcasts (owned)</td>
+<td>Company-produced audio series establishing thought leadership.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Podcast advertising / host-read ads</td>
+<td>Sponsoring third-party podcasts with host-endorsed messaging.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Radio ads</td>
+<td>Traditional audio ads on AM/FM radio.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Streaming audio ads (Spotify, iHeart, etc.)</td>
+<td>Digital audio ads on music and podcast streaming platforms.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Video series / episodic content</td>
+<td>Multi-episode branded content series distributed on YouTube or social.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Behind-the-scenes / day-in-the-life content</td>
+<td>Authentic unpolished content humanising the brand.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Animated / motion graphics content</td>
+<td>Branded animations for social, explainers, and ads.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="influencer-creator">Influencer &amp; Creator</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Macro-influencer campaigns</td>
+<td>Partnerships with influencers 500K+ followers for mass reach.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Micro-influencer campaigns</td>
+<td>Influencers 10K–100K followers; higher engagement and niche relevance.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Nano-influencer campaigns</td>
+<td>Everyday customers with small but highly engaged local or niche followings.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Celebrity endorsements</td>
+<td>High-profile talent deals for brand association and broad awareness.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Brand ambassador programmes</td>
+<td>Ongoing relationships with advocates who represent the brand consistently.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Employee advocacy</td>
+<td>Activating staff as authentic brand ambassadors on their personal social channels.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>User-generated content (UGC) campaigns</td>
+<td>Incentivising customers to create and share content featuring the brand.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Creator gifting / seeding</td>
+<td>Sending products to creators without payment in exchange for organic coverage.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Co-created content</td>
+<td>Joint content produced with influencers or industry experts.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>TikTok Creator Marketplace campaigns</td>
+<td>Using TikTok's native platform to brief and activate creators at scale.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Affiliate marketing</td>
+<td>Commission-based partnerships where third parties earn a percentage of referred sales.</td>
+<td>Paid</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pr-earned-media">PR &amp; Earned Media</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Media / press releases</td>
+<td>Official announcements distributed to journalists and wire services.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Media pitching</td>
+<td>Proactive story pitches to targeted journalists and publications.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Journalist / media relationship building</td>
+<td>Long-term cultivation of media contacts for ongoing coverage.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Thought leadership op-eds</td>
+<td>Bylined articles placed in trade or mainstream publications.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Analyst relations</td>
+<td>Briefing Gartner, Forrester, and IDC analysts to influence industry reports.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Awards entries</td>
+<td>Submitting for industry awards to generate credibility and editorial coverage.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Speaking at conferences</td>
+<td>Executive speaking slots at industry events for authority and networking.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Podcast guesting</td>
+<td>Executives or founders appearing as guests on third-party podcasts.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Crisis communications</td>
+<td>Proactive and reactive management of negative news or social incidents.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Corporate social responsibility (CSR) campaigns</td>
+<td>Cause-led initiatives generating positive media coverage.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Digital PR / link earning</td>
+<td>Creating newsworthy assets (data studies, tools) that earn editorial backlinks.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Community / local press outreach</td>
+<td>Targeting regional publications for localised brand stories.</td>
+<td>Earned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="website-conversion">Website &amp; Conversion</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Landing page optimisation (CRO)</td>
+<td>A/B testing headlines, CTAs, layouts, and imagery to improve conversion rates.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Lead capture forms &amp; pop-ups</td>
+<td>Strategically placed forms and overlays to collect contact information.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Personalisation engines</td>
+<td>Serving different content or offers based on visitor behaviour, firmographic, or demographic data.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Chatbots &amp; live chat</td>
+<td>Conversational interfaces to qualify leads and assist visitors in real time.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Product demos / interactive tours</td>
+<td>In-browser product walkthroughs that reduce friction to trial.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Free trials / freemium</td>
+<td>No-risk product access as a conversion lever.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Pricing page optimisation</td>
+<td>Clear, competitive pricing presentation with anchoring, comparison tables, and FAQs.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Social proof elements</td>
+<td>Logos, reviews, ratings, testimonials, and trust badges placed strategically.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Exit-intent offers</td>
+<td>Pop-ups or messages triggered when a visitor is about to leave.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Progressive profiling</td>
+<td>Gradually gathering more data from returning visitors rather than a single long form.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Heatmapping &amp; session recording</td>
+<td>Using tools like Hotjar to identify friction points in the user journey.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Multi-variant testing (MVT)</td>
+<td>Testing multiple page elements simultaneously to find optimal combinations.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ecommerce-product-content">eCommerce &amp; Product Content</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product detail pages (PDPs)</td>
+<td>Full product-page content — descriptions, benefit copy, specs, FAQs, care/usage instructions — optimised for conversion and search.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Buying guides</td>
+<td>How-to-choose content with comparison frameworks; captures high-intent mid-funnel search traffic.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Category / collection page copy</td>
+<td>Landing copy for category and collection pages balancing SEO with merchandising.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Marketplace product listings</td>
+<td>Optimised listings per marketplace (Amazon A+ / Premium content, eBay, Catch, Trade Me) including enhanced brand content.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Comparison / alternatives pages</td>
+<td>"X vs Y" and "best-of" content capturing bottom-of-funnel comparison search intent.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Product feed management</td>
+<td>Structured product feeds (CSV / JSON / XML) optimised for Google Shopping, marketplaces, and PIM/ERP/CMS syndication.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Ratings &amp; review generation</td>
+<td>Post-purchase programmes soliciting customer reviews to lift conversion and marketplace rank.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>AI shopping agent optimisation</td>
+<td>Buy-ready, machine-parseable product content so AI shopping agents (ChatGPT, Perplexity, Google AI) can recommend and transact your products.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="account-based-marketing">Account-Based Marketing</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Target account identification</td>
+<td>Using data to build a prioritised Ideal Customer Profile (ICP) account list.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Personalised direct mail</td>
+<td>Physical, high-quality packages sent to specific decision-makers at target accounts.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>ABM display advertising</td>
+<td>IP-based or firmographic-targeted ads served only to named target accounts.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Personalised landing pages</td>
+<td>Bespoke pages dynamically tailored to the visiting company or contact.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Executive gifting</td>
+<td>Thoughtful, personalised gifts to open doors at senior levels.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>1:1 executive outreach campaigns</td>
+<td>Highly personalised multi-channel sequences targeting specific accounts.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Intent data targeting</td>
+<td>Using third-party intent signals (Bombora, G2) to prioritise in-market accounts.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Account-specific content</td>
+<td>Custom reports, ROI calculators, or content produced for a single named prospect.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sales-enablement">Sales Enablement</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sell sheets / one-pagers</td>
+<td>Per-product or per-solution single-pagers — benefits, proof points, objections, specs — for sales conversations.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Battle cards &amp; objection scripts</td>
+<td>Competitor battle cards and if-they-say-X-you-say-Y scripts with proof and pivot lines.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Pitch decks</td>
+<td>Buyer presentations, partner pitches, and internal selling decks.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Demo scripts</td>
+<td>Step-by-step product demonstration flows with key talking points.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Sales training content</td>
+<td>Product-knowledge and how-to-sell-it modules with knowledge checks for frontline teams.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Tender / RFP response programmes</td>
+<td>Structured bid responses — capability statements, compliance matrices, executive summaries — run as a repeatable content capability.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="partnership-channel">Partnership &amp; Channel</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Co-marketing campaigns</td>
+<td>Joint campaigns with complementary brands sharing costs and audiences.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Co-branded content</td>
+<td>Jointly produced content (reports, webinars, guides) with partner companies.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Integration / technology partnerships</td>
+<td>Partner ecosystem marketing highlighting product integrations.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Reseller / channel partner programmes</td>
+<td>Enabling third-party resellers with marketing resources and incentives.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Strategic alliance campaigns</td>
+<td>Joint go-to-market with a major partner (e.g. AWS, Salesforce ecosystem).</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Referral programmes</td>
+<td>Incentivising existing customers to refer new customers.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Marketplace listings</td>
+<td>Listings on partner marketplaces (Salesforce AppExchange, AWS Marketplace).</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Cross-promotional email swaps</td>
+<td>Featuring a partner's offer to your list in exchange for reciprocal coverage.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Local area marketing (LAM)</td>
+<td>Franchisee / dealer / store-level campaign kits and assets, executed locally under brand guardrails.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Partner enablement content packs</td>
+<td>Distributor / reseller / retailer-ready content bundles — co-branded, format-adapted, and voice-adjusted per partner.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="retention-loyalty">Retention &amp; Loyalty</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Loyalty / rewards programmes</td>
+<td>Points, tiers, or cashback schemes incentivising repeat purchase.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Customer onboarding sequences</td>
+<td>Guided post-purchase journeys ensuring customers activate and succeed.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Net Promoter Score (NPS) campaigns</td>
+<td>Measuring and acting on customer satisfaction to reduce churn.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Renewal / upsell / cross-sell campaigns</td>
+<td>Targeted offers to existing customers for expanded value.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Customer success content</td>
+<td>Resources helping customers get more value from the product.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Exclusive member communications</td>
+<td>VIP newsletters, early access offers, and insider content for loyal customers.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Anniversary / milestone campaigns</td>
+<td>Personalised messages on customer anniversaries or usage milestones.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Community building (forums, Slack groups, Facebook Groups)</td>
+<td>Owned communities increasing switching costs and brand affinity.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Surprise &amp; delight campaigns</td>
+<td>Unexpected gifts, upgrades, or messages creating memorable customer moments.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="out-of-home">Out-of-Home</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Billboards / large-format OOH</td>
+<td>Static or digital large-format ads in high-traffic outdoor locations.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Digital OOH (DOOH)</td>
+<td>Programmatic digital screens in shopping centres, airports, and street furniture.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Transit advertising</td>
+<td>Ads on buses, trains, taxis, and metro stations.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Cinema advertising</td>
+<td>Pre-film ads reaching captive audiences in high-attention environments.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Street-level / ambient advertising</td>
+<td>Creative placements in unexpected physical spaces.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Addressable / geo-targeted OOH</td>
+<td>Digital screens targeted by location and audience demographics.</td>
+<td>Paid</td>
+</tr>
+</tbody>
+</table>
+<h2 id="retail-media-in-store">Retail Media &amp; In-Store</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Retail media networks (on-site)</td>
+<td>Sponsored product and display placements on retailer platforms (Amazon Ads, Citrus, Criteo) — high-intent, point-of-purchase reach.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>In-store signage &amp; POS</td>
+<td>Shelf tickets, end-caps, posters, wobblers, window displays, and promotional tickets at point of sale.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>In-store digital screens</td>
+<td>LCD/LED panels, menu boards, kiosks, and interactive displays inside owned or partner stores.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Planogram-aligned shelf messaging</td>
+<td>Shelf-edge content matched to merchandising plans and ranging decisions.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>In-store collateral</td>
+<td>Counter cards, brochures, leave-behinds, and staff-pick cards supporting floor conversations.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="print-direct-mail">Print &amp; Direct Mail</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Print magazine ads</td>
+<td>Display ads in consumer or trade magazines.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Newspaper ads</td>
+<td>Classified or display ads in print or digital newspapers.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Direct mail (catalogues, letters)</td>
+<td>Physical mail pieces sent to a targeted list.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Postcard / snap-pack mailers</td>
+<td>Lower-cost direct mail formats for promotional offers.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Brochures &amp; sales collateral</td>
+<td>Leave-behind materials for sales conversations.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Branded merchandise / swag</td>
+<td>Promotional products extending brand touchpoints.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="product-led-in-product">Product-Led &amp; In-Product</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In-app notifications &amp; banners</td>
+<td>Push or in-app messages promoting features, upsells, or content.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>In-app onboarding flows</td>
+<td>Guided walkthroughs converting free users to active, engaged customers.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Product-led growth (PLG) loops</td>
+<td>Designing the product itself to drive viral acquisition (e.g. Slack invites, Canva sharing).</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Feature announcement emails</td>
+<td>Notifying users of new product capabilities to drive adoption.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Usage-triggered campaigns</td>
+<td>Automated messages based on specific in-product behaviours.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Freemium-to-paid conversion campaigns</td>
+<td>Targeted nudges converting free tier users to paying customers.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Mobile / web push notifications</td>
+<td>Push messaging outside the app or site — promos, reminders, alerts — scheduled via automation platforms.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="community-advocacy">Community &amp; Advocacy</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Online community management (Discord, Slack, Circle)</td>
+<td>Building and moderating brand communities for engagement and retention.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Customer advisory boards</td>
+<td>Involving key customers in product direction and brand building.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Peer review / rating platform management</td>
+<td>Actively managing profiles on G2, Capterra, Trustpilot, and Google Reviews.</td>
+<td>Earned</td>
+</tr>
+<tr>
+<td>Case study recruitment</td>
+<td>Proactively identifying and developing customer success stories.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Testimonial capture programmes</td>
+<td>Systematic collection of written and video testimonials.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Brand advocate identification &amp; nurture</td>
+<td>Identifying and activating the most enthusiastic customers as ongoing advocates.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Forum / Reddit / Quora participation</td>
+<td>Providing genuine value in third-party communities to build brand authority.</td>
+<td>Earned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="data-analytics">Data &amp; Analytics</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Marketing attribution modelling</td>
+<td>Identifying which channels and touchpoints drive conversions for budget allocation.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Customer segmentation &amp; persona development</td>
+<td>Dividing audiences into distinct groups for targeted messaging.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Predictive lead scoring</td>
+<td>Using ML models to rank leads by likelihood to convert.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Lifetime value (LTV) modelling</td>
+<td>Calculating expected revenue per customer to guide acquisition spend.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Market research &amp; surveys</td>
+<td>Primary research informing strategy, positioning, and product decisions.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Competitive analysis</td>
+<td>Systematic monitoring of competitor positioning, messaging, and activity.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Marketing mix modelling (MMM)</td>
+<td>Econometric analysis of the contribution of each marketing channel to revenue.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>First-party data strategy</td>
+<td>Building owned data assets (CRM, CDP) in a cookie-less world.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Voice of Customer (VoC) programmes</td>
+<td>Systematic mining of reviews, support tickets, search queries, and surveys for what customers say, seek, love, and complain about.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Customer journey mapping</td>
+<td>Trigger-based journey design — stages, timing, logic, and content per touchpoint — feeding automation platforms.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ai-marketing-automation">AI &amp; Marketing Automation</h2>
+<table>
+<thead>
+<tr>
+<th>Tactic</th>
+<th>Description</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Marketing automation workflows</td>
+<td>Rule- and trigger-based workflows across email, social, and CRM.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>AI-generated content (articles, ads, images)</td>
+<td>Using AI tools to produce or assist in content creation at scale.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Conversational AI / AI chatbots</td>
+<td>AI-powered chat interfaces for lead qualification and customer support.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Dynamic creative optimisation (DCO)</td>
+<td>AI automatically assembling and serving the best-performing ad creative combinations.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>AI-powered personalisation</td>
+<td>Real-time content and offer personalisation driven by machine learning.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>Programmatic advertising</td>
+<td>Automated, real-time bidding for digital ad inventory across exchanges.</td>
+<td>Paid</td>
+</tr>
+<tr>
+<td>Predictive analytics &amp; next-best-action</td>
+<td>AI recommending the optimal marketing action for each customer.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>RAG knowledge bases / branded AI assistants</td>
+<td>Structured product and brand content powering your own customer-facing AI assistants and chat experiences.</td>
+<td>Owned</td>
+</tr>
+<tr>
+<td>AI answer share-of-voice monitoring</td>
+<td>Tracking where and how your brand and products appear in AI-generated answers and AI shopping results.</td>
+<td>Owned</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="how-agents-use-this-library-updated-2026-06-12-v3-architecture">How agents use this library (updated 2026-06-12 — v3 architecture)</h2>
+<ul>
+<li><strong>Creative Director — Phase 2 (Concept Design)</strong>: draws from this menu when shaping each concept's channel mix and tactical mechanic; grounds §4b tactical precedents in named tactics. Tactics that don't earn their place don't go in a concept.</li>
+<li><strong>Campaign Manager — Phase 3 (Plan)</strong>: composes the Plan's asset list from the selected concept's tactics — every chosen tactic becomes one or more asset rows (with review shape, copy file, owner, dependencies).</li>
+<li><strong>Campaign Manager — Phase 4a (Per-Step Brief)</strong>: slices the relevant tactic definition(s) into Producer's brief. Producer does not load this file directly.</li>
+<li><strong>Operator</strong>: browsable HTML reference (<code>marketing-tactics.html</code>, mirrored at repo root as <code>marketing_tactics.html</code>) for planning conversations.</li>
+</ul>
+<h2 id="how-this-library-is-maintained">How this library is maintained</h2>
+<ul>
+<li>Operator-curated; updates are manual or session-driven (competitor teardowns, new-channel research). Worked examples live in <code>tenant/library/</code> (added via <code>/library-add</code>) — that library holds <em>what great looks like</em>; this file holds <em>the menu of what exists</em>. Cross-link where useful.</li>
+<li>Tenant-scoped by design: different industries and business models want different default menus. This master copy ships in the tenant kit and gets pruned/extended per tenant.</li>
+</ul>
+<h2 id="changelog">Changelog</h2>
+<ul>
+<li><strong>2026-07-14</strong> — Breadth cross-check against <a href="https://github.com/coreyhaines31/marketingskills">coreyhaines31/marketingskills</a> (SYS-062). Confirmed coverage of programmatic-SEO, schema, churn-prevention, referrals, lead-magnets, co-marketing. Added the two genuine gaps: <strong>App Store Optimisation (ASO)</strong> and <strong>Directory &amp; marketplace submissions</strong> (SEO section). Companion craft frameworks mined the same session into one file: <code>craft/frameworks/applied-marketing-frameworks.md</code> (§1 Mental models · §2 Conversion audit · §3 Voice of customer).</li>
+<li><strong>2026-06-16</strong> — Added a <strong>Named plays</strong> layer (6 strategic mechanics: friction-reduction utility · proprietary-data content engine · lifecycle behavioural-trigger matrix · trojan-horse hero feature · "Wrapped" shareable-data mechanic · channel-as-JTBD). Source: the operator's a client strategy deck (March 2026), patterns generalised. External precedents (Equity Mates acquisition, Shot on iPhone, Spotify Wrapped) filed in <code>tenant/library/</code>.</li>
+<li><strong>2026-06-12</strong> — Added 28 tactics: 3 new categories (eCommerce &amp; Product Content · Retail Media &amp; In-Store · Sales Enablement) + additions to Content Marketing, Partnership &amp; Channel, Data &amp; Analytics, AI &amp; Marketing Automation, Product-Led &amp; In-Product. Source: SalesChef (saleschef.ai/what-saleschef-does) capability teardown. Usage section refreshed from archived CEP/copywriter architecture to v3 (CD Phase 2 · CM Phase 3/2a).</li>
+<li><strong>2026-05-19</strong> — Initial master reference.</li>
+</ul>
+    </article>
+  </main>
+
+  <footer class="page-footer">
+    <span>Source file: <code>tenant\tactics\marketing-tactics.md</code></span>
+  </footer>
+</body>
+</html>
