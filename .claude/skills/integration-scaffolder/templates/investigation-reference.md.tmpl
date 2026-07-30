@@ -1,0 +1,34 @@
+# Investigation Reference — deploy-{{NAME}}
+
+**Target**: {{TARGET}}
+**Captured**: {{DATE}} (STUB — fill in before this adapter ships)
+
+Capture how the target actually works so the next person doesn't re-investigate.
+
+## Deploy mechanism
+
+TODO: API endpoints / CLI / git-push / file-drop. The exact call(s) or file operations that
+publish an asset to {{TARGET}}.
+
+## Auth model + env-vars
+
+TODO: how authentication works and the EXACT env-var names the adapter resolves
+(`os.environ.get(...)`). List each var + what it holds. (Offline targets: "none".)
+
+## Request / response OR file-layout shape
+
+TODO: for an API — request body + success response. For a file/git target — the on-disk layout
+the target expects and where the asset lands.
+
+## Verification signals — how you know it landed
+
+TODO: the concrete signal(s) that confirm the deploy (HTTP 200 on a URL, file exists at path,
+draft-created id, etc.). Map these to the asset's `deployment.verification` checks.
+
+## Known gotchas
+
+TODO: rate limits, idempotency, formatting quirks, things that silently fail.
+
+## Links
+
+TODO: official docs.

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help &amp; guides — Soundtrak AI Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="topnav">
+  <div class="brandline"><span class="dot"></span> Soundtrak AI Studio</div>
+  <div class="navlinks">
+    <a class="here" href="help.html">Help &amp; guides</a>
+    <a href="deployment-guide.html">Deployment</a>
+    <a href="operator-guide.html">Operator guide</a>
+  </div>
+</nav>
+<div class="wrap">
+  <h1>Help &amp; guides</h1>
+
+  <div class="callout" style="border-left:4px solid #2563eb;background:#eff6ff;padding:12px 16px;border-radius:8px;margin:12px 0;">
+    <b>The thing that makes this different — you own it.</b> Not a website you log into or an app you rent —
+    a copy of the whole system on <b>your</b> computer: <b>you own it</b> (no seat licence, no lock-in),
+    <b>it's all readable</b> (plain files you can open and change), <b>you run and control it</b> (the AI does
+    the work; you make the calls), and <b>your data stays yours</b> (only what you type in a session leaves).
+    <span style="color:#6b7280;">It's a premium, licensed product for your own business's marketing — transparent
+    and yours to control, <b>not</b> open-source, not for reselling or running other people's clients.</span>
+  </div>
+  <p class="lede">Everything you need to set up, learn, and run the system — and quick answers to the common questions. <b>Start with whichever fits where you are.</b></p>
+
+  <div class="guidecards">
+    <a class="gcard" href="deployment-guide.html"><div class="gk">Set it up</div><div class="gt">Deployment guide</div><div class="gd">Get your own copy running on your computer — a few quick installs, then the studio sets itself up.</div></a>
+    <a class="gcard" href="operator-guide.html"><div class="gk">Use it, stage by stage</div><div class="gt">Operator guide</div><div class="gd">The full walk-through — set up your business, run a campaign, ship each piece, keep it going. Illustrated, with what you approve at each stage.</div></a>
+    <a class="gcard" href="#faq"><div class="gk">Quick answers</div><div class="gt">FAQ ↓</div><div class="gd">The common "why won't it…", data &amp; backup, and "what it can't do yet" questions — below.</div></a>
+  </div>
+
+  <h2 id="faq">Frequently asked</h2>
+  <div class="faq">
+    <p class="muted">Most "how do I…" answers are the same: <b>just ask the system in chat</b> — it handles the technical bits for you.</p>
+
+    <h3>"It won't let me start a campaign."</h3>
+    <p>That's on purpose. A campaign is built on your business foundation, so the foundation has to exist first. The system tells you what's still missing — finish answering its <b>"Onboard"</b> questions and approve your brand profile, and it opens up.</p>
+
+    <h3>"Setup said something failed (a red line)."</h3>
+    <p>Type <b>"set yourself up"</b> again — it retries and tells you, in plain words, the one thing to fix. The most common cause is Python installed without the <b>"Add to PATH"</b> box ticked; re-run that installer and tick it. Note that only red <code>[FAIL]</code> lines are real blockers — yellow <code>[WARN]</code> lines (like a missing thumbnail tool or Git) are optional and safe to ignore.</p>
+
+    <h3>"I'm on a Mac (or Linux) — is there anything extra?"</h3>
+    <p>One thing to know: the system's behind‑the‑scenes engine calls the command <code>python</code>, and many Macs and Linux machines only have <code>python3</code>. If that's you, the auto‑update and backup won't run. You don't have to sort this out in advance — <b>"set yourself up"</b> checks for it and, if it's missing, prints the exact one‑line fix (usually pointing <code>python</code> at <code>python3</code>, or using a virtual environment). Windows users don't need to worry about this.</p>
+
+    <h3>"Do I need Git installed?"</h3>
+    <p>No — Git is <b>recommended, not required</b>. Without it the studio runs perfectly and your OneDrive/Dropbox folder is your backup. <i>With</i> it, the system also keeps a full version history of your work and can push to an online backup. The setup check flags a missing Git as a yellow "recommended" note, never a blocker — install it if you want the version history, skip it if you don't.</p>
+
+    <h3>"Do I work in the terminal, or in chat?"</h3>
+    <p>Chat. The terminal was only for the one-time install. Day to day, you just talk to the system and review the web pages it makes.</p>
+
+    <h3>"How do I add to my Best-Practice Library?"</h3>
+    <p>Paste a link or a reference into chat and say <b>"add this to my Best-Practice Library"</b> (or "add to my marketing library"). The studio writes the full entry — what it is, why it works, how to reuse it — and files it into your <b>Best-Practice Library</b>: the collection of standout campaigns it draws on when creating your work. It only grows when you add to it — but once a week the studio suggests fresh examples worth adding and nudges you if it's gone stale, so you don't have to remember.</p>
+
+    <h3>"How do I add to my Insights (research) Library?"</h3>
+    <p>Your <b>Insights Library</b> is the separate research corpus — market data and behavioural science. It fills <b>automatically</b> as the studio researches your campaigns. To add a source yourself, paste its link and say <b>"add this to my Insights Library"</b> — the studio writes a short, cited summary and files it. (Both libraries live in the top-right menu.)</p>
+
+    <h3>"How do I publish something it made?"</h3>
+    <p>For tools it's connected to (like your email), it can send it for you once you say go. For everything else it gives you simple "paste this here" steps. You always do the final send.</p>
+
+    <h3>"Can I change how it behaves?"</h3>
+    <p>Yes — tell it in chat ("always do X", "never say Y"), or update your brand profile by saying "update my brand." For bigger changes under the hood, ask whoever maintains your system.</p>
+
+    <h3>"Should I do everything in one long chat?"</h3>
+    <p>No — start a <b>fresh chat for each campaign</b>, and another for each system retro. The system keeps your work in its files, so a new chat always picks up where you left off; separate chats keep the AI focused.</p>
+
+    <h3>"Something annoys me, or I have an idea — can I improve it?"</h3>
+    <p>Yes — that's the built-in <b>System Manager</b>. In a fresh chat, say "system idea: …" to file one, or <b>"run a system retro"</b> to turn lessons into a prioritised to-do list. Over time this is how the system gets better at <i>your</i> business.</p>
+
+    <h3>"Where does my work go? Is anything shared?"</h3>
+    <p>Everything stays as files on your computer. The only thing sent out is what you type to the system during a session — that's how the AI works. Passwords and keys are stored separately, never inside your files.</p>
+
+    <h3>"How is my work backed up?"</h3>
+    <p>Automatically — it saves at the end of every session. Keeping your folder in OneDrive or Dropbox adds an offsite copy. To connect an online backup (like GitHub), just say "set yourself up" again.</p>
+
+    <h3>"Can my whole team use it at once?"</h3>
+    <p>Right now it's built for <b>one main person</b>. Others can freely <i>read</i> the web pages it produces, but two people can't actively run it at the same time yet — that's on the way.</p>
+
+    <h3>"Is this for a small business or a big company?"</h3>
+    <p>Both. A setting adjusts how much structure it puts in front of you. Start simple; it scales up when you need it.</p>
+
+    <h3>"Is there a map of everything — how do I find my way around?"</h3>
+    <p>Yes. Open <code>docs/NAVIGATION_INDEX.html</code> in your system folder — it's the system's own index: every part of the system, what it's for, and where it lives (the agents, the phases, the specs, the playbooks, the operator screens). Whenever you wonder "where is X?", start there. The deepest reference is the operating manual, <code>docs/workflow.md</code>.</p>
+  </div>
+
+  <p class="footer">Soundtrak AI Studio — Help &amp; guides. The deepest reference is the operating manual, <code>docs/workflow.md</code>; or just ask the studio "how does X work?" and it'll explain.</p>
+</div>
+</body>
+</html>

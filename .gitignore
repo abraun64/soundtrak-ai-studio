@@ -1,0 +1,17 @@
+# Soundtrak AI Studio - never commit these.
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+desktop.ini
+.claude/state/
+# credentials - created during onboarding; MUST stay local, never pushed.
+credentials.md
+**/credentials.md
+tenant/credentials.md
+campaigns/*/gallery-thumbs/
+campaigns/**/node_modules/
