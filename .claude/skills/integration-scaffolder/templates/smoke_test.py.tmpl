@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Smoke test for deploy-{{NAME}} — scaffolded {{DATE}}.
+
+Runs OFFLINE with no credentials. Builds a throwaway fixture asset, invokes the adapter in
+--smoke-test mode, asserts a well-formed adapter envelope + no real deploy. Exits 0 on PASS.
+"""
+import json
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+HERE = Path(__file__).parent
+ADAPTER = HERE / "adapter.py"
+REQUIRED_ENVELOPE_KEYS = {"status", "platform", "target", "verification", "operator_action", "notes"}
+
+
+def main() -> int:
+    with tempfile.TemporaryDirectory() as td:
+        asset_dir = Path(td) / "asset"
+        asset_dir.mkdir()
+        # Minimal fixture asset.yaml with a deployment: block.
+        (asset_dir / "asset.yaml").write_text(
+            "deployment:\n"
+            "  platform: {{NAME}}\n"
+            "  publish_method: api\n"
+            "  location: \"fixture location\"\n"
+            "  verification:\n"
+            "    - check: \"target reachable\"\n"
+            "      automated: true\n"
+            "    - check: \"operator eyeballs result\"\n"
+            "      automated: false\n",
+            encoding="utf-8",
+        )
+        proc = subprocess.run(
+            [sys.executable, str(ADAPTER), "--asset", str(asset_dir), "--smoke-test"],
+            capture_output=True, text=True,
+        )
+        if proc.returncode != 0:
+            print(f"FAIL: adapter exited {proc.returncode}\n{proc.stderr}")
+            return 1
+        try:
+            env = json.loads(proc.stdout)
+        except json.JSONDecodeError:
+            print(f"FAIL: adapter did not print a JSON envelope\n{proc.stdout}")
+            return 1
+        missing = REQUIRED_ENVELOPE_KEYS - env.keys()
+        if missing:
+            print(f"FAIL: envelope missing keys {missing}")
+            return 1
+        if env["status"] != "dry_run":
+            print(f"FAIL: smoke-test must report status 'dry_run', got '{env['status']}'")
+            return 1
+
+    print("PASS: deploy-{{NAME}} smoke test — envelope well-formed, no real deploy")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
