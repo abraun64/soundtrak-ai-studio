@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soundtrak AI Studio — Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!--
+  Studio home — the single page an operator bookmarks. Tenant-agnostic and static
+  (no data to read), so it works on first download before any campaign or tenant exists.
+  Setup opens this at the end of "Setup Studio". Links are relative to the project root.
+-->
+<style>
+  :root{
+    --ink:#111110; --cream:#faf9f5; --red:#e63c3c; --line:#e7e4dc; --muted:#6b6b66; --card:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --ink:#f3f1ea; --cream:#151514; --line:#2c2c29; --muted:#9a9a92; --card:#1d1d1b; }
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--cream); color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif; line-height:1.55; }
+  .wrap{ max-width:720px; margin:0 auto; padding:64px 24px 80px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:600; letter-spacing:.02em; }
+  .dot{ width:11px; height:11px; border-radius:50%; background:var(--red); display:inline-block; }
+  h1{ font-family:"Fraunces",Georgia,serif; font-weight:600; font-size:2.4rem; line-height:1.1;
+    margin:.5em 0 .15em; }
+  .lede{ color:var(--muted); font-size:1.05rem; margin:0 0 2.2em; }
+  .grid{ display:grid; gap:14px; }
+  a.card{ display:block; text-decoration:none; color:inherit; background:var(--card);
+    border:1px solid var(--line); border-radius:14px; padding:18px 20px; transition:border-color .15s, transform .15s; }
+  a.card:hover{ border-color:var(--red); transform:translateY(-1px); }
+  .card .t{ font-weight:600; font-size:1.08rem; }
+  .card .d{ color:var(--muted); font-size:.93rem; margin-top:3px; }
+  .card .t .arrow{ color:var(--red); font-weight:600; }
+  h2{ font-family:"Fraunces",Georgia,serif; font-weight:500; font-size:1.15rem;
+    margin:2.4em 0 .8em; padding-bottom:.4em; border-bottom:1px solid var(--line); }
+  .links{ display:flex; flex-wrap:wrap; gap:8px 18px; }
+  .links a{ color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line); padding-bottom:2px; font-size:.95rem; }
+  .links a:hover{ border-color:var(--red); }
+  .foot{ color:var(--muted); font-size:.85rem; margin-top:3em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="dot"></span> Soundtrak AI Studio</div>
+  <h1>Your Studio home</h1>
+  <p class="lede">One page, bookmarked. Everything you review and run starts here — the pages below
+  update themselves as you work, so you just open and refresh.</p>
+
+  <div class="grid">
+    <a class="card" href="campaigns/index.html">
+      <div class="t">📣 Campaign dashboard <span class="arrow">→</span></div>
+      <div class="d">Every campaign, where each one stands, and what's waiting for your approval. Empty until you start your first campaign.</div>
+    </a>
+    <a class="card" href="system/dashboard.html">
+      <div class="t">🛠 System improvements <span class="arrow">→</span></div>
+      <div class="d">Your backlog of ideas and improvements to the Studio itself — the idea inbox and audit history.</div>
+    </a>
+    <a class="card" href="docs/guide/help.html">
+      <div class="t">📘 Help &amp; guides <span class="arrow">→</span></div>
+      <div class="d">Learn it, run it, and the answers to common questions — the hub for every guide.</div>
+    </a>
+  </div>
+
+  <h2>First time here?</h2>
+  <div class="links">
+    <a href="docs/guide/deployment-guide.html">Deployment guide</a>
+    <a href="docs/guide/operator-guide.html">Operator guide</a>
+    <a href="docs/guide/help.html#faq">FAQ</a>
+  </div>
+  <p class="foot">To start a campaign, open a new chat in Claude Code and say
+  <b>“start a campaign: &lt;what it's for&gt;”</b>. To set up or update your brand, say <b>“Onboard &lt;your business&gt;”</b>.</p>
+</div>
+</body>
+</html>

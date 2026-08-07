@@ -1382,10 +1382,10 @@ def render_cross_campaign_actions_md(campaigns: list[dict]) -> str:
     every active campaign with pending work still appears (completeness)."""
     if not campaigns:
         return ("> **👋 Welcome — let's get your first campaign going.**\n>\n"
-                "> You don't have any campaigns yet. Three steps to begin:\n>\n"
-                "> 1. **Set up your business once** — say **“set yourself up”** in chat (this captures your brand, voice and audience).\n"
-                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n"
-                "> 3. **Review & approve** — everything appears here as web pages; you approve each step.\n>\n"
+                "> You don't have any campaigns yet. Two steps to begin:\n>\n"
+                "> 1. **Set up your brand once** — say **“Onboard”** with your business name (for example, “Onboard Acme Co”). It captures your brand, voice and audience in a few quick questions. You only do this once.\n"
+                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n>\n"
+                "> Everything you produce appears here as web pages you review and approve.\n>\n"
                 "> First time? The [operator guide](../docs/guide/operator-guide.html) walks you through it.")
     import html as _html
 
@@ -1571,10 +1571,10 @@ def render_campaign_index_md(campaigns: list[dict]) -> str:
     so the operator's most important surface is never silently empty."""
     if not campaigns:
         return ("> **👋 Welcome — let's get your first campaign going.**\n>\n"
-                "> You don't have any campaigns yet. Three steps to begin:\n>\n"
-                "> 1. **Set up your business once** — say **“set yourself up”** in chat (this captures your brand, voice and audience).\n"
-                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n"
-                "> 3. **Review & approve** — everything appears here as web pages; you approve each step.\n>\n"
+                "> You don't have any campaigns yet. Two steps to begin:\n>\n"
+                "> 1. **Set up your brand once** — say **“Onboard”** with your business name (for example, “Onboard Acme Co”). It captures your brand, voice and audience in a few quick questions. You only do this once.\n"
+                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n>\n"
+                "> Everything you produce appears here as web pages you review and approve.\n>\n"
                 "> First time? The [operator guide](../docs/guide/operator-guide.html) walks you through it.")
     try:
         return _render_campaign_index_impl(campaigns)
@@ -1604,10 +1604,10 @@ def _render_campaign_index_impl(campaigns: list[dict]) -> str:
        - Surfaces row (dashboard, gallery)"""
     if not campaigns:
         return ("> **👋 Welcome — let's get your first campaign going.**\n>\n"
-                "> You don't have any campaigns yet. Three steps to begin:\n>\n"
-                "> 1. **Set up your business once** — say **“set yourself up”** in chat (this captures your brand, voice and audience).\n"
-                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n"
-                "> 3. **Review & approve** — everything appears here as web pages; you approve each step.\n>\n"
+                "> You don't have any campaigns yet. Two steps to begin:\n>\n"
+                "> 1. **Set up your brand once** — say **“Onboard”** with your business name (for example, “Onboard Acme Co”). It captures your brand, voice and audience in a few quick questions. You only do this once.\n"
+                "> 2. **Start a campaign** — say **“start a campaign”** and answer a few quick questions.\n>\n"
+                "> Everything you produce appears here as web pages you review and approve.\n>\n"
                 "> First time? The [operator guide](../docs/guide/operator-guide.html) walks you through it.")
     import html as _html
     import posixpath

@@ -45,10 +45,10 @@
     <p>That's on purpose. A campaign is built on your business foundation, so the foundation has to exist first. The system tells you what's still missing - finish answering its <b>"Onboard"</b> questions and approve your brand profile, and it opens up.</p>
 
     <h3>"Setup said something failed (a red line)."</h3>
-    <p>Type <b>"set yourself up"</b> again - it retries and tells you, in plain words, the one thing to fix. The most common cause is Python installed without the <b>"Add to PATH"</b> box ticked; re-run that installer and tick it. Note that only red <code>[FAIL]</code> lines are real blockers - yellow <code>[WARN]</code> lines (like a missing thumbnail tool or Git) are optional and safe to ignore.</p>
+    <p>Type <b>"Setup Studio"</b> again - it retries and tells you, in plain words, the one thing to fix. The most common cause is Python installed without the <b>"Add to PATH"</b> box ticked; re-run that installer and tick it. Note that only red <code>[FAIL]</code> lines are real blockers - yellow <code>[WARN]</code> lines (like a missing thumbnail tool or Git) are optional and safe to ignore.</p>
 
     <h3>"I'm on a Mac (or Linux) - is there anything extra?"</h3>
-    <p>One thing to know: the system's behind‑the‑scenes engine calls the command <code>python</code>, and many Macs and Linux machines only have <code>python3</code>. If that's you, the auto‑update and backup won't run. You don't have to sort this out in advance - <b>"set yourself up"</b> checks for it and, if it's missing, prints the exact one‑line fix (usually pointing <code>python</code> at <code>python3</code>, or using a virtual environment). Windows users don't need to worry about this.</p>
+    <p>One thing to know: the system's behind‑the‑scenes engine calls the command <code>python</code>, and many Macs and Linux machines only have <code>python3</code>. If that's you, the auto‑update and backup won't run. You don't have to sort this out in advance - <b>"Setup Studio"</b> checks for it and, if it's missing, prints the exact one‑line fix (usually pointing <code>python</code> at <code>python3</code>, or using a virtual environment). Windows users don't need to worry about this.</p>
 
     <h3>"Do I need Git installed?"</h3>
     <p>No - Git is <b>recommended, not required</b>. Without it the studio runs perfectly and your OneDrive/Dropbox folder is your backup. <i>With</i> it, the system also keeps a full version history of your work and can push to an online backup. The setup check flags a missing Git as a yellow "recommended" note, never a blocker - install it if you want the version history, skip it if you don't.</p>
@@ -78,7 +78,7 @@
     <p>Everything stays as files on your computer. The only thing sent out is what you type to the system during a session - that's how the AI works. Passwords and keys are stored separately, never inside your files.</p>
 
     <h3>"How is my work backed up?"</h3>
-    <p>Automatically - it saves at the end of every session. Keeping your folder in OneDrive or Dropbox adds an offsite copy. To connect an online backup (like GitHub), just say "set yourself up" again.</p>
+    <p>Automatically - it saves at the end of every session. Keeping your folder in OneDrive or Dropbox adds an offsite copy. To connect an online backup (like GitHub), just say "Setup Studio" again.</p>
 
     <h3>"Can my whole team use it at once?"</h3>
     <p>Right now it's built for <b>one main person</b>. Others can freely <i>read</i> the web pages it produces, but two people can't actively run it at the same time yet - that's on the way.</p>

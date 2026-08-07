@@ -9,6 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
+<!--
+  Deployment guide: the operator's install runbook (7 steps). Hand-authored HTML on purpose;
+  see docs/guide/README.md for the editing rule. Simplified successor to the old 8-step guide.
+  Behaviour it relies on is built: "Setup Studio" (the setup skill) ships the config defaults
+  (.claude/settings.json: acceptEdits + command allowlist), generates the operator surfaces +
+  Studio home (index.html) and opens it, and (Windows) registers the gallery quick-buttons.
+  Trigger vocabulary: setup = "Setup Studio" (older "set yourself up" still fires as an alias);
+  brand setup = "Onboard <business>" (re-run: "update my brand"); the CHAT is named "Brand
+  setup". The "Always allow" first-click note lives in operator-guide.html Phase 4.
+  Body is em-dash-free (house voice rule). GitHub repo: soundtrak-ai-studio.
+-->
 <body>
 <nav class="topnav">
   <div class="brandline"><span class="dot"></span> Soundtrak AI Studio</div>
@@ -22,7 +33,7 @@
   <h1>Deployment guide</h1>
 
   <div class="callout">
-    <b>First, the thing that makes this system different: you own it.</b> What you're setting up here
+    <b>First, the thing that makes this different: you own it.</b> What you're setting up here
     isn't a website or a SaaS system that you log into or an app you rent. It's a copy of Soundtrak's
     whole AI Studio that lives on <b>your</b> computer.
     <br><br>
@@ -30,128 +41,183 @@
     not to resell or run for other people's clients, and not open-source.</span>
   </div>
 
-  <p class="lede">Get your own copy running on your computer. <b>No coding, and no experience with Claude needed.</b> A few quick installs, then the system sets <i>itself</i> up. You will need about 30-45 minutes.</p>
+  <p class="lede"><b>A few quick steps.</b> Install Python and Claude Code, download the Studio, say one
+  sentence, and start. <b>No coding, and no experience with Claude needed.</b> After the download, the Studio
+  sets <i>itself</i> up: it installs the pieces it needs, checks everything works, turns on backup, and builds
+  your dashboards for you. Plan on about <b>30 minutes</b>, most of it downloads running in the background.</p>
+
+  <div class="callout"><b>The map, so you know where you're going:</b>
+    <ol style="margin:.4em 0 0">
+      <li><b>Install Python</b>: runs the behind-the-scenes scripts.</li>
+      <li><b>Install Claude Code</b>: sign in and pick your model.</li>
+      <li><b>Download the Studio</b>: one folder from GitHub.</li>
+      <li><b>Say "Setup Studio"</b>: the Studio does the rest.</li>
+      <li><b>Bookmark your Studio home</b>: one page, your way back into everything.</li>
+      <li><b>Set up your brand</b>: the foundation every campaign reuses.</li>
+      <li><b>Your first campaign</b>: say the word and go.</li>
+    </ol>
+  </div>
 
   <div class="step"><div class="sh">Step 1 - Install Python</div>
-    <p>This runs the system's behind-the-scenes scripts.</p>
+    <p>Python runs the Studio's behind-the-scenes scripts.</p>
     <ol>
       <li>Go to <a href="https://www.python.org/downloads/">python.org/downloads</a> and click the big yellow <b>Download Python</b> button.</li>
       <li>Open the file you just downloaded.</li>
       <li><b>IMPORTANT</b>: on the first screen, tick <b>"Add Python to PATH"</b> (bottom of the window) before clicking <b>Install Now</b>. This one tick prevents the most common setup problem.</li>
       <li>Let it finish, then click Close.</li>
     </ol>
-    <div class="callout"><b>On a Mac or Linux?</b> The system's behind-the-scenes engine calls the command <code>python</code> (not <code>python3</code>). Many Macs and Linux machines only have <code>python3</code>, and if so, the auto-update and backup won't run. You don't need to fix this by hand now: the setup check in <b>Step 4</b> tests for it and, if it's missing, prints the exact one-line fix (usually pointing <code>python</code> at <code>python3</code>, or using a virtual environment).</div>
+    <div class="callout"><b>On a Mac or Linux?</b> The Studio's engine calls the command <code>python</code> (not <code>python3</code>). If your machine only has <code>python3</code>, the auto-update and backup won't run. You don't need to fix this by hand: the health check in <b>Step 4</b> tests for it and, if it's missing, prints the exact one-line fix.</div>
   </div>
 
-  <div class="step"><div class="sh">Step 2 - Install Claude Code &amp; sign in</div>
-    <p>Claude Code is the app you'll actually use (the AI you type your requests to).</p>
+  <div class="step"><div class="sh">Step 2 - Install Claude Code</div>
+    <p>Claude Code is what you'll actually use every day: the AI you type your requests to.</p>
     <ol>
       <li>Get a Claude account first. You need a paid plan, either Claude <b>Pro</b> or <b>Max</b> (the same login as Claude.ai). If you don't have one, sign up at <a href="https://claude.com/pricing">claude.com/pricing</a>.</li>
-      <li>Install Claude Code to your PC using Anthropic's official guide for Windows: <a href="https://code.claude.com/docs/en/setup">code.claude.com/docs/en/setup</a> <b>(IMPORTANT: the browser version will not work).</b></li>
-      <li>Do the 5-minute quickstart, it shows a first-timer exactly what to click: <a href="https://code.claude.com/docs/en/quickstart">code.claude.com/docs/en/quickstart</a>. The first time you open Claude Code it opens your browser to log in, sign in with your Pro/Max account. You only do this once.</li>
+      <li>Install Claude Code to your PC using Anthropic's official guide: <a href="https://code.claude.com/docs/en/setup">code.claude.com/docs/en/setup</a>.</li>
+      <li>The first time you open Claude Code it opens your browser to log in. Sign in with your Pro/Max account. You only do this once. New to it? The 5-minute quickstart shows a first-timer exactly what to click: <a href="https://code.claude.com/docs/en/quickstart">code.claude.com/docs/en/quickstart</a>.</li>
+      <li><b>Pick your model.</b> Open the model picker (type <code>/model</code>) and choose <b>Opus</b>. It's the most capable, and the Studio leans on it for quality. <span class="muted">On the <b>Pro</b> plan you get Opus but with tighter usage limits; <b>Max</b> gives a lot more headroom. Either works. If you hit a limit on Pro, switch to a lighter model with <code>/model</code> and carry on.</span></li>
     </ol>
+    <div class="callout"><b>⚠️ Install the desktop app, not the browser version.</b> This is the one that trips people up. The web / browser version of Claude runs in the cloud and <b>cannot</b> open the folder on your computer or run the Studio's files, so it will not work for this. Use the <b>desktop app</b>.</div>
   </div>
 
-  <div class="step"><div class="sh">Step 3 - Download the Soundtrak AI Studio from GitHub</div>
-    <p>The whole Studio is one folder of files, hosted on GitHub.</p>
+  <div class="step"><div class="sh">Step 3 - Download the Studio</div>
+    <p>The whole Studio is one folder of files, hosted on GitHub. You don't need a GitHub account to download it.</p>
     <ol>
-      <li>Open <a href="https://github.com/abraun64/soundtrak-ai-marketing-system">github.com/abraun64/soundtrak-ai-marketing-system</a>. You don't need a GitHub account.</li>
+      <li>Open <a href="https://github.com/abraun64/soundtrak-ai-studio">github.com/abraun64/soundtrak-ai-studio</a>.</li>
       <li>Click the green <b>&lt; &gt; Code</b> button (top-right of the file list), then <b>Download ZIP</b>.</li>
       <li>The ZIP saves into your <b>Downloads</b> folder. Right-click it → <b>Extract All…</b> → <b>Extract</b>.</li>
-      <li>Move the extracted folder into your OneDrive (or Dropbox) folder, then rename it <code>Marketing AI System</code>. This step matters: keeping it inside OneDrive/Dropbox gives you an automatic offsite backup of everything you do, with no extra setup.</li>
-    </ol>
-    <div class="callout"><b>Where it should end up:</b> something like <code>C:\Users\&lt;you&gt;\OneDrive\Marketing AI System</code>. That one folder <i>is</i> your system, everything lives inside it.</div>
-  </div>
-
-  <div class="step"><div class="sh">Step 4 - Open your system in Claude Code</div>
-    <div class="callout"><b>⚠️ Use the desktop app (or the terminal), not the browser version.</b> The web / browser version of Claude runs in the cloud and cannot open the folder on your computer or run the studio's files, so it will not work for this.</div>
-    <p>Claude Code always works <i>inside one local folder</i>. You point it at your <code>Marketing AI System</code> folder so it knows where your system lives.</p>
-    <ol>
-      <li>Open Claude (desktop version).</li>
-      <li>Click on <b>&lt;/&gt; Code</b> to open Claude Code.</li>
-      <li>Press <b>+ New</b> (chat session).</li>
-      <li>Open the <code>Marketing AI System</code> folder as your project by choosing <b>Open folder</b> and selecting the folder you extracted in Step 3. If you use the terminal version, open a terminal inside that folder and run <code>claude</code>. You're in the right place when Claude Code shows <code>Marketing AI System</code> as the current project/folder.</li>
-      <li>In the chat session, type: <b>Set yourself up</b>. It installs the last few pieces, checks everything works, and turns on automatic backup. If something's missing it tells you the one thing to fix, in plain language. When it says <b>READY</b>, setup is done. (One time only.)</li>
-    </ol>
-    <div class="callout"><b>What it's installing:</b> two small helper libraries (<code>markdown</code> and <code>pyyaml</code>) that the system needs, plus one optional extra (<code>playwright</code>) used only to make preview thumbnail images in the gallery. Campaigns run fine without it, so don't worry if that one shows a yellow warning. If you'd rather install them yourself, the three are listed in the <code>requirements.txt</code> file in your system folder and go in with one command, <code>pip install -r requirements.txt</code>, but you don't have to: <b>"set yourself up" does it for you.</b></div>
-    <div class="callout"><b>One-time licence agreement:</b> the first time, setup shows you the licence and disclaimer and asks you to agree before it continues. The system is free for your own business use and is provided <b>"as is", entirely at your own risk</b> (full terms are in the <code>LICENSE</code> file). The assistant will show you the terms and ask you to reply <b>I AGREE</b>, do that once and it carries on.</div>
-  </div>
-
-  <div class="step"><div class="sh">Step 5 - Set up your working chats</div>
-    <p>Now set up the chats you'll use day to day.</p>
-    <ol>
-      <li><b>System Improvements</b>, press <b>+ New</b> (chat session) and make sure it's using the <code>Marketing AI System</code> folder you just set up, and type <b>"/system-manager"</b> to set it up. This chat session is to make the <i>system itself</i> better and improve how it operates (it is not for running a campaign). Nothing is required from you on Day 0, but from here you can say <b>"run a system retro"</b>, <b>"capture an idea: …"</b>, or <b>"add to backlog: …"</b>. This is how the system gets better over time, your ideas become tracked work you can pick up later.</li>
-      <li><b>Brand setup</b>, do this once, before you run a campaign. This foundation is the "knowledge base" every campaign reuses, so you never re-explain yourself. It collects things like your style guide, tone of voice, governance rules, target market and tech stack. Type <b>"Brand setup"</b> and the system interviews you and builds your foundation. Have these ready to paste in or describe:
-        <ul>
-          <li><b>Brand style guide</b>, or just your logo, colours and fonts; even favourite pages of your website can do.</li>
-          <li><b>Tone of voice</b>, how you sound, words you use and words you avoid.</li>
-          <li><b>Positioning &amp; segments</b>, what you stand for, and who you're selling to.</li>
-          <li><b>Rules you must follow</b>, only if you're regulated (finance, health, government…): disclaimers, things you can't claim.</li>
-          <li><b>Where you publish + your martech</b>, your key marketing channels, plus your tech tools (CRM, email, analytics). If any needs a password or key, the system shows you where to enter it safely.</li>
-          <li><b>Best-practice examples</b>, a few standout marketing campaigns or pieces for the system to learn from.</li>
-        </ul>
+      <li><b>Watch for the double folder.</b> GitHub often extracts a folder <i>inside</i> a folder, like
+        <code>soundtrak-ai-studio-main\soundtrak-ai-studio-main\</code>. You want the
+        <b>inner</b> one, the folder that has files like <code>README.md</code> and a <code>campaigns</code>
+        folder directly inside it. That inner folder is your Studio.</li>
+      <li><b>Move</b> that folder into your <b>OneDrive</b> (or Dropbox) folder. Keeping it there gives you an
+        automatic offsite backup of everything you do, with zero extra setup.</li>
+      <li><b>Rename</b> it to exactly:
+        <pre><code>Marketing AI System</code></pre>
       </li>
     </ol>
-    <div class="callout"><b>The one habit that matters:</b> a fresh chat for each new job, each campaign, each system retrospective, and give it a name you will remember. Everything you do is saved automatically and carried across chats through your foundation, so a new chat never loses your brand or your past work.</div>
+    <div class="callout"><b>⚠️ Check you got it right, the name has to be exact.</b> The final result should look like
+      <code>C:\Users\&lt;you&gt;\OneDrive\Marketing AI System</code>, and opening that folder should show
+      <code>README.md</code> and a <code>campaigns</code> folder <i>right there</i> (not one more folder to click
+      into). If you have to open another folder first, you moved the outer double folder, so go up one level and
+      move the inner one instead. Getting this right now prevents nearly every "it can't find my files" problem later.</div>
   </div>
 
-  <div class="step"><div class="sh">Step 6 - Bookmark your HTML operator interfaces</div>
-    <p>Everything you review happens on two HTML pages you open in your browser. Bookmark both now so they're one click away (on Chrome, save them to your Bookmarks Bar).</p>
+  <div class="step"><div class="sh">Step 4 - Open it and say "Setup Studio"</div>
+    <p>Now you point Claude Code at that folder and let the Studio finish the job. Claude Code always works
+    <i>inside one folder</i>, so this is how it learns where your Studio lives.</p>
     <ol>
-      <li><b>Campaign Dashboard</b>, in File Explorer, open your <code>Marketing AI System</code> folder → the <code>campaigns</code> folder → double-click <code>index.html</code>. It's at something like <code>C:\Users\&lt;you&gt;\OneDrive\Marketing AI System\campaigns\index.html</code>. It opens the <b>All Campaigns</b> page in your browser. Bookmark it. <span class="muted">(It's empty until you start your first campaign.)</span></li>
-      <li><b>System Improvements Dashboard</b>, in File Explorer, open your <code>Marketing AI System</code> folder → the <code>system</code> folder → double-click <code>dashboard.html</code>. It's at something like <code>C:\Users\&lt;you&gt;\OneDrive\Marketing AI System\system\dashboard.html</code>. It opens your <b>System backlog</b> (ideas and improvements). Bookmark it too.</li>
+      <li>Open <b>Claude</b> (the desktop app) and click the <b>Code</b> tab at the top.</li>
+      <li>On the project screen, choose <b>Local</b> (this runs on your own computer), then click the <b>Select folder</b> button.</li>
+      <li>A file browser opens. Go to your <code>Marketing AI System</code> folder, click it once to highlight it, then click <b>Open</b> (that picks the folder itself; you don't need to go inside it first). You're in the right place when Claude Code shows <code>Marketing AI System</code> as the current project.
+        <span class="muted">Prefer the terminal? Open one <i>inside</i> that folder and run <code>claude</code> instead.</span>
+        <!-- TODO (the operator): a screenshot of the Code tab -> Local -> Select folder screen would make this foolproof. I can't capture the desktop-app UI. -->
+      </li>
+      <li>If Claude asks whether to <b>trust the files in this folder</b>, say <b>yes</b>; it's your own downloaded product.</li>
+      <li>Type this and send it:
+        <pre><code>Setup Studio</code></pre>
+      </li>
     </ol>
-    <div class="callout"><b>Why bookmark them?</b> These pages are how you see everything, where each campaign stands, what's waiting for your approval, and the running list of system ideas. They update themselves as you work; you just refresh.</div>
+    <div class="callout"><b>⚙️ What "Setup Studio" does for you.</b> That one sentence handles everything mechanical:
+      <ul style="margin:.5em 0 0">
+        <li>shows you the <b>licence</b> once (free for your own business use, provided "as is"; full terms in the <code>LICENSE</code> file) and asks you to reply <b>I AGREE</b>;</li>
+        <li>installs the <b>pieces it needs</b> (two small libraries, plus one optional extra for gallery thumbnails);</li>
+        <li>runs a <b>health check</b> and, if anything's missing, tells you the <i>one</i> thing to fix in plain language;</li>
+        <li>turns on <b>automatic backup</b>, so your work saves at the end of every session;</li>
+        <li>builds your <b>dashboards</b>, and (on Windows) sets up the handy gallery quick-buttons;</li>
+        <li>opens your <b>Studio home page</b> at the end.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>ℹ️ The prompts you'll see, and why they're fine.</b> Your copy comes pre-configured so
+      Claude doesn't stop to ask permission for its own routine work: edits apply automatically and its setup
+      commands just run. The one prompt you're sure to meet is the one-time <b>licence</b> (reply <b>I AGREE</b>);
+      you may also get a one-time <b>"trust this folder?"</b> question, just say <b>yes</b>. Anything else is safe
+      to accept. <span class="muted">Prefer to approve edits yourself? Press <b>Shift+Tab</b> to toggle auto-accept
+      off (and on again).</span></div>
+    <p><b>When it says READY, setup is done</b>, one time only. A red <code>[FAIL]</code> always prints its exact
+    fix; a yellow <code>[WARN]</code> is just a heads-up you can usually ignore (see the table at the bottom).</p>
   </div>
 
-  <div class="step"><div class="sh">Step 7 - Make the gallery buttons open natively (Windows only)</div>
-    <p>When you review a campaign in the asset gallery, each asset has two convenience buttons, <b>📁 Open folder</b> and <b>✏️ Edit copy</b>, that take you straight to that asset's files.</p>
-    <ul>
-      <li>In your Setup chat in Claude Code, paste this:
-        <pre><code>powershell -ExecutionPolicy Bypass -File ".\.claude\skills\asset-gallery\protocol\setup-protocol.ps1"</code></pre>
-      </li>
-      <li>Alternatively, run it in a terminal inside your project folder, paste this:
-        <pre><code>powershell -ExecutionPolicy Bypass -File ".\.claude\skills\asset-gallery\protocol\setup-protocol.ps1"</code></pre>
-      </li>
-    </ul>
-    <p>It is fully reversible; the how-to-undo details are in <code>.claude/skills/asset-gallery/protocol/setup-cookbook.md</code>.</p>
+  <div class="step"><div class="sh">Step 5 - Bookmark your Studio home</div>
+    <p>When setup finishes it opens your <b>Studio home</b>: a single page linking to your Campaign dashboard,
+    your System dashboard, and the guides. <b>Bookmark it</b> (on Chrome, save it to your Bookmarks Bar). That one
+    bookmark is your way back into everything; the pages behind it update themselves as you work, so you just
+    refresh.</p>
+    <p class="muted">Your Campaign dashboard is empty until you start your first campaign. That's expected; it says so.</p>
   </div>
 
-  <div class="step"><div class="sh">Step 8 - Your first campaign</div>
-    <p>That's it, you're set up. You're now ready for your first campaign. Press <b>+ New</b> (chat session) and type <b>"start a campaign: &lt;what it's for&gt;"</b>.</p>
-    <div class="callout"><b>📘 Next: the <a href="operator-guide.html">Operator guide</a> walks you through this process in detail, stage by stage.</b></div>
+  <div class="step"><div class="sh">Step 6 - Set up your brand</div>
+    <p>Do this once, before any campaign. This is the foundation every campaign reuses, so you never re-explain
+    yourself: your look, your voice, who you sell to, and any rules you must follow.</p>
+    <div class="callout"><b>📋 Before you start, gather what you have.</b> All optional; the more you bring, the
+      sharper it starts, but <b>nothing here blocks you</b> and you can add the rest later.
+      <ul style="margin:.5em 0 0">
+        <li><b>Your website address</b>: the single most useful source; the Studio reads it while it interviews you.</li>
+        <li><b>Brand style guide</b>, or just your logo, colours and fonts.</li>
+        <li><b>Tone of voice</b>: how you sound, words you use and words you avoid.</li>
+        <li><b>Positioning &amp; segments</b>: what you stand for, and who you're selling to.</li>
+        <li><b>Rules you must follow</b>: only if you're regulated (finance, health, government…): disclaimers, things you can't claim.</li>
+        <li><b>Where you publish + your martech</b>: key channels plus tools (CRM, email, analytics). If any needs a password or key, the Studio shows you where to enter it safely.</li>
+        <li><b>Best-practice examples</b>: a few standout campaigns or pieces for the Studio to learn from.</li>
+      </ul>
+    </div>
+    <p><b>Click + New to open a new chat.</b> Point it at your <code>Marketing AI System</code> folder (the same
+    <b>Local → Select folder</b> as in Step 4, or pick it from your recent folders), and <b>name it "Brand
+    setup"</b>. This is a chat you'll come back to. Then type:</p>
+    <pre><code>Onboard &lt;your business name&gt;</code></pre>
+    <p>The Studio interviews you, a few questions at a time, and builds your foundation. Point it at your
+    <b>website and any public material</b> and it uses them as source while it asks; the more you give, the
+    sharper it starts. Anything missing is marked <b>to fill in later</b>.</p>
+    <div class="callout"><b>Come back any time to update it.</b> Return to your <b>Brand setup</b> chat and say
+      <b>"update my brand"</b>. It only asks about what changed, never the whole thing again. Your foundation is
+      saved to your <i>files</i> (not to the chat) and carried into every campaign, so even if you lose the chat,
+      your brand is safe.</div>
   </div>
+
+  <div class="step"><div class="sh">Step 7 - Your first campaign</div>
+    <p>That's it, you're ready. Press <b>+ New</b> for a fresh chat, point it at your
+    <code>Marketing AI System</code> folder, and type:</p>
+    <pre><code>start a campaign: &lt;what it's for&gt;</code></pre>
+    <div class="callout"><b>📘 Next: the <a href="operator-guide.html">Operator guide</a> walks you through a
+      campaign in detail, stage by stage, and shows you the optional <b>System Improvements</b> chat, where
+      your ideas for improving the Studio itself become tracked work. Nothing there is needed on day one.</b></div>
+    <div class="callout"><b>The one habit that matters:</b> a <b>fresh chat for each new job</b>, each campaign,
+      each time, pointed at your <code>Marketing AI System</code> folder, with a name you'll remember.
+      Everything you do is saved automatically and carried across chats through your Brand foundation, so a new
+      chat never loses your brand or your past work. You don't set up your chats in advance; you make one when
+      you start a new job.</div>
+  </div>
+
+  <h2>Backup &amp; upgrades</h2>
+  <ul>
+    <li><b>Backup is automatic</b> once set up (Step 4): your work saves at the end of every session. The safety net is that local save <b>plus</b> your <b>OneDrive/Dropbox</b> folder, an offsite copy with zero extra setup. That's enough for most people, no GitHub account required.</li>
+    <li><b>Git is recommended, not required.</b> If Git is installed, the Studio keeps a full version history of your work and can push to an online backup; if it isn't, the Studio still runs perfectly and your OneDrive/Dropbox folder is your backup. The setup check flags a missing Git as a yellow "recommended" warning, never a blocker, it's your call whether to install it.</li>
+    <li><b>Want a separate online backup in your own account?</b> Optional, install Git, create a free private repo, then say <b>"Setup Studio"</b> again and the Studio connects it.</li>
+    <li><b>Upgrades:</b> your copy is yours and keeps working as-is, so you never <i>have</i> to upgrade. If a newer version is released, whoever gave you the Studio can hand you the update.</li>
+  </ul>
 
   <h2>If the health check flags something</h2>
-  <p><b>Step 4</b> ("set yourself up") runs a "doctor" that checks your setup. A red <code>[FAIL]</code> line is a real blocker and always prints the exact fix; a yellow <code>[WARN]</code> line is just a heads-up you can usually ignore. The usual ones:</p>
+  <p><b>Step 4</b> ("Setup Studio") runs a "doctor" that checks your setup. A red <code>[FAIL]</code> line is a real blocker and always prints the exact fix; a yellow <code>[WARN]</code> line is just a heads-up you can usually ignore. The usual ones:</p>
   <table>
     <thead><tr><th>Line</th><th>What it means</th><th>Fix</th></tr></thead>
     <tbody>
-      <tr><td><code>[FAIL] python module: … MISSING</code></td><td>a required helper library (markdown / pyyaml) didn't install</td><td>type <b>"set yourself up"</b> again in the chat session, so it retries</td></tr>
+      <tr><td><code>[FAIL] python module: … MISSING</code></td><td>a required helper library (markdown / pyyaml) didn't install</td><td>type <b>"Setup Studio"</b> again in the chat session, so it retries</td></tr>
       <tr><td>"python is not recognised" <span class="muted">(Windows)</span></td><td>Python installed without "Add to PATH"</td><td>re-run the Step 1 installer and <b>tick "Add Python to PATH"</b></td></tr>
       <tr><td><code>[FAIL] `python` NOT on PATH (only `python3`)</code> <span class="muted">(Mac/Linux)</span></td><td>the engine's <code>python</code> command is missing, so auto-update &amp; backup won't run</td><td>point <code>python</code> at <code>python3</code>, the doctor prints the exact one-line command, or use a virtual environment</td></tr>
-      <tr><td><code>[WARN] playwright … (optional)</code></td><td>the thumbnail-image tool isn't installed, not a blocker</td><td>ignore it, or say "set yourself up" to add it; it only affects gallery preview images</td></tr>
+      <tr><td><code>[WARN] playwright … (optional)</code></td><td>the thumbnail-image tool isn't installed, not a blocker</td><td>ignore it, or say "Setup Studio" to add it; it only affects gallery preview images</td></tr>
       <tr><td><code>[WARN] git (recommended…)</code></td><td>Git isn't installed, not a blocker; you just lose version history</td><td>optional; install Git if you want version history + online backup (see below)</td></tr>
     </tbody>
   </table>
 
   <h2>Do I need a GitHub account?</h2>
-  <p><b>No</b>, not to download the system, and not to use it day to day. GitHub shows up in two <i>separate</i> ways, and only the optional one needs an account of your own:</p>
+  <p><b>No</b>, not to download the Studio, and not to use it day to day. GitHub shows up in two <i>separate</i> ways, and only the optional one needs an account of your own:</p>
   <table>
     <thead><tr><th>GitHub touchpoint</th><th>Whose it is</th><th>Account needed?</th></tr></thead>
     <tbody>
-      <tr><td>The public page you download from (Step 3)</td><td>the people who make the system</td><td><b>No</b>, anyone can download</td></tr>
+      <tr><td>The public page you download from (Step 3)</td><td>the people who make the Studio</td><td><b>No</b>, anyone can download</td></tr>
       <tr><td>An optional online backup of your own work</td><td><b>yours</b> (a free private repo)</td><td>Yes, but only if you want it</td></tr>
     </tbody>
   </table>
-
-  <h2>Backup &amp; upgrades</h2>
-  <ul>
-    <li><b>Backup is automatic</b> once set up (Step 4): your work saves at the end of every session. The safety net is that local save <b>plus</b> your <b>OneDrive/Dropbox</b> folder, an offsite copy with zero extra setup. That's enough for most people, no GitHub account required.</li>
-    <li><b>Git is recommended, not required.</b> If Git is installed, the system keeps a full version history of your work and can push to an online backup; if it isn't, the studio still runs perfectly and your OneDrive/Dropbox folder is your backup. The setup check flags a missing Git as a yellow "recommended" warning, never a blocker, it's your call whether to install it.</li>
-    <li><b>Want a separate online backup in your own account?</b> Optional, install Git, create a free private repo, then say <b>"set yourself up"</b> again and the system connects it.</li>
-    <li><b>Upgrades:</b> your copy is yours and keeps working as-is, so you never <i>have</i> to upgrade. If a newer version is released, whoever gave you the system can hand you the update.</li>
-  </ul>
 
   <p class="footer"><a class="backlink" href="help.html">← Help &amp; guides</a> &nbsp;·&nbsp; Soundtrak AI Studio</p>
 </div>

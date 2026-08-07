@@ -40,3 +40,7 @@ GE faced a talent problem: top software engineers didn't think of GE as a softwa
 - Self-aware-as-cute: when the self-awareness has no underlying change to back it up, reads as deflection
 - Character-dependent: when the actor moves on, the platform can stall
 - Niche audience (engineers) requires niche cultural references; broad audience watching this campaign mostly didn't get it — that's fine, but means the ROI is in the niche, not the broad
+
+## Related
+- [[abb-everyday-heroes-2025]] — humanising a B2B industrial service through its people.
+- [[schneider-electric-100-years-circuit-breaker-2025]] — making an invisible industrial category emotionally resonant.

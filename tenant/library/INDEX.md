@@ -1,6 +1,6 @@
 # Best-Practice Library
 
-The reference collection the Creative Director and Producer draw on when creating your work — standout campaigns, gold-standard exemplars, and craft references. **95 entries**, plus the playbooks, archetypes, and visual-movement guides listed below.
+The reference collection the Creative Director and Producer draw on when creating your work — standout campaigns, gold-standard exemplars, and craft references. **108 entries**, plus the playbooks, archetypes, and visual-movement guides listed below.
 
 > 🔎 **Looking for research, not creative?** Market data, behavioural-science, and audience research live in the separate **[Insights Library](../research-library/INDEX.html)** — the corpus the Insights Manager cites. *This* Best-Practice Library is for **creative** exemplars. They're two different collections (both are in the top-right menu).
 
@@ -22,7 +22,7 @@ Add a standout example any time — **in chat, paste a link or a reference and s
 
 ## Also in this library
 
-Beyond the 95 campaign entries, three reference sets the Creative Director works from when shaping a concept. Click any to open it:
+Beyond the 108 campaign entries, three reference sets the Creative Director works from when shaping a concept. Click any to open it:
 
 - 📘 **Playbooks** — full tactical playbooks (the how-to behind a whole play). Netwealth-authored: [Winning New Clients](playbooks/winning-new-clients-playbook.md) · [Creating Loyalty That Lasts](playbooks/creating-loyalty-playbook.md)
 - 🎯 **Archetypes** — the 9 strategic "journey modes" a campaign can take (what job the creative is doing), ordered roughly by funnel: [Aperture-setting](archetypes/aperture-setting.md) · [Attention / fame](archetypes/attention-fame.md) · [Educational pipeline](archetypes/educational-pipeline.md) · [Trust / proof](archetypes/trust-proof.md) · [Utility / service](archetypes/utility-service.md) · [Participatory](archetypes/participatory.md) · [Direct-response](archetypes/direct-response.md) · [Community / advocacy](archetypes/community-advocacy.md) · [Identity reinforcement](archetypes/identity-reinforcement.md)
@@ -40,6 +40,19 @@ Beyond the 95 campaign entries, three reference sets the Creative Director works
 | Soundtrak | [The Customer Behind Your Customer (Thinking article)](entries/soundtrak-customer-behind-your-customer-2026.md) | 2026 | B2B | Pro-services | Single-asset | Tactic | Smart | Educational pipeline | Soundtrak-own |
 | Soundtrak | [Owned Media Compounds. Performance Media Doesn't. (Thinking article)](entries/soundtrak-owned-media-compounds-2026.md) | 2026 | B2B | Pro-services | Single-asset | Hybrid | Smart | Educational pipeline | Soundtrak-own |
 | Soundtrak | [The 1%ers (Thinking article — finishing + the relative/time-boxed 1%)](entries/soundtrak-the-1ers-2026.md) | 2026 | B2B | Pro-services | Single-asset | Hybrid | Smart | Educational pipeline | Soundtrak-own |
+| Dave's Killer Bread | [Woke Up Epic — 30-Day Anti-Challenge](entries/daves-killer-bread-anti-challenge-2025.md) | 2025 | B2C | CPG | Multi-step-campaign | Hybrid | Smart | Participatory | Operator-curated |
+| Cloudflare | [theNET (C-suite editorial platform)](entries/cloudflare-thenet-2025.md) | 2025 | B2B | Tech-SaaS | Always-on | Hybrid | Smart | Trust/proof | Operator-curated |
+| Schneider Electric | [100 Years of the Miniature Circuit Breaker](entries/schneider-electric-100-years-circuit-breaker-2025.md) | 2025 | Multi | Industrial-B2B | Multi-step-campaign | Big-idea | Smart | Attention/fame | Operator-curated |
+| Accenture (with Fortune) | [Reinventing the Fortune 500](entries/accenture-reinventing-fortune-500-2025.md) | 2025 | B2B | Pro-services | Multi-step-campaign | Hybrid | Smart | Trust/proof | Operator-curated |
+| Puck (Message Lab) | [Private Conversation (subscriber-authored Q&A)](entries/puck-private-conversation-2025.md) | 2025 | B2C | Entertainment-Media | Single-asset | Tactic | Smart | Participatory | Operator-curated |
+| BESydney | [Precinct E-Books (Change Starts Here)](entries/besydney-precinct-ebooks-2025.md) | 2025 | B2B | Travel-Hospitality | Multi-step-campaign | Hybrid | Smart | Educational pipeline | Operator-curated |
+| Purdue University | [Boilers to Mars (brand film)](entries/purdue-boilers-to-mars-2025.md) | 2025 | B2C | Education-EdTech | Single-asset | Big-idea | Smart | Attention/fame | Operator-curated |
+| ABB Electrification Service | [Everyday Heroes (humanising B2B service)](entries/abb-everyday-heroes-2025.md) | 2023-ongoing | B2B | Industrial-B2B | Always-on | Big-idea | Smart | Trust/proof | Operator-curated |
+| Direct Energy Canada | [Quiz Content Strategy](entries/direct-energy-quiz-strategy-2025.md) | 2022-2024 | B2C | Telco | Always-on | Hybrid | Smart | Educational pipeline | Operator-curated |
+| NAIMA (Energy Circle) | [25C Means Business (contractor enablement)](entries/naima-25c-means-business-2024.md) | 2024 | B2B | Industrial-B2B | Always-on | Tactic | Smart | Utility/service | Operator-curated |
+| NetLine | [2024 Marketing Mastery Workbook](entries/netline-marketing-mastery-workbook-2024.md) | 2024 | B2B | Pro-services | Single-asset | Tactic | Smart | Educational pipeline | Operator-curated |
+| SoftBank — Sōzō (Message Lab) | [Drawing Insight — CEO Survey Highlights](entries/message-lab-drawing-insight-ceo-survey-2024.md) | 2024 | B2B | Wealth-Investment | Single-asset | Tactic | Smart | Trust/proof | Operator-curated |
+| Iberdrola | [Integrated Report & Sustainability (interactive microsite)](entries/iberdrola-integrated-report-2024.md) | 2024 | B2B | Industrial-B2B | Single-asset | Tactic | Safe | Trust/proof | Operator-curated |
 | Heidi Health | [Relief, on repeat (Side Effects May Include…)](entries/heidi-relief-on-repeat-2026.md) | 2026 | B2B | Health-Wellness | Multi-step-campaign | Hybrid | Wild | Attention/fame | Operator-curated |
 | Apple | [Privacy. That's iPhone.](entries/apple-privacy-thats-iphone-2019.md) | 2019-ongoing | B2C | Tech-Consumer | Always-on | Big-idea | Smart | Aperture-setting | Operator-curated |
 | Fletch (FletchPMM) | ["Let's fix your confusing positioning" (website — clarity + clean-authoritative exemplar)](entries/fletch-pmm-website-2026.md) | 2026 | B2B | Pro-services | Single-asset | Hybrid | Smart | Direct-response | Operator-curated |
