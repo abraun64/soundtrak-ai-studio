@@ -31,6 +31,19 @@ except ImportError:
     yaml = None  # type: ignore
 
 
+def cache_bust(target: Path) -> str:
+    """SYS-134 — a ``?v=<mtime>`` suffix for an operator-surface link so a file://
+    browser tab never serves a stale surface from cache. Chrome/Edge key their
+    file:// disk cache on the full URL *including* the query string, so bumping
+    ?v= whenever the target is re-rendered forces a fresh read the next time the
+    operator clicks through. Best-effort: returns "" if the target does not exist
+    yet (e.g. a gallery not built), leaving the plain link untouched."""
+    try:
+        return f"?v={int(Path(target).stat().st_mtime)}"
+    except OSError:
+        return ""
+
+
 AUTO_INJECT_MARKER = "<!-- OPERATOR_ACTIONS_AUTO -->"
 ASSET_LIST_MARKER = "<!-- ASSET_LIST_AUTO -->"
 STATUS_MARKER = "<!-- STATUS_AUTO -->"
@@ -1400,7 +1413,7 @@ def render_cross_campaign_actions_md(campaigns: list[dict]) -> str:
         awaiting_review = sum(1 for a in assets if "For Human Review" in a["status_display"])
         pill_cls, pill_txt = _phase_pill(phases, total_assets, camp["campaign_dir"])
         disp = _html.escape(str(camp_yaml.get("nickname") or camp["name"]))
-        dash = f"{slug}/dashboard.html"
+        dash = f"{slug}/dashboard.html{cache_bust(camp['campaign_dir'] / 'dashboard.html')}"
 
         # Skip campaigns with nothing for the operator (no actions, no recs, nothing pending).
         if not actions and not rec_ptrs and pending_assets <= 0:
@@ -1706,11 +1719,12 @@ def _render_campaign_index_impl(campaigns: list[dict]) -> str:
                 if (camp_dir / rel).exists():
                     gates[label] = f"{slug}/{rel}"
 
-        surfaces: list[tuple[str, str]] = [("📊 Dashboard", f"{slug}/dashboard.html")]
+        surfaces: list[tuple[str, str]] = [
+            ("📊 Dashboard", f"{slug}/dashboard.html{cache_bust(camp_dir / 'dashboard.html')}")]
         for lbl in GATE_ORDER:
             if lbl in gates:
                 surfaces.append((lbl, gates[lbl]))
-        surfaces.append(("🖼 Gallery", f"{slug}/gallery.html"))
+        surfaces.append(("🖼 Gallery", f"{slug}/gallery.html{cache_bust(camp_dir / 'gallery.html')}"))
         # Phase 5 / Phase 6 rollout docs — existence-checked (only campaigns past
         # Phase 4 have them; built together at end of Phase 4).
         if (camp_dir / "phase-5-rollout.html").exists():

@@ -116,8 +116,11 @@ def _campaign_card(camp: dict) -> str:
                   + "".join(f"<span>{_html.escape(s)}</span>" for s in stats)
                   + "</div>") if stats else ""
 
-    surfaces = [("📊 Dashboard", f"../campaigns/{slug}/dashboard.html"),
-                ("🖼 Gallery", f"../campaigns/{slug}/gallery.html")]
+    # SYS-134 — ?v=<mtime> cache-bust so a file:// tab never serves a stale surface.
+    surfaces = [("📊 Dashboard",
+                 f"../campaigns/{slug}/dashboard.html{oa.cache_bust(camp_dir / 'dashboard.html')}"),
+                ("🖼 Gallery",
+                 f"../campaigns/{slug}/gallery.html{oa.cache_bust(camp_dir / 'gallery.html')}")]
     surfaces_html = "".join(
         f'<a href="{_html.escape(h)}">{_html.escape(l)}</a>' for l, h in surfaces)
 
