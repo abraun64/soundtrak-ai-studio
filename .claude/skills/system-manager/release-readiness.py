@@ -43,7 +43,7 @@ sys.path.insert(0, str(LIB))
 try:
     import repo_paths
     DATA = repo_paths.data_root(ROOT)
-except Exception:
+except ImportError:
     DATA = ROOT
 SYSTEM_DIR = DATA / "system"
 SKILLS = ROOT / ".claude" / "skills"

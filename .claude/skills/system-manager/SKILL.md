@@ -8,17 +8,20 @@ description: |
   Manager: CM orchestrates work INSIDE campaigns; the System Manager orchestrates
   improvement OF the machine that runs them.
 
-  Five jobs: (1) CAPTURE — file a raw operator/diagnostic idea into the inbox,
+  Six jobs: (1) CAPTURE — file a raw operator/diagnostic idea into the inbox,
   enriched to a stand-alone record. (2) TRIAGE — promote / merge / kill inbox
   ideas into backlog tickets. (3) RETRO — facilitate a system retro and route its
   outputs (action items → backlog, lessons → memory, record → docs/retros/).
   (4) GROOM — reconcile diagnostics + backlog and surface ONE prioritisation
-  decision. (5) RELEASE — maintain the public CHANGELOG and cut periodic Seed
-  releases. Re-renders the dashboard after every data change.
+  decision. (5) VERIFY — pick the proportionate verification level for a change
+  (sanity / smoke / behavioural UAT / unit), run it, and record the evidence on
+  the ticket before it closes. (6) RELEASE — maintain the public CHANGELOG and cut
+  periodic Seed releases. Re-renders the dashboard after every data change.
 
   TRIGGER when the operator wants to improve the system rather than a campaign:
   "system idea: …", "capture an idea", "triage the inbox", "run a system retro",
-  "/system-manager", "what's on the system backlog", "what should we improve next".
+  "/system-manager", "what's on the system backlog", "what should we improve next",
+  "verify this change", "what level of testing does this need".
 
   DO NOT TRIGGER for campaign work (use /campaign-manager) or for read-only
   diagnostics alone (run system-smoke-test / system-drift-watcher / cm-audit /
@@ -46,6 +49,7 @@ All under `system/`. Edit the YAML; the HTML is generated.
 | `system/backlog.yaml` | Tickets — curated, prioritised work (`todo` / `in_progress` / `done` / `killed`) |
 | `system/ideas.yaml` | Idea inbox — raw, untriaged captures |
 | `system/audit-log.yaml` | Append-only state-change log (newest first) |
+| `system/cadence-tombstones.yaml` | Killed cadence findings, by fingerprint (SYS-144) — a kill deletes the idea, so this is what makes it stay killed |
 | `system/dashboard.html` | **Generated** — the operator surface. Never hand-edit. |
 
 IDs: tickets are `SYS-NNN`, ideas are `IDEA-NNN`. **Never eyeball the next free number** —
@@ -86,7 +90,7 @@ on each open card — a label, not a filter (the priority filters were removed).
 > Keep the DATA correct and the surface follows — same contract as the campaign
 > operator surfaces (`feedback_operator_surfaces_are_generated_from_data`).
 
-## The five jobs
+## The six jobs
 
 ### 1. Capture  ·  "system idea: X" / `/system-manager capture: X`
 The operator gives one line. **You** write the full record while the context is
@@ -106,8 +110,22 @@ For each idea (or the one named), with the operator's decision:
 - **promote** → create a `SYS-NNN` ticket in `backlog.yaml` (id from `sysdata.py next-id SYS`,
   `status: todo`, the given priority, carry over `benefit`/description/raised_by/date/source, sharpen the
   title **and** the `benefit` line), remove the idea from `ideas.yaml`, audit `triaged`.
+  **Carry `fingerprint:` onto the ticket verbatim if the idea has one (SYS-144).** Sharpening the
+  title is mandatory *and* it breaks title-based dedupe by construction — the fingerprint is the
+  only thing that survives it. Drop it and the cadence refiles the finding you just promoted.
 - **merge** → fold into the named existing ticket, remove the idea, audit `merged`.
-- **kill** → remove the idea with a one-line reason, audit `killed`.
+  **APPEND** the idea's `fingerprint:` to the target ticket's — the field takes a list, because
+  the surviving ticket now owns every finding folded into it. Keep only one and the rest refile
+  on the next run. They release together when that ticket closes, which is what you want: the
+  problem was fixed, so a recurrence is new.
+- **kill** → remove the idea with a one-line reason, audit `killed`. **If the idea has a
+  `fingerprint:`, tombstone it in the same turn (SYS-144)** — a kill deletes the only record
+  there was to match on, so without this the cadence raises it again on its next run:
+  `python .claude/skills/cadences/tombstone.py --fingerprint <fp> --ref IDEA-0NN --reason "<the one-line reason>"`
+  **But distinguish the two kinds of kill.** "Not worth doing" → tombstone, suppressed forever.
+  "Duplicate of SYS-NNN" → do NOT tombstone: the finding is still live, just tracked elsewhere.
+  Move its fingerprint onto the ticket that now owns it and leave the killed record without one,
+  so the owner's closure is what releases it.
 Offer a recommended priority + promote/merge/kill for each so the operator confirms
 rather than decides cold. Re-render once at the end.
 
@@ -129,7 +147,41 @@ The periodic health-and-priority pass.
 3. Present the state and surface **ONE** prioritisation decision (don't nag).
 4. Re-render.
 
-### 5. Release  ·  cut a public Seed release
+### 5. Verify  ·  `/system-manager verify [SYS-id]`  ·  SYS-138
+Prove a system change works before calling it done. **UAT here means the OPERATOR's
+acceptance**: from a cold start, does running the real thing produce the outcome they asked
+for? Assert the outcome, not the mechanism — and prove the assertion can fail.
+Full definition: `docs/specs/system-verification.md`.
+
+1. **Pick the level** from the trigger table — take the HIGHEST any criterion reaches, never
+   the cheapest that applies. `python .claude/skills/system-manager/verify.py --criteria`
+   prints it. In short: prose → **L0**; shared code / the seed → **L1**; changes what a
+   surface says, writes hard-to-undo data, or IS a guard → **L2**; logic with cases, or a
+   repeat of a known bug class → **L3** (and the test must reproduce the historical failure).
+2. **Run it.**
+   `verify.py --level 0 <files>` · `--level 1` (smoke) · `--level 3` (every `test_*.py` suite).
+   **L2 is run by hand and cannot be delegated to a script** — that is the whole point. Follow
+   the 7-step checklist in `--criteria`: name the outcome in the operator's words, run the real
+   entry point, read the RENDERED output, then **break it and watch the guard go red**.
+3. **Record it on the ticket.** `verified: "L<n> — <what was run> — <the line that proved it>"`.
+   It renders on the dashboard card, so "done" is visibly distinguishable from "claimed done".
+4. **New L3 suites** live beside the module as `test_<module>.py` (stdlib only, exit 0/1, each
+   test naming the live failure it guards + its date) and get wired into the smoke test's
+   Layer 1 — so they run forever after without anyone remembering.
+
+**The close rule (agreed 2026-08-22).** A ticket may not move to `done` with an empty
+`verified:`. It MAY record a level lower than the table asks, with the reason stated in the
+same field — a hard must-pass gate is what produced the 2026-08-08 file-existence "UAT", so
+the requirement is an auditable CLAIM, not a mandatory ritual. `verify.py --audit` lists
+closures that recorded nothing, and the weekly digest reports it (as a nudge — it never
+escalates to a ticket).
+
+**L2 scripts are disposable.** Run it, paste the command and the proving line into `verified:`,
+don't keep the script. L2 checks are pinned to live campaign data, so a retained suite of them
+goes stale and starts throwing false REDs — the exact trust erosion SYS-141 was about. Only L3
+suites accumulate.
+
+### 6. Release  ·  cut a public Seed release
 The System Manager owns the public release log, `CHANGELOG.md` (repo root). It records
 **system-layer** changes only — never tenant or campaign work; the `build_seed` allowlist
 defines what's "system" (= what ships).
@@ -147,13 +199,16 @@ Releases are periodic CUTS, not per-commit syncs: decide per-release what's read
 work waits in the master until a release is cut.
 
 Ticket lifecycle helpers: starting work → `status: in_progress` (+ optional
-`pr: {number, url}`); shipping → `status: done` + audit `shipped`; dropping →
-`status: killed` + audit `killed` with reason.
+`pr: {number, url}`); shipping → `status: done` + `verified:` (SYS-138 — never empty) +
+audit `shipped`; dropping → `status: killed` + audit `killed` with reason (+ `tombstone.py`
+if the ticket carries a `fingerprint:`).
 
 ### Weekly digest (SYS-005)  ·  `weekly-digest.py`
 A scheduled, read-only groom-lite. Runs the diagnostics (smoke-test / nav-audit /
-cm-audit), summarises open work + inbox, auto-files any genuinely-new diagnostic FAILURE
-as a deduped idea, and writes `system/digests/<date>.md`. It SURFACES — it never triages
+docs-audit / cm-audit / drift-gate / the SYS-138 verification audit), summarises open work +
+inbox, auto-files any genuinely-new diagnostic FAILURE as a deduped idea, reports any GREEN
+diagnostic whose escalated ticket is still open (SYS-141), and writes
+`system/digests/<date>.md`. It SURFACES — it never triages
 or changes the backlog (you still triage the inbox). Run by hand anytime:
 `python .claude/skills/system-manager/weekly-digest.py`. Worktree-aware.
 

@@ -31,7 +31,7 @@ sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 try:
     import repo_paths
     DATA = repo_paths.data_root(ROOT)
-except Exception:  # noqa: BLE001
+except ImportError:  # noqa: BLE001
     DATA = ROOT
 CAMPAIGNS = DATA / "campaigns"
 RENDER = ROOT / ".claude" / "skills" / "render-html" / "render.py"

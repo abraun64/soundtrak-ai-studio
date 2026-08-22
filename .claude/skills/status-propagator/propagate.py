@@ -44,6 +44,16 @@ except Exception:
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / ".claude" / "lib"))
 import tenant_paths as _tp  # noqa: E402  — W4 dual-path: resolve campaign in either layout
+# Team deployment §3 — DATA dirs (campaigns/, tenant-brand/, system/) are canonical in the MAIN
+# checkout, and under a multi-operator install they live in a SEPARATE repo entirely. Resolve them
+# through repo_paths; ImportError ONLY (a frozen checkout without the helper degrades to the running
+# checkout — a configured-but-broken data root must RAISE, never silently write into the code repo).
+try:
+    import repo_paths  # noqa: E402
+    DATA_ROOT = repo_paths.data_root(REPO_ROOT)
+except ImportError:
+    DATA_ROOT = REPO_ROOT
+
 
 STATUS_DISPLAY = {
     "approved": "Approved",
@@ -64,8 +74,8 @@ STATUS_EMOJI = {
 
 def find_asset_dir(campaign_slug: str, asset_id: str) -> Path:
     """Locate the asset folder by NN-anything pattern."""
-    camp = _tp.find_campaign_dir(REPO_ROOT, campaign_slug)
-    campaign_dir = (camp / "assets") if camp else (REPO_ROOT / "campaigns" / campaign_slug / "assets")
+    camp = _tp.find_campaign_dir(DATA_ROOT, campaign_slug)
+    campaign_dir = (camp / "assets") if camp else (DATA_ROOT / "campaigns" / campaign_slug / "assets")
     if not campaign_dir.is_dir():
         raise SystemExit(f"Campaign not found: {campaign_slug} (looked flat + business-rooted)")
     # asset_id may be "01" or "1" — normalise both directions

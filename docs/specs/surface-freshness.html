@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Campaigns — Marketing AI System</title>
+  <title>Surface freshness — the "impossible to show stale" guarantee (SYS-112) — Marketing AI System</title>
   <style>/* Marketing AI System — social/email in-situ mockup chrome.
  * Renders collapsed (feed) + expanded (clicked-open) states per form.
  * Loaded automatically alongside system.css for all templates.
@@ -1936,12 +1936,12 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
-<body class="template-index">
+<body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
-      <nav class="breadcrumb" aria-label="Breadcrumb"><span class="crumb crumb-current">🏠 All Campaigns</span></nav>
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../docs/guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a></nav>
+        
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
       </div>
     </div>
@@ -1949,47 +1949,125 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 
   <main class="page-main">
     <article class="content">
-      <h1 id="all-campaigns">All Campaigns</h1>
-<p><strong>Last updated</strong>: 2026-08-22 17:22</p>
-<h2 id="active">Active</h2>
-<blockquote>
-<p><strong>👋 Welcome — let's get your first campaign going.</strong></p>
-<p>You don't have any campaigns yet. Two steps to begin:</p>
-<ol>
-<li><strong>Set up your brand once</strong> — say <strong>“Onboard”</strong> with your business name (for example, “Onboard Acme Co”). It captures your brand, voice and audience in a few quick questions. You only do this once.</li>
-<li><strong>Start a campaign</strong> — say <strong>“start a campaign”</strong> and answer a few quick questions.</li>
-</ol>
-<p>Everything you produce appears here as web pages you review and approve.</p>
-<p>First time? The <a href="../docs/guide/operator-guide.html">operator guide</a> walks you through it.</p>
-</blockquote>
-<hr>
-<h2 id="where-to-go-next">Where to go next</h2>
+      <h1 id="surface-freshness-the-impossible-to-show-stale-guarantee-sys-112">Surface freshness — the "impossible to show stale" guarantee (SYS-112)</h1>
+<p><strong>Status:</strong> prong A shipped 2026-07-22 · prong B (derive-more-store-less) sequenced.</p>
+<h2 id="the-problem-this-solves">The problem this solves</h2>
+<p>Every operator surface — the per-campaign <strong>dashboard</strong> and <strong>gallery</strong>, the cross-campaign
+<strong>tasks</strong> and <strong>index</strong>, the <strong>tenant homes</strong> — is a <strong>pre-rendered static HTML file</strong> opened
+via <code>file://</code>. There is <strong>no running server</strong>: nothing computes a page when you open it. So
+each surface is a <em>snapshot</em> that must be re-generated after every data change. When a
+regeneration is skipped — a no-op hook, a worktree blind spot, a subagent that dies mid-task,
+a hand edit, a forgotten render — the snapshot silently falls behind the data, and the
+operator reviews stale content without knowing. This produced a long run of individual bugs
+(SYS-013/016/094/101/103/104/109/110). They share one root; this is the fix for the <em>class</em>.</p>
+<h2 id="the-guarantee-verify-dont-remember">The guarantee: verify, don't remember</h2>
+<p><code>\.claude/lib/surface_freshness.py</code> treats freshness as something to <strong>verify</strong>, not remember:</p>
+<ul>
+<li><strong>Check.</strong> For every surface, compare its <code>mtime</code> to the <strong>newest of its data inputs</strong>. Any
+  surface older than its data is <strong>stale</strong>. The rule is <em>coarse but sound</em>: a surface must be
+  at least as new as the newest non-generated file it could depend on — over-inclusion only
+  costs an occasional rebuild, and it can <strong>never</strong> let a stale surface through.</li>
+<li><strong>Heal.</strong> Rebuild every stale surface via its canonical render tool (<code>render.py</code>,
+  <code>build-gallery.py</code>, <code>build-tenant-home.py</code>), then <strong>re-verify</strong>. A surface still behind its
+  data after a rebuild is a <strong>loud hard-blocker</strong> (something is genuinely broken).</li>
+</ul>
+<p>Surface → data inputs:</p>
 <table>
 <thead>
 <tr>
-<th>What</th>
-<th>Open</th>
+<th>Surface</th>
+<th>Stale when older than…</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>System dashboard</td>
-<td><a href="../system/dashboard.html">system/dashboard.html</a></td>
+<td><code>&lt;slug&gt;/dashboard.html</code></td>
+<td>newest <code>.md</code>/<code>.yaml</code> in the campaign (operator_actions, plan, brief, the dashboard md)</td>
 </tr>
 <tr>
-<td>Help &amp; guides</td>
-<td><a href="../docs/guide/help.html">docs/guide/help.html</a></td>
+<td><code>&lt;slug&gt;/gallery.html</code></td>
+<td>newest file under <code>assets/</code> (asset.yaml + ship files)</td>
+</tr>
+<tr>
+<td><code>tasks.html</code> · <code>index.html</code></td>
+<td>their <code>.md</code> source + every active campaign's <code>campaign.yaml</code>/<code>asset.yaml</code></td>
+</tr>
+<tr>
+<td><code>tenant-brand/&lt;tenant&gt;-home.html</code></td>
+<td>the active campaigns' <code>campaign.yaml</code> + the tenant's own <code>.yaml</code>/home md</td>
+</tr>
+<tr>
+<td><strong>every other render-html output</strong> (SYS-143) — the campaign-DNA doc <code>&lt;slug&gt;.html</code>, <code>brief.html</code>, <code>plan.html</code>, <code>phase-N-*.html</code>, <code>concepts/*.html</code>, per-asset record / preview <code>.html</code>, and the tenant <code>brand-context</code> / <code>playbook</code> / <code>phase-0</code> / <code>segments</code> docs</td>
+<td>its <strong>own same-stem <code>.md</code></strong></td>
 </tr>
 </tbody>
 </table>
-<hr style="margin-top:2.5em;border:none;border-top:1px solid #e8e7e2;">
-<p class="schema-follows" style="font-size:13px;color:#8a8a8a;margin:1em 0 0;"><strong style="color:#6a6a6a;font-weight:600;">📐 Schema this follows:</strong> <a href="../docs/specs/dashboard.html" style="color:#b8302f;">Operator-surface spec</a> <span style="color:#a5a5a5;">— edit the spec to change this surface’s structure</span></p>
+<p>It resolves DATA to the <strong>main checkout</strong> via <code>repo_paths</code> (SYS-103), so it works from a
+worktree session too.</p>
+<h3 id="the-enumeration-is-the-guarantee-sys-143-2026-08-22">The enumeration IS the guarantee (SYS-143, 2026-08-22)</h3>
+<p>The four rows above were hand-enumerated, so everything else was outside the gate — and
+"outside the gate" is indistinguishable from "fresh". On 2026-08-22 <code>--check</code> reported <em>every
+surface fresh</em> while the <code>stale-sweep</code> cadence flagged <strong>seven</strong> rendered surfaces up to four
+days behind their markdown: five campaign-DNA docs and two asset records. Those are the
+surfaces review actually happens on.</p>
+<p>The generic rows now come from the same shape the render pipeline produces — a <code>&lt;x&gt;.md</code> with a
+matching <code>&lt;x&gt;.html</code> — filtered by <strong>the discriminator <code>stale-sweep</code> already uses</strong>: the html
+must carry the render-html chrome signature. That excludes hand-built Producer artifacts
+(mockups, slides, og-cards, storyboards, print specs), which no pipeline rebuilds and which
+caused the original false-positive flood. Sharing the discriminator is the point: the two
+sensors now agree <strong>by construction</strong> rather than by coincidence.</p>
+<p>Two related repairs shipped with it:</p>
+<ul>
+<li><strong><code>heal()</code> iterates to a fixed point</strong> (bounded at 4 passes). Rebuilds cascade — healing an
+  asset record makes the gallery that aggregates it stale — and the single-pass version reported
+  that cascade as <em>"STILL STALE after rebuild"</em>. Crying wolf costs the same surface trust as a
+  missed stale surface. It stops the moment a pass stops <em>changing</em> the stale set, so a surface
+  its own rebuild genuinely cannot fix is still reported loudly.</li>
+<li><strong>A render that never returns</strong> (SYS-136). <code>operator_actions._phase5_gap_action</code> mutually
+  recursed with the phase-completion derivation, so any campaign with both a Phase 5 and a
+  <code>derive_blocks_launch</code> phase re-entered ~196 levels deep, each level a full campaign disk
+  scan. <code>gamma-launch-2026q2</code>'s dashboard render exceeded the Stop hook's 60 s budget and was
+  killed — and a killed render leaves the surface silently serving its old content. <strong>A guard
+  that can be starved of time is not a guarantee</strong>; renders have to terminate for freshness to
+  mean anything.</li>
+</ul>
+<h2 id="where-it-runs">Where it runs</h2>
+<ul>
+<li><strong>Every turn, in the Stop hook</strong> (<code>freshness_guarantee()</code> in <code>stop.py</code>) — after the
+  dirty-ledger drain, and on no-dirty turns too. So the <strong>dirty ledger is an optimisation, not
+  the guarantee</strong>: even a change that was never flagged dirty is caught and healed before the
+  turn ends. The cheap mtime check gates the rebuild, so quiet turns cost almost nothing.</li>
+<li><strong>On demand / pre-surface</strong> — <code>python .claude/lib/surface_freshness.py --check</code> (exit 1 if
+  any surface is behind its data) or <code>--heal</code> (rebuild + re-verify). The CM runs <code>--check</code>
+  before putting a surface in front of the operator.</li>
+</ul>
+<h2 id="two-prongs">Two prongs</h2>
+<ul>
+<li><strong>Prong A — the freshness guarantee (this doc, shipped).</strong> Removes the "a render was
+  skipped" failure mode entirely: a surface can no longer end a turn behind its data.</li>
+<li><strong>Prong B — derive more, store less (in progress).</strong> The <em>other</em> root of drift is a few facts
+  stored in two hand-kept places. Compute these <em>from</em> asset states instead of storing them in
+  parallel, so each fact has one home and there is nothing to keep in sync. Done per fact:</li>
+<li><strong>Wave-gate completion — SHIPPED.</strong> A campaign-level <code>operator_action</code> that declares
+    <code>gates: [asset_ids]</code> is done (dropped from the To Do) when all its gated assets are
+    <code>Approved</code>, computed from <code>asset.yaml</code> — no hand-set status. (<code>operator_actions.py</code>.)</li>
+<li><strong>Phase status — SHIPPED.</strong> The production phase uses <code>status_mode: derive_assets</code>, so both
+    the phase pill (<code>_phase_done</code>) and the display string (<code>_derive_phase_status</code>) derive from
+    asset states. Net: approving an asset flows to the To Do and the phase without a hand-edit.</li>
+<li><strong>Remaining:</strong> the Plan <code>Ships</code> column vs <code>asset.yaml ship:true</code> (SYS-101 added a
+    reconciliation <em>guard</em>, but the fact is still authored in both places); and the article body
+    in <code>edition.md</code> vs <code>issue-header.html</code> (SYS-094 shipped the single-source render for new
+    editions). Both are lower-priority now that each has a guard/derivation path.</li>
+</ul>
+<p>Rejected: a <strong>live local server</strong> that renders on view would eliminate prong-A staleness
+entirely, but it contradicts the deliberate "static files on OneDrive, no backend, just a
+folder you can open" architecture — not worth abandoning the file model for.</p>
     </article>
   </main>
 
   <footer class="page-footer">
-    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../docs/legal/LICENSE.html">Licence</a> · <a href="../docs/legal/NOTICE.html">Notice</a></span>
-    <span>Source file: <code>seed/campaigns/index.md</code></span>
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="docs/legal/LICENSE.html">Licence</a> · <a href="docs/legal/NOTICE.html">Notice</a></span>
+    <span>Source file: <code>docs\specs\surface-freshness.md</code></span>
   </footer>
 </body>
 </html>

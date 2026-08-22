@@ -54,8 +54,27 @@ One copy of the load-bearing safety logic, factored out of `weekly-digest.py`:
   TEXT (preserves the header + comments; never `safe_dump`), with the YAML-safe
   **quoted title** (idea titles contain colons → invalid unquoted) and the
   **parse-then-rollback** safety net so `ideas.yaml` can never be left
-  unparseable. Dedupe is by case-folded title against existing ideas AND backlog
-  tickets, so a finding already filed or promoted is not re-raised.
+  unparseable.
+- **Dedupe is by FINGERPRINT, never by title (SYS-144).** Every cadence passes a stable
+  `fingerprint="<cadence>:<category>[:<scope>]"` — e.g. `stale-sweep:parked-assets`,
+  `tenant-brand-drift:playbook-lag:gamma`. It is stored on the idea, carried onto the ticket
+  at promote, and matched against open ideas, **open or killed** tickets, and the tombstone
+  store. A **done** ticket deliberately does *not* suppress: the problem was fixed, so
+  detecting it again is a new occurrence.
+  **Counts go in the `summary`, never in the fingerprint** — the title moves, the key must not.
+  Titles remain a fallback for records that predate fingerprints.
+  `fingerprint:` may be a **string or a list** — a MERGE hands the surviving ticket everything
+  the records folded into it were tracking, and one ticket can legitimately own several
+  findings. They then release together when it closes.
+  *Why:* title-dedupe broke three ways at once — counts in the title refiled on every change,
+  triage's mandated title-sharpening broke the match on every promote, and a kill deleted the
+  only record there was to match. Observed live 2026-08-22: a promoted finding and a finding
+  killed on 2026-08-06 both refiled within one session.
+- **`add_tombstone()` / `tombstone.py`** — records a KILLED finding in
+  `system/cadence-tombstones.yaml` so it stays killed. The triage job runs it on every kill of
+  an idea that has a fingerprint:
+  `python .claude/skills/cadences/tombstone.py --fingerprint <fp> --ref IDEA-0NN --reason "…"`
+  (`--list` shows what is currently suppressed; delete an entry to allow the finding again).
 - **`write_digest()`** — writes `system/digests/<subfolder>/<date>-<slug>.md` and
   renders an HTML sibling via the render-html skill. Each cadence owns its own
   `digests/` subfolder so it never collides with the SYS-005 top-level

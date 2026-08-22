@@ -2,12 +2,6 @@
 # don't get CRLF/LF churn. Scripts stay LF; PowerShell stays CRLF; assets binary.
 * text=auto eol=lf
 *.ps1 text eol=crlf
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.pdf binary
-*.mp4 binary
 *.ico binary
 *.woff binary
 *.woff2 binary

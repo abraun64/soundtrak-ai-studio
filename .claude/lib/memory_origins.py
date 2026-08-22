@@ -93,7 +93,7 @@ def backlog_titles(root: Path) -> dict:
         sys.path.insert(0, str(root / ".claude" / "lib"))
         import repo_paths
         data = repo_paths.data_root(root)
-    except Exception:  # noqa: BLE001
+    except ImportError:  # noqa: BLE001
         data = root
     out = {}
     for store in ("backlog.yaml", "ideas.yaml"):

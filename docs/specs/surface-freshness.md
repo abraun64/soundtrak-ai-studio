@@ -33,9 +33,40 @@ Surface → data inputs:
 | `<slug>/gallery.html` | newest file under `assets/` (asset.yaml + ship files) |
 | `tasks.html` · `index.html` | their `.md` source + every active campaign's `campaign.yaml`/`asset.yaml` |
 | `tenant-brand/<tenant>-home.html` | the active campaigns' `campaign.yaml` + the tenant's own `.yaml`/home md |
+| **every other render-html output** (SYS-143) — the campaign-DNA doc `<slug>.html`, `brief.html`, `plan.html`, `phase-N-*.html`, `concepts/*.html`, per-asset record / preview `.html`, and the tenant `brand-context` / `playbook` / `phase-0` / `segments` docs | its **own same-stem `.md`** |
 
 It resolves DATA to the **main checkout** via `repo_paths` (SYS-103), so it works from a
 worktree session too.
+
+### The enumeration IS the guarantee (SYS-143, 2026-08-22)
+
+The four rows above were hand-enumerated, so everything else was outside the gate — and
+"outside the gate" is indistinguishable from "fresh". On 2026-08-22 `--check` reported *every
+surface fresh* while the `stale-sweep` cadence flagged **seven** rendered surfaces up to four
+days behind their markdown: five campaign-DNA docs and two asset records. Those are the
+surfaces review actually happens on.
+
+The generic rows now come from the same shape the render pipeline produces — a `<x>.md` with a
+matching `<x>.html` — filtered by **the discriminator `stale-sweep` already uses**: the html
+must carry the render-html chrome signature. That excludes hand-built Producer artifacts
+(mockups, slides, og-cards, storyboards, print specs), which no pipeline rebuilds and which
+caused the original false-positive flood. Sharing the discriminator is the point: the two
+sensors now agree **by construction** rather than by coincidence.
+
+Two related repairs shipped with it:
+
+- **`heal()` iterates to a fixed point** (bounded at 4 passes). Rebuilds cascade — healing an
+  asset record makes the gallery that aggregates it stale — and the single-pass version reported
+  that cascade as *"STILL STALE after rebuild"*. Crying wolf costs the same surface trust as a
+  missed stale surface. It stops the moment a pass stops *changing* the stale set, so a surface
+  its own rebuild genuinely cannot fix is still reported loudly.
+- **A render that never returns** (SYS-136). `operator_actions._phase5_gap_action` mutually
+  recursed with the phase-completion derivation, so any campaign with both a Phase 5 and a
+  `derive_blocks_launch` phase re-entered ~196 levels deep, each level a full campaign disk
+  scan. `gamma-launch-2026q2`'s dashboard render exceeded the Stop hook's 60 s budget and was
+  killed — and a killed render leaves the surface silently serving its old content. **A guard
+  that can be starved of time is not a guarantee**; renders have to terminate for freshness to
+  mean anything.
 
 ## Where it runs
 

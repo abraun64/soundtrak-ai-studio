@@ -31,8 +31,18 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-RENDER = ROOT / ".claude" / "skills" / "render-html" / "render.py"
-TENANT_BRAND = ROOT / "tenant-brand"
+RENDER = ROOT / ".claude" / "skills" / "render-html" / "render.py"   # CODE: the running checkout
+
+# Team deployment §3 — tenant-brand/ and tenant/ are DATA: canonical in the MAIN checkout, and a
+# separate repo under a multi-operator install. ImportError ONLY — a frozen checkout without the
+# helper degrades, but a configured-but-broken data root must RAISE, not write into the code repo.
+sys.path.insert(0, str(ROOT / ".claude" / "lib"))
+try:
+    import repo_paths  # noqa: E402
+    DATA_ROOT = repo_paths.data_root(ROOT)
+except ImportError:
+    DATA_ROOT = ROOT
+TENANT_BRAND = DATA_ROOT / "tenant-brand"
 
 sys.path.insert(0, str(ROOT / ".claude" / "skills" / "render-html"))
 import yaml  # noqa: E402
@@ -190,8 +200,8 @@ def _items_table(rows: list[dict]) -> str:
 
 
 def _library_block(slug: str) -> str:
-    entries_dir = ROOT / "tenant" / "library" / "entries"
-    index = ROOT / "tenant" / "library" / "INDEX.html"
+    entries_dir = DATA_ROOT / "tenant" / "library" / "entries"
+    index = DATA_ROOT / "tenant" / "library" / "INDEX.html"
     files = sorted(entries_dir.glob("*.md"), key=lambda p: -p.stat().st_mtime) if entries_dir.exists() else []
     n = len(files)
     recent = ", ".join(f"`{p.stem}`" for p in files[:5]) if files else "_none yet_"
@@ -222,7 +232,7 @@ def _research_library_block(slug: str) -> str:
     """The Insights (research) library block — mirrors _library_block but for the shared
     tenant/research-library (the evidence base the Insights Manager cites). Same browse-link +
     add-CTA pattern so the two libraries read consistently on the baseline surface."""
-    entries_dir = ROOT / "tenant" / "research-library"
+    entries_dir = DATA_ROOT / "tenant" / "research-library"
     index = entries_dir / "INDEX.html"
     files = sorted((p for p in entries_dir.glob("*.md") if p.stem.upper() != "INDEX"),
                    key=lambda p: -p.stat().st_mtime) if entries_dir.exists() else []

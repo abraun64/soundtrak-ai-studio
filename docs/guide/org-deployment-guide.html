@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organisation deployment guide · Soundtrak AI Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- SELF-CONTAINED ON PURPOSE. The other guides link the shared style.css as a sibling file,
+     which is right for pages read inside the repo. This one is different: it is the page you
+     SEND to an organisation, often before they have installed anything, and a linked
+     stylesheet does not travel with a single file - it arrives unstyled.
+     The block below is a verbatim copy of docs/guide/style.css. If that file changes, refresh
+     this copy: python .claude/lib/inline_guide_css.py -->
+<style>
+/* Soundtrak AI Studio — shared guide stylesheet (Soundtrak styleguide). */
+:root{
+  --ink:#111110;--red:#e63c3c;--cream:#faf9f5;--paper:#ffffff;
+  --slate800:#3c3c38;--slate700:#4a4a46;--slate600:#787770;
+  --slate200:#e8e7e2;--slate100:#f5f4f0;--navy:#1a2a5e;--redlight:#fdeaea;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;--sans:'Inter',-apple-system,system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-weight:400;line-height:1.65;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:820px;margin:0 auto;padding:0 32px 80px;}
+
+/* top nav (shared across pages) */
+.topnav{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 36px;border-bottom:1px solid var(--slate200);background:var(--paper);flex-wrap:wrap;}
+.brandline{display:flex;align-items:center;gap:9px;font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--slate700);font-weight:600;}
+.brandline .dot{width:7px;height:7px;border-radius:50%;background:var(--red);}
+.navlinks{display:flex;gap:20px;font-size:14px;flex-wrap:wrap;}
+.navlinks a{color:var(--slate700);text-decoration:none;}
+.navlinks a:hover{color:var(--red);}
+.navlinks a.here{color:var(--red);font-weight:600;}
+
+/* headings + prose */
+h1{font-family:var(--serif);font-weight:600;font-size:42px;line-height:1.06;letter-spacing:-.015em;margin:28px 0 14px;}
+.lede{font-size:19px;color:var(--slate800);margin:0 0 28px;}
+.lede b{color:var(--ink);font-weight:600;}
+h2{font-family:var(--serif);font-weight:600;font-size:26px;margin:42px 0 8px;padding-top:28px;border-top:1px solid var(--slate200);}
+h3{font-size:16px;font-weight:600;margin:22px 0 4px;}
+p{font-size:16px;margin:0 0 14px;}
+a{color:var(--navy);}
+ul,ol{font-size:16px;padding-left:22px;margin:0 0 16px;}
+li{margin:6px 0;}
+b,strong{font-weight:600;}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;background:var(--slate100);padding:1px 5px;border-radius:4px;color:var(--navy);}
+table{width:100%;border-collapse:collapse;margin:8px 0 20px;font-size:14px;}
+th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);font-weight:600;background:#eef0f7;padding:9px 11px;border-bottom:1px solid #dfe3ef;}
+td{padding:9px 11px;border-bottom:1px solid var(--slate200);vertical-align:top;color:var(--slate800);}
+.callout{border:1px solid var(--slate200);background:var(--slate100);border-radius:9px;padding:16px 18px;margin:18px 0;font-size:15px;}
+.callout b{color:var(--ink);}
+.step{border-left:3px solid var(--navy);border-radius:0 8px 8px 0;background:var(--paper);border:1px solid var(--slate200);padding:14px 18px;margin:14px 0;}
+.step .sh{font-family:var(--serif);font-size:18px;font-weight:600;}
+.muted{color:var(--slate600);font-size:13px;}
+
+/* hub guide cards */
+.guidecards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:6px 0 10px;}
+.gcard{display:block;border:1px solid var(--slate200);border-left:4px solid var(--navy);border-radius:0 11px 11px 0;background:var(--paper);padding:18px 20px;text-decoration:none;color:var(--ink);}
+.gcard:hover{border-left-color:var(--red);}
+.gcard .gk{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate600);font-weight:600;}
+.gcard .gt{font-family:var(--serif);font-size:21px;font-weight:600;margin:5px 0 4px;}
+.gcard .gd{font-size:14px;color:var(--slate700);}
+
+/* faq */
+.faq h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:22px 0 3px;}
+.faq p{font-size:15px;color:var(--slate800);margin:0 0 6px;}
+.footer{margin-top:50px;border-top:2px solid var(--ink);padding-top:18px;font-size:13px;color:var(--slate600);}
+</style>
+</head>
+<!--
+  Organisation deployment guide: the TEAM install runbook, sibling to deployment-guide.html
+  (which is the single-person version). Hand-authored HTML on purpose; see docs/guide/README.md
+  for the editing rule.
+  TWO PARTS, deliberately: Part A is done ONCE by whoever sets it up for the organisation;
+  Part B is done ONCE PER PERSON. Conflating the two is why multi-user install docs fail - an
+  operator who reads repo-creation steps concludes the product is for engineers and stops.
+  Part B is deep-linkable (#for-each-person) so the administrator can send just that.
+  Everything here is built and unit-verified (docs/specs/team-deployment.md, all 12 phases);
+  what has NOT happened is a two-person pilot or a fresh-person UAT - see SYS-147. Do not add
+  claims to this page that nobody has performed.
+  Body is em-dash-free (house voice rule).
+-->
+<body>
+<nav class="topnav">
+  <div class="brandline"><span class="dot"></span> Soundtrak AI Studio</div>
+  <div class="navlinks">
+    <a href="help.html">Help &amp; guides</a>
+    <a href="deployment-guide.html">Deployment</a>
+    <a class="here" href="org-deployment-guide.html">Organisations</a>
+    <a href="operator-guide.html">Operator guide</a>
+  </div>
+</nav>
+<div class="wrap">
+  <h1>Organisation deployment guide</h1>
+
+  <div class="callout">
+    <b>This is the version for a team.</b> Several people, each with their own Claude Code, sharing
+    one set of brands, one library and one set of campaigns.
+    <br><br>
+    <span class="muted">Setting it up for yourself alone? Use the
+    <a href="deployment-guide.html">single-person Deployment guide</a> instead. It is simpler, and
+    nothing on this page applies to you.</span>
+  </div>
+
+  <p class="lede"><b>Two jobs, not one.</b> Someone sets the organisation up <b>once</b> (Part A, about
+  30 minutes, and it needs permission to create two private code repositories). Then <b>each person</b>
+  joins in about 10 minutes (Part B). They are genuinely different jobs, so they are separate below.
+  <b>If you are just here to start using it, skip straight to <a href="#for-each-person">Part B</a>.</b></p>
+
+  <h2 style="margin-top:34px">What everyone ends up with</h2>
+  <p>Each person who uses the Studio has <b>two folders on their own computer</b>. Everyone's work
+  joins up automatically, and colleagues who do not use the Studio get a read-only copy to look at.</p>
+
+  <div style="background:var(--paper);border:1px solid var(--slate200);border-radius:10px;padding:20px 18px 12px;margin:18px 0;">
+  <svg viewBox="0 0 660 268" width="100%" style="max-width:660px;display:block;margin:0 auto" role="img"
+       aria-label="Each person has two folders on their computer: the Studio, which they never edit, and their work, which the whole team shares. A read-only copy goes to colleagues who do not use the Studio.">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--slate600)"/>
+      </marker>
+    </defs>
+
+    <!-- one person's computer -->
+    <rect x="14" y="46" width="320" height="150" rx="12" fill="var(--cream)" stroke="var(--slate200)"/>
+    <text x="30" y="70" font-family="Inter,sans-serif" font-size="10.5" font-weight="600"
+          letter-spacing="1.4" fill="var(--slate600)">ON YOUR COMPUTER</text>
+
+    <rect x="30" y="84" width="140" height="94" rx="9" fill="var(--paper)" stroke="var(--slate200)"/>
+    <rect x="30" y="84" width="4" height="94" rx="2" fill="var(--navy)"/>
+    <text x="46" y="108" font-family="Fraunces,Georgia,serif" font-size="15" font-weight="600" fill="var(--ink)">The Studio</text>
+    <text x="46" y="130" font-family="Inter,sans-serif" font-size="11.5" fill="var(--slate700)">The product itself.</text>
+    <text x="46" y="147" font-family="Inter,sans-serif" font-size="11.5" fill="var(--slate700)">You never edit it.</text>
+    <text x="46" y="166" font-family="Inter,sans-serif" font-size="10.5" fill="var(--slate600)">folder: code</text>
+
+    <rect x="184" y="84" width="136" height="94" rx="9" fill="var(--paper)" stroke="var(--slate200)"/>
+    <rect x="184" y="84" width="4" height="94" rx="2" fill="var(--red)"/>
+    <text x="200" y="108" font-family="Fraunces,Georgia,serif" font-size="15" font-weight="600" fill="var(--ink)">Your work</text>
+    <text x="200" y="130" font-family="Inter,sans-serif" font-size="11.5" fill="var(--slate700)">Campaigns, brands,</text>
+    <text x="200" y="147" font-family="Inter,sans-serif" font-size="11.5" fill="var(--slate700)">ideas. You edit this.</text>
+    <text x="200" y="166" font-family="Inter,sans-serif" font-size="10.5" fill="var(--slate600)">folder: data</text>
+
+    <!-- updates arrive into the Studio -->
+    <path d="M100,40 L100,80" stroke="var(--slate600)" stroke-width="1.3" marker-end="url(#ar)" fill="none"/>
+    <text x="100" y="28" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" fill="var(--slate700)">New versions,</text>
+    <text x="100" y="42" text-anchor="middle" font-family="Inter,sans-serif" font-size="11.5" fill="var(--slate700)">when you choose</text>
+
+    <!-- your work joins the team -->
+    <path d="M334,131 L392,131" stroke="var(--red)" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+    <path d="M392,152 L334,152" stroke="var(--red)" stroke-width="1.6" marker-end="url(#ar)" fill="none"/>
+    <text x="363" y="122" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" fill="var(--slate700)">shared</text>
+
+    <rect x="398" y="84" width="176" height="94" rx="9" fill="var(--paper)" stroke="var(--slate200)"/>
+    <rect x="398" y="84" width="4" height="94" rx="2" fill="var(--red)"/>
+    <text x="414" y="108" font-family="Fraunces,Georgia,serif" font-size="15" font-weight="600" fill="var(--ink)">Your teammates</text>
+    <text x="414" y="130" font-family="Inter,sans-serif" font-size="11.5" fill="var(--slate700)">Same two folders,</text>
+    <text x="414" y="147" font-family="Inter,sans-serif" font-size="11.5" fill="var(--slate700)">their own computers.</text>
+    <text x="414" y="166" font-family="Inter,sans-serif" font-size="10.5" fill="var(--slate600)">joined up automatically</text>
+
+    <!-- read-only copy out to everyone else -->
+    <path d="M486,182 L486,218" stroke="var(--slate600)" stroke-width="1.3" marker-end="url(#ar)" fill="none"/>
+    <rect x="352" y="220" width="268" height="38" rx="9" fill="var(--cream)" stroke="var(--slate200)"/>
+    <text x="368" y="238" font-family="Inter,sans-serif" font-size="12.5" font-weight="600" fill="var(--ink)">Everyone else at work</text>
+    <text x="368" y="252" font-family="Inter,sans-serif" font-size="11" fill="var(--slate700)">reads a copy in SharePoint. Look, do not touch.</text>
+  </svg>
+  </div>
+
+  <div class="callout"><b>ℹ️ "Why two folders? Why not just one?"</b> Because they change for completely
+    different reasons. <b>The Studio</b> changes when a new version is released, which might be next month.
+    <b>Your work</b> changes every day. Keeping them apart means taking a new version never disturbs a
+    half-finished campaign, and your campaign never has to wait for a release.
+    <br><br>
+    <b>You will not be managing these folders.</b> You set them up once, and after that Claude Code
+    handles the moving parts for you.</div>
+
+  <div class="callout"><b>ℹ️ "Why not just put it all on SharePoint?"</b> Word and Excel files merge when
+    two people edit them at once. The Studio's files do not. SharePoint would quietly save a second copy
+    called <i>"Bob's conflicted copy"</i>, and the Studio would read that as a real, separate piece of
+    work. So the shared folder underneath is built for this instead.
+    <b>Nobody has to learn it</b>, and SharePoint is still where colleagues read the results.</div>
+
+  <h2 id="for-the-administrator">Part A - Setting up the organisation</h2>
+  <p class="muted">Done once, by whoever administers this. You do not need to understand the marketing
+  side of the Studio to do it.</p>
+
+  <div class="callout"><b>📋 What to line up before you start.</b>
+    <ul style="margin:.5em 0 0">
+      <li><b>Nothing to obtain from anyone.</b> You download the Studio yourself in Step A2, from a
+        public page, with no account needed. Listed here only so you know it is not a blocker.</li>
+      <li><b>Somewhere to keep the two folders</b>, so everyone's machine can reach them. This is a
+        <b>code repository host</b>. If your organisation uses <b>Azure DevOps</b>, that is the natural
+        choice; <b>GitHub</b> works just as well. You need permission to create <b>two private
+        repositories</b>. <b>Required.</b></li>
+      <li><b>A SharePoint library</b> for colleagues to read the results in. <b>Optional</b>, and you
+        can add it later.</li>
+    </ul>
+    <span class="muted">You also need <b>Git</b> on your own machine for Part A. If
+    <code>git --version</code> in PowerShell does not answer, install it from
+    <a href="https://git-scm.com/downloads">git-scm.com/downloads</a>, accepting every default.
+    You do <b>not</b> need Python, or the Studio itself, unless you are taking the
+    single-person route in Step A2.</span></div>
+
+  <div class="callout"><b>ℹ️ Azure DevOps or GitHub, and SharePoint, are not alternatives to each other.</b>
+    They do two different jobs, and you may well end up with both:
+    <table style="margin:.6em 0 0">
+      <thead><tr><th></th><th>What it is for</th><th>Who opens it</th></tr></thead>
+      <tbody>
+        <tr><td><b>Azure DevOps<br>or GitHub</b></td><td>Where the two folders actually live, so every
+          person's machine stays in step with everyone else's</td><td><b>Nobody, by hand.</b> Claude Code
+          uses it in the background</td></tr>
+        <tr><td><b>SharePoint</b></td><td>Where colleagues <i>read</i> finished work and dashboards,
+          without needing the Studio</td><td>Anyone you share the library with</td></tr>
+      </tbody>
+    </table>
+    <span class="muted">You cannot swap one for the other. SharePoint cannot safely hold the working
+    files (see the note above about conflicted copies), and a repository is not something you would ask
+    a colleague to browse.</span></div>
+
+  <div class="callout"><b>⌨️ About the commands on this page.</b> They are written for <b>Windows
+    PowerShell</b>, which is what you get from the Start menu by typing <i>PowerShell</i>. They work
+    unchanged in the macOS and Linux terminal too.
+    <br><br>
+    <b>Run them one line at a time</b>, pressing Enter after each. Do not join them with
+    <code>&amp;&amp;</code>: Windows PowerShell does not accept it and will give you a parser error.
+    <br><br>
+    <span class="muted"><code>$HOME</code> means your own user folder, for example
+    <code>C:\Users\jsmith</code>. You can paste it literally; PowerShell fills it in.</span>
+    <br><br>
+    <b>Do this first, once on this machine.</b> Git refuses to label a version until it knows who you
+    are, and the error it gives is not obvious. Run these two lines now:
+    <pre style="margin:.5em 0 0"><code>git config --global user.name "Your Name"
+git config --global user.email "you@yourcompany.com"</code></pre>
+    <span class="muted">Already used Git on this machine? These are almost certainly set. Running them
+    again does no harm.</span></div>
+
+  <div class="step"><div class="sh">Step A1 - Create the two repositories</div>
+    <p><b>Do this first</b>, so there is somewhere for the next step to put things. Create
+    <b>two empty private repositories</b>, named exactly:</p>
+    <pre><code>AI-marketing-studio-code
+AI-marketing-studio-data</code></pre>
+
+    <p><b>On Azure DevOps:</b> open your project, then <b>Repos</b> in the left sidebar, then the
+    repository dropdown at the top, then <b>New repository</b>. Set <b>Repository name</b>, leave
+    <b>Add a README</b> <u>unticked</u>, and click <b>Create</b>. Repeat for the second name.</p>
+
+    <p><b>On GitHub:</b> click <b>+</b> (top right), then <b>New repository</b>. Set
+    <b>Repository name</b>, choose <b>Private</b>, leave <b>Add a README file</b> <u>unticked</u>, and
+    click <b>Create repository</b>. Repeat for the second name.</p>
+
+    <div class="callout"><b>⚠️ Leave them completely empty.</b> Do not add a README, a .gitignore or a
+      licence. If you do, Step A2's upload is rejected as a conflict. An empty repository is the point:
+      Step A2 fills it.</div>
+
+    <p><b>Now find each repository's clone address.</b> You use them in Step A2 in a minute, and again
+    every time somebody new joins.</p>
+
+    <div class="callout"><b>📋 The clone address, not the address bar.</b> They look similar and only
+      one works.
+      <ul style="margin:.5em 0 0">
+        <li><b>Azure DevOps:</b> the blue <b>Clone</b> button, top right of the Repos view. Copy the
+          <b>HTTPS</b> value.</li>
+        <li><b>GitHub:</b> the green <b>&lt; &gt; Code</b> button. Copy the <b>HTTPS</b> value.</li>
+      </ul>
+      It ends in <code>.git</code>. If what you copied does not end in <code>.git</code>, you have the
+      web page address instead, and the commands below will not work.</div>
+
+    <div class="callout"><b>💡 Do you need to write them down? Not really, but paste them somewhere for
+      the next five minutes.</b>
+      <ul style="margin:.5em 0 0">
+        <li><b>Right now:</b> you need both, and the clipboard only holds one at a time. Paste them into
+          Notepad, or anywhere scratch, so Step A2 is copy-and-paste rather than
+          click-back-and-forth.</li>
+        <li><b>Long term:</b> no need to store them. They are always on that same button, on the
+          repository page, whenever you want them again.</li>
+        <li><b>Worth doing anyway:</b> you will be sending these two addresses to every new person, so
+          put them wherever your team keeps its joining notes, next to a link to this guide. That saves
+          you looking them up each time.</li>
+      </ul>
+      <span class="muted">These are <b>not secrets</b>. They are just addresses, and anyone without
+      access to the repository cannot use them. Who can get in is controlled by the access you grant
+      below, never by keeping the address quiet.</span></div>
+
+    <p><b>Access:</b> everyone who will use the Studio needs <b>write access</b> to
+    <code>AI-marketing-studio-data</code> and <b>read access</b> to
+    <code>AI-marketing-studio-code</code>.</p>
+
+    <div class="callout"><b>⚠️ Everyone in a deployment sees every brand.</b> There is no per-brand
+      permission boundary inside one deployment. If a brand must be hidden from someone, or you are
+      bringing in an outside person who should not see everything, they need their own separate
+      deployment. <b>Decide this before you invite people, not after.</b></div>
+  </div>
+
+  <div class="step"><div class="sh">Step A2 - Download the Studio</div>
+    <p>The whole thing is one folder of files on GitHub. <b>You do not need a GitHub account</b>, and
+    nothing has to be installed to download it.</p>
+    <ol>
+      <li>Open <a href="https://github.com/abraun64/soundtrak-ai-studio-team">github.com/abraun64/soundtrak-ai-studio-team</a>.</li>
+      <li>Click the green <b>&lt; &gt; Code</b> button, top right of the file list, then
+        <b>Download ZIP</b>.</li>
+      <li>The ZIP lands in your <b>Downloads</b> folder. Right-click it, choose <b>Extract All</b>, and
+        extract into your own user folder, for example <code>C:\Users\jsmith</code>.</li>
+      <li><b>Rename</b> the extracted folder to exactly:
+        <pre><code>deploy</code></pre>
+        so you end up with <code>C:\Users\jsmith\deploy</code> and the paths below match.</li>
+    </ol>
+    <p>Open <code>deploy</code>. You should see <b>exactly two folders</b>, side by side:</p>
+    <pre><code>deploy\code
+deploy\data</code></pre>
+    <p>Open <code>code</code> and check you can see <code>README.md</code>, <code>index.html</code>, and
+    folders called <code>docs</code> and <code>craft</code>.</p>
+
+    <div class="callout"><b>⚠️ Watch for the folder inside a folder.</b> GitHub often extracts a folder
+      <i>inside</i> a folder, like
+      <code>soundtrak-ai-studio-team-main\soundtrak-ai-studio-team-main\</code>. You want the
+      <b>inner</b> one, the level where <code>code</code> and <code>data</code> sit <b>directly</b>
+      inside. If opening <code>code</code> just shows one more folder to click into, go up a level and
+      rename that one to <code>deploy</code> instead. Getting this right now prevents every
+      "it cannot find the folder" problem below.</div>
+
+    <div class="callout"><b>💡 Already running the single-person Studio and moving up to a team?</b> Then
+      do not download anything: build it from what you already have, so your existing brands and
+      campaigns come across. On that machine, open PowerShell in your <code>Marketing AI System</code>
+      folder and run:
+      <pre style="margin:.5em 0 0"><code>python .claude/lib/build_seed.py --out $HOME\deploy --profile team</code></pre>
+      That produces the same two folders at <code>C:\Users\&lt;you&gt;\deploy</code>. Then continue from
+      Step A3. <span class="muted">It scans for anything that should not travel and refuses to produce a
+      deployment if it finds any. If it stops, that is the check working.</span></div>
+  </div>
+
+  <div class="step"><div class="sh">Step A3 - Upload the two folders</div>
+    <p>This is the step that puts everything where your whole team can reach it. You are turning each
+    folder into a repository and sending it up.</p>
+
+    <div class="callout"><b>⚠️ Do the identity lines at the top of this page first.</b> If you have not,
+      the commit below stops with <b>"Author identity unknown"</b>, which does not explain itself.</div>
+
+    <p><b>The code folder first.</b> Open PowerShell in <code>deploy</code> and paste this whole block.
+    Replace <code>&lt;code clone address&gt;</code> with the first address from Step A1:</p>
+    <pre><code>cd $HOME\deploy\code
+git init
+git add -A
+git commit -m "Initial version"
+git branch -M main
+git tag -a v1.0.0 -m "Version 1.0.0"
+git remote add origin &lt;code clone address&gt;
+git push -u origin main
+git push --tags</code></pre>
+
+    <div class="callout"><b>ℹ️ You will see a long list of warnings saying "CRLF will be replaced by
+      LF".</b> That is normal and harmless. Git is standardising how line endings are stored so Windows,
+      Mac and Linux machines all agree. <b>Nothing is wrong and nothing is lost.</b> There can be well
+      over a hundred of these lines; scroll past them.</div>
+
+    <p><b>Then the data folder</b>, the same way, with the second address. Note there is no version
+    label here: labels apply to the Studio, not to your work.</p>
+    <pre><code>cd $HOME\deploy\data
+git init
+git add -A
+git commit -m "Initial version"
+git branch -M main
+git remote add origin &lt;data clone address&gt;
+git push -u origin main
+cd $HOME</code></pre>
+
+    <p>You will be asked to sign in to your host the first time. <b>Refresh both repository pages in your
+    browser afterwards</b>: where they were empty, you should now see files.</p>
+
+    <div class="callout"><b>✅ Check one thing now, or people will clone empty folders.</b> On each
+      repository's page, confirm the <b>default branch</b> reads <code>main</code>.
+      <ul style="margin:.5em 0 0">
+        <li><b>Azure DevOps:</b> <b>Repos</b> then <b>Branches</b>. The default has a home icon beside
+          it. To change: the <b>...</b> menu on <code>main</code>, then <b>Set as default branch</b>.</li>
+        <li><b>GitHub:</b> <b>Settings</b> then <b>General</b> then <b>Default branch</b>.</li>
+      </ul>
+      If it says anything else, change it to <code>main</code>. <b>Why it matters:</b> when the default
+      does not match, everyone who follows Part B clones a folder that <i>looks</i> successful and is
+      completely empty, with no error worth reading. Thirty seconds here saves a very confusing
+      afternoon.</div>
+
+    <p><b>That is where everything lives from now on.</b> Every person who joins gets their own copy of
+    these two, and their work flows back here. <b>You can now delete the <code>deploy</code> folder.</b></p>
+
+    <div class="callout"><b>🏷️ What the <code>v1.0.0</code> label is for.</b> It fixes everyone's Studio
+      to a known version, so a change never lands on somebody halfway through a campaign: they are told a
+      newer version exists, and take it when they are ready. <code>git push --tags</code> is what makes
+      the label visible to everyone else.</div>
+
+    <div class="callout"><b>🔁 How updates reach you later.</b> New versions appear on the same GitHub
+      page you downloaded from. You download the new ZIP, copy its <code>code</code> contents over a
+      fresh copy of your code repository, commit, and label it with the next number:
+      <ul style="margin:.5em 0 0">
+        <li><code>v1.1.0</code> for something new</li>
+        <li><code>v1.0.1</code> for a fix</li>
+      </ul>
+      <b>Your data repository is never touched by an update.</b> Your campaigns and brands are yours and
+      stay exactly where they are. <span class="muted">Everyone is told the next time they sit down to
+      work, and chooses their own moment to take it.</span></div>
+  </div>
+
+  <div class="step"><div class="sh">Step A4 - Turn on large-file storage</div>
+    <p>Campaigns produce images and video. Those are stored using <b>Git LFS</b>, which the data
+    repository is already set up to use from its first upload. You just need it switched on at the host,
+    and installed on each machine.</p>
+    <p><b>Azure DevOps:</b> LFS is on by default. Nothing to do.</p>
+    <p><b>GitHub:</b> LFS is on by default for the repository. Check your plan's included storage and
+    bandwidth under <b>Settings</b> then <b>Billing and licensing</b>.</p>
+    <p><b>On each machine</b> (yours and everyone else's), Git LFS has to be installed once. Run:</p>
+    <pre><code>git lfs install</code></pre>
+    <p>If that says the command is not recognised, install it from
+    <a href="https://git-lfs.com">git-lfs.com</a> and run it again. <b>Part B's health check tests for
+    this</b>, so people will be told if they have missed it.</p>
+    <div class="callout"><b>💾 Check your plan covers it.</b> LFS usage grows with <b>headcount</b>, because
+      every person's first download pulls the media. Doing this now costs nothing; retrofitting it later
+      means rewriting history and everyone re-downloading from scratch.</div>
+  </div>
+
+  <div class="step"><div class="sh">Step A5 - Set up the read-only pages (optional)</div>
+    <p>Colleagues without Claude Code still need to see dashboards and finished work. <b>Pick one machine
+    to be the publisher.</b> Not everyone: exactly one. It can be yours.</p>
+
+    <p><b>First, make sure that machine syncs the SharePoint library.</b> Open the SharePoint document
+    library in a browser and click <b>Sync</b>. It then appears in File Explorer under your organisation's
+    name, for example <code>C:\Users\jsmith\Contoso\Marketing Studio - Documents</code>. Copy that path.</p>
+
+    <p><b>Then, on that machine, tell the Studio where to publish.</b> In PowerShell, paste this once,
+    replacing the path with the one you just copied:</p>
+    <pre><code>[Environment]::SetEnvironmentVariable("MAS_PUBLISH_DIR", "C:\Users\jsmith\Contoso\Marketing Studio - Documents", "User")</code></pre>
+    <p><b>Close PowerShell and open a new one</b>, or the change will not be visible yet. Then, from the
+    <code>code</code> folder:</p>
+    <pre><code>python .claude/lib/publish_surfaces.py</code></pre>
+    <p>It prints how many pages it copied. Run it again whenever you want the published copy refreshed;
+    unchanged pages are skipped, so it is quick and quiet.</p>
+    <p>The normal OneDrive sync does the upload. <b>No app registration and no admin consent needed.</b>
+    It only ever writes outward, so nothing anyone does in SharePoint can affect the real work.</p>
+  </div>
+
+  <div class="step"><div class="sh">Step A6 - Check one thing before you roll out widely</div>
+    <p>The Studio keeps everyone's pages up to date automatically using a Claude Code feature called
+    hooks. <b>Some organisations apply a policy that blocks these.</b></p>
+    <p>Have one person do Part B on a <b>real, managed company laptop</b> and read their health check.
+    It tests this directly and says so in plain language.</p>
+    <div class="callout"><b>⚠️ Worth doing before you promise anything.</b> If hooks are blocked the Studio
+      still works, but pages need a manual refresh instead of updating themselves. That is a fine
+      trade-off if people know about it upfront, and an annoying surprise if they do not.</div>
+  </div>
+
+  <div class="step"><div class="sh">Step A7 - Hand it to your first person</div>
+    <p>Part A is done. Everything after this is per-person, and you send them the same three things
+    every time. Here is the whole message:</p>
+    <div class="callout" style="background:var(--paper)">
+      <p style="margin:0 0 10px"><b>Subject:</b> Setting up the AI Marketing Studio</p>
+      <p style="margin:0 0 10px">Follow <b>Part B</b> of the organisation deployment guide, which takes
+      about ten minutes: <span class="muted">[link to this page, at #for-each-person]</span></p>
+      <p style="margin:0 0 10px">When it asks for the two addresses, use these:</p>
+      <p style="margin:0 0 10px"><b>code:</b> <span class="muted">[the AI-marketing-studio-code clone
+      address]</span><br><b>data:</b> <span class="muted">[the AI-marketing-studio-data clone
+      address]</span></p>
+      <p style="margin:0">You already have access. If the health check at the end says anything other
+      than READY, send me what it printed.</p>
+    </div>
+    <p><b>Before you send it</b>, confirm that person has <b>write access to
+    <code>AI-marketing-studio-data</code></b> and <b>read access to
+    <code>AI-marketing-studio-code</code></b>. Everything else in Part B is self-service.</p>
+    <div class="callout"><b>💡 Keep that message as a template.</b> It is the same every time, apart from
+      the name. Saving it where your team keeps joining notes is why the two addresses are worth writing
+      down once.</div>
+  </div>
+
+  <h2 id="for-each-person">Part B - Joining, for each person</h2>
+  <p class="muted">About 10 minutes, once. You will not need to understand code, and you will never type
+  a command in day-to-day use.</p>
+
+  <div class="callout"><b>📋 Ask whoever set this up for two things</b> before you start:
+    <ul style="margin:.5em 0 0">
+      <li>the <b>code</b> clone address (it ends in <code>AI-marketing-studio-code.git</code>)</li>
+      <li>the <b>data</b> clone address (it ends in <code>AI-marketing-studio-data.git</code>)</li>
+    </ul>
+    <span class="muted">Commands below are Windows PowerShell, and work unchanged on macOS and Linux.
+    Run them one line at a time.</span></div>
+
+  <div class="step"><div class="sh">Step B1 - Install Python, Claude Code and Git</div>
+    <p>Python and Claude Code are exactly as in the single-person guide: follow
+    <a href="deployment-guide.html">Steps 1 and 2 there</a>, then come back here.</p>
+    <p><b>You also need Git</b>, which the single-person version does not. It is how your work reaches
+    your colleagues. Install it from <a href="https://git-scm.com/downloads">git-scm.com/downloads</a>,
+    accepting every default, then open a <b>new</b> PowerShell and run these two lines so your work
+    carries your name:</p>
+    <pre><code>git config --global user.name "Your Name"
+git config --global user.email "you@yourcompany.com"</code></pre>
+    <p>Then turn on large-file support, once:</p>
+    <pre><code>git lfs install</code></pre>
+    <div class="callout"><b>⚠️ The desktop app, not the browser version.</b> This is the thing that trips
+      people up. The browser version of Claude runs in the cloud and <b>cannot</b> open folders on your
+      computer, so it will not work for this.</div>
+  </div>
+
+  <div class="step"><div class="sh">Step B2 - Get your two folders</div>
+    <p>Decide where to keep them. Anywhere you like, as long as it is <b>not</b> inside OneDrive: the
+    two do not need syncing, and OneDrive would only slow things down and cause conflicts.
+    <code>C:\Studio</code> is a good choice.</p>
+    <p>Create that folder, open PowerShell there (click once in File Explorer's address bar, type
+    <code>powershell</code>, press Enter), then run these two lines, replacing each address with the one
+    you were given:</p>
+    <pre><code>git clone &lt;code clone address&gt; code
+git clone &lt;data clone address&gt; data</code></pre>
+    <p>You will be asked to sign in the first time. When it finishes you have two folders side by side,
+    <code>code</code> and <code>data</code>. <b>This is the only time you type anything like this.</b></p>
+  </div>
+
+  <div class="step"><div class="sh">Step B3 - Connect them together</div>
+    <p>Move into the <b>code</b> folder and run one command:</p>
+    <pre><code>cd code
+python .claude/lib/provision.py --data ../data</code></pre>
+    <div class="callout"><b>⚙️ What that one command does.</b>
+      <ul style="margin:.5em 0 0">
+        <li>points the Studio at your data folder, so it knows where your work lives;</li>
+        <li>records <b>who you are</b>, from your email address, so your approvals carry your name;</li>
+        <li>runs a <b>health check</b> and prints the exact fix for anything missing.</li>
+      </ul>
+      <span class="muted">Safe to run again any time. It is also how you re-point things if you move the folders.</span>
+    </div>
+    <p>It shows you the <b>licence</b> once and asks you to reply <b>I AGREE</b>.</p>
+  </div>
+
+  <div class="step"><div class="sh">Step B4 - Read the health check</div>
+    <p><b><code>READY.</code> means you are done.</b> A red <code>[FAIL]</code> is a real blocker and prints
+    its own fix on the same line. A yellow <code>[WARN]</code> is a heads-up you can usually ignore.</p>
+    <p>The two you are most likely to see are in the table at the bottom of this page.</p>
+  </div>
+
+  <div class="step"><div class="sh">Step B5 - Start working</div>
+    <p>Open the <b>code</b> folder in Claude Code (<b>Code</b> tab, then <b>Local</b>, then
+    <b>Select folder</b>), and just say what you want:</p>
+    <pre><code>what's awaiting me</code></pre>
+    <p>Your work saves to the data folder and reaches your colleagues automatically at the end of each
+    session. <b>The Operator guide takes it from here:</b>
+    <a href="operator-guide.html">how a campaign actually runs, stage by stage</a>.</p>
+  </div>
+
+  <h2>Working alongside other people</h2>
+  <p>Three things are different from working alone. None of them need a command in normal use.</p>
+
+  <div class="callout"><b>🔐 Claim a campaign before a long stretch of work on it.</b> Two people editing
+    the same campaign at once is the one thing that can genuinely lose work, because the last save wins.
+    Claude Code warns you if you start changing a campaign someone else is holding, and tells you
+    <b>who</b> and <b>until when</b>. Claims release themselves when you finish, and expire after 8 hours
+    regardless, so a colleague who closes their laptop never blocks you until Monday.</div>
+
+  <div class="callout"><b>⬆️ Take Studio updates between campaigns, not during one.</b> You are pinned to a
+    version, so nothing changes under you. When a newer one exists you are told, and can read exactly
+    what changed before deciding. From your <code>code</code> folder:
+    <pre style="margin:.5em 0 0"><code>python .claude/lib/system_update.py --check</code></pre>
+    That only looks; it changes nothing. When you are ready:
+    <pre style="margin:.5em 0 0"><code>python .claude/lib/system_update.py --apply</code></pre>
+    <span class="muted">If an update causes a problem, <code>python .claude/lib/system_update.py
+    --rollback</code> puts you back on the previous version. Both refuse to run if you have unsaved
+    changes in the <code>code</code> folder, which you should not have: your work belongs in
+    <code>data</code>.</span></div>
+
+  <div class="callout"><b>🚫 Never put a password, key or token in a file in the data folder.</b> It is
+    shared with everyone and it is <b>permanent</b>: it stays in the history even after you delete it. The
+    Studio scans for this and will refuse to save. Keep those in a <code>.env</code> file, which is never
+    shared.</div>
+
+  <h2>What your colleagues see</h2>
+  <p>People without Claude Code read a <b>published copy</b> of your dashboards and finished work,
+  refreshed by one nominated machine (Part A, Step A5). It is read-only: editing anything there changes
+  nothing, and the real version is always the one you work on.</p>
+
+  <h2>If something looks wrong</h2>
+  <table>
+    <thead><tr><th>What you see</th><th>What it means</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td><code>[FAIL] operator identity: UNSET</code></td><td>Your name would not appear against your approvals</td><td><code>git config --global user.email you@work.com</code></td></tr>
+      <tr><td><code>[FAIL] hooks not declared</code></td><td>Company policy may be blocking the automatic page updates</td><td>Tell whoever set this up. The Studio still works; pages need a manual refresh</td></tr>
+      <tr><td><code>[FAIL] DATA repo has NO remote</code></td><td>Setup was not finished, so nothing would reach your colleagues</td><td>Administrator: finish Step A2</td></tr>
+      <tr><td>Pages look out of date</td><td>A refresh was missed</td><td><code>python .claude/lib/surface_freshness.py --heal</code></td></tr>
+      <tr><td>You cannot see any campaigns</td><td>Pointed at the wrong folder</td><td><code>python .claude/lib/provision.py --status</code> to check, then re-run Step B3</td></tr>
+      <tr><td>Your two folders cloned but are <b>empty</b></td><td>The repository's default branch is not <code>main</code></td><td>Administrator: fix it on the repository page (Part A, Step A3), then clone again</td></tr>
+      <tr><td>Images arrive as small text files</td><td>Large-file storage not switched on for you</td><td>Run <code>git lfs install</code>, then get the data folder again</td></tr>
+      <tr><td>"Who has this campaign?"</td><td>-</td><td><code>python .claude/lib/campaign_claim.py --list</code></td></tr>
+      <tr><td>Something feels broken and you cannot place it</td><td>-</td><td><code>python .claude/skills/system-smoke-test/doctor.py</code></td></tr>
+    </tbody>
+  </table>
+
+  <p class="footer"><a class="backlink" href="help.html">← Help &amp; guides</a> &nbsp;·&nbsp; Soundtrak AI Studio</p>
+</div>
+</body>
+</html>

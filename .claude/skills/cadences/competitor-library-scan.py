@@ -97,7 +97,8 @@ def main() -> int:
             [title], raised_by="competitor-library-scan", today=today,
             summary=f"The weekly library scan found the library stale for {days_since}+ days; "
                     f"add new exemplars + the System1 Ad-of-the-Week as draft entries.",
-            source="cadence (competitor-library-scan)")
+            fingerprint="competitor-library-scan:library-stale",   # SYS-144 — entry count
+            source="cadence (competitor-library-scan)")               # belongs in the summary
 
     if filed:
         lines += ["", "## Filed this run (deduped — triage to confirm)"]

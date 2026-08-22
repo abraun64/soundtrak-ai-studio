@@ -38,7 +38,7 @@ sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 try:
     import repo_paths
     CAMPAIGNS = repo_paths.data_root(ROOT) / "campaigns"
-except Exception:
+except ImportError:
     CAMPAIGNS = ROOT / "campaigns"
 try:
     import operator_nav

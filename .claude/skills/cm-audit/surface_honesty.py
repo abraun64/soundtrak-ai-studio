@@ -249,7 +249,7 @@ def _resolve_data_root() -> Path:
     try:
         import repo_paths
         return repo_paths.data_root(root)
-    except Exception:
+    except ImportError:
         return root
 
 

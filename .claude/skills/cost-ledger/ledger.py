@@ -37,10 +37,33 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
+# Windows cp1252 console can't print the em dashes / ≈ in this module's docstring + report
+# headers. argparse prints the docstring as --help, so WITHOUT this `ledger.py --help` dies
+# with UnicodeEncodeError on a default Windows console — the one command a new operator is
+# most likely to run first. Same guard the sibling scripts already use.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
 ROOT = Path(__file__).resolve().parents[3]
-LEDGER = ROOT / ".claude" / "state" / "cost-ledger.jsonl"
 sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 import tenant_paths as _tp  # noqa: E402  — W4 dual-path: resolve campaign in either layout
+
+# Team deployment §3 — campaigns/ is DATA: canonical in the MAIN checkout, and a separate repo
+# under a multi-operator install. ImportError ONLY — a configured-but-broken data root must RAISE.
+try:
+    import repo_paths  # noqa: E402
+    DATA_ROOT = repo_paths.data_root(ROOT)
+except ImportError:
+    DATA_ROOT = ROOT
+
+# team-deployment.md 9.1 - the cost ledger is SHARED state: it is the deployment's spend
+# record, appended one line per dispatch, and it merges cleanly. It therefore lives with the
+# DATA, not in the pull-only code repo. Under a single-operator install DATA_ROOT == ROOT, so
+# this is the same file it has always been.
+LEDGER = DATA_ROOT / ".claude" / "state" / "cost-ledger.jsonl"
 DEFAULT_RATE_PER_MTOK = 6.0
 
 # SYS-091 — per-model $/Mtok reference (Anthropic prompt-caching docs, 2026-07).
@@ -206,8 +229,8 @@ def cmd_report(args) -> int:
 
 def cmd_write_yaml(args) -> int:
     """Update campaign.yaml ai_cost per phase from ledger aggregates."""
-    _camp = _tp.find_campaign_dir(ROOT, args.campaign)
-    yaml_path = (_camp / "campaign.yaml") if _camp else (ROOT / "campaigns" / args.campaign / "campaign.yaml")
+    _camp = _tp.find_campaign_dir(DATA_ROOT, args.campaign)
+    yaml_path = (_camp / "campaign.yaml") if _camp else (DATA_ROOT / "campaigns" / args.campaign / "campaign.yaml")
     if not yaml_path.exists():
         print(f"ERROR: {yaml_path} not found", file=sys.stderr)
         return 1

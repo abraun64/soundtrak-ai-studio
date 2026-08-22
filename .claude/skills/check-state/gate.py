@@ -38,7 +38,11 @@ except Exception:
     pass
 
 REPO_ROOT = check.REPO_ROOT
-BASELINE_PATH = REPO_ROOT / ".claude" / "state" / "drift-baseline.json"
+DATA_ROOT = check.DATA_ROOT   # team deployment §3 — campaigns/ may live in a separate repo
+# team-deployment.md 9.1 - the drift baseline is SHARED state: the ratchet is an agreement
+# across the whole deployment, not one machine's opinion. Lives with the DATA.
+# Single-operator: DATA_ROOT == REPO_ROOT, so this is the same file as before.
+BASELINE_PATH = DATA_ROOT / ".claude" / "state" / "drift-baseline.json"
 
 # W4 dual-path: also discover business-rooted tenants' campaigns (additive; [] until one exists)
 sys.path.insert(0, str(REPO_ROOT / ".claude" / "lib"))
@@ -104,9 +108,9 @@ def write_baseline(issues: set[str]) -> None:
 
 def _all_campaign_dirs():
     """Flat campaigns/<slug>/ + business-rooted <Tenant>/campaigns/<slug>/ (latter [] today)."""
-    root = REPO_ROOT / "campaigns"
+    root = DATA_ROOT / "campaigns"
     flat = [p for p in root.iterdir() if p.is_dir() and (p / "assets").is_dir()] if root.is_dir() else []
-    br = [c for c in _tp.business_rooted_campaign_dirs(REPO_ROOT) if (c / "assets").is_dir()]
+    br = [c for c in _tp.business_rooted_campaign_dirs(DATA_ROOT) if (c / "assets").is_dir()]
     return sorted(flat + br, key=lambda p: p.name)
 
 
@@ -115,7 +119,7 @@ def resolve_campaigns(args):
         return _all_campaign_dirs()
     if args.campaign:
         match = [c for c in _all_campaign_dirs() if c.name == args.campaign]
-        return match or [REPO_ROOT / "campaigns" / args.campaign]
+        return match or [DATA_ROOT / "campaigns" / args.campaign]
     return None
 
 

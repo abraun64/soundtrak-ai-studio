@@ -22,12 +22,65 @@ sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 try:
     import repo_paths
     DATA = repo_paths.data_root(ROOT)
-except Exception:
+except ImportError:
     DATA = ROOT
 SYSTEM_DIR = DATA / "system"
 SKILLS = ROOT / ".claude" / "skills"
 DIAG_STATE = SYSTEM_DIR / ".diag-state.json"   # SYS-010: consecutive-fail count per diagnostic
 ESCALATE_AFTER = 2                              # consecutive RED runs before idea -> ticket
+# SYS-138 — diagnostics that REPORT but never escalate. The verification audit lists closures
+# that recorded no `verified:`; auto-filing a P1 "persistent verification failure" would be
+# circular (a ticket about unverified tickets, itself needing verification) and would turn a
+# nudge into board noise. It still shows RED in Health, which is the whole point.
+NO_ESCALATE = {"verification"}
+
+
+# SYS-144 — the digest files ideas and tickets the same way the cadences do, so it inherits
+# the same defect: dedupe by TITLE breaks the moment triage sharpens the title on promote, and a
+# KILLED finding leaves nothing to match at all. The stable key is a fingerprint. The digest's
+# only finding category is "this diagnostic is failing", scoped by which diagnostic.
+def diag_fingerprint(label: str) -> str:
+    return f"weekly-digest:diagnostic:{label}"
+
+
+def _fingerprints_of(record) -> set:
+    """The finding(s) a record owns. `fingerprint:` is a string OR a list — a MERGE hands the
+    surviving ticket everything the records folded into it were tracking, and a single-value
+    field would silently drop all but one, releasing the rest to refile."""
+    fp = record.get("fingerprint")
+    values = fp if isinstance(fp, list) else [fp]
+    return {str(v).strip() for v in values if v and str(v).strip()}
+
+
+def suppressed_fingerprints(include_ideas: bool = True) -> set:
+    """Fingerprints that must not be raised again. Shares the cadences' tombstone store so a
+    finding killed there stays killed here — one decision, one place, whichever surface raised it.
+
+    `include_ideas` is the important argument. Filing a NEW IDEA must not duplicate a standing
+    one, so ideas count. ESCALATING to a ticket must NOT be blocked by the idea it is promoting —
+    that is the escalation's entire job, and counting ideas there silently killed the SYS-010
+    path: the idea filed on failure #1 suppressed the ticket on failure #2, so a diagnostic could
+    stay RED forever with nothing but an inbox row to show for it."""
+    out = set()
+    # An OPEN ticket means it is already on the board; a KILLED one means the operator decided
+    # against it. A DONE ticket does NOT suppress — the problem was fixed, so detecting it again
+    # is a new occurrence that must be raised.
+    suppressing = ("todo", "in_progress", "killed")
+    if include_ideas:
+        for rec in load_items(SYSTEM_DIR / "ideas.yaml", "items"):
+            out |= _fingerprints_of(rec)
+    for rec in load_items(SYSTEM_DIR / "backlog.yaml", "items"):
+        if str(rec.get("status", "todo")).strip().lower() in suppressing:
+            out |= _fingerprints_of(rec)
+    try:
+        import yaml as _y
+        tomb = SYSTEM_DIR / "cadence-tombstones.yaml"
+        if tomb.exists():
+            for e in (_y.safe_load(tomb.read_text(encoding="utf-8")) or {}).get("entries") or []:
+                out |= _fingerprints_of(e or {})
+    except Exception:  # noqa: BLE001 — a malformed tombstone file must not stop the digest
+        pass
+    return out
 
 
 def load_items(path: Path, key: str) -> list:
@@ -43,14 +96,32 @@ def load_items(path: Path, key: str) -> list:
         return []
 
 
+def _decode(raw: bytes) -> str:
+    """Decode a diagnostic's output without mangling it.
+
+    These scripts print ✅ / — / × and they do NOT agree on an encoding: some reconfigure their
+    stream to UTF-8, some write the console default (cp1252 on this machine). Decoding
+    everything as cp1252 turned em-dashes into "â€”" in the digest the operator reads
+    (2026-07-27). Decoding everything as UTF-8 with errors="replace" fixed those and broke the
+    others into U+FFFD — which then CRASHED this script on `print(digest)` against a cp1252
+    console. So try UTF-8 strictly first and fall back, rather than picking a side."""
+    for enc in ("utf-8", "cp1252"):
+        try:
+            return raw.decode(enc)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", errors="replace")
+
+
 def run_diag(label: str, script: Path, args: list | None = None) -> tuple[str, bool, str]:
     if not script.exists():
         return label, True, "(not present — skipped)"
     try:
+        # BYTES, decoded by _decode above — see why there.
         r = subprocess.run([sys.executable, str(script), *(args or [])], cwd=str(ROOT),
-                           capture_output=True, text=True, timeout=180)
+                           capture_output=True, timeout=180)
         tail = ""
-        for line in reversed((r.stdout or r.stderr or "").splitlines()):
+        for line in reversed(_decode(r.stdout or r.stderr or b"").splitlines()):
             if line.strip():
                 tail = line.strip()
                 break
@@ -59,7 +130,8 @@ def run_diag(label: str, script: Path, args: list | None = None) -> tuple[str, b
         return label, False, str(e)[:120]
 
 
-def file_new_ideas(ideas: list, new_titles: list, today: str) -> list:
+def file_new_ideas(ideas: list, new_titles: list, today: str,
+                   fingerprints: list | None = None) -> list:
     """Append deduped idea entries to ideas.yaml as TEXT (preserves the file's header +
     formatting — never safe_dump, which would drop comments). Returns the ids filed."""
     if not new_titles:
@@ -68,14 +140,19 @@ def file_new_ideas(ideas: list, new_titles: list, today: str) -> list:
             if str(i.get("id", "")).startswith("IDEA-")]
     nxt = (max(nums) + 1) if nums else 1
     chunks, filed = [], []
-    for t in new_titles:
+    fps = list(fingerprints or []) + [""] * len(new_titles)
+    for t, fp in zip(new_titles, fps):
         iid = f"IDEA-{nxt:03d}"
         nxt += 1
         filed.append(iid)
         safe_t = t.replace('"', "'")            # title is controlled, but be defensive
+        # SYS-144 — carried onto the ticket by triage on promote; without it the finding
+        # refiles the moment the title is sharpened.
+        fp_line = f'    fingerprint: "{fp}"\n' if fp else ""
         chunks.append(
             f"\n  - id: {iid}\n"
             f'    title: "{safe_t}"\n'           # QUOTED — titles contain colons (invalid unquoted)
+            f"{fp_line}"
             f"    raised_by: weekly-digest\n"
             f"    date: {today}\n"
             f"    source: diagnostic\n"
@@ -114,20 +191,39 @@ def _save_diag_state(s: dict) -> None:
         pass
 
 
+def open_escalation(backlog: list, label: str):
+    """The OPEN 'Persistent diagnostic failure: <label>' ticket, if any. Shared by the
+    escalate path (dedupe) and the recovery report (SYS-141)."""
+    title = f"Persistent diagnostic failure: {label}".lower()
+    for b in backlog:
+        if str(b.get("title", "")).lower() == title and b.get("status") in ("todo", "in_progress"):
+            return b
+    return None
+
+
 def escalate_to_ticket(label: str, fails: int, backlog: list, today: str):
     """SYS-010 — append a deduped P1 ticket for a PERSISTENT diagnostic failure. Text-append
     + YAML-validation rollback so backlog.yaml can never be left unparseable. Returns the new
-    SYS id, or None if one is already open / on error."""
+    SYS id, or None if one is already open / on error.
+
+    `backlog` is MUTATED on success. It has to be: the next id comes from max(backlog ids),
+    so two diagnostics escalating in the same run both computed the SAME id off the same
+    stale list and wrote two blocks claiming it — which is exactly what happened on
+    2026-08-11 (smoke-test and drift-gate both filed as "SYS-141"; the collision had to be
+    repaired by hand into SYS-141 + SYS-142). Appending the new item keeps the second call
+    honest, and also lets it dedupe against a ticket this same run just filed."""
     title = f"Persistent diagnostic failure: {label}"
-    if any(str(b.get("title", "")).lower() == title.lower()
-           and b.get("status") in ("todo", "in_progress") for b in backlog):
+    if open_escalation(backlog, label) is not None:
         return None
+    if diag_fingerprint(label) in suppressed_fingerprints(include_ideas=False):
+        return None  # SYS-144 — already a ticket under another title, or killed at triage
     nums = [int(str(b.get("id", "")).split("-")[-1]) for b in backlog
             if str(b.get("id", "")).startswith("SYS-") and str(b.get("id", "")).split("-")[-1].isdigit()]
     iid = f"SYS-{((max(nums) + 1) if nums else 11):03d}"
     block = (
         f"\n  - id: {iid}\n"
         f'    title: "{title}"\n'
+        f'    fingerprint: "{diag_fingerprint(label)}"\n'   # SYS-144 — survives retitling
         f"    status: todo\n"
         f"    priority: P1\n"
         f"    needs: you\n"
@@ -152,10 +248,20 @@ def escalate_to_ticket(label: str, fails: int, backlog: list, today: str):
     except Exception:
         p.write_text(existing, encoding="utf-8")   # never leave backlog.yaml broken
         return None
+    backlog.append({"id": iid, "title": title, "status": "todo", "priority": "P1",
+                    "fingerprint": diag_fingerprint(label)})
     return iid
 
 
 def main() -> int:
+    # The digest is written UTF-8, but ECHOING it must not crash on a cp1252 console — which is
+    # exactly what a scheduled task gets. A digest that was written correctly and then died on
+    # its own print reports as a FAILED task (2026-08-22).
+    for _s in (sys.stdout, sys.stderr):
+        try:
+            _s.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:  # noqa: BLE001
+            pass
     today = datetime.now().strftime("%Y-%m-%d")
     diagnostics = [
         ("smoke-test", SKILLS / "system-smoke-test" / "smoke_test.py", None),
@@ -168,6 +274,11 @@ def main() -> int:
         # SYS-038: board-currency / world-↔-data drift — gate.py flags NEW pending-but-
         # -moved-past actions vs the accepted baseline; persistent ones escalate (SYS-010).
         ("drift-gate", SKILLS / "check-state" / "gate.py", ["--all-campaigns"]),
+        # SYS-138 — closures that never recorded HOW they were verified. A report, not a
+        # blocker: the agreed rule is you may not close without RECORDING what you ran, but you
+        # may record a lower level with a stated reason. A must-pass gate is what produced the
+        # file-existence "UAT" this framework exists to prevent.
+        ("verification", SKILLS / "system-manager" / "verify.py", ["--audit"]),
     ]
     results = [run_diag(label, script, args) for label, script, args in diagnostics]
 
@@ -182,23 +293,41 @@ def main() -> int:
     # blips never escalate (that's what bit ideas.yaml before — surface, don't over-react).
     seen = {str(i.get("title", "")).lower() for i in ideas} | {str(b.get("title", "")).lower() for b in backlog}
     state = _load_diag_state()
-    new_titles, escalated = [], []
+    fp_seen = suppressed_fingerprints()          # SYS-144 — filed-or-killed, by stable key
+    new_titles, new_fps, escalated, recovered = [], [], [], []
     for label, ok, _tail in results:
         if ok:
+            # SYS-141 — escalation was one-way: a diagnostic could go green and its P1 ticket
+            # would sit open forever with nothing saying it had self-healed. That is what
+            # happened to the smoke-test ticket (RED 2026-08-11, green again by 2026-08-17,
+            # still P1 open on 2026-08-22) — and while a stale P1 sits at the top of the board
+            # the operator can't tell a real breakage from a standing one, which is the exact
+            # trust loss the ticket was filed about. Surface the recovery; don't auto-close it
+            # (this digest SURFACES, the operator triages). Deliberately NOT gated on "was it
+            # red last run" — a ticket that went green weeks ago and was never closed is the
+            # worse case, and it keeps showing until someone closes it.
+            t_open = open_escalation(backlog, label)
+            if t_open:
+                recovered.append((str(t_open.get("id")), label))
             state[label] = 0
             continue
         state[label] = state.get(label, 0) + 1
+        if label in NO_ESCALATE:
+            continue          # surfaced in Health above; never becomes a ticket
         if state[label] >= ESCALATE_AFTER:
             tid = escalate_to_ticket(label, state[label], backlog, today)
             if tid:
                 escalated.append((tid, label, state[label]))
         else:
             title = f"Diagnostic failing: {label}"
-            if title.lower() not in seen:
+            fp = diag_fingerprint(label)
+            if fp not in fp_seen and title.lower() not in seen:
                 new_titles.append(title)
+                new_fps.append(fp)
+                fp_seen.add(fp)
                 seen.add(title.lower())
     _save_diag_state(state)
-    filed = file_new_ideas(ideas, new_titles, today)
+    filed = file_new_ideas(ideas, new_titles, today, new_fps)
 
     lines = [f"# System weekly digest — {today}", ""]
     lines.append("## Health")
@@ -216,6 +345,11 @@ def main() -> int:
     if escalated:
         lines += ["", "## Escalated to tickets (persistent failures — SYS-010)"]
         lines += [f"- {tid}: {label} (RED {n} runs)" for tid, label, n in escalated]
+    if recovered:
+        lines += ["", "## Recovered — close these (SYS-141)",
+                  "These diagnostics are GREEN again, but their escalated ticket is still open. "
+                  "Verify and close, or say why it stays open."]
+        lines += [f"- {tid}: {label} is passing again — candidate to close" for tid, label in recovered]
     lines += ["", "## Next",
               "Run `/system-manager` to groom, or `/system-manager triage` to clear the inbox."]
     digest = "\n".join(lines) + "\n"

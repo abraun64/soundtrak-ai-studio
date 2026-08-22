@@ -107,6 +107,9 @@ def main() -> int:
             [title], raised_by="tenant-brand-drift", today=today,
             summary=f"The monthly brand-drift check found {tenant}'s playbook {gap}d behind its "
                     f"newest shipped asset ({asset_label}); review whether brand guidance still matches.",
+            # SYS-144 — scoped per tenant: one tenant's drift being triaged must not
+            # suppress another's, and the day-count must stay out of the key.
+            fingerprint=f"tenant-brand-drift:playbook-lag:{tenant}",
             source="cadence (tenant-brand-drift)")
 
     if filed:

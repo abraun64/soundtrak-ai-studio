@@ -26,6 +26,16 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / ".claude" / "lib"))
 import tenant_paths as _tp  # noqa: E402  — W4 dual-path: also find business-rooted tenants
+# Team deployment §3 — DATA dirs (campaigns/, tenant-brand/, system/) are canonical in the MAIN
+# checkout, and under a multi-operator install they live in a SEPARATE repo entirely. Resolve them
+# through repo_paths; ImportError ONLY (a frozen checkout without the helper degrades to the running
+# checkout — a configured-but-broken data root must RAISE, never silently write into the code repo).
+try:
+    import repo_paths  # noqa: E402
+    DATA_ROOT = repo_paths.data_root(REPO_ROOT)
+except ImportError:
+    DATA_ROOT = REPO_ROOT
+
 
 sys.path.insert(0, str(REPO_ROOT / ".claude" / "skills" / "render-html"))
 try:
@@ -723,10 +733,10 @@ def main() -> int:
     parser.add_argument("--all-campaigns", action="store_true", help="Scan every campaign in campaigns/")
     args = parser.parse_args()
 
-    campaigns_root = REPO_ROOT / "campaigns"
+    campaigns_root = DATA_ROOT / "campaigns"
     flat = sorted([p for p in campaigns_root.iterdir() if p.is_dir() and (p / "assets").is_dir()]) if campaigns_root.is_dir() else []
     # W4 dual-path: also business-rooted <Tenant>/campaigns/<slug>/ ([] until one exists)
-    all_dirs = sorted(flat + [c for c in _tp.business_rooted_campaign_dirs(REPO_ROOT) if (c / "assets").is_dir()], key=lambda p: p.name)
+    all_dirs = sorted(flat + [c for c in _tp.business_rooted_campaign_dirs(DATA_ROOT) if (c / "assets").is_dir()], key=lambda p: p.name)
     if args.all_campaigns:
         campaigns = all_dirs
     elif args.campaign:

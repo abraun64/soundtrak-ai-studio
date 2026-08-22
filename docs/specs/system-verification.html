@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All Campaigns — Marketing AI System</title>
+  <title>Verifying a system change — what "done" actually means (SYS-138) — Marketing AI System</title>
   <style>/* Marketing AI System — social/email in-situ mockup chrome.
  * Renders collapsed (feed) + expanded (clicked-open) states per form.
  * Loaded automatically alongside system.css for all templates.
@@ -1936,12 +1936,12 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 .content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
 </style>
 </head>
-<body class="template-index">
+<body class="template-base">
   <header class="page-header">
     <div class="page-header__inner">
-      <nav class="breadcrumb" aria-label="Breadcrumb"><span class="crumb crumb-current">🏠 All Campaigns</span></nav>
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="campaigns/index.html">🏠 All Campaigns</a></nav>
       <div class="page-header__right">
-        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../docs/guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a></nav>
+        
         <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
       </div>
     </div>
@@ -1949,47 +1949,299 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 
   <main class="page-main">
     <article class="content">
-      <h1 id="all-campaigns">All Campaigns</h1>
-<p><strong>Last updated</strong>: 2026-08-22 17:22</p>
-<h2 id="active">Active</h2>
-<blockquote>
-<p><strong>👋 Welcome — let's get your first campaign going.</strong></p>
-<p>You don't have any campaigns yet. Two steps to begin:</p>
-<ol>
-<li><strong>Set up your brand once</strong> — say <strong>“Onboard”</strong> with your business name (for example, “Onboard Acme Co”). It captures your brand, voice and audience in a few quick questions. You only do this once.</li>
-<li><strong>Start a campaign</strong> — say <strong>“start a campaign”</strong> and answer a few quick questions.</li>
-</ol>
-<p>Everything you produce appears here as web pages you review and approve.</p>
-<p>First time? The <a href="../docs/guide/operator-guide.html">operator guide</a> walks you through it.</p>
-</blockquote>
+      <h1 id="verifying-a-system-change-what-done-actually-means-sys-138">Verifying a system change — what "done" actually means (SYS-138)</h1>
+<p><strong>Status:</strong> <strong>AGREED AND LIVE — 2026-08-22.</strong> Part 1 (this definition) was signed off by the
+operator; Part 2 (the runner, the <code>verified:</code> field and the close rule) shipped the same day.
+The three decisions are recorded at the bottom.</p>
 <hr>
-<h2 id="where-to-go-next">Where to go next</h2>
+<h2 id="why-this-exists">Why this exists</h2>
+<p>Two failures, six weeks apart, have the same shape.</p>
+<ul>
+<li><strong>2026-08-08 — the onboarding build.</strong> Its "UAT" checked that the expected files existed.
+  They did. It had to be upgraded to actually <em>running</em> the seed build, the doctor and the
+  surface renders before anyone knew whether the thing worked.</li>
+<li><strong>2026-08-22 — the freshness gate.</strong> <code>surface_freshness.py --check</code> printed <em>"every surface
+  is at least as new as its data"</em> while seven rendered surfaces sat up to four days behind
+  their markdown. The check ran. It passed. It proved nothing, because it was never pointed at
+  the surfaces that had gone stale.</li>
+</ul>
+<p>Both are the same error: <strong>confusing "the check ran and was green" with "the operator gets the
+right outcome."</strong> This doc defines the difference, and how deep to go on any given change.</p>
+<hr>
+<h2 id="a-what-uat-means-for-this-system">(a) What UAT means for this system</h2>
+<p>UAT is <strong>User Acceptance</strong> testing, and the user is the <strong>operator</strong> — the person who opens the
+dashboard and decides whether an asset ships. Not the developer, not the agent that made the
+change. So acceptance asks one question:</p>
+<blockquote>
+<p><strong>From a cold start, does the operator get the outcome they asked for, by doing what they'd
+actually do?</strong></p>
+</blockquote>
+<p>Three consequences follow, and they are the whole discipline:</p>
+<ol>
+<li><strong>Run the real thing.</strong> Invoke the actual command, skill or hook, against real (or
+   realistically shaped) data. Do not inspect the artifacts it <em>would have</em> produced.</li>
+<li><strong>Assert the outcome, not the mechanism.</strong> <em>"The dashboard shows the asset as Approved"</em> —
+   not <em>"render.py exited 0"</em>. The operator never sees the exit code.</li>
+<li><strong>Prove the check can fail.</strong> A green assertion that cannot go red is not evidence. Every new
+   assertion is run once against the broken state it is supposed to catch, and observed to fail.</li>
+</ol>
+<p><strong>These are NOT UAT</strong>, however convenient they are: a file exists · a script parses · a diff
+looks right · an agent reports success · the same code that made the change also validated it.</p>
+<hr>
+<h2 id="b-the-four-levels-and-how-to-pick-one">(b) The four levels, and how to pick one</h2>
+<div>
+<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Decision flow for choosing a verification level" style="max-width:100%;height:auto">
+  <style>
+    .bx { fill:#faf9f5; stroke:#111110; stroke-width:1.5 }
+    .hit { fill:#e63c3c; stroke:#111110; stroke-width:1.5 }
+    .t  { font:13px/1.3 Inter,system-ui,sans-serif; fill:#111110 }
+    .tb { font:600 13px/1.3 Inter,system-ui,sans-serif; fill:#111110 }
+    .tw { font:600 13px/1.3 Inter,system-ui,sans-serif; fill:#faf9f5 }
+    .ar { stroke:#111110; stroke-width:1.5; fill:none; marker-end:url(#a) }
+  </style>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+    orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#111110"/></marker></defs>
+
+  <rect class="bx" x="8" y="14" width="196" height="46" rx="4"/>
+  <text class="tb" x="20" y="34">A system change</text>
+  <text class="t"  x="20" y="51">…is about to be called done</text>
+
+  <rect class="bx" x="8" y="86" width="196" height="42" rx="4"/>
+  <text class="t" x="20" y="104">Prose, comment or doc link</text>
+  <text class="t" x="20" y="120">only?</text>
+  <rect class="bx" x="8" y="150" width="196" height="42" rx="4"/>
+  <text class="t" x="20" y="168">Touches shared code —</text>
+  <text class="t" x="20" y="184">render, hooks, lib, the seed?</text>
+  <rect class="bx" x="8" y="214" width="196" height="42" rx="4"/>
+  <text class="t" x="20" y="232">Changes what a surface says,</text>
+  <text class="t" x="20" y="248">or writes data by hand?</text>
+
+  <rect class="bx" x="286" y="86" width="150" height="42" rx="4"/>
+  <text class="tb" x="298" y="112">L0 · Sanity</text>
+  <rect class="bx" x="286" y="150" width="150" height="42" rx="4"/>
+  <text class="tb" x="298" y="176">L1 · Smoke</text>
+  <rect class="hit" x="286" y="214" width="150" height="42" rx="4"/>
+  <text class="tw" x="298" y="240">L2 · Behavioural UAT</text>
+
+  <path class="ar" d="M204 107 H286"/>
+  <path class="ar" d="M204 171 H286"/>
+  <path class="ar" d="M204 235 H286"/>
+  <path class="ar" d="M106 60 V86"/>
+  <path class="ar" d="M106 128 V150"/>
+  <path class="ar" d="M106 192 V214"/>
+
+  <rect class="hit" x="514" y="150" width="228" height="106" rx="4"/>
+  <text class="tw" x="528" y="176">L3 · Unit — add on top</text>
+  <text class="tw" x="528" y="198" style="font-weight:400">Logic with real cases, or a bug</text>
+  <text class="tw" x="528" y="216" style="font-weight:400">of this class that already shipped</text>
+  <text class="tw" x="528" y="234" style="font-weight:400">once. Must reproduce the</text>
+  <text class="tw" x="528" y="252" style="font-weight:400">historical failure.</text>
+  <path class="ar" d="M436 203 H514"/>
+
+  <text class="t" x="514" y="52">Take the HIGHEST level any</text>
+  <text class="t" x="514" y="70">criterion below reaches —</text>
+  <text class="t" x="514" y="88">never the cheapest that applies.</text>
+  <text class="t" x="514" y="112">Levels stack: L2 includes L1, L1 includes L0.</text>
+</svg>
+</div>
+
 <table>
 <thead>
 <tr>
-<th>What</th>
-<th>Open</th>
+<th>Level</th>
+<th>What it proves</th>
+<th>Cost</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>System dashboard</td>
-<td><a href="../system/dashboard.html">system/dashboard.html</a></td>
+<td><strong>L0 · Sanity</strong></td>
+<td>the change is loaded and parses</td>
+<td>seconds</td>
 </tr>
 <tr>
-<td>Help &amp; guides</td>
-<td><a href="../docs/guide/help.html">docs/guide/help.html</a></td>
+<td><strong>L1 · Smoke</strong></td>
+<td>the system still runs end to end</td>
+<td>~1 min</td>
+</tr>
+<tr>
+<td><strong>L2 · Behavioural UAT</strong></td>
+<td>the operator's actual outcome, on the real surface</td>
+<td>5–20 min</td>
+</tr>
+<tr>
+<td><strong>L3 · Unit</strong></td>
+<td>one piece of logic, at its boundaries, repeatably</td>
+<td>10–30 min to write, seconds to run forever after</td>
 </tr>
 </tbody>
 </table>
-<hr style="margin-top:2.5em;border:none;border-top:1px solid #e8e7e2;">
-<p class="schema-follows" style="font-size:13px;color:#8a8a8a;margin:1em 0 0;"><strong style="color:#6a6a6a;font-weight:600;">📐 Schema this follows:</strong> <a href="../docs/specs/dashboard.html" style="color:#b8302f;">Operator-surface spec</a> <span style="color:#a5a5a5;">— edit the spec to change this surface’s structure</span></p>
+<p><strong>Trigger criteria — take the highest level any of these reaches:</strong></p>
+<table>
+<thead>
+<tr>
+<th>If the change…</th>
+<th>Minimum level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>is prose, a comment, or a doc link, and nothing executes it</td>
+<td><strong>L0</strong></td>
+</tr>
+<tr>
+<td>touches shared code — <code>render-html/</code>, <code>.claude/hooks/</code>, <code>.claude/lib/</code>, a skill entry point</td>
+<td><strong>L1</strong></td>
+</tr>
+<tr>
+<td>goes into the <strong>seed</strong> (a stranger runs it on a machine you can't see)</td>
+<td><strong>L1</strong>, plus the doctor + leak gate</td>
+</tr>
+<tr>
+<td>changes <strong>what an operator surface says</strong> — dashboard, gallery, tasks, index, tenant home, an asset record</td>
+<td><strong>L2</strong></td>
+</tr>
+<tr>
+<td><strong>writes data</strong> the operator can't trivially undo — <code>backlog.yaml</code>, asset states, published files</td>
+<td><strong>L2</strong></td>
+</tr>
+<tr>
+<td>is a <strong>gate, guard or diagnostic</strong> (something whose job is to catch problems)</td>
+<td><strong>L2</strong> — a guard that cannot be observed failing is not a guard</td>
+</tr>
+<tr>
+<td>contains <strong>logic with cases</strong> — a parser, a derivation, a threshold, an id allocation, a recursion</td>
+<td><strong>L3</strong></td>
+</tr>
+<tr>
+<td>is a <strong>repeat</strong> of a class of bug that has shipped before</td>
+<td><strong>L3</strong>, and the test must reproduce the historical failure</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Proportionality is the point.</strong> Most changes are L0 or L1. L3 is for logic and for repeats —
+unit-testing a prose edit is waste, and this framework should never be used to justify it.</p>
+<hr>
+<h2 id="c-the-concrete-steps">(c) The concrete steps</h2>
+<h3 id="l0-sanity">L0 · Sanity</h3>
+<ol>
+<li><code>python .claude/skills/system-manager/verify.py --level 0 &lt;files&gt;</code> — parses <code>.py</code> via <code>ast</code>
+   and <code>.yaml</code> via <code>safe_load</code>. For a skill, confirm the frontmatter parses.</li>
+<li>Say plainly that L0 was all that ran, and why.</li>
+</ol>
+<h3 id="l1-smoke">L1 · Smoke</h3>
+<ol>
+<li><code>python .claude/skills/system-manager/verify.py --level 1</code> (wraps <code>smoke_test.py</code>) → must be
+   <strong>ALL GREEN</strong>.</li>
+<li>Seed-bound changes also: <code>python .claude/skills/system-smoke-test/doctor.py</code> → READY, and the
+   leak gate clean.</li>
+<li>A pre-existing RED is not a pass. Either fix it, or state it explicitly as a known standing
+   failure with its ticket id.</li>
+</ol>
+<h3 id="l2-behavioural-uat">L2 · Behavioural UAT</h3>
+<ol>
+<li><strong>Name the outcome first, in the operator's words.</strong> <em>"Opening the buildlog gallery shows
+   Edition 03 with this week's copy."</em> If you can't write that sentence, you don't yet know
+   what you're accepting.</li>
+<li><strong>Put the system in the "before" state</strong> — the state a real operator would be in.</li>
+<li><strong>Run the real entry point</strong> the operator would use: the skill, the hook, the command. Not a
+   reimplementation of it inside the test.</li>
+<li><strong>Read the rendered output</strong>, not the source. The <code>.html</code> the operator opens, the digest text,
+   the console output they'd actually see.</li>
+<li><strong>Assert the outcome sentence from step 1.</strong></li>
+<li><strong>Confirm the loud-failure path.</strong> Break the input, re-run, and watch it go red. A guard you
+   have only ever seen green is untested.</li>
+<li><strong>Record the evidence</strong> — the command, and the line of output that proves it — in the ticket.</li>
+</ol>
+<h3 id="l3-unit">L3 · Unit</h3>
+<p>Run them all with <code>python .claude/skills/system-manager/verify.py --level 3</code>. To add one:
+1. Put <code>test_&lt;module&gt;.py</code> <strong>beside the module</strong>. Stdlib only (pytest is not installed).
+2. Runnable directly; exit 0 = pass, 1 = fail; one printed line per assertion.
+3. Every test <strong>names the live failure it guards</strong>, with the date. That is what stops a later
+   reader deleting it as noise.
+4. <strong>Verify it fails without the fix</strong>: revert the fix, run, observe the failure, restore.
+5. <strong>Wire it into the smoke test (Layer 1)</strong> so it runs forever after without anyone remembering.</p>
+<hr>
+<h2 id="worked-example-2026-08-22-the-tickets-that-produced-this-doc">Worked example — 2026-08-22, the tickets that produced this doc</h2>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Level</th>
+<th>Evidence that made it acceptance rather than assertion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SYS-143 — freshness gate missed doc + asset-record surfaces</td>
+<td><strong>L3 + L2</strong></td>
+<td>Unit: 10 assertions on the enumeration; removing the fix drops the two stale-doc assertions to <code>got []</code>. Behavioural: ran <code>--heal</code> on live data (9 rebuilt), then ran <strong>both</strong> sensors and watched them agree at 0 — their disagreement was the bug.</td>
+</tr>
+<tr>
+<td>SYS-136 — <code>operator_actions</code> mutual recursion hung a render</td>
+<td><strong>L3 + L2</strong></td>
+<td>Unit: asserts nesting depth ≤ 2; without the guard it measures <strong>196</strong>. Behavioural: the gamma dashboard render went from <strong>&gt;120 s (killed at the hook's 60 s budget)</strong> to <strong>1.3 s</strong>.</td>
+</tr>
+<tr>
+<td>SYS-141 — weekly-digest escalation defects</td>
+<td><strong>L3 + L2</strong></td>
+<td>Unit: without the fix, the backlog test reproduces the historical <code>['SYS-140','SYS-141','SYS-141']</code> id collision exactly. Behavioural: ran the real digest; its new recovery section immediately named SYS-141 and SYS-142 as close candidates.</td>
+</tr>
+<tr>
+<td>SYS-138 Part 2 — the runner, the <code>verified:</code> field, the close rule</td>
+<td><strong>L2 + L3</strong></td>
+<td>Unit: <code>verify.py --audit</code> asserted against synthetic backlogs. Behavioural: ran <code>--level 3</code> (6 suites), then <code>--audit</code> on the live board, which immediately named the four tickets closed that day with nothing recorded — the report earning its place on its first run.</td>
+</tr>
+<tr>
+<td>This document</td>
+<td><strong>L0</strong></td>
+<td>Prose. Nothing executes it. Parsed, linked, rendered — that is the whole appropriate cost.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="part-2-what-shipped-2026-08-22">Part 2 — what shipped (2026-08-22)</h2>
+<ul>
+<li><strong><code>verify.py</code></strong> — the level runner, in the System Manager skill.
+  <code>--criteria</code> prints the table above plus the L2 checklist · <code>--level 0 &lt;files&gt;</code> sanity ·
+  <code>--level 1</code> smoke · <code>--level 3</code> runs every <code>test_*.py</code> suite in the repo (the glob IS the
+  registry — a new suite needs no wiring) · <code>--audit</code> lists closures that recorded nothing.
+  <strong>L2 is deliberately absent from the runner.</strong> A script standing in for "run the real thing
+  and read the rendered result" would be the file-existence UAT all over again.</li>
+<li><strong><code>verified:</code> on the backlog schema</strong> — <code>"L&lt;n&gt; — &lt;what was run&gt; — &lt;the line that proved it&gt;"</code>,
+  rendered on the dashboard card.</li>
+<li><strong>The close rule</strong> — in the System Manager skill's Verify job, below.</li>
+<li><strong>The nudge</strong> — the weekly digest runs <code>--audit</code> as a diagnostic. It reports; it never
+  escalates to a ticket (a P1 about unverified tickets would be circular, and board noise).</li>
+</ul>
+<h2 id="the-three-decisions-operator-2026-08-22">The three decisions (operator, 2026-08-22)</h2>
+<ol>
+<li><strong>Record the level on the ticket — yes.</strong> A <code>verified:</code> field on the backlog item, rendered
+   on the dashboard card. <em>Why:</em> the board is where the operator decides; a commit message is
+   not a surface, so "done" and "claimed done" would stay indistinguishable where it matters.</li>
+<li><strong>L2 is a must-RECORD, not a must-PASS.</strong> A ticket may not close with an empty <code>verified:</code>,
+   but it MAY record a level lower than the table asks <strong>with the reason stated in the same
+   field</strong>. <em>Why:</em> a hard must-pass gate on an agent-run workflow gets satisfied theatrically —
+   that is exactly what produced the 2026-08-08 file-existence "UAT". Forcing an auditable
+   claim gets the honesty without creating pressure to manufacture evidence. <code>--audit</code> and the
+   weekly digest make an unrecorded close visible.</li>
+<li><strong>L2 scripts are disposable; only L3 accumulates.</strong> Run it, paste the command and the proving
+   line into <code>verified:</code>, discard the script. <em>Why:</em> L2 checks are pinned to live campaign data,
+   so a retained suite of them goes stale and starts throwing false REDs — the same trust
+   erosion SYS-141 was about. L3 suites are hermetic (temp dirs, no live data), so those are the
+   ones worth keeping, and they already run in the smoke test's Layer 1.</li>
+</ol>
+<hr>
+<p><strong>Related:</strong> <a href="surface-freshness.md">surface-freshness.md</a> · <a href="system-manager.md">system-manager.md</a> ·
+<code>.claude/skills/system-smoke-test/</code> (L1) · <code>.claude/skills/cm-audit/</code> and
+<code>.claude/skills/check-state/</code> (diagnostics this framework governs, not replaces).</p>
     </article>
   </main>
 
   <footer class="page-footer">
-    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../docs/legal/LICENSE.html">Licence</a> · <a href="../docs/legal/NOTICE.html">Notice</a></span>
-    <span>Source file: <code>seed/campaigns/index.md</code></span>
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="docs/legal/LICENSE.html">Licence</a> · <a href="docs/legal/NOTICE.html">Notice</a></span>
+    <span>Source file: <code>docs\specs\system-verification.md</code></span>
   </footer>
 </body>
 </html>

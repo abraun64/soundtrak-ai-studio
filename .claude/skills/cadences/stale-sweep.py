@@ -156,6 +156,9 @@ def main() -> int:
             [title], raised_by="stale-sweep", today=today,
             summary=f"The stale sweep found {len(stale_assets)} asset(s) awaiting the operator past "
                     f"the {REVIEW_STALE_DAYS}-day threshold; review or nudge.",
+            # SYS-144 — dedupe on this stable fingerprint, never the title. The count lives in
+            # the summary; putting it in the key made the same finding refile whenever it moved.
+            fingerprint="stale-sweep:parked-assets",
             source="cadence (stale-sweep)")
     if stale_surfaces:
         title = f"{len(stale_surfaces)} rendered surface(s) older than their source data"
@@ -163,6 +166,7 @@ def main() -> int:
             [title], raised_by="stale-sweep", today=today,
             summary=f"The stale sweep found {len(stale_surfaces)} HTML surface(s) behind their source "
                     f"markdown/yaml; CM should re-render on the next state change.",
+            fingerprint="stale-sweep:stale-surfaces",
             source="cadence (stale-sweep)")
 
     if filed:

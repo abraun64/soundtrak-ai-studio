@@ -34,11 +34,14 @@ try:
     import repo_paths
 
     DATA = repo_paths.data_root(ROOT)
-except Exception:  # noqa: BLE001 — never let path resolution crash a read-only cadence
+except ImportError:  # noqa: BLE001 — never let path resolution crash a read-only cadence
     DATA = ROOT
 
 SYSTEM_DIR = DATA / "system"
 SKILLS = ROOT / ".claude" / "skills"
+# SYS-144 — killed cadence findings. A kill REMOVES the idea from ideas.yaml, so without a
+# tombstone there is nothing left to dedupe against and the finding returns on the next run.
+TOMBSTONES = SYSTEM_DIR / "cadence-tombstones.yaml"
 CAMPAIGNS_DIR = DATA / "campaigns"
 TENANT_BRAND_DIR = DATA / "tenant-brand"
 LIBRARY_DIR = DATA / "tenant" / "library"
@@ -75,31 +78,139 @@ def load_yaml_items(path: Path, key: str = "items") -> list:
         return []
 
 
+def fingerprints_of(record) -> set:
+    """The finding(s) a record owns. `fingerprint:` is a string OR a list, because a MERGE
+    hands a ticket everything the records folded into it were tracking — after merging an idea
+    and a duplicate ticket into SYS-146 it owns three findings, and a single-value field would
+    have silently dropped two of them, releasing both to refile on the next run. The owning
+    ticket holding all of them is also what makes the release correct: when it closes, every
+    finding it absorbed becomes raisable again together."""
+    fp = record.get("fingerprint")
+    values = fp if isinstance(fp, list) else [fp]
+    return {str(v).strip() for v in values if v and str(v).strip()}
+
+
+# SYS-144 — WHICH tickets suppress a refile. An OPEN ticket (todo / in_progress) means the
+# finding is already on the board. A KILLED ticket means the operator decided against it. But a
+# DONE ticket means the problem was FIXED — if a cadence detects it again that is a NEW
+# occurrence and must be raised, not swallowed. (The old title-dedupe suppressed on done too,
+# which quietly turned "we fixed it once" into "never tell me again".)
+_SUPPRESSING_STATUSES = ("todo", "in_progress", "killed")
+
+
+def _suppresses(rec) -> bool:
+    return str(rec.get("status", "todo")).strip().lower() in _SUPPRESSING_STATUSES
+
+
+def load_tombstones() -> set[str]:
+    """SYS-144 — fingerprints of cadence findings the operator has KILLED. Read-only; an
+    absent or malformed file means "no tombstones", never a crash."""
+    out = set()
+    for e in load_yaml_items(TOMBSTONES, "entries"):
+        out |= fingerprints_of(e)
+    return out
+
+
+def add_tombstone(fingerprint: str, ref: str, today: str, reason: str = "") -> bool:
+    """Record a KILLED cadence finding so it stays killed. TEXT-append + parse-then-rollback,
+    like every other write in this module. Returns True if written (False if already present,
+    or on rollback). Called by the System Manager triage job via tombstone.py."""
+    fingerprint = str(fingerprint).strip()
+    if not fingerprint or fingerprint in load_tombstones():
+        return False
+    if not TOMBSTONES.exists():
+        TOMBSTONES.write_text(
+            "# Killed cadence findings (SYS-144).\n"
+            "#\n"
+            "# A cadence dedupes what it files against open ideas, open tickets, AND this list.\n"
+            "# Killing an idea removes it from ideas.yaml, which leaves nothing to match on, so a\n"
+            "# killed finding used to return on the very next run. Its FINGERPRINT lives here\n"
+            "# instead: a stable <cadence>:<category>[:<scope>] key that survives retitling.\n"
+            "#\n"
+            "# Written by the triage job via: python .claude/skills/cadences/tombstone.py\n"
+            "# To let a finding be raised again, delete its entry.\n"
+            "entries:\n", encoding="utf-8")
+    existing = TOMBSTONES.read_text(encoding="utf-8")
+    if not existing.endswith("\n"):
+        existing += "\n"
+    safe_r = str(reason or "Killed at triage.").replace('"', "'")
+    TOMBSTONES.write_text(
+        existing
+        + f'  - fingerprint: "{fingerprint}"\n'
+        + f"    ref: {ref}\n"
+        + f"    date: {today}\n"
+        + f'    reason: "{safe_r}"\n',
+        encoding="utf-8")
+    try:
+        import yaml as _y
+
+        _y.safe_load(TOMBSTONES.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 — never leave the tombstone store unparseable
+        TOMBSTONES.write_text(existing, encoding="utf-8")
+        return False
+    return True
+
+
 def file_new_ideas(new_titles: list[str], raised_by: str, today: str,
-                   summary: str = "", source: str = "cadence") -> list[str]:
+                   summary: str = "", source: str = "cadence",
+                   fingerprint: "str | list[str] | None" = None) -> list[str]:
     """Append deduped idea entries to system/ideas.yaml as TEXT.
 
     Mirrors the weekly-digest helper exactly: preserves the file header/comments
     (no safe_dump), QUOTES the title (idea titles contain colons), and rolls back
-    if the append ever leaves ideas.yaml unparseable. Dedupe is by case-folded
-    title against existing ideas AND backlog tickets, so a finding already filed
-    or already promoted to a ticket is NOT re-raised.
+    if the append ever leaves ideas.yaml unparseable.
+
+    DEDUPE IS BY FINGERPRINT (SYS-144), not by title. `fingerprint` is a stable
+    `<cadence>:<category>[:<scope>]` key — one per title, or one string applied to all —
+    matched against the `fingerprint:` of every open idea, every backlog ticket, and the
+    killed-findings tombstone store. Title matching stays as a fallback for records that
+    predate fingerprints, but it must never be the primary key, because the title is the
+    part that CHANGES:
+      - counts live in it ("31 asset(s)..." vs "32 asset(s)..."), so the same standing
+        finding refiled whenever the number moved;
+      - triage MANDATES sharpening the title on promote, so every promoted finding refiled
+        on the next run — the two rules were in direct conflict;
+      - a kill deletes the record outright, so a killed finding had nothing to match at all.
+    Observed live 2026-08-22: IDEA-063 (promoted to SYS-143) and a finding killed on
+    2026-08-06 both refiled within one session.
+
+    Counts belong in the SUMMARY. Never put them in the fingerprint.
 
     Returns the list of filed IDEA-ids ([] if nothing new or on rollback)."""
     if not new_titles:
         return []
 
+    fps = fingerprint if isinstance(fingerprint, list) else [fingerprint] * len(new_titles)
+    fps = [str(f).strip() if f else "" for f in fps] + [""] * len(new_titles)
+
     ideas = load_yaml_items(SYSTEM_DIR / "ideas.yaml")
     backlog = load_yaml_items(SYSTEM_DIR / "backlog.yaml")
+    # PRIMARY key — survives retitling, count drift, promotion and kill.
+    fp_seen = set()
+    for rec in ideas:
+        fp_seen |= fingerprints_of(rec)
+    for rec in backlog:
+        if _suppresses(rec):
+            fp_seen |= fingerprints_of(rec)
+    fp_seen |= load_tombstones()
+    # FALLBACK key — only reaches records filed before fingerprints existed.
     seen = {str(i.get("title", "")).strip().lower() for i in ideas} | \
            {str(b.get("title", "")).strip().lower() for b in backlog}
 
-    fresh = []
-    for t in new_titles:
+    fresh, fresh_fps = [], []
+    for t, fp in zip(new_titles, fps):
         key = str(t).strip().lower()
-        if key and key not in seen:
-            fresh.append(t)
-            seen.add(key)
+        if not key:
+            continue
+        if fp:
+            if fp in fp_seen:
+                continue
+            fp_seen.add(fp)
+        elif key in seen:
+            continue
+        seen.add(key)
+        fresh.append(t)
+        fresh_fps.append(fp)
     if not fresh:
         return []
 
@@ -122,15 +233,19 @@ def file_new_ideas(new_titles: list[str], raised_by: str, today: str,
 
     default_summary = summary or "Auto-filed by a scheduled cadence; triage to confirm or kill."
     chunks, filed = [], []
-    for t in fresh:
+    for t, fp in zip(fresh, fresh_fps):
         iid = f"IDEA-{nxt:03d}"
         nxt += 1
         filed.append(iid)
         safe_t = str(t).replace('"', "'")          # title is controlled, but be defensive
         safe_s = str(default_summary).replace('"', "'")
+        # SYS-144: the fingerprint is the dedupe key. Triage MUST carry it onto the ticket on
+        # promote (see the System Manager triage job) or the finding refiles despite the ticket.
+        fp_line = f'    fingerprint: "{fp}"\n' if fp else ""
         chunks.append(
             f"\n  - id: {iid}\n"
             f'    title: "{safe_t}"\n'              # QUOTED — titles contain colons
+            f"{fp_line}"
             f"    raised_by: {raised_by}\n"
             f"    date: {today}\n"
             f"    source: {source}\n"

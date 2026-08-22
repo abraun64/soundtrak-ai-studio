@@ -583,6 +583,26 @@ def _current_phase_num(campaign_dir: "Path") -> "int | None":
     return None
 
 
+# SYS-136 — re-entrancy guard for the cycle below. _phase5_gap_action() asks
+# _current_phase_num() which phase is current; for a phase declared `status_mode:
+# derive_blocks_launch` that answer runs scan_campaign(), which ends by calling
+# _phase5_gap_action() again. Any campaign with BOTH a Phase 5 and a derive_blocks_launch phase
+# therefore re-entered ~200 levels deep, each level doing a full campaign disk scan, until the
+# interpreter's recursion limit tripped and the RecursionError was swallowed by an inner
+# `except Exception`. It didn't crash — it just took MINUTES and returned a value derived from a
+# blown stack. gamma-launch-2026q2's dashboard render never finished inside the Stop hook's 60s
+# budget (verified 2026-08-22: >120s by hand, 1.3s after this fix), so the hook's render was
+# killed and the surface silently kept serving its old content — exactly the silent-stale
+# failure the fail-loud guarantee exists to prevent.
+#
+# The guard makes the INNER scan return without the synthetic gap row, which is also
+# semantically right: that row is synthetic and carries blocks_launch=True, so counting it as a
+# real launch blocker is circular ("phase 5 isn't done because the phase-5 plan is missing, and
+# the plan is missing because phase 5 isn't done"). Covered by test_operator_actions.py, which
+# asserts scan_campaign is never re-entered for the same campaign.
+_GAP_IN_PROGRESS: set = set()
+
+
 def _phase5_gap_action(campaign_dir: "Path"):
     """SYS-130 — the fail-loud catch for the Phase-4 → Phase-5 stall. The CM is supposed to
     author the Phase-5 launch plan the moment production closes, but it relies on the agent
@@ -593,11 +613,18 @@ def _phase5_gap_action(campaign_dir: "Path"):
     over (collapse_phase_plan_actions), so this fires ONLY in the gap."""
     if campaign_dir is None:
         return None
+    key = str(campaign_dir)
+    if key in _GAP_IN_PROGRESS:
+        return None  # SYS-136 — re-entered via _current_phase_num -> scan_campaign; break the cycle
     y = scan_campaign_yaml(campaign_dir)
     phase_nums = {_phase_num(p.get("id")) for p in (y.get("phases") or []) if isinstance(p, dict)}
     if 5 not in phase_nums:
         return None  # not a launch-type campaign — nothing to auto-advance into
-    cur = _current_phase_num(campaign_dir)
+    _GAP_IN_PROGRESS.add(key)
+    try:
+        cur = _current_phase_num(campaign_dir)
+    finally:
+        _GAP_IN_PROGRESS.discard(key)
     if cur is not None and cur < 5:
         return None  # still in/before Phase 4 — don't surface prematurely
     if _phase_plan_status(campaign_dir, "phase-5-rollout") is not None:

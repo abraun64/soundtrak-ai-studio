@@ -3,7 +3,9 @@
 surface_freshness — SYS-112 prong A. Make operator surfaces impossible to show stale.
 
 THE PROBLEM: the operator surfaces (per-campaign dashboard.html + gallery.html, the
-cross-campaign tasks.html + index.html, tenant homes) are pre-rendered STATIC HTML with no
+cross-campaign tasks.html + index.html, tenant homes, and — since SYS-143 — every other
+render-html output: the campaign-DNA doc, brief / plan / phase docs, concepts, per-asset
+records and the tenant brand-context docs) are pre-rendered STATIC HTML with no
 running server. Each is a snapshot that must be re-generated after every data change; a
 skipped regeneration (a no-op hook, a dead subagent, a forgotten render) leaves the surface
 behind the data — and the operator reviews stale content without knowing.
@@ -36,7 +38,7 @@ sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 try:
     import repo_paths
     DATA = repo_paths.data_root(ROOT)             # DATA dirs canonical in main checkout
-except Exception:
+except ImportError:
     DATA = ROOT
 CAMPAIGNS = DATA / "campaigns"
 TENANT_BRAND = DATA / "tenant-brand"
@@ -66,11 +68,70 @@ _SENTINEL_RE = re.compile(
 )
 
 
-def _has_sentinel(p: Path) -> bool:
+# SYS-143: the four surface kinds this module hand-enumerates (dashboard · gallery · cross ·
+# tenant-home) are NOT the only render-html outputs. Every other one — the campaign-DNA doc
+# <slug>.html, brief.html, plan.html, phase-N-*.html, concepts/*.html, the per-asset record /
+# preview .html, and the tenant brand-context / playbook / phase-0 / segments docs — sat OUTSIDE
+# the gate, so it could fall days behind its markdown while `--check` reported every surface
+# fresh. Verified 2026-08-22: stale-sweep flagged 7 lagging surfaces (5 campaign-DNA docs ~4d
+# behind, 2 asset records ~1d) while this module exited 0. Those are the surfaces review actually
+# happens on, so that hole is the whole guarantee.
+#
+# They all come off the same "<x>.md -> <x>.html" render-html pipeline, so enumerate them BY THAT
+# SHAPE, using the SAME discriminator stale-sweep uses: the html carries the render-html chrome
+# signature AND has a same-stem .md. That correctly excludes hand-built Producer artifacts
+# (mockups, slides, og-cards, storyboards, print specs) which no pipeline re-renders — flagging
+# those was the original false-positive flood. Sharing the discriminator makes the two sensors
+# agree BY CONSTRUCTION rather than by coincidence.
+_PIPELINE_SIG = ('class="crumb', "library-nav")
+
+# Excluded from the doc pass because they have a dedicated kind above with the correct rebuild
+# command (gallery -> build-gallery.py, *-home -> build-tenant-home.py); re-rendering them from a
+# same-stem .md with render.py would use the WRONG builder.
+_DOC_EXCLUDE_NAMES = {"dashboard.html", "gallery.html", "index.html", "tasks.html"}
+
+
+def _read(p: Path) -> str:
     try:
-        return bool(_SENTINEL_RE.search(p.read_text(encoding="utf-8", errors="replace")))
+        return p.read_text(encoding="utf-8", errors="replace")
     except OSError:
-        return False
+        return ""
+
+
+def _has_sentinel(p: Path) -> bool:
+    return bool(_SENTINEL_RE.search(_read(p)))
+
+
+def _doc_pairs(root: Path, recurse: bool = True):
+    """Yield (md, html) same-stem candidates under `root` — cheap (stat only), no file reads.
+    The pipeline-signature discriminator is applied by the caller."""
+    if not root.is_dir():
+        return
+    for html in sorted(root.rglob("*.html") if recurse else root.glob("*.html")):
+        s = str(html).replace("\\", "/")
+        if any(sd in s for sd in _SKIP_DIR):
+            continue
+        if html.name in _DOC_EXCLUDE_NAMES or html.name.endswith("-home.html"):
+            continue
+        md = html.with_suffix(".md")
+        if md.exists():
+            yield md, html
+
+
+def _stale_docs(root: Path, label_from: Path, recurse: bool = True, slug: str | None = None):
+    """Stale entries of kind 'doc' under `root`. One read per candidate, used for BOTH the
+    pipeline-signature discriminator and the sentinel check."""
+    out = []
+    for md, html in _doc_pairs(root, recurse=recurse):
+        text = _read(html)
+        if not any(sig in text for sig in _PIPELINE_SIG):
+            continue  # bespoke / hand-built artifact — no pipeline rebuilds it from the .md
+        md_m, html_m = _mtime(md), _mtime(html)
+        if (md_m and html_m < md_m - EPSILON) or _SENTINEL_RE.search(text):
+            out.append({"surface": html.relative_to(label_from).as_posix(), "kind": "doc",
+                        "slug": slug, "md": md, "out": html,
+                        "data_mtime": md_m, "out_mtime": html_m})
+    return out
 
 
 def _mtime(p: Path) -> float:
@@ -129,9 +190,36 @@ def _active_campaigns():
             if d.is_dir() and (d / "campaign.yaml").exists() and not _is_archived(d)]
 
 
+def missing_counts_as_stale() -> bool:
+    """True where generated HTML is DERIVED rather than committed (profile: team).
+
+    Module-level and overridable so the keystone property is testable in-process.
+    """
+    try:
+        import deployment_profile as _dp
+        return not _dp.commit_generated_html()
+    except Exception:  # noqa: BLE001 — never let a profile problem disable the guarantee
+        return False
+
+
 def stale_surfaces(scope_campaign: str | None = None) -> list[dict]:
     """Return the list of surfaces whose rendered HTML is behind its data. Each entry:
     {surface, kind, slug|tenant, out (Path), data_mtime, out_mtime}. Pure/read-only."""
+    # team-deployment.md 10 - when generated HTML is NOT committed (profile: team), a fresh
+    # clone has NO surfaces at all. The `exists()` guards below were written for a world where
+    # HTML is tracked, so an ABSENT surface is simply skipped - and the gate would report
+    # "every surface is at least as new as its data" to an operator who has none. That is the
+    # surfaces-fail-loud keystone (SYS-126) inverted by a state it never contemplated.
+    # So: where HTML is derived rather than tracked, MISSING counts as stale and gets built.
+    _missing_is_stale = missing_counts_as_stale()
+
+    def _needs_build(out_path, data_mtime) -> bool:
+        """True when `out_path` must be (re)built. Absent counts only where HTML is derived."""
+        if not out_path.exists():
+            return bool(_missing_is_stale and data_mtime)
+        return bool((data_mtime and _mtime(out_path) < data_mtime - EPSILON)
+                    or _has_sentinel(out_path))
+
     stale: list[dict] = []
     camps = _active_campaigns()
     if scope_campaign:
@@ -146,15 +234,22 @@ def stale_surfaces(scope_campaign: str | None = None) -> list[dict]:
         # dashboard.html ← every .md/.yaml in the campaign (operator_actions, plan, brief,
         # the dashboard md itself). Exclude the generated surfaces so it isn't newer-than-self.
         dash_data = _newest_under(cd, suffixes=(".md", ".yaml"), skip_generated={dash, gallery})
-        if dash.exists() and ((dash_data and _mtime(dash) < dash_data - EPSILON) or _has_sentinel(dash)):
+        if _needs_build(dash, dash_data):
             stale.append({"surface": f"{slug}/dashboard.html", "kind": "dashboard",
                           "slug": slug, "out": dash, "data_mtime": dash_data, "out_mtime": _mtime(dash)})
 
         # gallery.html ← every asset file (asset.yaml + ship files: html/png/mp4/md).
         gal_data = _newest_under(assets)
-        if gallery.exists() and ((gal_data and _mtime(gallery) < gal_data - EPSILON) or _has_sentinel(gallery)):
+        if _needs_build(gallery, gal_data):
             stale.append({"surface": f"{slug}/gallery.html", "kind": "gallery",
                           "slug": slug, "out": gallery, "data_mtime": gal_data, "out_mtime": _mtime(gallery)})
+
+        # SYS-143 — every OTHER render-html output in the campaign: the campaign-DNA doc
+        # <slug>.html, brief.html, plan.html, phase-N-*.html, concepts/*.html and the per-asset
+        # record / preview .html. Each is compared against its OWN same-stem .md (precise, not
+        # the coarse folder-wide rule the dashboard uses), so an asset record going stale flags
+        # that record — not every surface in the campaign.
+        stale += _stale_docs(cd, CAMPAIGNS, slug=slug)
 
     # Cross-campaign tasks.html + index.html ← their md source + every campaign's .yaml/.md.
     if not scope_campaign:
@@ -165,7 +260,7 @@ def stale_surfaces(scope_campaign: str | None = None) -> list[dict]:
         )
         for name in ("tasks", "index"):
             out = CAMPAIGNS / f"{name}.html"
-            if out.exists() and ((cross_data and _mtime(out) < cross_data - EPSILON) or _has_sentinel(out)):
+            if _needs_build(out, cross_data):
                 stale.append({"surface": f"{name}.html", "kind": "cross", "name": name,
                               "out": out, "data_mtime": cross_data, "out_mtime": _mtime(out)})
 
@@ -188,6 +283,14 @@ def stale_surfaces(scope_campaign: str | None = None) -> list[dict]:
                 if (t_data and _mtime(home) < t_data - EPSILON) or _has_sentinel(home):
                     stale.append({"surface": f"tenant-brand/{tenant}-home.html", "kind": "tenant",
                                   "tenant": tenant, "out": home, "data_mtime": t_data, "out_mtime": _mtime(home)})
+
+        # SYS-143 — the same same-stem pipeline rule for the surfaces OUTSIDE any campaign dir:
+        # campaigns-root docs (handovers), and the tenant layer the operator reviews just as
+        # often as a campaign (brand context · playbook · phase-0 baseline · segments · market ·
+        # audience truths · compliance). *-home.html is excluded — it has its own kind above with
+        # the correct builder (build-tenant-home.py, not render.py).
+        stale += _stale_docs(CAMPAIGNS, CAMPAIGNS, recurse=False)
+        stale += _stale_docs(TENANT_BRAND, DATA)
     return stale
 
 
@@ -217,16 +320,46 @@ def rebuild(entry: dict) -> bool:
                      "--template", str(BASE_TMPL)])
     if kind == "tenant":
         return _run([str(BUILD_TENANT), "--tenant", entry["tenant"]])
+    if kind == "doc":
+        # BASE_TMPL is passed as the template PATH deliberately — render.py normalises it and
+        # infers the real template from the source path (brief / plan / launch / concept-trio /
+        # brand-context / dashboard / base), which is what the pipeline does everywhere else.
+        # --output is forced so a doc always rebuilds to the path that was found stale.
+        return _run([str(RENDER), "--markdown", str(entry["md"]), "--template", str(BASE_TMPL),
+                     "--output", str(entry["out"])])
     return False
 
 
+_MAX_PASSES = 4  # deepest real cascade is doc -> gallery -> dashboard -> tenant-home
+
+
 def heal(scope_campaign: str | None = None) -> tuple[list[str], list[str]]:
-    """Rebuild every stale surface, then re-verify. Returns (healed, still_stale)."""
-    healed, failed = [], []
-    for e in stale_surfaces(scope_campaign):
-        (healed if rebuild(e) else failed).append(e["surface"])
-    still = [e["surface"] for e in stale_surfaces(scope_campaign)]
-    return sorted(set(healed) - set(still)), sorted(set(still) | set(failed))
+    """Rebuild every stale surface, then re-verify. Returns (healed, still_stale).
+
+    Iterates to a fixed point (bounded) because rebuilds CASCADE: healing an asset record
+    bumps its mtime, which makes the gallery that aggregates it stale in turn. A single
+    pass therefore ends by reporting the cascade as "STILL STALE after rebuild" — a LOUD
+    failure for a surface that is merely one rebuild behind. That false alarm is the same
+    trust erosion as a missed one, just pointing the other way, so keep going while each
+    pass CHANGES the stale set. The bound is what keeps a genuinely unfixable surface loud:
+    when the same surfaces survive their own rebuild, that is a real failure — stop and
+    report it."""
+    healed: set[str] = set()
+    failed: set[str] = set()
+    stale = stale_surfaces(scope_campaign)
+    for _ in range(_MAX_PASSES):
+        if not stale:
+            break
+        for e in stale:
+            (healed if rebuild(e) else failed).add(e["surface"])
+        before = {e["surface"] for e in stale}
+        stale = stale_surfaces(scope_campaign)
+        after = {e["surface"] for e in stale}
+        if after == before:
+            break  # the same surfaces are still stale after rebuilding them — a REAL failure,
+                   # not a cascade. Stop and let the caller report it loudly.
+    still = {e["surface"] for e in stale}
+    return sorted(healed - still), sorted(still | (failed - healed))
 
 
 def main(argv: list[str]) -> int:

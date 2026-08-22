@@ -53,7 +53,7 @@ try:
 
     DATA_ROOT = repo_paths.data_root(ROOT)
     _IN_WORKTREE = repo_paths.is_worktree(ROOT)
-except Exception:  # noqa: BLE001 — fall back to the running checkout if the helper is absent
+except ImportError:  # noqa: BLE001 — fall back to the running checkout if the helper is absent
     DATA_ROOT = ROOT
     _IN_WORKTREE = False
 

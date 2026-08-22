@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 try:
     import repo_paths
     DATA = repo_paths.data_root(ROOT)
-except Exception:
+except ImportError:
     DATA = ROOT
 IDX = ROOT / "docs" / "NAVIGATION_INDEX.md"
 

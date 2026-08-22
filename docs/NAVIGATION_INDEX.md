@@ -2,7 +2,7 @@
 
 **The system's own dashboard.** Everything in the system lives in one of the document classes below. If you're cold-starting and don't know where something is, start here.
 
-**Last updated**: 2026-07-23
+**Last updated**: 2026-08-22
 **Version**: v3
 
 > **Kept fresh by `nav-audit`** (`.claude/skills/nav-audit/nav_audit.py`) — diffs this index against the specs/skills/agents/playbooks on disk and flags anything missing, any dead link, a stale stamp, and the oldest-untouched docs. It runs as part of `system-smoke-test` (so any "run smoke test" catches index drift) and on demand ("run nav audit"). When you add a spec/skill/agent/playbook, add a row here — the audit will catch it if you forget.
@@ -57,8 +57,11 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **Gallery QA spec** | Pre-surface gallery checklist + the Plan-Ships ⇄ gallery-tile contract (check before the operator sees it). | `docs/specs/gallery-qa.md` |
 | **Data Architecture spec** | Storage model — markdown authoritative, HTML rendered, OneDrive + Git dual-backed; render-pipeline contract. | `docs/specs/data-architecture.md` |
 | **Surface Freshness spec** | SYS-112: the "impossible to show stale" guarantee — every operator surface is verified against its data inputs' mtimes and healed (re-rendered) before an operator ever sees it; the class-fix for the stale-snapshot bug family. | `docs/specs/surface-freshness.md` |
+| **System Verification spec** | SYS-138 Part 1: what UAT means here (the operator's outcome, not a file-existence check), the four verification levels (sanity / smoke / behavioural / unit), the trigger criteria for choosing one, and the repeatable steps for each. | `docs/specs/system-verification.md` |
 | **System Manager spec** | The System-layer owner: backlog + idea inbox + audit schema, the operator dashboard (To Do split "Needs you" / "AI can action" + audit history), and the capture / triage / retro / groom workflows. | `docs/specs/system-manager.md` |
 | **Agent I/O Contract spec** | Structured dispatch + return envelopes for CM↔agent handoffs (machine-checkable orchestration: ship-file existence, explicit verdicts, cost capture). WIRED (additive) — SYS-004 Steps 2-3: validator (`agent-io` skill) + agents emit + CM validates; Step 4 (sole source of truth) gated. | `docs/specs/agent-io-contract.md` |
+| **Organisation deployment guide** | The TEAM install runbook, sibling to the single-person deployment guide. Part A sets the organisation up once (two repos, access, first release tag, LFS, a nominated publisher, the managed-policy hook check); Part B is the ~10-minute join each person does. Hand-authored HTML, non-technical. | `docs/guide/org-deployment-guide.html` |
+| **Team Deployment spec** | Multi-operator deployment for a Microsoft 365 shop (N Claude Enterprise seats, shared brands, central libraries, one campaign estate): the CODE/DATA repo split, path resolution, operator attribution, campaign claim locks, git-as-sync-layer, pinned-tag code rollout, LFS/partial-clone media plan, SharePoint publishing, and the concrete `profile: small-business | enterprise` axes (closes SYS-028). v1 draft — nothing built. | `docs/specs/team-deployment.md` |
 
 ---
 

@@ -35,7 +35,7 @@ sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 try:
     import repo_paths
     DATA_ROOT = repo_paths.data_root(ROOT)
-except Exception:  # noqa: BLE001
+except ImportError:  # noqa: BLE001
     DATA_ROOT = ROOT
 try:
     import operator_nav
@@ -120,6 +120,11 @@ def render_open_card(item: dict) -> str:
     summary_html = f'<div class="card-summary">{summary}</div>' if summary else ""
     benefit = esc(item.get("benefit", ""))
     benefit_html = f'<div class="card-benefit"><b>Benefit &middot;</b> {benefit}</div>' if benefit else ""
+    # SYS-138 — how this ticket was verified, on the surface where the operator decides.
+    # "Done" and "claimed done" look identical without it; a commit message is not a surface.
+    verified = esc(item.get("verified", ""))
+    verified_html = (f'<div class="card-verified"><b>Verified &middot;</b> {verified}</div>'
+                     if verified else "")
     wip = '<span class="tag">in progress</span>' if item.get("status") == "in_progress" else ""
     layer = esc(item.get("layer", "system"))
     return (
@@ -128,6 +133,7 @@ def render_open_card(item: dict) -> str:
         f'<div class="card-title">{title}</div>'
         f"{summary_html}"
         f"{benefit_html}"
+        f"{verified_html}"
         f'<div class="card-meta"><span>{meta_line(item)}</span>'
         f'<span class="card-tags"><span class="layer-tag">{layer}</span>'
         f'<span class="prio prio-{prio.lower()}">{prio}</span></span></div>'
@@ -204,7 +210,11 @@ def render_audit(entries: list, recent: int = 20) -> str:
             '<div class="arow">'
             f'<span class="adate">{esc(entry.get("date", ""))}</span>'
             f'<span class="aref">{esc(entry.get("ref", ""))}</span>'
-            f'<span class="adetail">{esc(entry.get("note") or entry.get("detail", ""))}</span>'
+            # team-deployment.md 4 - WHO acted. Rendered only when the entry carries `by:`,
+            # so the existing single-operator history (which has none) is untouched.
+            + (f'<span class="aby">{esc(str(entry["by"]).split("@")[0])}</span>'
+               if entry.get("by") else "")
+            + f'<span class="adetail">{esc(entry.get("note") or entry.get("detail", ""))}</span>'
             f'<span class="aevent">{esc(entry.get("event", ""))}</span>'
             "</div>"
         )
@@ -276,6 +286,8 @@ body.template-system { background: var(--bg); }
 .card-title { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.35; margin: 2px 0 0; }
 .card-summary { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 6px; }
 .card-benefit, .idea-benefit { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 6px; }
+.card-verified { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 6px; }
+.card-verified b { color: var(--text-subtle); }
 .card-benefit b, .idea-benefit b { color: var(--accent); }
 .card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
 .card-meta > span:first-child { font-size: 11px; color: var(--text-subtle); }
@@ -297,6 +309,7 @@ body.template-system { background: var(--bg); }
 .arow:last-child { border-bottom: none; }
 .adate { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-subtle); }
 .aref { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-muted); }
+.aby { font-family: ui-monospace, monospace; font-size: 12px; color: var(--text-muted); }
 .adetail { color: var(--text); }
 .aevent { font-size: 11px; color: var(--text-subtle); text-transform: uppercase; letter-spacing: .04em; }
 

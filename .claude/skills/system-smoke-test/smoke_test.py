@@ -87,6 +87,87 @@ if _HELPERS_TEST.exists():
     ok, err = _run_ok([str(_HELPERS_TEST)])
     check("L1", "build-gallery parser tests", ok, err if not ok else "")
 
+# SYS-136 — operator_actions decides what the dashboard/tasks queue tell the operator to do.
+# Its Phase-5 gap catch mutually recursed with the phase-completion derivation (~200 levels of
+# full campaign scans), so a real campaign's render blew past the Stop hook's 60s budget, got
+# killed, and the surface silently kept serving stale content. RED here = that class is back.
+_OA_TEST = ROOT / ".claude" / "skills" / "render-html" / "test_operator_actions.py"
+if _OA_TEST.exists():
+    ok, err = _run_ok([str(_OA_TEST)])
+    check("L1", "operator-actions regression tests", ok, err if not ok else "")
+
+# SYS-143 — the freshness gate's ENUMERATION is the whole guarantee: a surface it doesn't list
+# can go stale without tripping anything. These assert it covers the same-stem md->html pipeline
+# outputs (brief / plan / phase docs / asset records) and still excludes hand-built Producer
+# artifacts, and that it shares stale-sweep's discriminator so the two sensors can't disagree.
+_SF_TEST = ROOT / ".claude" / "lib" / "test_surface_freshness.py"
+if _SF_TEST.exists():
+    ok, err = _run_ok([str(_SF_TEST)])
+    check("L1", "surface-freshness enumeration tests", ok, err if not ok else "")
+
+# SYS-141 — the weekly digest WRITES to backlog.yaml. Two diagnostics escalating in one run
+# both computed their id off the same stale in-memory list and filed duplicate SYS-141s
+# (2026-08-11, repaired by hand). It also never noticed a diagnostic recovering, so a green
+# check's P1 ticket sat open indefinitely. RED here = the board can be corrupted again.
+_WD_TEST = ROOT / ".claude" / "skills" / "system-manager" / "test_weekly_digest.py"
+if _WD_TEST.exists():
+    ok, err = _run_ok([str(_WD_TEST)])
+    check("L1", "weekly-digest escalation tests", ok, err if not ok else "")
+
+# SYS-144 — the cadences dedupe what they file by fingerprint. Regress that and the inbox
+# starts regenerating findings the operator already promoted or killed, which teaches them to
+# skim past it — and that is how a genuinely new finding gets missed.
+_CD_TEST = ROOT / ".claude" / "skills" / "cadences" / "test_cadence_dedup.py"
+if _CD_TEST.exists():
+    ok, err = _run_ok([str(_CD_TEST)])
+    check("L1", "cadence dedupe tests", ok, err if not ok else "")
+
+# Team deployment §3 — data_root() gained an explicit override (env / per-machine config) so a
+# multi-operator install can point DATA at a separate repo. Two properties must hold: with NO
+# configuration the single-operator install is byte-identical to before, and a configured-but-
+# broken root FAILS LOUD. Regress the second and a tool writes campaign/system data into the
+# CODE checkout, where it would ride a code release — the SYS-103 blind spot, but shipped.
+_RP_TEST = ROOT / ".claude" / "lib" / "test_repo_paths.py"
+if _RP_TEST.exists():
+    ok, err = _run_ok([str(_RP_TEST)])
+    check("L1", "data-root resolution tests", ok, err if not ok else "")
+
+# SYS-028 / team deployment §12 — the profile toggle changes DEFAULTS, not code paths. The
+# load-bearing property is that with NO config.yaml every axis returns the small-business answer:
+# a regression there would silently make a single-operator install demand attribution or stop
+# committing its own surfaces. The fail-loud half matters too — an install that MEANT to be a team
+# deployment but quietly ran single-operator would skip claim locks and attribution unnoticed.
+_DP_TEST = ROOT / ".claude" / "lib" / "test_deployment_profile.py"
+if _DP_TEST.exists():
+    ok, err = _run_ok([str(_DP_TEST)])
+    check("L1", "deployment-profile toggle tests", ok, err if not ok else "")
+
+# team-deployment §9.2 — a secret committed to a SHARED repo is permanent: it is in every
+# clone's history and rotation is the only real remedy. Scan the tracked tree. This also
+# guards the scanner itself: patterns broad enough to cry wolf get bypassed, and a bypassed
+# scanner protects nothing — so a false positive HERE is a real failure, not noise.
+# The ORGANISATION guide carries style.css INLINE (it is the page sent to a prospective customer,
+# before they have a repo, where a linked stylesheet would arrive unstyled). That is a duplicate,
+# and a duplicate nobody checks is drift waiting to happen - so check it.
+_CSS_SYNC = ROOT / ".claude" / "lib" / "inline_guide_css.py"
+if _CSS_SYNC.exists():
+    ok, err = _run_ok([str(_CSS_SYNC), "--check"])
+    check("L1", "org guide CSS in step with style.css", ok, err if not ok else "")
+
+_SECRETS = ROOT / ".claude" / "lib" / "secret_scan.py"
+if _SECRETS.exists():
+    ok, err = _run_ok([str(_SECRETS), str(ROOT / ".claude"), str(DATA / "tenant"),
+                       str(DATA / "tenant-brand")], timeout=120)
+    check("L1", "no credentials in the tracked tree", ok, err if not ok else "")
+
+# SYS-138 — verify.py --audit is the only thing between "closed" and "closed without anyone
+# checking". If its close-date parsing or suite discovery regresses it reports a cheerful green
+# having audited nothing, which is worse than not having it.
+_V_TEST = ROOT / ".claude" / "skills" / "system-manager" / "test_verify.py"
+if _V_TEST.exists():
+    ok, err = _run_ok([str(_V_TEST)])
+    check("L1", "verification runner tests", ok, err if not ok else "")
+
 
 # ── Layer 1b — Auto-rebuild machinery (SYS-126/127): a seed must FAIL LOUD and must actually
 # rebuild surfaces on a data edit. These catch the 2026-07-27 stale-hooks class (a frozen

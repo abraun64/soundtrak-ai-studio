@@ -375,6 +375,47 @@ def auto_backup(session_summary: str):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     commit_msg = f"auto-backup: {ts}\n\n{session_summary}" if session_summary else f"auto-backup: {ts}"
 
+    # ── team deployment §4/§6/§9.2 ──────────────────────────────────────────────────────
+    # Everything in this block is INERT under `profile: small-business`: the accessors
+    # return the single-operator answer, so a solo install commits exactly as it always has.
+    _team, _who = False, None
+    try:
+        sys.path.insert(0, str(PROJECT_ROOT / ".claude" / "lib"))
+        import deployment_profile as _dp
+        import operator_identity as _oi
+        _team = _dp.multi_operator()
+        if _dp.attribution_required():
+            _who = _oi.current()
+            # §4 — WHO made this commit. Without it every operator's work lands as an
+            # anonymous "auto-backup" and the history cannot answer "who changed this?".
+            commit_msg += f"\n\nOperator: {_oi.stamp()}"
+            if not _who:
+                print("[state-hook] WARNING: attribution is required under `profile: team` but "
+                      "git config user.email is unset - this commit names nobody.", file=sys.stderr)
+    except Exception:  # noqa: BLE001 — a profile problem must never block a session ending
+        pass
+
+    # §9.2 — a secret reaching a SHARED repo is permanent: it is in every clone's history
+    # and rotation is the only remedy. Scan BEFORE the commit. A solo install is warned;
+    # a team deployment is blocked, because there the blast radius is everyone.
+    try:
+        import secret_scan as _ss
+        _dirty = [p for p in (SYSTEM_ROOT, CAMPAIGNS_ROOT) if (p / ".git").exists()]
+        _found = []
+        for _repo in _dirty:
+            _out = subprocess.run(["git", "diff", "--name-only", "--diff-filter=ACM"],
+                                  cwd=str(_repo), capture_output=True, text=True, timeout=30)
+            _files = [_repo / f for f in _out.stdout.splitlines() if f.strip()]
+            _found.extend(_ss.scan_paths([f for f in _files if f.is_file()]))
+        if _found:
+            print("[state-hook] " + _ss.report(_found), file=sys.stderr)
+            if _team:
+                print("[state-hook] ABORTING auto-backup - refusing to commit a credential to a "
+                      "SHARED repo. Remove it, rotate the exposed value, then commit.", file=sys.stderr)
+                return
+    except Exception:  # noqa: BLE001 — the scan is a guard, not a gate on ending a session
+        pass
+
     # SYS-108 — in a worktree, keep generated surfaces out of the branch backup.
     try:
         _in_worktree = repo_paths.is_worktree(PROJECT_ROOT)
@@ -394,6 +435,16 @@ def auto_backup(session_summary: str):
                     pushed.append(label)
                 else:
                     local_only.append(label)
+
+    # team-deployment 5 - release this operator's claims so a closed laptop never blocks the
+    # team until the TTL expires. No-op under small-business (claim locks are off).
+    try:
+        import campaign_claim as _cc
+        _freed = _cc.release_mine()
+        if _freed:
+            print(f"[state-hook] released campaign claim(s): {', '.join(_freed)}", file=sys.stderr)
+    except Exception:  # noqa: BLE001
+        pass
 
     if pushed:
         print(f"[state-hook] git auto-backup: committed + pushing {', '.join(pushed)}", file=sys.stderr)

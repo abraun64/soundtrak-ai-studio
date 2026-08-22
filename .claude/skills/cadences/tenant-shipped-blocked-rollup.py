@@ -135,6 +135,7 @@ def main() -> int:
             [title], raised_by="tenant-shipped-blocked-rollup", today=today,
             summary=f"The weekly rollup found {total_blocked_old} open operator action(s) blocking "
                     "campaigns; clear or reassign them.",
+            fingerprint="tenant-shipped-blocked-rollup:blocked-actions",  # SYS-144
             source="cadence (tenant-shipped-blocked-rollup)")
 
     if filed:

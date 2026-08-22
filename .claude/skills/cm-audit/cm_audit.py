@@ -31,7 +31,7 @@ sys.path.insert(0, str(ROOT / ".claude" / "lib"))
 try:
     import repo_paths
     _DATA = repo_paths.data_root(ROOT)
-except Exception:
+except ImportError:
     _DATA = ROOT
 CAMP = _DATA / "campaigns"
 TB = _DATA / "tenant-brand"

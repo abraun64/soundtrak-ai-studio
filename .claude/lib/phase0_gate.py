@@ -34,6 +34,17 @@ except Exception:  # pragma: no cover
 
 ROOT = Path(__file__).resolve().parents[2]  # .claude/lib/ -> checkout root
 
+# Team deployment §3 — tenant-brand/ and tenant/ are DATA, not code: canonical in the MAIN
+# checkout and a separate repo under a multi-operator install. The --root DEFAULT must therefore
+# be the resolved DATA root, not the running checkout, or a worktree run reads an absent
+# tenant-brand/ and reports a false BLOCKED. ImportError ONLY — a broken data root must RAISE.
+sys.path.insert(0, str(ROOT / ".claude" / "lib"))
+try:
+    import repo_paths  # noqa: E402
+    DATA_ROOT = repo_paths.data_root(ROOT)
+except ImportError:
+    DATA_ROOT = ROOT
+
 REQUIRED = ("brand_context", "integrations")
 RECOMMENDED = ("compliance", "segments", "market", "playbook")
 
@@ -85,7 +96,7 @@ def check_baseline(root: Path, tenant: str) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Phase-0 baseline gate - may a campaign start?")
     ap.add_argument("--tenant", required=True, help="tenant slug (matches tenant-brand/<slug>.yaml)")
-    ap.add_argument("--root", default=str(ROOT), help="checkout root (default: this checkout)")
+    ap.add_argument("--root", default=str(DATA_ROOT), help="DATA root holding tenant-brand/ (default: resolved)")
     ap.add_argument("--quiet", action="store_true")
     a = ap.parse_args()
     r = check_baseline(Path(a.root).resolve(), a.tenant)

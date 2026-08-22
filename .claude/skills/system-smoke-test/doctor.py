@@ -98,6 +98,114 @@ def run() -> list[tuple[str, str, str]]:
     else:
         rows.append(("ok", f"credential env vars ({len(refs)} all set)", ""))
 
+    rows.extend(_team_rows())
+    return rows
+
+
+# ── Team-deployment environment checks (team-deployment.md §14) ──────────────────────────
+# These began as questions to answer once. That is wrong for a product installed at many
+# organisations: "does THIS org permit hooks?" cannot be answered in advance, and an install
+# that assumes it fails silently at the third customer. So each is a check, run here, at the
+# moment it matters, with a written remediation.
+#
+# Every row is a NO-OP under `profile: small-business` — a single-operator Seed must not be
+# told it is missing a SharePoint target it was never going to use.
+
+def _team_rows() -> list[tuple[str, str, str]]:
+    rows: list[tuple[str, str, str]] = []
+    sys.path.insert(0, str(ROOT / ".claude" / "lib"))
+    try:
+        import deployment_profile as dp
+    except ImportError:
+        return rows
+    try:
+        if not dp.is_team():
+            return rows
+    except Exception as e:  # noqa: BLE001 — a broken config.yaml is itself the finding
+        return [("fail", f"config.yaml unreadable: {str(e)[:90]}",
+                 "fix `profile:` in the DATA repo's config.yaml")]
+
+    rows.append(("ok", "deployment profile: team", ""))
+
+    # §14.1 — the largest blast radius. The sync (§6) and freshness (§10) architecture both
+    # run on PostToolUse/Stop hooks. If a managed-settings policy overrides .claude/settings.json
+    # the hooks never fire, and every operator surface silently stops updating. We cannot read
+    # the org's policy, but we CAN verify the hooks this install depends on are declared and
+    # their scripts exist and parse — the failure this actually produces.
+    settings = ROOT / ".claude" / "settings.json"
+    try:
+        import json as _json
+        declared = _json.loads(settings.read_text(encoding="utf-8")).get("hooks", {})
+    except (OSError, ValueError) as e:
+        declared = {}
+        rows.append(("fail", f".claude/settings.json unreadable ({str(e)[:60]})",
+                     "restore it from the code repo — without it NO hook fires"))
+    missing = [h for h in ("PostToolUse", "Stop") if h not in declared]
+    if declared and missing:
+        rows.append(("fail", f"hooks not declared: {', '.join(missing)}",
+                     "a managed-settings policy may be overriding .claude/settings.json — "
+                     "confirm with IT. Fallback: operators run /sync by hand (§6)."))
+    elif declared:
+        bad = [s for s in (ROOT / ".claude" / "hooks" / n
+                           for n in ("post_tool_use.py", "stop.py")) if not s.is_file()]
+        if bad:
+            rows.append(("fail", "hook script(s) missing: " + ", ".join(p.name for p in bad),
+                         "re-pull the code repo at its release tag"))
+        else:
+            rows.append(("ok", "PostToolUse + Stop hooks declared and present", ""))
+
+    # §14.4 — nothing works without the DATA remote.
+    try:
+        import repo_paths
+        data = repo_paths.data_root(ROOT)
+    except Exception as e:  # noqa: BLE001
+        data = None
+        rows.append(("fail", f"DATA root unresolved: {str(e)[:80]}",
+                     "python .claude/lib/provision.py --data <path to the data clone>"))
+    if data is not None:
+        if data.resolve() == ROOT.resolve():
+            rows.append(("fail", "DATA root is this checkout — not provisioned",
+                         "python .claude/lib/provision.py --data <path to the data clone>"))
+        else:
+            rows.append(("ok", f"DATA root -> {data}", ""))
+            ok_remote = subprocess.run(["git", "remote"], cwd=str(data), capture_output=True,
+                                       text=True).stdout.strip()
+            rows.append(("ok" if ok_remote else "fail",
+                         "DATA repo has a remote" if ok_remote else "DATA repo has NO remote",
+                         "" if ok_remote else "nothing syncs between operators without one"))
+
+    # §14.5 — media in LFS matters only once the DATA repo declares it.
+    if data is not None and (data / ".gitattributes").is_file():
+        try:
+            wants_lfs = "filter=lfs" in (data / ".gitattributes").read_text(encoding="utf-8")
+        except OSError:
+            wants_lfs = False
+        if wants_lfs:
+            rows.append(("ok" if shutil.which("git-lfs") else "fail",
+                         "git-lfs (DATA repo tracks media in LFS)",
+                         "" if shutil.which("git-lfs") else
+                         "install git-lfs then `git lfs install` — without it media commits as pointer text"))
+
+    # §14.2 — attribution has no machine answer, but an unset identity is a real defect:
+    # every audit entry would name nobody.
+    who = subprocess.run(["git", "config", "user.email"], cwd=str(ROOT),
+                         capture_output=True, text=True).stdout.strip()
+    rows.append(("ok" if who else "fail", f"operator identity: {who or 'UNSET'}",
+                 "" if who else "git config --global user.email you@example.com — "
+                                "attribution is required under profile: team (§4)"))
+
+    # §14.3 — publishing is optional; the system runs locally without it.
+    if dp.publish_to_sharepoint():
+        target = os.environ.get("MAS_PUBLISH_DIR", "").strip()
+        if not target:
+            rows.append(("warn", "publish target unset (SharePoint publishing off)",
+                         "set MAS_PUBLISH_DIR to a synced SharePoint library folder (§11)"))
+        else:
+            p = Path(target)
+            rows.append(("ok" if p.is_dir() else "warn",
+                         f"publish target: {target}" if p.is_dir() else
+                         f"publish target does not exist: {target}",
+                         "" if p.is_dir() else "create it, or unset MAS_PUBLISH_DIR"))
     return rows
 
 
