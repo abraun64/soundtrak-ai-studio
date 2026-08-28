@@ -154,6 +154,14 @@ if _CSS_SYNC.exists():
     ok, err = _run_ok([str(_CSS_SYNC), "--check"])
     check("L1", "org guide CSS in step with style.css", ok, err if not ok else "")
 
+# SYS-149 - the leak scan is the gate between the master and anything public. It has two
+# failure modes: too lax ships a client name, too noisy trains people to wave it through.
+# These pin the allowlist in BOTH deployment shapes and prove the scan can still fail.
+_LS_TEST = ROOT / ".claude" / "lib" / "test_build_seed_leakscan.py"
+if _LS_TEST.exists():
+    ok, err = _run_ok([str(_LS_TEST)])
+    check("L1", "leak-scan allowlist tests", ok, err if not ok else "")
+
 _SECRETS = ROOT / ".claude" / "lib" / "secret_scan.py"
 if _SECRETS.exists():
     ok, err = _run_ok([str(_SECRETS), str(ROOT / ".claude"), str(DATA / "tenant"),
