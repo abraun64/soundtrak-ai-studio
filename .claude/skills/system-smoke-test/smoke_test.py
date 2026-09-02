@@ -157,6 +157,15 @@ if _CSS_SYNC.exists():
 # SYS-149 - the leak scan is the gate between the master and anything public. It has two
 # failure modes: too lax ships a client name, too noisy trains people to wave it through.
 # These pin the allowlist in BOTH deployment shapes and prove the scan can still fail.
+# A file too large for plain git is permanent in the same way a secret is - once in history,
+# only a rewrite removes it. Measured 2026-09-02: campaigns/ was 6.4 GB, 90% of it raw
+# captures and _tmp/ intermediates nobody meant to track. RED here means the guard that
+# catches the next one has itself broken.
+_LFG = ROOT / ".claude" / "lib" / "large_file_guard.py"
+if _LFG.exists():
+    ok, err = _run_ok([str(_LFG), "--dirty", "--repo", str(DATA)], timeout=120)
+    check("L1", "no oversized non-LFS files pending commit", ok, err if not ok else "")
+
 _LS_TEST = ROOT / ".claude" / "lib" / "test_build_seed_leakscan.py"
 if _LS_TEST.exists():
     ok, err = _run_ok([str(_LS_TEST)])

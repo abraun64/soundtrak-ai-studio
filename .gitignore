@@ -15,3 +15,15 @@ credentials.md
 tenant/credentials.md
 campaigns/*/gallery-thumbs/
 campaigns/**/node_modules/
+# WORKING FILES, never deliverables. Measured on the master 2026-09-02: campaigns/ was
+# 6.4 GB, and 90% of it was raw screen captures plus _tmp/ intermediates; the finished
+# assets came to 673 MB. Nothing said not to track them, so they were tracked - and once
+# they are in history only a rewrite removes them. Anything a Producer SHIPS lives in
+# finals/ or youtube-upload/ and is still tracked.
+**/_tmp/
+**/*Recording*.mp4
+**/*Recording*.mov
+**/placeholder-screenshots/
+.remotion/
+dist/
+build/

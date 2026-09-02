@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questions from teams · Soundtrak AI Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- SELF-CONTAINED ON PURPOSE, like the org deployment guide it partners. This page gets
+     SENT to someone deciding whether the Studio fits their team, often before anything is
+     installed - and a linked stylesheet does not travel with a single file, so it would
+     arrive unstyled. Cross-page links are absolute for the same reason: a relative href
+     404s the moment the file is saved or emailed on its own.
+     The block below is a verbatim copy of docs/guide/style.css. If that file changes,
+     refresh this copy: python .claude/lib/inline_guide_css.py -->
+<style>
+/* Soundtrak AI Studio — shared guide stylesheet (Soundtrak styleguide). */
+:root{
+  --ink:#111110;--red:#e63c3c;--cream:#faf9f5;--paper:#ffffff;
+  --slate800:#3c3c38;--slate700:#4a4a46;--slate600:#787770;
+  --slate200:#e8e7e2;--slate100:#f5f4f0;--navy:#1a2a5e;--redlight:#fdeaea;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;--sans:'Inter',-apple-system,system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-weight:400;line-height:1.65;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:820px;margin:0 auto;padding:0 32px 80px;}
+
+/* top nav (shared across pages) */
+.topnav{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 36px;border-bottom:1px solid var(--slate200);background:var(--paper);flex-wrap:wrap;}
+.brandline{display:flex;align-items:center;gap:9px;font-size:13px;letter-spacing:.13em;text-transform:uppercase;color:var(--slate700);font-weight:600;}
+.brandline .dot{width:7px;height:7px;border-radius:50%;background:var(--red);}
+.navlinks{display:flex;gap:20px;font-size:14px;flex-wrap:wrap;}
+.navlinks a{color:var(--slate700);text-decoration:none;}
+.navlinks a:hover{color:var(--red);}
+.navlinks a.here{color:var(--red);font-weight:600;}
+
+/* headings + prose */
+h1{font-family:var(--serif);font-weight:600;font-size:42px;line-height:1.06;letter-spacing:-.015em;margin:28px 0 14px;}
+.lede{font-size:19px;color:var(--slate800);margin:0 0 28px;}
+.lede b{color:var(--ink);font-weight:600;}
+h2{font-family:var(--serif);font-weight:600;font-size:26px;margin:42px 0 8px;padding-top:28px;border-top:1px solid var(--slate200);}
+h3{font-size:16px;font-weight:600;margin:22px 0 4px;}
+p{font-size:16px;margin:0 0 14px;}
+a{color:var(--navy);}
+ul,ol{font-size:16px;padding-left:22px;margin:0 0 16px;}
+li{margin:6px 0;}
+b,strong{font-weight:600;}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.86em;background:var(--slate100);padding:1px 5px;border-radius:4px;color:var(--navy);}
+table{width:100%;border-collapse:collapse;margin:8px 0 20px;font-size:14px;}
+th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);font-weight:600;background:#eef0f7;padding:9px 11px;border-bottom:1px solid #dfe3ef;}
+td{padding:9px 11px;border-bottom:1px solid var(--slate200);vertical-align:top;color:var(--slate800);}
+.callout{border:1px solid var(--slate200);background:var(--slate100);border-radius:9px;padding:16px 18px;margin:18px 0;font-size:15px;}
+.callout b{color:var(--ink);}
+.step{border-left:3px solid var(--navy);border-radius:0 8px 8px 0;background:var(--paper);border:1px solid var(--slate200);padding:14px 18px;margin:14px 0;}
+.step .sh{font-family:var(--serif);font-size:18px;font-weight:600;}
+.muted{color:var(--slate600);font-size:13px;}
+
+/* hub guide cards */
+.guidecards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:6px 0 10px;}
+.gcard{display:block;border:1px solid var(--slate200);border-left:4px solid var(--navy);border-radius:0 11px 11px 0;background:var(--paper);padding:18px 20px;text-decoration:none;color:var(--ink);}
+.gcard:hover{border-left-color:var(--red);}
+.gcard .gk{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate600);font-weight:600;}
+.gcard .gt{font-family:var(--serif);font-size:21px;font-weight:600;margin:5px 0 4px;}
+.gcard .gd{font-size:14px;color:var(--slate700);}
+
+/* faq */
+.faq h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:22px 0 3px;}
+.faq p{font-size:15px;color:var(--slate800);margin:0 0 6px;}
+.footer{margin-top:50px;border-top:2px solid var(--ink);padding-top:18px;font-size:13px;color:var(--slate600);}
+</style>
+</head>
+<!--
+  Org / team FAQ. Sibling of help.html, which stays the SINGLE-PERSON FAQ. Split because the
+  reader is different: this one is an administrator or a decision-maker evaluating team use,
+  often before anything is installed, and their questions are about access, concurrency, IT
+  and data - not "why won't it start a campaign".
+  Hand-authored HTML on purpose; see docs/guide/README.md for the editing rule.
+  SELF-CONTAINED like the org deployment guide it partners: CSS inlined, cross-page links
+  absolute. Both pages get SENT rather than only browsed, and a relative href or a linked
+  stylesheet does not survive the trip. See the note above <style>.
+  HONESTY RULE, same as the deployment guide: do not claim anything nobody has performed.
+  The managed-laptop answer says the installer CHECKS the policy - it does not promise the
+  hooks survive one, because that has not been run on a real managed machine yet (SYS-147).
+  Body is em-dash-free (house voice rule).
+-->
+<body>
+<nav class="topnav">
+  <div class="brandline"><span class="dot"></span> Soundtrak AI Studio</div>
+  <div class="navlinks">
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/help">Help &amp; guides</a>
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/deployment-guide">Deployment</a>
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide">Organisations</a>
+    <a class="here" href="https://soundtrakconsulting.com/ai-studio/guide/org-faq">Team questions</a>
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/operator-guide">Operator guide</a>
+  </div>
+</nav>
+<div class="wrap">
+  <h1>Questions from teams</h1>
+
+  <p class="lede">For anyone deciding whether the Studio fits a <b>team</b>, and for whoever would
+  set it up. Using it on your own? The <a href="https://soundtrakconsulting.com/ai-studio/guide/help">main FAQ</a> answers that version.
+  Ready to install? Go straight to the
+  <a href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide">Organisation deployment guide</a>.</p>
+
+  <div class="faq">
+
+    <h3>Can our whole team use it at once?</h3>
+    <p><b>Yes.</b> Each person runs it on their own computer with their own Claude Code, and everyone
+    shares one set of brands, one library and one set of campaigns. Work joins up automatically at the
+    end of each session; nobody emails files around.</p>
+    <p class="muted">This is a genuinely different setup from the single-person version, with its own
+    guide. It is not a setting you flip on an existing install.</p>
+
+    <h3>What does our IT team need to provide?</h3>
+    <p><b>Two private code repositories.</b> That is the whole list. <b>Azure DevOps</b> and
+    <b>GitHub</b> both work, so whichever you already use is fine.</p>
+    <p>Optionally, a SharePoint library if you want colleagues without the Studio to read finished work.
+    That can be added later and nothing depends on it.</p>
+
+    <h3>Do we have to know Git?</h3>
+    <p><b>No.</b> Nobody types a git command in normal use. Claude Code handles it in the background,
+    the same way an app saves your work without showing you the filesystem.</p>
+    <p>The one exception is the initial setup, which is a short list of copy-and-paste lines done once
+    per person, spelled out step by step in the guide.</p>
+
+    <h3>Why a code repository rather than SharePoint?</h3>
+    <p>Word and Excel files merge when two people edit them. The Studio's files do not. SharePoint
+    would quietly save a second copy called <i>"Bob's conflicted copy"</i>, and the Studio would read
+    that as a real, separate piece of work.</p>
+    <p>A repository is built for exactly this problem. <b>Your people never see it</b>, and SharePoint
+    is still where colleagues read the results.</p>
+
+    <h3>What happens if two of us work on the same campaign?</h3>
+    <p>You get <b>warned before you can cause a problem</b>. Claiming a campaign records who is working
+    on it and until when, and anyone else is told by name if they start changing it.</p>
+    <p>Claims release when you finish and expire after 8 hours regardless, so a colleague who closes
+    their laptop never blocks you until Monday. You can override a claim deliberately, and the override
+    is recorded.</p>
+
+    <h3>Can we hide a brand from someone?</h3>
+    <p><b>Not within one deployment.</b> Everyone who can open the shared folder can see every brand.
+    Being straight about this: if a brand must be invisible to a particular person, or you are bringing
+    in someone external who should not see everything, they need their own separate deployment.</p>
+    <p class="muted">Worth deciding before you invite people rather than after.</p>
+
+    <h3>How do updates reach everyone?</h3>
+    <p>Each person is fixed to a <b>specific version</b>, so nothing changes underneath them in the
+    middle of a campaign. When a newer one exists they are told, can read what changed, and choose
+    their own moment to take it. If an update causes trouble, they can go back to the previous version.</p>
+
+    <h3>Where does our data live? Is anything sent out?</h3>
+    <p>Your work lives in <b>your organisation's own private repository</b>, in your own Microsoft or
+    GitHub account. Not on our servers, and not in a product we host.</p>
+    <p>The only thing that leaves is what you type to the AI during a session, which is how the AI
+    works at all. Passwords and keys are kept separately and never go into the shared folder, and the
+    Studio actively refuses to save one if it spots it.</p>
+
+    <h3>What happens when someone leaves?</h3>
+    <p>Remove their access at your repository host. Their work stays, because it was never only on
+    their laptop, and their name stays against what they approved so the record still makes sense.</p>
+
+    <h3>Does it work on locked-down company laptops?</h3>
+    <p>Usually, and <b>the installer tells you rather than leaving you to find out</b>. Its health
+    check tests whether your organisation's policy blocks the background automation that keeps pages
+    up to date, and says so in plain language.</p>
+    <p>If it is blocked, the Studio still works; the pages need a manual refresh instead of updating
+    themselves. Worth having one person run that check on a real company laptop before rolling out
+    widely, so you know which of the two you are dealing with.</p>
+
+    <h3>Small business or big company, which version do we need?</h3>
+    <p>One person doing the marketing, even in a large organisation, wants the
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/deployment-guide">single-person version</a>. It is simpler and there is nothing to
+    administer.</p>
+    <p>Several people sharing the work want the <a href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide">organisation
+    version</a>. You can start with the first and move to the second later; your brands and campaigns
+    come across.</p>
+
+    <h3>How long does setting it up take?</h3>
+    <p>About <b>30 minutes once</b> for whoever sets up the organisation, then about <b>10 minutes per
+    person</b>. Neither part needs a developer.</p>
+
+  </div>
+
+  <p class="footer"><a class="backlink" href="https://soundtrakconsulting.com/ai-studio/guide/help">← Help &amp; guides</a> &nbsp;·&nbsp; Soundtrak AI Studio</p>
+</div>
+</body>
+</html>

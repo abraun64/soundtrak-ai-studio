@@ -12,7 +12,10 @@
      SEND to an organisation, often before they have installed anything, and a linked
      stylesheet does not travel with a single file - it arrives unstyled.
      The block below is a verbatim copy of docs/guide/style.css. If that file changes, refresh
-     this copy: python .claude/lib/inline_guide_css.py -->
+     this copy: python .claude/lib/inline_guide_css.py
+     For the same reason every cross-page link here is an ABSOLUTE URL to the live site, not
+     a relative sibling: a relative href 404s the moment this file is emailed or saved
+     somewhere on its own, which is the normal way this particular page travels. -->
 <style>
 /* Soundtrak AI Studio — shared guide stylesheet (Soundtrak styleguide). */
 :root{
@@ -86,10 +89,11 @@ td{padding:9px 11px;border-bottom:1px solid var(--slate200);vertical-align:top;c
 <nav class="topnav">
   <div class="brandline"><span class="dot"></span> Soundtrak AI Studio</div>
   <div class="navlinks">
-    <a href="help.html">Help &amp; guides</a>
-    <a href="deployment-guide.html">Deployment</a>
-    <a class="here" href="org-deployment-guide.html">Organisations</a>
-    <a href="operator-guide.html">Operator guide</a>
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/help">Help &amp; guides</a>
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/deployment-guide">Deployment</a>
+    <a class="here" href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide">Organisations</a>
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/org-faq">Team questions</a>
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/operator-guide">Operator guide</a>
   </div>
 </nav>
 <div class="wrap">
@@ -100,7 +104,7 @@ td{padding:9px 11px;border-bottom:1px solid var(--slate200);vertical-align:top;c
     one set of brands, one library and one set of campaigns.
     <br><br>
     <span class="muted">Setting it up for yourself alone? Use the
-    <a href="deployment-guide.html">single-person Deployment guide</a> instead. It is simpler, and
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/deployment-guide">single-person Deployment guide</a> instead. It is simpler, and
     nothing on this page applies to you.</span>
   </div>
 
@@ -450,8 +454,9 @@ cd $HOME</code></pre>
     every time. Here is the whole message:</p>
     <div class="callout" style="background:var(--paper)">
       <p style="margin:0 0 10px"><b>Subject:</b> Setting up the AI Marketing Studio</p>
-      <p style="margin:0 0 10px">Follow <b>Part B</b> of the organisation deployment guide, which takes
-      about ten minutes: <span class="muted">[link to this page, at #for-each-person]</span></p>
+      <p style="margin:0 0 10px">Follow <b>Part B</b> of the organisation deployment guide, which
+      takes about ten minutes:<br>
+      <a href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide#for-each-person">https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide#for-each-person</a></p>
       <p style="margin:0 0 10px">When it asks for the two addresses, use these:</p>
       <p style="margin:0 0 10px"><b>code:</b> <span class="muted">[the AI-marketing-studio-code clone
       address]</span><br><b>data:</b> <span class="muted">[the AI-marketing-studio-data clone
@@ -480,12 +485,34 @@ cd $HOME</code></pre>
     Run them one line at a time.</span></div>
 
   <div class="step"><div class="sh">Step B1 - Install Python, Claude Code and Git</div>
-    <p>Python and Claude Code are exactly as in the single-person guide: follow
-    <a href="deployment-guide.html">Steps 1 and 2 there</a>, then come back here.</p>
-    <p><b>You also need Git</b>, which the single-person version does not. It is how your work reaches
-    your colleagues. Install it from <a href="https://git-scm.com/downloads">git-scm.com/downloads</a>,
-    accepting every default, then open a <b>new</b> PowerShell and run these two lines so your work
-    carries your name:</p>
+    <p>Three installs, all one-time. Skip any you already have.</p>
+
+    <p><b>1. Python</b> runs the Studio's behind-the-scenes scripts.</p>
+    <ol>
+      <li>Go to <a href="https://www.python.org/downloads/">python.org/downloads</a> and click the big
+        yellow <b>Download Python</b> button.</li>
+      <li>Open the file you just downloaded.</li>
+      <li><b>IMPORTANT</b>: on the first screen, tick <b>"Add Python to PATH"</b> (bottom of the
+        window) before clicking <b>Install Now</b>. This one tick prevents the most common setup
+        problem.</li>
+    </ol>
+
+    <p><b>2. Claude Code</b> is what you actually use every day: the AI you type your requests to.</p>
+    <ol>
+      <li>You need a Claude account with Claude Code access. In most organisations this is a
+        <b>Team or Enterprise seat</b> your IT or admin provides; a personal <b>Pro</b> or <b>Max</b>
+        plan also works. Ask whoever set this up which you have.</li>
+      <li>Install Claude Code using Anthropic's guide:
+        <a href="https://code.claude.com/docs/en/setup">code.claude.com/docs/en/setup</a>.</li>
+      <li>The first time you open it, it opens your browser to sign in. You only do this once.</li>
+      <li><b>Pick your model.</b> Type <code>/model</code> and choose <b>Opus</b>. It is the most
+        capable, and the Studio leans on it for quality.</li>
+    </ol>
+
+    <p><b>3. Git</b> is how your work reaches your colleagues. The single-person version does not need
+    it; a team deployment does. Install it from
+    <a href="https://git-scm.com/downloads">git-scm.com/downloads</a>, accepting every default, then
+    open a <b>new</b> PowerShell and run these two lines so your work carries your name:</p>
     <pre><code>git config --global user.name "Your Name"
 git config --global user.email "you@yourcompany.com"</code></pre>
     <p>Then turn on large-file support, once:</p>
@@ -535,7 +562,7 @@ python .claude/lib/provision.py --data ../data</code></pre>
     <pre><code>what's awaiting me</code></pre>
     <p>Your work saves to the data folder and reaches your colleagues automatically at the end of each
     session. <b>The Operator guide takes it from here:</b>
-    <a href="operator-guide.html">how a campaign actually runs, stage by stage</a>.</p>
+    <a href="https://soundtrakconsulting.com/ai-studio/guide/operator-guide">how a campaign actually runs, stage by stage</a>.</p>
   </div>
 
   <h2>Working alongside other people</h2>
@@ -584,7 +611,7 @@ python .claude/lib/provision.py --data ../data</code></pre>
     </tbody>
   </table>
 
-  <p class="footer"><a class="backlink" href="help.html">← Help &amp; guides</a> &nbsp;·&nbsp; Soundtrak AI Studio</p>
+  <p class="footer"><a class="backlink" href="https://soundtrakconsulting.com/ai-studio/guide/help">← Help &amp; guides</a> &nbsp;·&nbsp; Soundtrak AI Studio</p>
 </div>
 </body>
 </html>

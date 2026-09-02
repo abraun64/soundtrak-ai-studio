@@ -26,7 +26,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "docs" / "guide" / "style.css"
 # Pages that must carry the stylesheet INLINE rather than linking it.
-TARGETS = [ROOT / "docs" / "guide" / "org-deployment-guide.html"]
+TARGETS = [ROOT / "docs" / "guide" / "org-deployment-guide.html",
+           ROOT / "docs" / "guide" / "org-faq.html"]
 
 BLOCK = re.compile(r"<style>\n(.*?)\n</style>", re.S)
 

@@ -455,8 +455,23 @@ nothing about the existing single-operator install changes.
 
 Not blocking the design; each needs an answer before the phase that depends on it.
 
-1. **PNG history rewrite** (§8.3) — accept a `git lfs migrate` that invalidates existing clones, or
-   apply LFS to new PNGs only and leave 779 MB in history?
+> ✅ **The storage question is CLOSED (2026-09-02) — Option A confirmed.** The operator
+> established that IT *can* provision repositories, which was the only thing that would have
+> justified a SharePoint-primary variant. **No `profile: sharepoint` is needed and none will be
+> built.** Git remains the store; SharePoint remains the read-only publishing surface, exactly as
+> decision #1 locked. Recorded here so it is not re-opened: the alternative was evaluated properly,
+> and lost on merge safety, not on unfamiliarity.
+
+1. ~~**PNG history rewrite** (§8.3)~~ — **RESOLVED 2026-09-02, no rewrite needed.** Measured against
+   GitHub's actual quota rather than the stale note in `.gitattributes`: Free/Pro includes **10 GiB**
+   LFS storage (not the 1 GB the old comment claimed), and this repo uses **6.38 GiB across 142
+   objects — 64%**, billed $0. Confirmed against the billing meter: August recorded 4,451.64 GB-hr,
+   which is a 5.98 GB monthly average and reproduces GitHub's $0.42 gross exactly.
+   The real constraint was never storage but **bandwidth**, which is spent by CLONES, not pushes —
+   invisible to a solo operator and punishing at rollout. Untracking the raw captures and `_tmp/`
+   intermediates (5.3 GB, none of them deliverables) cut a fresh clone from ~6.1 GiB to ~0.64 GiB:
+   from 1.6 clones a month before the cap, to about 15. That is what made the destructive route
+   unnecessary. Ignore rules and `large_file_guard.py` now prevent a recurrence.
 2. **API keys** (§9.2) — per-operator keys (simple, per-person cost attribution) or one shared key
    in Key Vault (central billing, weaker attribution)?
 3. **Nominated publisher** (§11) — a person's machine, or a CI runner on the chosen host?

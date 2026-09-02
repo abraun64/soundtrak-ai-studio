@@ -395,6 +395,27 @@ def auto_backup(session_summary: str):
     except Exception:  # noqa: BLE001 — a profile problem must never block a session ending
         pass
 
+    # A large file reaching the repo is permanent in the same way a secret is: once it is in
+    # history only a rewrite removes it. Measured on this master 2026-08-27 - 6.4 GB of
+    # campaigns/, 90% raw captures and _tmp/ intermediates nobody meant to track. The ignore
+    # rules catch the predictable cases; this catches the one-off export saved under a name
+    # nothing anticipated. WARNS everywhere, BLOCKS only where the blast radius is a whole
+    # team, exactly like the secret scan below.
+    try:
+        import large_file_guard as _lfg
+        for _repo in (SYSTEM_ROOT, CAMPAIGNS_ROOT):
+            if not (_repo / ".git").exists():
+                continue
+            _blocking, _advisory = _lfg.scan(_lfg.dirty_files(_repo), _repo)
+            if _blocking:
+                print("[state-hook] " + _lfg.report(_blocking, []), file=sys.stderr)
+                if _team:
+                    print("[state-hook] ABORTING auto-backup - refusing to put a file this size "
+                          "into a SHARED repo. Ignore it, or track it in LFS.", file=sys.stderr)
+                    return
+    except Exception:  # noqa: BLE001 — a guard, never a gate on ending a session
+        pass
+
     # §9.2 — a secret reaching a SHARED repo is permanent: it is in every clone's history
     # and rotation is the only remedy. Scan BEFORE the commit. A solo install is warned;
     # a team deployment is blocked, because there the blast radius is everyone.

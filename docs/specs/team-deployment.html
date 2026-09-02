@@ -2530,9 +2530,25 @@ nothing about the existing single-operator install changes.</p>
 <hr>
 <h2 id="13-open-decisions">§13 Open decisions</h2>
 <p>Not blocking the design; each needs an answer before the phase that depends on it.</p>
+<blockquote>
+<p>✅ <strong>The storage question is CLOSED (2026-09-02) — Option A confirmed.</strong> The operator
+established that IT <em>can</em> provision repositories, which was the only thing that would have
+justified a SharePoint-primary variant. <strong>No <code>profile: sharepoint</code> is needed and none will be
+built.</strong> Git remains the store; SharePoint remains the read-only publishing surface, exactly as
+decision #1 locked. Recorded here so it is not re-opened: the alternative was evaluated properly,
+and lost on merge safety, not on unfamiliarity.</p>
+</blockquote>
 <ol>
-<li><strong>PNG history rewrite</strong> (§8.3) — accept a <code>git lfs migrate</code> that invalidates existing clones, or
-   apply LFS to new PNGs only and leave 779 MB in history?</li>
+<li>~~<strong>PNG history rewrite</strong> (§8.3)~~ — <strong>RESOLVED 2026-09-02, no rewrite needed.</strong> Measured against
+   GitHub's actual quota rather than the stale note in <code>.gitattributes</code>: Free/Pro includes <strong>10 GiB</strong>
+   LFS storage (not the 1 GB the old comment claimed), and this repo uses <strong>6.38 GiB across 142
+   objects — 64%</strong>, billed $0. Confirmed against the billing meter: August recorded 4,451.64 GB-hr,
+   which is a 5.98 GB monthly average and reproduces GitHub's $0.42 gross exactly.
+   The real constraint was never storage but <strong>bandwidth</strong>, which is spent by CLONES, not pushes —
+   invisible to a solo operator and punishing at rollout. Untracking the raw captures and <code>_tmp/</code>
+   intermediates (5.3 GB, none of them deliverables) cut a fresh clone from ~6.1 GiB to ~0.64 GiB:
+   from 1.6 clones a month before the cap, to about 15. That is what made the destructive route
+   unnecessary. Ignore rules and <code>large_file_guard.py</code> now prevent a recurrence.</li>
 <li><strong>API keys</strong> (§9.2) — per-operator keys (simple, per-person cost attribution) or one shared key
    in Key Vault (central billing, weaker attribution)?</li>
 <li><strong>Nominated publisher</strong> (§11) — a person's machine, or a CI runner on the chosen host?</li>
