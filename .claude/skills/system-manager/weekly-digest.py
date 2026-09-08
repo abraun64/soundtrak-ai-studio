@@ -12,6 +12,7 @@ Designed to run on a weekly schedule (SYS-005); safe to run by hand anytime. Wor
 aware (resolves system/ + campaigns/ to the main checkout via repo_paths).
 """
 from __future__ import annotations
+import re
 import subprocess
 import sys
 from datetime import datetime
@@ -253,6 +254,57 @@ def escalate_to_ticket(label: str, fails: int, backlog: list, today: str):
     return iid
 
 
+# ── Drift: report, THEN accept ───────────────────────────────────────────────────────────────
+# The drift gate separates drift it has been told about (the baseline) from drift that is NEW.
+# Nothing ever moved findings from NEW into the baseline except a human remembering to type
+# `--write-baseline`, so NEW accumulated forever and the gate sat permanently red. A permanently
+# red check is indistinguishable from a broken one — that is SYS-141 exactly — so it stopped
+# carrying information long before anyone stopped running it.
+#
+# The fix is NOT to auto-accept silently: that kills the guard outright, because everything would
+# be accepted the moment it appeared and the gate could never speak again. It is to REPORT first
+# and accept second, every week:
+#
+#   1. read the gate, capture what is NEW,
+#   2. write those findings into the digest the operator actually reads,
+#   3. THEN ratchet them into the baseline.
+#
+# So the signal changes from "the gate is red again" (which nobody can act on) to "here is what
+# drifted this week" (which they can). Next week reports only what changed since. Nothing is
+# swallowed without appearing in the digest first — that ordering is the whole safety property,
+# and it is why the ratchet must never move above the reporting step.
+_NEW_RE = re.compile(r"(\d+)\s+NEW")
+
+
+def drift_delta(script: Path) -> tuple[int, list[str], bool]:
+    """(count of NEW drift, sample lines, whether the baseline was ratcheted)."""
+    if not script.exists():
+        return 0, [], False
+    try:
+        r = subprocess.run([sys.executable, str(script), "--all-campaigns"], cwd=str(ROOT),
+                           capture_output=True, timeout=180)
+        out = _decode(r.stdout or b"") + _decode(r.stderr or b"")
+    except Exception:  # noqa: BLE001 — a broken gate is the diagnostics' problem, not this step's
+        return 0, [], False
+
+    m = _NEW_RE.search(out)
+    count = int(m.group(1)) if m else 0
+    if not count:
+        return 0, [], False
+    sample = [ln.strip().lstrip("- ").strip() for ln in out.splitlines()
+              if ln.strip().startswith("- ")][:8]
+
+    # Report happened above (the caller writes `sample` into the digest); only now accept.
+    ratcheted = False
+    try:
+        rb = subprocess.run([sys.executable, str(script), "--all-campaigns", "--write-baseline"],
+                            cwd=str(ROOT), capture_output=True, timeout=180)
+        ratcheted = rb.returncode == 0
+    except Exception:  # noqa: BLE001
+        pass
+    return count, sample, ratcheted
+
+
 def main() -> int:
     # The digest is written UTF-8, but ECHOING it must not crash on a cp1252 console — which is
     # exactly what a scheduled task gets. A digest that was written correctly and then died on
@@ -280,6 +332,11 @@ def main() -> int:
         # file-existence "UAT" this framework exists to prevent.
         ("verification", SKILLS / "system-manager" / "verify.py", ["--audit"]),
     ]
+    # Delta FIRST: capture and report this week's new drift, then ratchet. The drift-gate
+    # diagnostic below therefore reports on the GATE's health (does it run?) rather than on a
+    # backlog nobody is clearing.
+    drift_new, drift_sample, drift_ratcheted = drift_delta(
+        SKILLS / "check-state" / "gate.py")
     results = [run_diag(label, script, args) for label, script, args in diagnostics]
 
     backlog = load_items(SYSTEM_DIR / "backlog.yaml", "items")
@@ -345,6 +402,16 @@ def main() -> int:
     if escalated:
         lines += ["", "## Escalated to tickets (persistent failures — SYS-010)"]
         lines += [f"- {tid}: {label} (RED {n} runs)" for tid, label, n in escalated]
+    if drift_new:
+        lines += ["", f"## Drift — {drift_new} new finding(s) this week"]
+        lines += ["Reported here first, then accepted into the baseline, so next week shows only "
+                  "what changes after this. Fix any that matter; the rest stand as accepted."]
+        lines += [f"- {s}" for s in drift_sample]
+        if drift_new > len(drift_sample):
+            lines.append(f"- … and {drift_new - len(drift_sample)} more "
+                         "(`python .claude/skills/check-state/gate.py --all-campaigns`)")
+        if not drift_ratcheted:
+            lines.append("- ⚠ the baseline could NOT be updated — these will report again next week")
     if recovered:
         lines += ["", "## Recovered — close these (SYS-141)",
                   "These diagnostics are GREEN again, but their escalated ticket is still open. "

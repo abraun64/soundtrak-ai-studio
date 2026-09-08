@@ -138,10 +138,81 @@ def test_escalation_is_not_blocked_by_its_own_idea() -> None:
             _wd.SYSTEM_DIR = saved
 
 
+def test_drift_reports_before_it_accepts() -> None:
+    """The safety property of the weekly drift step, and the only one that matters.
+
+    Nothing ever moved drift findings from NEW into the baseline except a human remembering to
+    type --write-baseline, so NEW accumulated forever and the gate sat permanently red - which is
+    indistinguishable from broken (SYS-141). The digest now ratchets it weekly. The danger in that
+    is obvious: auto-accepting silently would kill the guard outright, since everything would be
+    accepted the moment it appeared.
+
+    What makes it safe is ORDER. The gate is read and the findings captured BEFORE the baseline is
+    written, so every accepted finding appears in the digest the operator reads. This asserts the
+    read happens first: if the implementation ever ratchets before reporting, the recorded call
+    order changes and this fails."""
+    calls = []
+
+    class FakeRun:
+        def __init__(self, out):
+            self.stdout = out
+            self.stderr = b""
+            self.returncode = 0
+
+    real = _wd.subprocess.run
+
+    def fake(args, **kw):
+        calls.append("--write-baseline" if "--write-baseline" in args else "read")
+        if "--write-baseline" in args:
+            return FakeRun(b"baseline written")
+        return FakeRun(b"drift gate: 87 total  86 known  3 NEW  0 resolved\n"
+                       b"     - camp::plan::asset folder 99-probe has NO row\n"
+                       b"     - camp::board::pending action in phase 1\n")
+
+    _wd.subprocess.run = fake
+    try:
+        count, sample, ratcheted = _wd.drift_delta(Path(__file__))
+    finally:
+        _wd.subprocess.run = real
+
+    check("the NEW count is read off the gate", count == 3, f"got {count}")
+    check("the findings are captured for the digest", len(sample) == 2, f"got {sample}")
+    check("the baseline was ratcheted", ratcheted is True)
+    check("it READ before it accepted - nothing is swallowed unreported",
+          calls == ["read", "--write-baseline"], f"call order was {calls}")
+
+
+def test_no_drift_means_no_ratchet() -> None:
+    """A quiet week must not touch the baseline at all - writing one on every run regardless
+    would make the file churn and hide when acceptance actually happened."""
+    class FakeRun:
+        stdout = b"drift gate: 86 total  86 known  0 NEW  0 resolved\n"
+        stderr = b""
+        returncode = 0
+
+    calls = []
+    real = _wd.subprocess.run
+
+    def fake(args, **kw):
+        calls.append(args)
+        return FakeRun()
+
+    _wd.subprocess.run = fake
+    try:
+        count, sample, ratcheted = _wd.drift_delta(Path(__file__))
+    finally:
+        _wd.subprocess.run = real
+    check("no new drift reports nothing", count == 0 and sample == [])
+    check("and does not write a baseline", ratcheted is False and len(calls) == 1,
+          f"{len(calls)} call(s)")
+
+
 def main() -> int:
     print("weekly-digest escalation tests")
     test_diagnostic_output_decoding()
     test_escalation_is_not_blocked_by_its_own_idea()
+    test_drift_reports_before_it_accepts()
+    test_no_drift_means_no_ratchet()
     saved = _wd.SYSTEM_DIR
     try:
         test_two_escalations_get_distinct_ids()
