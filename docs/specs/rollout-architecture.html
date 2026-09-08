@@ -1,0 +1,2552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rollout Architecture — Marketing AI System — Marketing AI System</title>
+  <style>/* Marketing AI System — social/email in-situ mockup chrome.
+ * Renders collapsed (feed) + expanded (clicked-open) states per form.
+ * Loaded automatically alongside system.css for all templates.
+ * Form-specific tokens live under .mock-<form> scopes so they don't bleed.
+ */
+
+/* --- Mockup zone layout (sits above markdown narrative) --- */
+.mockups {
+  margin: 0 0 32px 0;
+}
+.mockups:empty { display: none; }
+
+.mock-variant {
+  margin: 0 0 40px 0;
+}
+.mock-variant__label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
+  padding: 0 4px;
+}
+
+.mock-states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .mock-states { grid-template-columns: 1fr; }
+}
+
+.mock-state {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mock-state__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin: 0 0 14px 0;
+  text-align: center;
+}
+
+/* --- LinkedIn post chrome --- */
+.mock-li {
+  --li-bg: #f3f2ef;
+  --li-card-bg: #ffffff;
+  --li-text: #000000e6;
+  --li-text-secondary: #00000099;
+  --li-text-tertiary: #00000066;
+  --li-border: #00000014;
+  --li-accent: #0a66c2;
+  --li-hover: #00000008;
+}
+.mock-li .mock-state { background: var(--li-bg); }
+.mock-li .li-card {
+  width: 100%;
+  max-width: 552px;
+  background: var(--li-card-bg);
+  border: 1px solid var(--li-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--li-text);
+}
+.mock-li .li-header {
+  display: flex;
+  padding: 12px 16px 8px;
+  align-items: center;
+  gap: 8px;
+}
+.mock-li .li-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1a2a5e;
+  color: #f8f5ee;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "Caveat", "Segoe Script", cursive;
+}
+.mock-li .li-author { flex: 1; min-width: 0; }
+.mock-li .li-author-name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.mock-li .li-author-title { font-size: 12px; color: var(--li-text-secondary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-author-meta { font-size: 12px; color: var(--li-text-tertiary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-more { color: var(--li-text-secondary); font-size: 20px; padding: 4px 8px; }
+.mock-li .li-body {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--li-text);
+}
+.mock-li .li-body p { margin: 0 0 8px; }
+.mock-li .li-see-more {
+  color: var(--li-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 16px 8px;
+  user-select: none;
+}
+.mock-li .li-image {
+  width: 100%;
+  display: block;
+  background: #f8f5ee;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+.mock-li .li-reactions {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--li-text-secondary);
+  border-bottom: 1px solid var(--li-border);
+}
+.mock-li .li-reaction-icons { display: inline-flex; vertical-align: middle; }
+.mock-li .li-reaction-icons span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: -3px;
+  border: 1.5px solid #fff;
+  font-size: 10px;
+  text-align: center;
+  line-height: 13px;
+  color: white;
+}
+.mock-li .li-r-like { background: #378fe9; }
+.mock-li .li-r-insight { background: #f5b800; color: #333 !important; }
+.mock-li .li-r-celebrate { background: #6dae4f; }
+.mock-li .li-reactions-left { display: flex; align-items: center; gap: 6px; }
+.mock-li .li-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px;
+}
+.mock-li .li-action {
+  text-align: center;
+  padding: 8px 4px;
+  color: var(--li-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mock-li .li-comments {
+  border-top: 1px solid var(--li-border);
+  padding: 12px 16px;
+  background: #fafafa;
+}
+.mock-li .li-comment { display: flex; gap: 8px; margin-bottom: 12px; }
+.mock-li .li-comment:last-child { margin-bottom: 0; }
+.mock-li .li-c-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: #ddd;
+  color: #555; font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-li .li-c-body {
+  background: #f3f2ef; border-radius: 0 8px 8px 8px;
+  padding: 8px 12px; font-size: 13px; line-height: 1.4; flex: 1;
+}
+.mock-li .li-c-author { font-weight: 600; margin-bottom: 2px; }
+.mock-li .li-c-meta { font-size: 11px; color: var(--li-text-tertiary); margin-top: 4px; }
+
+/* --- Email chrome (inbox row + opened state) --- */
+.mock-email {
+  --em-bg: #f6f8fc;
+  --em-card-bg: #ffffff;
+  --em-text: #202124;
+  --em-text-secondary: #5f6368;
+  --em-border: #e5e7eb;
+  --em-accent: #1a73e8;
+  --em-unread: #f3f7fd;
+}
+.mock-email .mock-state { background: var(--em-bg); }
+.mock-email .em-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--em-card-bg);
+  border: 1px solid var(--em-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Google Sans", Roboto, -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--em-text);
+  font-size: 14px;
+}
+.mock-email .em-inbox-toolbar {
+  background: var(--em-bg);
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--em-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-inbox-row {
+  display: grid;
+  grid-template-columns: 28px 180px 1fr 80px;
+  gap: 12px;
+  padding: 10px 16px;
+  align-items: center;
+  background: var(--em-unread);
+  font-weight: 600;
+}
+.mock-email .em-star { color: #d1d5db; font-size: 16px; }
+.mock-email .em-from { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock-email .em-snippet { font-size: 14px; color: var(--em-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.mock-email .em-snippet b { font-weight: 600; }
+.mock-email .em-snippet .em-preview { color: var(--em-text-secondary); font-weight: 400; }
+.mock-email .em-date { text-align: right; font-size: 12px; color: var(--em-text-secondary); }
+
+/* Opened state */
+.mock-email .em-opened-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-subject { font-size: 20px; font-weight: 400; margin: 0 0 12px 0; color: var(--em-text); }
+.mock-email .em-meta-row { display: flex; gap: 12px; align-items: center; }
+.mock-email .em-sender-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--em-accent);
+  color: white; font-weight: 600; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-email .em-sender-name { font-size: 14px; font-weight: 600; }
+.mock-email .em-sender-email { font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-sent-meta { margin-left: auto; font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-opened-body {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--em-text);
+}
+.mock-email .em-opened-body p { margin: 0 0 14px 0; }
+.mock-email .em-opened-body a { color: var(--em-accent); }
+.mock-email .em-opened-body h1, .mock-email .em-opened-body h2, .mock-email .em-opened-body h3 {
+  margin: 20px 0 10px 0;
+}
+
+/* --- Twitter / X (stub) --- */
+.mock-tw {
+  --tw-bg: #ffffff;
+  --tw-text: #0f1419;
+  --tw-text-secondary: #536471;
+  --tw-border: #eff3f4;
+  --tw-accent: #1d9bf0;
+}
+.mock-tw .mock-state { background: #f7f9fa; }
+.mock-tw .tw-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--tw-bg);
+  border: 1px solid var(--tw-border);
+  border-radius: 16px;
+  padding: 16px;
+  font-family: "Chirp", -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--tw-text);
+}
+.mock-tw .tw-header { display: flex; gap: 10px; }
+.mock-tw .tw-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: #1a2a5e;
+  color: #f8f5ee; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-tw .tw-name { font-weight: 700; font-size: 15px; }
+.mock-tw .tw-handle { color: var(--tw-text-secondary); font-size: 14px; }
+.mock-tw .tw-body { font-size: 15px; line-height: 1.4; margin: 10px 0; white-space: pre-wrap; }
+.mock-tw .tw-image { width: 100%; border-radius: 16px; border: 1px solid var(--tw-border); margin: 10px 0 0; display: block; }
+
+/* --- Instagram (stub) --- */
+.mock-ig {
+  --ig-bg: #ffffff;
+  --ig-text: #262626;
+  --ig-text-secondary: #8e8e8e;
+  --ig-border: #dbdbdb;
+}
+.mock-ig .mock-state { background: #fafafa; }
+.mock-ig .ig-card {
+  width: 100%;
+  max-width: 470px;
+  background: var(--ig-bg);
+  border: 1px solid var(--ig-border);
+  border-radius: 8px;
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--ig-text);
+  overflow: hidden;
+}
+.mock-ig .ig-header { display: flex; gap: 10px; align-items: center; padding: 12px; }
+.mock-ig .ig-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;
+}
+.mock-ig .ig-handle { font-weight: 600; font-size: 14px; }
+.mock-ig .ig-image { width: 100%; display: block; border: none; border-radius: 0; margin: 0; aspect-ratio: 1 / 1; object-fit: cover; }
+.mock-ig .ig-caption { padding: 12px; font-size: 14px; line-height: 1.4; }
+.mock-ig .ig-caption b { font-weight: 600; margin-right: 6px; }
+
+/* --- Substack (stub) --- */
+.mock-sub {
+  --sub-bg: #ffffff;
+  --sub-text: #1a1a1a;
+  --sub-text-secondary: #6b6b6b;
+  --sub-border: #e5e5e5;
+  --sub-accent: #ff6719;
+}
+.mock-sub .mock-state { background: #f5f5f5; }
+.mock-sub .sub-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--sub-bg);
+  border: 1px solid var(--sub-border);
+  border-radius: 4px;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--sub-text);
+}
+.mock-sub .sub-pub { font-size: 12px; color: var(--sub-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+.mock-sub .sub-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0; }
+.mock-sub .sub-subtitle { font-size: 16px; color: var(--sub-text-secondary); margin: 0 0 16px 0; }
+.mock-sub .sub-image { width: 100%; border: 1px solid var(--sub-border); margin: 0 0 16px 0; display: block; border-radius: 0; }
+.mock-sub .sub-body { font-size: 16px; line-height: 1.6; }
+
+/* --- Stub-form placeholder note --- */
+.mock-stub-note {
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-style: italic;
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  margin-top: 8px;
+  max-width: 600px;
+}
+
+/* --- Asset-preview page main container width --- */
+.page-main--asset-preview { max-width: var(--max-width-wide); }
+.content--narrative { /* inherits .content baseline */ }
+
+/* Marketing AI System — clean-default-minimal system UI
+ * Stripe/Linear aesthetic. System fonts. Generous whitespace.
+ * No external font dependencies.
+ */
+
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-subtle: #656b78;  /* SYS-071 QW1: ~4.9:1 on --bg (was #9ca3af ~2.5:1, failed WCAG AA) */
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --success: #10b981;
+  --success-soft: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-soft: #fffbeb;
+  --danger: #ef4444;
+  --danger-soft: #fef2f2;
+  --code-bg: #f3f4f6;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.07);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --max-width: 880px;          /* prose-narrow — for Brief / Brand Context reading */
+  --max-width-wide: 1480px;    /* dashboard / plan / tasks / index / asset-preview — tables + comparisons */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Header --- */
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.page-header__inner {
+  max-width: var(--max-width-wide);
+  margin: 0 auto;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.page-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 0;
+}
+.crumb {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.crumb-link {
+  color: var(--accent);
+}
+.crumb-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-decoration: underline;
+}
+.crumb-current {
+  color: var(--text);
+  font-weight: 600;
+}
+.crumb-sep {
+  color: var(--text-subtle);
+  user-select: none;
+}
+.page-header__template {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  opacity: 0.6;
+}
+/* Refresh control (SYS-014) — top-right of every operator surface; reloads the page
+   so the operator doesn't reach for the browser refresh. */
+.refresh-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); font-size: 14px; line-height: 1;
+  cursor: pointer; padding: 0; font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.refresh-btn:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.page-header__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.library-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.lib-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.lib-link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+.lib-link--current {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* --- Main content --- */
+.page-main {
+  max-width: var(--max-width-wide);
+  margin: 48px auto;
+  padding: 0 32px;
+}
+
+/* Prose-narrow templates (Brief, Brand Context) get a narrower line length for readability */
+.template-brief .page-main,
+.template-brand-context .page-main {
+  max-width: var(--max-width);
+}
+
+.content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 56px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Typography --- */
+.content h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+.content h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 40px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.content h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 28px 0 8px 0;
+}
+.content h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 24px 0 8px 0;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+}
+.content p {
+  margin: 0 0 16px 0;
+}
+.content ul, .content ol {
+  margin: 0 0 16px 0;
+  padding-left: 24px;
+}
+.content li { margin-bottom: 4px; }
+
+.content strong { font-weight: 600; color: var(--text); }
+.content em { font-style: italic; }
+
+.content code {
+  background: var(--code-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 13px;
+}
+.content pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+}
+.content pre code {
+  background: none;
+  padding: 0;
+}
+
+.content a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+.content a:hover {
+  border-bottom-color: var(--accent);
+}
+
+.content blockquote {
+  border-left: 3px solid var(--border-strong);
+  padding: 4px 16px;
+  margin: 0 0 16px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* --- Tables --- */
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 20px 0;
+  font-size: 14px;
+}
+.content table th {
+  text-align: left;
+  font-weight: 600;
+  background: var(--bg);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border-strong);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+.content table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content table tr:last-child td { border-bottom: none; }
+.content table tr:hover td { background: var(--bg); }
+
+/* --- Status badges (used in inline markdown via spans or by templates) --- */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: ui-monospace, monospace;
+}
+.badge--draft { background: var(--code-bg); color: var(--text-muted); }
+.badge--approved { background: var(--success-soft); color: var(--success); }
+.badge--awaiting { background: var(--warning-soft); color: var(--warning); }
+.badge--blocked { background: var(--danger-soft); color: var(--danger); }
+.badge--live { background: var(--accent-soft); color: var(--accent); }
+
+/* --- HR --- */
+.content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* --- Images --- */
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 16px 0;
+}
+
+/* --- Footer --- */
+.page-footer {
+  max-width: var(--max-width-wide);
+  margin: 32px auto;
+  padding: 16px 32px;
+  font-size: 12px;
+  color: var(--text-subtle);
+  text-align: center;
+}
+.page-footer code {
+  background: var(--code-bg);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+/* --- Collapsible details/summary (decision-first / reference-collapsed pattern) --- */
+.content details {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 24px 0;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+.content details[open] {
+  background: var(--surface);
+}
+.content details summary {
+  padding: 14px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+.content details summary::-webkit-details-marker { display: none; }
+.content details summary::before {
+  content: "▸";
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  display: inline-block;
+  width: 12px;
+}
+.content details[open] summary::before {
+  transform: rotate(90deg);
+}
+.content details summary:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.content details summary strong {
+  font-weight: 600;
+}
+.content details > *:not(summary) {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.content details > *:last-child {
+  padding-bottom: 16px;
+}
+.content details summary + * {
+  margin-top: 12px;
+}
+/* Expanded content inside details should keep all the proper typography */
+.content details h2,
+.content details h3,
+.content details h4 {
+  margin-top: 24px;
+}
+.content details h2:first-of-type,
+.content details h3:first-of-type,
+.content details h4:first-of-type {
+  margin-top: 12px;
+}
+.content details table {
+  margin-bottom: 16px;
+}
+
+/* --- Checkboxes in lists (task lists) --- */
+.content ul.task-list,
+.content ul.task-list li {
+  list-style: none;
+  padding-left: 0;
+}
+.content input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* --- Dashboard-specific: richer card treatment for collapsible sections --- */
+/* The dashboard's <details> blocks are the operator's primary navigation. They */
+/* need to read as cards, not as plain disclosure rows. Scoped via body class so */
+/* Brief / Concept / Plan / Asset surfaces keep their lighter treatment. */
+body.template-dashboard .content details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  margin: 16px 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, border-left-color 0.2s, transform 0.15s;
+}
+body.template-dashboard .content details:hover {
+  box-shadow: var(--shadow-md);
+  border-left-color: var(--accent);
+}
+body.template-dashboard .content details[open] {
+  background: var(--surface);
+  border-left-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+body.template-dashboard .content details summary {
+  padding: 18px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  background: linear-gradient(to right, var(--bg) 0%, var(--surface) 60%);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+body.template-dashboard .content details[open] summary {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 70%);
+}
+body.template-dashboard .content details summary::before {
+  content: "›";
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--text-muted);
+  width: 14px;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+body.template-dashboard .content details[open] summary::before {
+  color: var(--accent);
+  transform: rotate(90deg) translateX(-1px);
+}
+body.template-dashboard .content details summary:hover {
+  background: linear-gradient(to right, var(--accent-soft) 0%, var(--surface) 80%);
+  color: var(--accent);
+}
+body.template-dashboard .content details > *:not(summary) {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+body.template-dashboard .content details > *:first-of-type:not(summary) {
+  padding-top: 8px;
+}
+body.template-dashboard .content details > *:last-child {
+  padding-bottom: 20px;
+}
+
+/* Color-vary the left-border per card position so 8 stacked cards aren't monotone */
+body.template-dashboard .content details:nth-of-type(8n+1) { border-left-color: #6366f1; } /* indigo */
+body.template-dashboard .content details:nth-of-type(8n+2) { border-left-color: #ec4899; } /* pink */
+body.template-dashboard .content details:nth-of-type(8n+3) { border-left-color: #8b5cf6; } /* violet */
+body.template-dashboard .content details:nth-of-type(8n+4) { border-left-color: #06b6d4; } /* cyan */
+body.template-dashboard .content details:nth-of-type(8n+5) { border-left-color: #10b981; } /* emerald */
+body.template-dashboard .content details:nth-of-type(8n+6) { border-left-color: #f59e0b; } /* amber */
+body.template-dashboard .content details:nth-of-type(8n+7) { border-left-color: #ef4444; } /* red */
+body.template-dashboard .content details:nth-of-type(8n+8) { border-left-color: #64748b; } /* slate */
+body.template-dashboard .content details:hover,
+body.template-dashboard .content details[open] {
+  /* On hover/open, accent wins over the nth-child color */
+  border-left-color: var(--accent);
+}
+
+/* Above-the-fold dashboard surfaces (🚨 Next actions / 🎯 Stage + next gate) — */
+/* lift these visually above the collapsed cards via top-of-page treatment */
+body.template-dashboard .content h2 {
+  font-size: 22px;
+  margin-top: 36px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+body.template-dashboard .content h2:first-of-type {
+  margin-top: 8px;
+}
+body.template-dashboard .content h3 {
+  font-size: 17px;
+  color: var(--text);
+  margin-top: 24px;
+}
+
+/* The 🚨 Next actions table — make it visually distinct as the highest-priority surface */
+body.template-dashboard .content > h2:first-of-type + table,
+body.template-dashboard .content > h2 + table {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+body.template-dashboard .content table th {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================================
+ * Brief — prose-narrow surface polish (added 2026-06-12, HTML-surface retro).
+ * Restrained: it's a reading document. Metadata header · callout blockquotes ·
+ * attribution + HARD inline tags. Tags are general (.content) so any prose
+ * surface that uses them inherits; layout bits scoped to template-brief.
+ * ========================================================================== */
+
+/* Metadata block (first paragraph after the H1: Operator · Tenant · Type · Status) */
+body.template-brief .content > h1 + p {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+body.template-brief .content > h1 + p strong { color: var(--text); font-weight: 600; }
+
+/* "Why this campaign" (first H2's paragraph) — the load-bearing framing — is the
+ * one accent callout on the page. */
+body.template-brief .content > h2:first-of-type + p {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  margin: 0 0 22px 0;
+  font-size: 15.5px;
+  color: var(--text);
+}
+
+/* Blockquotes (rescope / history / context notes) — neutral, not accent. They
+ * read as reference asides and belong at the bottom of the brief. */
+body.template-brief .content blockquote {
+  background: var(--bg);
+  border-left: 4px solid var(--border-strong);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 18px;
+  margin: 0 0 22px 0;
+  color: var(--text-muted);
+  font-style: normal;
+}
+body.template-brief .content blockquote p:last-child { margin-bottom: 0; }
+
+/* Attribution markers — the brief's signature [who-said-what] discipline */
+.content .attr {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.content .attr--operator { background: var(--success-soft); color: var(--success); }  /* the operator's read */
+.content .attr--ext      { background: var(--accent-soft);  color: var(--accent); }   /* AI extension */
+.content .attr--syn      { background: var(--warning-soft); color: var(--warning); }  /* AI synthesis */
+
+/* HARD mandatory flags */
+.content .hard-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 7px;
+  border-radius: 5px;
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ============================================================================
+ * Concept pages — dense strategy docs (added 2026-06-12, HTML-surface retro).
+ * It's a reading document; the win is lifting the load-bearing lines (Big Idea,
+ * Key Message, radio script) out of the prose and giving sections clear rhythm.
+ * ========================================================================== */
+
+/* Clear section rhythm so a long concept scans */
+body.template-concept-trio .content h2 {
+  margin-top: 40px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+body.template-concept-trio .content h2:first-of-type { margin-top: 8px; }
+body.template-concept-trio .content h3 { margin-top: 26px; color: var(--text); }
+
+/* The Big Idea — first section's lead line — is the page's hero callout */
+body.template-concept-trio .content > h2:first-of-type + p {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 16px 20px;
+  margin: 0 0 22px 0;
+  font-size: 16px;
+  color: var(--text);
+}
+
+/* Key message + 15-second radio script (blockquotes) become accent callouts */
+body.template-concept-trio .content blockquote {
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 14px 18px;
+  margin: 0 0 20px 0;
+  color: var(--text);
+  font-style: normal;
+  font-size: 15.5px;
+}
+body.template-concept-trio .content blockquote p:last-child { margin-bottom: 0; }
+
+/* Revision-history / freshness-check tables read as quiet audit, not headline */
+body.template-concept-trio .content h2:last-of-type ~ table { font-size: 13px; }
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .page-main { padding: 0 16px; margin: 24px auto; }
+  .content { padding: 28px 24px; border-radius: var(--radius); }
+  .content h1 { font-size: 26px; }
+  .content h2 { font-size: 19px; }
+  .page-header { padding: 12px 16px; }
+}
+
+/* --- Print --- */
+@media print {
+  .page-header, .page-footer { display: none; }
+  .content { border: none; box-shadow: none; padding: 0; }
+}
+
+/* ============================================================================
+ * Dashboard header strip + unified status/priority system (added 2026-06-12,
+ * operator HTML-surface fine-tuning retro). Replaces the dense top metadata
+ * paragraph with a structured, scannable strip. All scoped to the dashboard so
+ * Brief / Concept / Plan / Asset surfaces are untouched.
+ * ========================================================================== */
+
+/* The header strip — name + status pills + one-line "where we are" + recent wins */
+.content .dash-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 8px 0;
+}
+.content .dash-header__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.content .dash-header__eyebrow {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 2px 0;
+}
+.content .dash-header__title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+.content .dash-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Unified status pill system — the single status vocabulary across the dashboard.
+ * Replaces the ad-hoc 🟢🔵🔴🟡 emoji mix. Reuses the soft/strong token pairs. */
+.content .pill {
+  display: inline-block;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.55;
+  white-space: nowrap;
+}
+.content .pill--active   { background: var(--accent-soft);  color: var(--accent); }
+.content .pill--approved { background: var(--success-soft); color: var(--success); }
+.content .pill--live     { background: #ecfeff;             color: #0e7490; }
+.content .pill--review   { background: var(--warning-soft); color: var(--warning); }
+.content .pill--blocked  { background: var(--danger-soft);  color: var(--danger); }
+.content .pill--queued   { background: var(--code-bg);      color: var(--text-muted); }
+.content .pill--pending  { background: var(--code-bg);      color: var(--text-subtle); }
+.content .pill--cut      { background: var(--code-bg);      color: var(--text-subtle); text-decoration: line-through; }
+
+/* The one-line "where we are" sentence — the dense Stage paragraph's replacement */
+.content .dash-where {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+.content .dash-where strong { color: var(--text); font-weight: 600; }
+
+/* "Recently approved" chip row — keeps the wins visible without opening History */
+.content .dash-recent {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.content .dash-recent__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  margin-right: 2px;
+}
+.content .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Operator-surfaces nav row — the quartet links, styled as a clean toolbar */
+.content .dash-surfaces {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 10px 0 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  font-size: 13px;
+}
+.content .dash-surfaces a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.content .dash-surfaces a:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+.content .dash-surfaces a.is-primary {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* Unified priority tags for To Do rows — one vocabulary (Now / Next / Later)
+ * replacing the four prior schemes (Priority 1-6 / D1-D5 / P2-P8 / Whenever).
+ * Authored inline in table cells today; auto-emitted by render.py in iteration 2. */
+body.template-dashboard .prio {
+  display: inline-block;
+  min-width: 46px;
+  text-align: center;
+  padding: 2px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+body.template-dashboard .prio--now   { background: var(--danger-soft);  color: var(--danger); }
+body.template-dashboard .prio--next  { background: var(--warning-soft); color: var(--warning); }
+body.template-dashboard .prio--later { background: var(--code-bg);      color: var(--text-muted); }
+
+/* ============================================================================
+ * Campaigns index — cross-campaign surface (added 2026-06-12, HTML-surface retro).
+ * The Active block is the hero: campaign CARDS, not a plain table. Reference
+ * tables below are visually demoted so the active campaigns lead the eye.
+ * ========================================================================== */
+
+/* Active campaigns — card grid (replaces the auto 3-column table) */
+body.template-index .camp-grid {
+  display: grid;
+  /* auto-FILL (not auto-fit): keep empty tracks so a single card in a per-tenant
+     section stays ~half-width instead of stretching to fill the row. */
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 16px;
+  margin: 4px 0 8px 0;
+}
+body.template-index .camp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.15s, border-left-color 0.2s;
+}
+body.template-index .camp-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+body.template-index .camp-card:nth-of-type(5n+1) { border-left-color: #6366f1; }
+body.template-index .camp-card:nth-of-type(5n+2) { border-left-color: #06b6d4; }
+body.template-index .camp-card:nth-of-type(5n+3) { border-left-color: #10b981; }
+body.template-index .camp-card:nth-of-type(5n+4) { border-left-color: #f59e0b; }
+body.template-index .camp-card:nth-of-type(5n+5) { border-left-color: #ec4899; }
+body.template-index .camp-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+body.template-index .camp-card__headL {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+body.template-index .camp-card__headR {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+body.template-index .camp-card__name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--text);
+}
+body.template-index .camp-card__formal {
+  font-size: 12px;
+  color: var(--text-subtle);
+  line-height: 1.3;
+}
+/* Context links (Brand context) — quiet, right-aligned under the phase pill */
+body.template-index .camp-card__context {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 10px;
+}
+body.template-index .camp-card__context a {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+body.template-index .camp-card__context a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+/* "View all tasks" CTA — prominent button under the active campaign cards */
+body.template-index .index-tasks-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 22px auto 8px auto;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #ffffff;
+  text-decoration: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.15s, background 0.15s;
+}
+body.template-index .index-tasks-cta:hover {
+  background: #1d4ed8;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  border: none;
+}
+body.template-index .index-tasks-cta__icon { font-size: 15px; line-height: 1; }
+body.template-index .index-tasks-cta__text { display: inline; }
+body.template-index .index-tasks-cta__label { font-size: 14px; font-weight: 600; }
+body.template-index .index-tasks-cta__sub { display: none; }
+body.template-index .index-tasks-cta__arrow { font-size: 16px; font-weight: 400; }
+
+/* Archived campaigns — collapsed list below the active grid */
+body.template-index .camp-archived { margin-top: 20px; }
+body.template-index .camp-archived ul { margin: 8px 0 0; padding-left: 20px; }
+body.template-index .camp-archived li { margin-bottom: 4px; font-size: 14px; }
+body.template-index .camp-archived__formal { color: var(--text-subtle); font-size: 12px; }
+body.template-index .camp-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+body.template-index .camp-card__surfaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+body.template-index .camp-card__surfaces a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-index .camp-card__surfaces a:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-soft);
+}
+
+/* Section headings — active leads; reference sections sit quieter below the rule */
+body.template-index .content h2 {
+  font-size: 20px;
+  margin-top: 36px;
+}
+body.template-index .content h2:first-of-type { margin-top: 8px; }
+body.template-index .content h3 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-top: 24px;
+}
+
+/* Reference tables (cross-campaign / specs / playbooks / infra) — demoted: compact + muted */
+body.template-index .content hr ~ table {
+  font-size: 13px;
+}
+body.template-index .content hr ~ table td {
+  padding: 7px 12px;
+  color: var(--text-muted);
+}
+body.template-index .content hr ~ table td a { color: var(--accent); }
+
+/* ============================================================================
+ * Tasks — cross-campaign To Do (added 2026-06-12, HTML-surface retro).
+ * Grouped per campaign with phase context + priority pills so the operator can
+ * see which campaign, which phase, and whether a decision unblocks or is optional.
+ * ========================================================================== */
+body.template-tasks .task-summary {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 4px 0 20px 0;
+}
+body.template-tasks .task-group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin: 0 0 18px 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+body.template-tasks .task-group__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+body.template-tasks .task-group__name {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+body.template-tasks .task-group__dash {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+body.template-tasks .task-group__dash:hover { color: var(--accent); }
+/* SYS-012 — per-campaign collapse: each task group is a <details>, header is its <summary> */
+body.template-tasks details.task-group > summary.task-group__head { cursor: pointer; list-style: none; }
+body.template-tasks details.task-group > summary.task-group__head::-webkit-details-marker { display: none; }
+body.template-tasks details.task-group > summary.task-group__head::before {
+  content: "\25B8"; /* chevron */
+  color: var(--text-muted);
+  font-size: 12px;
+  transition: transform 0.15s ease;
+}
+body.template-tasks details.task-group[open] > summary.task-group__head::before { transform: rotate(90deg); }
+body.template-tasks .task-tools { display: flex; justify-content: flex-end; margin: 0 0 14px; }
+body.template-tasks .task-toggle-all {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: var(--radius);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+body.template-tasks .task-toggle-all:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+.content .task-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  font-size: 14px;
+}
+.content .task-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.content .task-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.content .task-table tr:last-child td { border-bottom: none; }
+.content .task-table tr:hover td { background: var(--bg); }
+.content .task-table td:nth-child(4) { color: var(--text-muted); white-space: nowrap; }
+.content .task-pointer {
+  margin: 0;
+  padding: 14px 18px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+.content .task-pointer a { font-weight: 600; }
+/* Low-key footer pointer to the tenant Brand-recs queue (asset-verdict items —
+   durable, no time pressure). Sits under a group's task table, visually demoted. */
+.content .task-pointer--rec {
+  border-top: 1px dashed var(--border);
+  margin: 6px 0 0;
+  padding: 9px 18px 2px;
+  font-size: 13px;
+  color: var(--text-subtle);
+}
+.content .task-pointer--rec strong { color: var(--text-muted); font-weight: 600; }
+/* Richer task cells — asset context under the title, "what you'll do" under why */
+.content .task-asset {
+  font-size: 12px;
+  color: var(--text-subtle);
+  margin-top: 3px;
+}
+.content .task-hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.content .task-hint__label {
+  font-weight: 700;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  margin-right: 4px;
+}
+
+/* ============================================================================
+ * Plan — per-asset cards (added 2026-06-15, HTML-surface retro).
+ * render.py transform_plan() rewrites the markdown asset-list TABLE into these
+ * cards at render time; the markdown table stays authoritative (check-state /
+ * Ships contract). Cut + transferred rows collapse into .asset-cards-archived.
+ * ========================================================================== */
+
+/* Section rhythm — the asset list is the headline; supporting tables sit quieter */
+body.template-plan .content h1 { margin-bottom: 4px; }
+body.template-plan .content h2 {
+  font-size: 21px;
+  margin-top: 40px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+body.template-plan .content h2:first-of-type { margin-top: 14px; }
+
+/* Metadata block (Concept selected · Approved · Status) reads as quiet eyebrow */
+body.template-plan .content > h1 + p {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}
+body.template-plan .content > h1 + p strong { color: var(--text); font-weight: 600; }
+
+/* The card grid — ~3 across (⅓ width) so each card stays easy to read */
+body.template-plan .asset-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 14px;
+  margin: 12px 0 8px;
+  align-items: start;
+}
+body.template-plan .asset-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 15px 18px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.12s ease;
+}
+body.template-plan .asset-card:hover { box-shadow: var(--shadow-md); }
+/* Color-vary the left border so a long stack isn't monotone */
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+1) { border-left-color: #6366f1; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+2) { border-left-color: #06b6d4; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+3) { border-left-color: #10b981; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+4) { border-left-color: #f59e0b; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+5) { border-left-color: #ec4899; }
+body.template-plan .asset-cards > .asset-card:nth-of-type(6n+6) { border-left-color: #8b5cf6; }
+
+body.template-plan .asset-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+body.template-plan .asset-card__num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  background: var(--code-bg);
+  border-radius: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+body.template-plan .asset-card__name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+body.template-plan .asset-card__name strong { font-weight: 600; }
+body.template-plan .asset-card__head .pill { margin-left: auto; }
+
+/* Ships — the output manifest, the load-bearing line */
+body.template-plan .asset-card__ships {
+  font-size: 14px;
+  margin: 10px 0 8px;
+  padding: 8px 12px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+body.template-plan .asset-card__ships-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 6px;
+}
+body.template-plan .asset-card__ships code {
+  background: var(--surface);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Description — the deliverable, incl. variation count */
+body.template-plan .asset-card__desc {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 9px 0 0;
+}
+body.template-plan .asset-card__vars {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 5px;
+  padding: 0 6px;
+  margin-left: 2px;
+}
+/* Output format(s) — the manifest line */
+body.template-plan .asset-card__out {
+  font-size: 13px;
+  margin: 9px 0 2px;
+  padding: 7px 11px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+body.template-plan .asset-card__out-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 6px;
+}
+body.template-plan .asset-card__out code {
+  background: var(--surface);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* Meta chips — owner / phase / target / review shape / copy / depends */
+body.template-plan .asset-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 7px;
+  margin: 8px 0 2px;
+}
+body.template-plan .asc-chip {
+  font-size: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 9px;
+  color: var(--text);
+  line-height: 1.5;
+}
+body.template-plan .asc-chip__k {
+  color: var(--text-subtle);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  margin-right: 5px;
+}
+body.template-plan .asc-chip code { background: transparent; padding: 0; }
+
+/* Notes — demoted to click-to-expand so the card head stays scannable */
+body.template-plan .asset-card__notes { margin-top: 10px; }
+body.template-plan .asset-card__notes summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 12.5px;
+  list-style: none;
+}
+body.template-plan .asset-card__notes summary::before { content: "▸ "; }
+body.template-plan .asset-card__notes[open] summary::before { content: "▾ "; }
+body.template-plan .asset-card__notes summary::-webkit-details-marker { display: none; }
+body.template-plan .asset-card__notes > div {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  padding-left: 14px;
+  border-left: 2px solid var(--border);
+}
+
+/* Status pills on the cards */
+body.template-plan .asset-card .pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+body.template-plan .pill--shipped,
+body.template-plan .pill--ok      { background: var(--success-soft); color: #047857; }
+body.template-plan .pill--review  { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pill--prog    { background: #dbeafe; color: #1d4ed8; }
+body.template-plan .pill--queued  { background: var(--code-bg);     color: var(--text-muted); }
+body.template-plan .pill--cut     { background: var(--danger-soft); color: #b91c1c; }
+body.template-plan .pill--transfer{ background: #ede9fe; color: #6d28d9; }
+
+/* ---- Plan v3 — one asset list, channel <-> wave group-by toggle (2026-07) ---- */
+body.template-plan .plan-v3 { margin: 6px 0 26px; }
+body.template-plan .plan-toggle { display: flex; align-items: center; gap: 7px; margin: 0 0 12px; font-size: 13px; }
+body.template-plan .plan-toggle__lbl { color: var(--text-subtle); font-weight: 700; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+body.template-plan .pt-btn { font: inherit; font-size: 13px; padding: 4px 14px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); border-radius: 999px; cursor: pointer; }
+body.template-plan .pt-btn:hover { border-color: var(--border-strong); }
+body.template-plan .pt-btn.is-on { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+body.template-plan table.pv3 { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+body.template-plan table.pv3 thead th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-subtle); font-weight: 700; padding: 4px 11px; border-bottom: 2px solid var(--border-strong); background: transparent; }
+body.template-plan table.pv3 td { padding: 9px 11px; border-bottom: 1px solid var(--border); vertical-align: top; }
+body.template-plan tr.pv3-stage td { font-size: 15px; font-weight: 700; color: var(--text); padding: 20px 0 5px; border-bottom: 2px solid var(--text-subtle); }
+body.template-plan tr.pv3-stage:first-child td { padding-top: 2px; }
+body.template-plan tr.pv3-grp td { background: var(--code-bg); font-weight: 600; font-size: 12.5px; color: var(--text); padding: 6px 11px; }
+body.template-plan .pv3-grp__n { color: var(--text-muted); font-weight: 400; margin-left: 6px; }
+body.template-plan .pv3-grp__n::before { content: "· "; }
+body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em; }
+body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
+body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
+body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
+body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
+body.template-plan .pv3 .row-more { margin-top: 5px; }
+body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
+body.template-plan .pv3 .row-more summary::before { content: "\25B8  "; }
+body.template-plan .pv3 .row-more[open] summary::before { content: "\25BE  "; }
+body.template-plan .pv3 .row-more summary::-webkit-details-marker { display: none; }
+body.template-plan .pv3 .row-more > div { margin-top: 5px; font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+body.template-plan .pv3 .c-out, body.template-plan .pv3 .c-dep, body.template-plan .pv3 .c-own, body.template-plan .pv3 .c-chan { color: var(--text-muted); }
+body.template-plan .pv3 .c-wave { white-space: nowrap; }
+body.template-plan .pv3 .pill { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+
+/* Cut & transferred — collapsed audit group below the live build */
+body.template-plan .asset-cards-archived {
+  margin: 4px 0 28px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+}
+body.template-plan .asset-cards-archived summary {
+  padding: 13px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+body.template-plan .asset-cards-archived .asset-cards { margin: 0 14px 16px; }
+body.template-plan .asset-cards-archived .asset-card {
+  opacity: 0.7;
+  border-left-style: dashed;
+}
+body.template-plan .asset-cards-archived .asset-card:hover { opacity: 1; }
+
+/* Supporting tables (phasing / pre-flight / status snapshot) — compact + quiet */
+body.template-plan .content table { font-size: 13.5px; }
+body.template-plan .content table th {
+  background: var(--accent-soft);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+/* Channel/type groups — section the live cards by medium (Web · Email · …) */
+body.template-plan .asset-group { margin: 18px 0; }
+body.template-plan .asset-group__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px;
+}
+body.template-plan .asset-group__title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  white-space: nowrap;
+}
+body.template-plan .asset-group__count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--code-bg);
+  border-radius: 999px;
+  padding: 1px 9px;
+}
+body.template-plan .asset-group__head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* History & audit trail — pushed to the very bottom of the plan */
+body.template-plan .plan-tail-label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  margin: 8px 0 6px;
+}
+
+/* Collapsed AI/process sections (roster, fast-lane, workflows, version history…) */
+body.template-plan details.plan-collapsed {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  margin: 14px 0;
+}
+body.template-plan details.plan-collapsed > summary {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  list-style: none;
+}
+body.template-plan details.plan-collapsed > summary::-webkit-details-marker { display: none; }
+body.template-plan details.plan-collapsed > summary::before { content: "⚙ "; opacity: 0.6; }
+body.template-plan details.plan-collapsed[open] > summary {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+body.template-plan details.plan-collapsed > *:not(summary) { padding-left: 18px; padding-right: 18px; }
+body.template-plan details.plan-collapsed > *:first-of-type:not(summary) { padding-top: 10px; }
+body.template-plan details.plan-collapsed > *:last-child { padding-bottom: 14px; }
+/* H2 inside a collapsed section is now the summary; drop its in-flow heading look */
+body.template-plan details.plan-collapsed h3 { margin-top: 16px; border-bottom: none; }
+
+/* Open questions — highlighted callout (the operator must act on these) */
+body.template-plan .plan-oq {
+  border: 1px solid var(--warning);
+  background: var(--warning-soft);
+  border-radius: var(--radius-lg);
+  padding: 2px 22px 18px;
+  margin: 24px 0;
+}
+body.template-plan .plan-oq h2 {
+  border-bottom: none;
+  color: #b45309;
+}
+body.template-plan .plan-oq h2::before { content: "❓ "; }
+body.template-plan .plan-oq table { background: var(--surface); }
+body.template-plan .plan-oq > ol,
+body.template-plan .plan-oq > ul { margin-bottom: 4px; }
+
+/* Channel workstreams — the reframed Phasing summary (count · timing · status) */
+body.template-plan .workstreams {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: 12px 0 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+body.template-plan .ws-row {
+  display: grid;
+  grid-template-columns: 1.1fr 2.6fr 0.6fr 1.1fr;
+  align-items: baseline;
+  gap: 14px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+body.template-plan .ws-row:last-child { border-bottom: none; }
+body.template-plan .ws-row:hover { background: var(--bg); }
+body.template-plan .ws-row--head {
+  background: var(--accent-soft);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+body.template-plan .ws-row--head:hover { background: var(--accent-soft); }
+body.template-plan .ws-row__ch { font-weight: 650; color: var(--text); }
+body.template-plan .ws-row--head .ws-row__ch { font-weight: 700; color: var(--text-muted); }
+body.template-plan .ws-row__desc { color: var(--text-muted); line-height: 1.45; }
+body.template-plan .ws-row__more { color: var(--text-subtle); font-size: 11.5px; white-space: nowrap; }
+body.template-plan .ws-row__n { color: var(--text-muted); font-size: 12.5px; white-space: nowrap; }
+body.template-plan .ws-row__t {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+}
+
+/* ── Tenant layer — logical grouping on the flat structure (2026-06-15) ──────── */
+/* Breadcrumb UP from a campaign dashboard to its tenant home. */
+.tenant-breadcrumb {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: -2px 0 18px;
+}
+.tenant-breadcrumb a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.tenant-breadcrumb a:hover { text-decoration: underline; }
+
+/* Tenant section header on the master index (campaigns grouped under their tenant). */
+.tenant-section {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 30px 0 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+  font-size: 18px;
+  font-weight: 700;
+}
+.tenant-section a { color: var(--text); text-decoration: none; }
+.tenant-section a:hover { color: var(--accent); }
+.tenant-section__count { font-size: 12px; font-weight: 500; color: var(--text-subtle); }
+
+/* Per-card tenant eyebrow label on the master index (Option A — flat 2-up grid,
+   tenant identity per card instead of section headers). */
+body.template-index .camp-card__tenant {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-decoration: none;
+  margin-bottom: 3px;
+}
+body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
+
+/* Governance verdict pill on asset previews (COMPLIANCE_AUTO marker). */
+.gov-verdict {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.9em;
+  padding: 1px 8px;
+  border-radius: 5px;
+}
+.gov-verdict.gov--clear   { background: var(--success-soft); color: var(--success); }
+.gov-verdict.gov--hold    { background: var(--warning-soft); color: var(--warning); }
+.gov-verdict.gov--blocked { background: var(--danger-soft);  color: var(--danger); }
+.gov-verdict.gov--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* Insights Manager advisory resonance read on external-touchpoint asset previews
+   (RESONANCE_AUTO marker). Advisory, never a gate — softer register than governance. */
+.resonance-read {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.9em;
+  padding: 1px 8px;
+  border-radius: 5px;
+}
+.resonance-read.res--on      { background: var(--success-soft); color: var(--success); }
+.resonance-read.res--mixed   { background: var(--warning-soft); color: var(--warning); }
+.resonance-read.res--off     { background: var(--danger-soft);  color: var(--danger); }
+.resonance-read.res--unknown { background: var(--code-bg);      color: var(--text-muted); }
+
+/* SYS-073 BB3: wide operator tables become horizontally scrollable on small screens
+   (laptop-narrow / tablet / phone) instead of overflowing or squashing. Scoped to
+   small viewports only, so desktop table rendering is unchanged. */
+@media (max-width: 720px) {
+  .content table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-main { padding-left: 12px; padding-right: 12px; }
+}
+
+/* SYS-073 BB2: the subtle "src" link beside an artifact's View link — reachable, not loud. */
+.content .src-link { font-size: 11px; color: var(--text-subtle); text-decoration: none; margin-left: 3px; vertical-align: super; }
+.content .src-link:hover { text-decoration: underline; color: var(--accent); }
+
+/* SYS-073 BB4: the first-run welcome — a fresh Studio's zero-campaigns state reads as a warm start, not an error. */
+.content blockquote.first-run,
+.content > blockquote:first-child { border-left-color: var(--accent); background: var(--accent-soft); }
+</style>
+</head>
+<body class="template-base">
+  <header class="page-header">
+    <div class="page-header__inner">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a class="crumb crumb-link" href="../../campaigns/index.html">🏠 All Campaigns</a></nav>
+      <div class="page-header__right">
+        <nav class="library-nav" aria-label="Site links"><a class="lib-link" href="../guide/help.html" title="Help &amp; guides — deployment, operator guide, FAQ">📖 Help &amp; guides</a><a class="lib-link" href="../../tenant/library/INDEX.html" title="Best-Practice Library — creative exemplars &amp; gold standards">📚 Best-Practice Library</a><a class="lib-link" href="../../tenant/research-library/INDEX.html" title="Insights Library — the shared research corpus the Insights Manager cites">🔎 Insights Library</a></nav>
+        <button type="button" class="refresh-btn" onclick="location.reload()" title="Refresh this page" aria-label="Refresh">&#10227;</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <article class="content">
+      <h1 id="rollout-architecture-marketing-ai-system">Rollout Architecture — Marketing AI System</h1>
+<p><strong>Status</strong>: v2 spec · Updated 2026-06-04 (6-phase renumbering) · Locked 2026-06-03 in design conversation with the operator.
+<strong>Owners</strong>: Architecture (the operator) · Implementation (CM skill + Producer agent + Brief / Plan specs).
+<strong>Supersedes</strong>: <code>_archive/deployment-architecture-v1-superseded.md</code> (v1, written earlier this turn). v1 collapsed Phase 5 + 6 into one "deployment" concept and surfaced deployment intent at asset-build time. Both were wrong — see §11 decision log entry "Why v1 was superseded."
+<strong>Successor</strong>: TBD — revisit after Phase 6 runs cleanly for 2-3 cycles with 2-3 tenants.</p>
+<hr>
+<h2 id="0-purpose">0. Purpose</h2>
+<p>This document defines <strong>how a campaign moves through its full lifecycle from Brief to ongoing live operation, with explicit attention to Phases 5 and 6 (rollout) which the system had previously left implicit.</strong></p>
+<p>Before this spec, the system had strong machinery for Phases 1-4 (Brief, Concept Design, Asset Development) and treated Phase 5 (Day 1 Rollout: install templates, train staff, deploy one-off assets) and Phase 6 (Ongoing Rollout: run the recurring cadence end-to-end) as implicit operator labour ("the operator uploads to Mailchimp / trains the team / runs Friday's cadence"). That worked for the first foundation-asset campaign (Beta Corp Wave 0). It breaks the moment a weekly cadence starts and breaks worse the moment a second tenant exists.</p>
+<p><strong>Scope:</strong> architecture, schemas, operator-facing surfaces, phase boundaries. Does NOT cover specific adapter implementations (Mailchimp API code, etc.) — those are downstream from the schemas here.</p>
+<p><strong>Audience:</strong> primarily future-Claude (CM skill + Producer agent + future specs of Brief, Plan, Phase 5 + Phase 6 artifacts). Secondarily future-the operator + any client operator at a tenant business who runs Phase 6 cadences.</p>
+<hr>
+<h2 id="1-the-6-phase-campaign-lifecycle-this-specs-backbone">1. The 6-phase campaign lifecycle (this spec's backbone)</h2>
+<p>Every campaign moves through six phases. Some campaigns only need Phases 1-5 (one-offs like Gamma Foods Launch). Cadenced campaigns (Beta Corp weekly Friday Note) continue into Phase 6 indefinitely.</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Who owns</th>
+<th>Output</th>
+<th>Existing in system?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1 — Brief</strong></td>
+<td>CM + operator</td>
+<td>Brief + Brand Context — captures WHAT we're doing and WHY, plus <strong>tech stack · human roles · cadence shape</strong> (NEW)</td>
+<td>Yes (extending)</td>
+</tr>
+<tr>
+<td><strong>2 — Concept Design</strong></td>
+<td>CD</td>
+<td>Selected concept</td>
+<td>Yes (unchanged)</td>
+</tr>
+<tr>
+<td><strong>3 — Plan</strong></td>
+<td>CM + operator</td>
+<td>Locked asset list + waves + budget + <strong>§N Phase 5 + 6 readiness</strong> section (end-of-Phase-4 gate trigger)</td>
+<td>Yes (extending)</td>
+</tr>
+<tr>
+<td><strong>4 — Asset Production</strong></td>
+<td>Producer + Brand Manager</td>
+<td>Approved assets with <code>asset.yaml</code> + deployment block + gallery entry</td>
+<td>Yes (extending)</td>
+</tr>
+<tr>
+<td><strong>5 — Day-1 Rollout</strong></td>
+<td>CM + tenant + the operator</td>
+<td><strong>Setup checklist</strong> · <strong>training plan</strong> · <strong>one-off asset deployment</strong> (Mailchimp templates installed · environment provisioned · team trained). Acceptance criteria: tenant team can independently trigger Phase 6 cadence.</td>
+<td><strong>NEW</strong></td>
+</tr>
+<tr>
+<td><strong>6 — Ongoing Cadence</strong> (cadenced campaigns only)</td>
+<td>Tenant operator (or the operator if outsourced)</td>
+<td><strong>Per-cycle runbook executed end-to-end</strong>. No the operator involvement unless outsourced. Escalation paths defined.</td>
+<td><strong>NEW</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Every phase has a gate. Phase 5 → Phase 6 gate is particularly load-bearing: the Plan gets <em>updated</em> with deployment knowledge gathered across Phases 1-4 before any Phase 5 work fires.</p>
+<p><strong>Retros are end-of-phase touchpoints</strong> (added 2026-06-04 per <code>feedback_retros_are_system_artifacts_not_conversations.md</code>). Each phase closes with a light retro (~10-15 min) capturing what worked / friction / system rules to update. Wave retros (heavier, ~30 min) fire at end of major asset waves. Campaign-end retros (~45-60 min) fire at one-off campaign closure or quarterly milestones of ongoing campaigns. System retros (~60-90 min) fire quarterly across all campaigns or after significant system upgrades. <strong>Retros generate memory rules + spec amendments + playbook updates + task items — not just docs on disk.</strong> See <code>docs/specs/retro.md</code> for the schema + CM trigger recognition + approval gate.</p>
+<hr>
+<h2 id="2-phase-1-extension-brief-gains-tech-setup-human-roles-cadence-shape">2. Phase 1 extension — Brief gains Tech Setup + Human Roles + Cadence Shape</h2>
+<p>Today's Brief captures: who/what/why/budget/timeline/compliance. It does NOT capture how the assets get into the world or who runs them.</p>
+<p><strong>v2 adds three new mandatory Brief sections.</strong> All are fact-find dimensions, captured at intake (not at deployment time). <strong>These sections live in each campaign's <code>brief.md</code> after this spec lands</strong> — they are NOT in this spec doc itself. This spec defines the schemas; the populated data lives per-campaign.</p>
+<blockquote>
+<p>📍 <strong>For the Beta Corp instance</strong>, see <a href="../../campaigns/beta-corp-podcast-engine-2026q2/brief.html"><code>campaigns/beta-corp-podcast-engine-2026q2/brief.html</code></a> — the three sections appear after "Timeline" and before "Open questions."</p>
+</blockquote>
+<h3 id="21-tech-setup-schema">2.1 Tech Setup (schema)</h3>
+<p>What tools does the tenant use? Captured per-channel so Producer can build assets against the actual destination from the start.</p>
+<pre><code class="language-yaml">tech_stack:
+  email_platform: &quot;Mailchimp&quot;           # or Constant Contact / ActiveCampaign / HubSpot / etc.
+  intranet: &quot;SharePoint&quot;                # or Confluence / Slab / static-site / none
+  cms_or_website: &quot;WordPress&quot;           # tenant-hosted or platform-name
+  social_tools:
+    linkedin: &quot;manual (no Buffer/Hootsuite)&quot;
+    instagram: &quot;manual&quot;
+    youtube: &quot;Studio direct upload&quot;
+  file_storage: &quot;OneDrive (Microsoft 365)&quot;   # or Google Drive / Dropbox / Box
+  crm: &quot;Salesforce&quot;                     # if relevant; many tenants won't have CRM in scope
+  podcast_host: &quot;Spotify for Podcasters&quot;    # only for podcast-centric campaigns
+  marketing_automation: &quot;n/a&quot;
+  notes: &quot;free-form anything else worth capturing&quot;
+</code></pre>
+<h3 id="22-human-roles">2.2 Human roles</h3>
+<p>Who does what manual work? Critical for designing Phase 5 training + Phase 6 runbook.</p>
+<p><strong>Capture ROLE TITLES, not specific NAMES.</strong> Roles persist; people in those roles rotate week-to-week and quarter-to-quarter. Even when a role currently has one person filling it, capture the title — the system stays accurate when the tenant rotates their Marketing Manager next quarter or the Compliance Officer goes on parental leave. Named exceptions: public-facing bylines (podcast hosts, article bylines, video presenters) — those ARE named because they appear in published output as identities.</p>
+<pre><code class="language-yaml">human_roles:
+  ai_trigger_person:
+    role: &quot;Marketing Manager&quot;            # TITLE, not name; tenant confirms at deploy
+    technical_literacy: &quot;moderate&quot;       # low / moderate / high
+    tool_access: &quot;Claude Code seat to be provisioned&quot;
+  approval_chain:
+    - role: &quot;CMO&quot;
+      stage: &quot;Brief + Concept gates&quot;
+    - role: &quot;Compliance Officer&quot;
+      stage: &quot;Pre-publish for any client-facing piece&quot;
+    - role: &quot;CEO&quot;
+      stage: &quot;Quarterly review only&quot;
+  manual_publisher:
+    role: &quot;Marketing Manager&quot;            # who clicks Send in Mailchimp / posts to LinkedIn
+    name: &quot;TBD&quot;
+  escalation_contact:
+    role: &quot;the operator (Slack #sb-marketing)&quot; # who to ping when something breaks
+    sla: &quot;next business day&quot;
+</code></pre>
+<h3 id="23-cadence-shape">2.3 Cadence shape</h3>
+<p>Is this a one-off or ongoing? If ongoing, what's the rhythm + ownership?</p>
+<pre><code class="language-yaml">cadence_shape:
+  type: &quot;ongoing&quot;                        # &quot;one-off&quot; | &quot;ongoing&quot; | &quot;hybrid&quot;
+  ongoing_details:
+    frequency: &quot;weekly&quot;                  # weekly / fortnightly / monthly / quarterly
+    trigger: &quot;new Beta Corp Talks episode airs Wed; Friday Note ships Fri 9am AEST&quot;
+    duration: &quot;indefinite (pilot 14 days)&quot;
+  ownership_model: &quot;operator-runs-for-pilot-then-tenant-takes-over&quot;
+  # ownership_model values:
+  #   &quot;operator-runs&quot;               — the operator operates indefinitely (agency model)
+  #   &quot;tenant-self-runs&quot;          — tenant team owns from Day 1 (we set up + train)
+  #   &quot;operator-runs-then-tenant&quot;   — pilot period the operator, then handoff (most common)
+  #   &quot;outsourced-to-operator&quot;      — tenant pays the operator to run it forever (also agency)
+</code></pre>
+<h3 id="24-brief-oq-pattern">2.4 Brief OQ pattern</h3>
+<p>Any of these fields can be <code>"TBD"</code> at Brief authoring. CM surfaces unknowns as Brief OQs in the same way it does today for budget/timeline. By end of Phase 4, all three sections must be fully populated (Phase 5 cannot start with TBDs in tech_stack or human_roles or ownership_model).</p>
+<hr>
+<h2 id="3-phase-2-concept-design-unchanged">3. Phase 2 — Concept Design (unchanged)</h2>
+<p>The creative trio + selected-concept flow is unchanged. CD authors against Brief + Brand Context; operator selects; CM integrates. See existing <code>concept.md</code> spec.</p>
+<p>Phase 2 may surface deployment-knowledge gaps (e.g. the chosen Wild concept implies an intranet asset and we don't know the tenant's intranet) — CM raises those as Brief OQs to be resolved before Phase 3 fires.</p>
+<hr>
+<h2 id="4-phase-4-gate-end-of-production-plan-update-with-deployment-readiness">4. Phase 4 gate — End-of-production Plan update with deployment readiness</h2>
+<p>Today's Plan locks the asset list + waves + budget. v2 adds an <strong>end-of-Phase-4 gate</strong>: before Phase 4 closes, CM updates the Plan with a new section.</p>
+<h3 id="41-new-plan-section-n-phase-5-6-readiness">4.1 New Plan section: §N "Phase 5 + 6 readiness"</h3>
+<pre><code class="language-markdown">## §N Phase 5 + 6 readiness
+
+### N.1 Phase 5 — Day 1 rollout requirements
+
+**One-off assets to deploy:**
+| Asset | Destination | Method | Owner | Acceptance |
+|---|---|---|---|---|
+| #0a sb-talks-weekly.html | Mailchimp template | manual import via Content Studio | the operator (Day 1) | Template renders correctly in Mailchimp preview |
+| #0a sb-news-monthly.html | Mailchimp template | manual import | the operator (Day 1) | Template renders |
+| #0c pack-template.html | Intranet (SharePoint) | manual upload | the operator (Day 1) | First instance page lives at &lt;sb-sharepoint-site&gt;/sites/marketing/packs/ |
+
+**Setup tasks:**
+- Provision Mailchimp API key access (tenant-side action)
+- Configure tenant/&lt;name&gt;/integrations.yaml with creds + audience IDs
+- Install Claude Code on Marketing Manager's machine (if tenant-self-runs)
+- Scaffold tenant OneDrive folder structure (per §8.2)
+
+**Training plan:**
+- 1.5-hr Day 1 walkthrough: Marketing Manager runs through one full cycle live with the operator
+- Reference materials: phase-6-cadence.html · operator-onboarding.html · Mailchimp upload cookbook
+- First 4 weeks the operator on Slack/email for questions
+
+### N.2 Phase 6 — Ongoing rollout requirements (if cadenced)
+
+**Per-cycle runbook ownership:** Marketing Manager
+**Per-cycle estimated time:** 20 min operator + 5 min adapter-handled
+**Cycle steps:**
+1. New podcast episode airs Wednesday
+2. Marketing Manager opens Claude Code Friday morning
+3. Runs `/weekly-episode-pack`, answers 6-8 structured questions
+4. Reviews + approves generated assets in gallery
+5. Mailchimp adapter pushes Friday Note to draft campaign automatically
+6. Marketing Manager clicks Send in Mailchimp (5-min manual)
+7. LinkedIn post copy + 1080×1080 tile downloaded → manual post to Beta Corp company page
+8. YouTube Shorts: render PNG → operator produces video in CapCut (out-of-scope v1)
+
+**Escalation paths:**
+- Mailchimp draft fails → Slack the operator
+- Adviser unsubscribes → Beta Corp Compliance Officer per BC §6
+- Brand Manager flags Pass-with-Required-Changes → Marketing Manager reviews surgical fix, escalates to the operator if uncertain
+</code></pre>
+<h3 id="42-why-this-gate-matters">4.2 Why this gate matters</h3>
+<p>Phase 5 work is built against the Plan's §N. If §N is incomplete (tech_stack TBD, human_roles TBD, cadence_shape TBD), Phase 6 build is incomplete. The gate forces the operator + CM to close those gaps before any rollout machinery fires.</p>
+<hr>
+<h2 id="5-phase-5-day-1-rollout-new">5. Phase 5 — Day-1 Rollout (NEW)</h2>
+<p><strong>Goal</strong>: take the campaign from "approved assets sitting in the gallery" to "tenant team can independently run the cadence" (or for one-off campaigns: "everything is live and the campaign is done").</p>
+<h3 id="51-new-per-campaign-artifact-phase-5-rolloutmd-html">5.1 New per-campaign artifact: <code>phase-5-rollout.md</code> / <code>.html</code></h3>
+<p>Authored by CM at the <strong>end of Phase 4</strong> from the Plan's §N (together with <code>phase-6-cadence.md</code> for cadenced campaigns — both built the moment Phase 4 assets are Approved, not at each phase's "start"). Single source of truth for Day 1 work.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-markdown"># Phase 5 Day-1 Rollout — &lt;Campaign Name&gt;
+
+**Tenant**: &lt;name&gt;     **Ownership model**: &lt;from Brief&gt;
+**Phase 5 start**: &lt;date&gt;     **Target completion**: &lt;date&gt;     **Operator**: the operator
+
+## §1 Setup checklist
+
+| # | Task | Owner | Estimated time | Status |
+|---|---|---|---|---|
+| 1 | Provision Mailchimp API key + audience ID | Tenant Marketing Manager | 10 min | ⏳ pending |
+| 2 | Populate `tenant/&lt;name&gt;/integrations.yaml` with creds | the operator | 15 min | ⏳ |
+| 3 | Install Claude Code on Marketing Manager machine | the operator + Tenant | 45 min | ⏳ |
+| 4 | Sync tenant OneDrive folder structure (shared + tenant-specific) | the operator | 30 min | ⏳ |
+| 5 | First Mailchimp template install (sb-talks-weekly.html) | the operator | 30 min | ⏳ |
+| 6 | First Mailchimp template install (sb-news-monthly.html) | the operator | 30 min | ⏳ |
+| 7 | First intranet (SharePoint) page deploy (pack-template-test) | the operator | 30 min | ⏳ |
+
+## §2 Training plan
+
+### §2.1 Pre-session materials
+- Phase 6 runbook (`phase-6-cadence.html`) — operator reads in advance
+- Operator onboarding guide (`operator-onboarding.html`) — Day 1 walkthrough script
+- Brand Context (`tenant/&lt;name&gt;/brand-context.html`) — operator should be familiar
+
+### §2.2 Day 1 live session (1.5 hours)
+1. Open Claude Code together (5 min)
+2. Walkthrough of operator-quartet (dashboard / gallery / tasks / index) (15 min)
+3. Run `/weekly-episode-pack` end-to-end on a sample episode (45 min)
+4. Walk through Phase 6 runbook (15 min)
+5. Escalation paths + Slack backup channel setup (10 min)
+
+### §2.3 First-4-weeks support
+- the operator on Slack #sb-marketing for ad-hoc questions
+- Weekly 30-min check-in for first 4 cycles
+- After cycle 4: monthly check-in only
+
+## §3 One-off asset deployment matrix
+
+| Asset | Destination | Method | Cookbook link | Status |
+|---|---|---|---|---|
+| #0a sb-talks-weekly.html | Mailchimp template | manual | [import-cookbook.html#mailchimp](...) | ⏳ |
+| ... |
+
+## §4 Acceptance criteria (Phase 5 → Phase 6 gate)
+
+- [ ] Marketing Manager can independently run `/weekly-episode-pack` end-to-end
+- [ ] Mailchimp adapter successfully drafts a test campaign
+- [ ] First test Friday Note successfully sent + Marketing Manager confirms send
+- [ ] First test LinkedIn post successfully published from generated tile + copy
+- [ ] Escalation paths tested (Marketing Manager has Slack access + 1 ping resolved)
+- [ ] Phase 6 runbook reviewed + signed-off by Marketing Manager
+
+## §5 Phase 5 status + history
+</code></pre>
+<h3 id="52-when-phase-5-fires">5.2 When Phase 5 fires</h3>
+<p>Phase 5 fires <em>immediately</em> after the Plan's §N (end-of-Phase-4 readiness) is signed off by the operator. For Beta Corp specifically, that's the gate we're currently approaching.</p>
+<h3 id="53-phase-5-ownership-model-dependencies">5.3 Phase 5 ownership model dependencies</h3>
+<p>How Phase 5 plays out depends on the Brief's <code>cadence_shape.ownership_model</code>:</p>
+<ul>
+<li><strong><code>tenant-self-runs</code></strong>: full Phase 5 fires immediately. the operator + tenant team work together for ~1-2 weeks to setup + train. Phase 5 closes when acceptance criteria met.</li>
+<li><strong><code>operator-runs</code></strong>: Phase 5 is much lighter. the operator sets up his own environment + installs templates + skips most training. May skip §2 entirely. Phase 5 closes when one-off assets are deployed.</li>
+<li><strong><code>operator-runs-then-tenant</code></strong>: Phase 5a (operator-runs setup) then later Phase 5b (handoff to tenant) — see §6.3 for the handoff flow.</li>
+<li><strong><code>outsourced-to-operator</code></strong>: same as <code>operator-runs</code>. Phase 5 ends with the operator's environment configured; Phase 6 runs forever with the operator operating.</li>
+</ul>
+<hr>
+<h2 id="6-phase-6-ongoing-cadence-new-where-applicable">6. Phase 6 — Ongoing Cadence (NEW, where applicable)</h2>
+<p><strong>Goal</strong>: the cadence runs end-to-end every cycle with the agreed-upon operator (tenant team or the operator), with no the operator involvement unless escalated.</p>
+<h3 id="61-new-per-campaign-artifact-phase-6-cadencemd-html">6.1 New per-campaign artifact: <code>phase-6-cadence.md</code> / <code>.html</code></h3>
+<p>Only created for cadenced campaigns (cadence_shape.type == "ongoing" or "hybrid"). Lives alongside dashboard.html. Operator opens this on cadence day.</p>
+<p><strong>Schema:</strong></p>
+<pre><code class="language-markdown"># Phase 6 Ongoing Cadence — &lt;Campaign Name&gt;
+
+**Tenant**: &lt;name&gt;     **Cadence**: weekly · Friday 9am AEST
+**Operator**: Marketing Manager (Mode 2 v1: Claude Code + OneDrive)
+**Phase 6 start date**: &lt;date&gt;     **Cycles completed**: &lt;count&gt;
+
+## §1 This cycle's checklist
+
+**Cycle &lt;N&gt;** · Episode &quot;&lt;title&gt;&quot; · Recorded &lt;date&gt; · Target ship &lt;date&gt;
+
+| # | Step | Owner | Method | Time | Status |
+|---|---|---|---|---|---|
+| 1 | New episode airs Wednesday | n/a (passive trigger) | — | — | 🟢 |
+| 2 | Open Claude Code Friday morning | Marketing Manager | manual | 1 min | ⏳ |
+| 3 | Run `/weekly-episode-pack` | Marketing Manager | slash command | 5 min | ⏳ |
+| 4 | Answer 6-8 structured questions (episode title, summary, 3 quotes, Spotify URL) | Marketing Manager | chat | 10 min | ⏳ |
+| 5 | Review approved assets in gallery | Marketing Manager | gallery.html | 3 min | ⏳ |
+| 6 | Mailchimp adapter auto-pushes Friday Note to draft | CM (automated) | API | &lt;30 sec | ⏳ |
+| 7 | Marketing Manager opens Mailchimp draft, previews, clicks Send | Marketing Manager | Mailchimp UI | 5 min | ⏳ |
+| 8 | Download LinkedIn tile + copy → post to Beta Corp company page | Marketing Manager | manual | 5 min | ⏳ |
+| 9 | Render YouTube Shorts PNG → produce video in CapCut → upload (v1: out-of-scope) | Marketing Manager (later) | manual | 15 min | ⏳ |
+
+**Cycle complete when**: steps 7 + 8 done. Total operator time: ~30 min. (Step 9 deferred to v2.)
+
+## §2 Escalation paths
+
+| If this happens | Do this | Then this |
+|---|---|---|
+| Mailchimp draft fails to create | Check `integrations.yaml#mailchimp` creds are still valid | Slack the operator if creds OK |
+| Generated quote tile looks off-brand | Reject in gallery review; re-run with different quote | If still broken after 2 tries, Slack the operator |
+| Adviser unsubscribes from Friday Note | Log in compliance register | Notify Beta Corp Compliance Officer per BC §6 |
+| Brand Manager flags Pass-with-Required-Changes | Marketing Manager reviews surgical fix | Escalate to the operator if uncertain about fix |
+| CM skill errors with cryptic message | Screenshot + Slack the operator | (don't try to debug Claude Code internals) |
+
+## §3 Cycle history (last 8 cycles)
+
+| Cycle | Episode | Ship date | Operator | Send count | Open rate | Notes |
+|---|---|---|---|---|---|---|
+| 88 | Boeing, Beef and Beans | 2026-06-05 | MM | TBD | TBD | First Phase 6 cycle |
+| ... |
+
+## §4 KPI tracking
+
+Tracked against Brief §N KPIs:
+- Primary: total impressions per episode (target: 2,000)
+- Secondary: Beta Corp Talks email open rate (target: 30%)
+- Secondary: adviser uses repurposed asset 1:1 (target: 3 of 5)
+- ...
+</code></pre>
+<h3 id="62-operator-modes-anchored-under-phase-5">6.2 Operator modes (anchored under Phase 5)</h3>
+<p>The Mode 1 / Mode 2 v1 framing from v1 spec now lives here as the ownership-model branch of Phase 6:</p>
+<ul>
+<li><strong>Mode 1 — the operator runs it.</strong> Used when <code>ownership_model: "operator-runs"</code> or <code>"outsourced-to-operator"</code>. the operator opens his own Claude Code, runs <code>/weekly-episode-pack</code>, etc.</li>
+<li><strong>Mode 2 v1 — Tenant team runs it (Code + OneDrive on their machine).</strong> Used when <code>ownership_model: "tenant-self-runs"</code> or <code>"operator-runs-then-tenant"</code> (post-handoff). Marketing Manager opens Claude Code on their own machine pointed at tenant OneDrive root.</li>
+</ul>
+<p>Both modes use the same skills, agents, hooks, and templates. The only difference is whose Claude Code seat is being used and whose OneDrive houses the campaign.</p>
+<h3 id="63-the-handoff-flow-the operator-runs-then-tenant">6.3 The handoff flow (<code>operator-runs-then-tenant</code>)</h3>
+<p>Most common ownership model: the operator runs Phase 6 for the pilot period (first 4-6 cycles), then hands off to the tenant Marketing Manager. The handoff itself is its own discrete event:</p>
+<ol>
+<li><strong>Pre-handoff (the operator-side)</strong>: Confirm cadence is stable across 4+ cycles. No escalations in last 2 cycles. Brand verdicts clean.</li>
+<li><strong>Handoff session (1.5 hours)</strong>: the operator runs the cycle live with Marketing Manager watching, then Marketing Manager runs the next cycle with the operator watching. the operator provisions Marketing Manager's Claude Code + OneDrive folder.</li>
+<li><strong>Post-handoff (first 4 weeks)</strong>: Marketing Manager runs solo; the operator on Slack/email backup; weekly 30-min check-ins.</li>
+<li><strong>Steady state (after first month)</strong>: Marketing Manager runs solo; the operator monthly check-ins only; escalation channel still open.</li>
+</ol>
+<hr>
+<h2 id="7-per-asset-deployment-block-carried-forward-from-v1-scope-narrowed">7. Per-asset deployment block (carried forward from v1, scope narrowed)</h2>
+<p>The <code>asset.yaml</code> <code>deployment:</code> block from v1 is still useful — it captures <strong>per-asset specifics</strong> within the campaign-wide deployment shape captured in the Brief. v2 narrows its scope: the block doesn't capture the destination decision (that's at Brief level now); it captures the per-asset format-requirements + verification + per-asset notes.</p>
+<pre><code class="language-yaml">deployment:
+  # Inherited from campaign Brief tech_stack — Producer can read default
+  # from tenant/&lt;name&gt;/integrations.yaml#channel_defaults if the asset's
+  # default_channel maps cleanly.
+  destination_type: email
+  platform: &quot;Mailchimp&quot;  # inherited from Brief; explicit here for asset-level audit
+  publish_method: api  # whether CM auto-deploys or generates cookbook
+  format_requirements:
+    - &quot;HTML email importable to Mailchimp Content Studio&quot;
+    - &quot;Inline styles only (no &lt;style&gt; blocks — Mailchimp strips them)&quot;
+    - &quot;Hosted PNG for hero lockup (Content Studio image upload)&quot;
+  verification:
+    - check: &quot;Mailchimp preview renders without broken images&quot;
+      automated: false
+    - check: &quot;Test send to the operator's inbox renders clean in Gmail + Outlook&quot;
+      automated: false
+  deployment_notes: &gt;
+    First-time Beta Corp Mailchimp install. Operator action: upload sb-wordmark-lockup-white.png
+    to Content Studio first, replace src in HTML before importing.
+</code></pre>
+<h3 id="71-inheritance-flow-brief-integrationsyaml-assetyaml">7.1 Inheritance flow — Brief → integrations.yaml → asset.yaml</h3>
+<p>Per-asset deployment intent is NOT a parallel capture to the Brief. It's <strong>gap-fill</strong> on top of inheritance. For ~80% of assets, Producer fills the block almost entirely from inheritance with zero operator interaction. The flow:</p>
+<ol>
+<li>
+<p><strong>Brief authoring (Phase 1)</strong> — operator + CM author <code>brief.md</code> tech_stack section. Captures the tenant's whole sales/martech stack: email platform, intranet, CMS, social tools, analytics, CRM, file storage, podcast host. This is the <strong>forcing function</strong> — by end of Phase 3, the campaign knows what platforms it's shipping into.</p>
+</li>
+<li>
+<p><strong>integrations.yaml setup (start of Phase 5)</strong> — CM (or the operator) configures <code>tenant/&lt;name&gt;/integrations.yaml</code> from the Brief's tech_stack. Per-platform: credentials (env-var refs), <code>has_adapter</code> flag (api vs cookbook), <code>defaults</code> (audience IDs, from-email, hashtags, etc.). Critically: <code>channel_defaults</code> maps <strong>asset default_channel → platform</strong>, so the Producer's lookup at build time is one-step.</p>
+</li>
+<li>
+<p><strong>Producer asset build (Phase 4 for current campaign; Phase 6 for each cycle thereafter)</strong> — Producer reads the asset's <code>default_channel</code> (set during Plan stage), looks up <code>integrations.yaml#channel_defaults[&lt;channel&gt;]</code>, and auto-populates these <code>deployment:</code> fields without asking:
+   - <code>destination_type</code>
+   - <code>platform</code>
+   - <code>publish_method</code> (from <code>has_adapter</code> flag)
+   - location default pattern (from platform defaults)
+   - inherited platform defaults (send-time, audience IDs, hashtags, etc.)</p>
+</li>
+<li>
+<p><strong>Producer manually fills</strong> (per-asset specifics that DON'T inherit cleanly):
+   - <code>format_requirements</code> — what does THIS asset need from its destination? (Inline styles only because Mailchimp strips <code>&lt;style&gt;</code>; hosted PNG for hero lockup; alt text on chart tile; etc.)
+   - <code>verification</code> — how do we know THIS asset landed correctly?
+   - <code>deployment_notes</code> — anything the deployer needs to know that's specific to this asset</p>
+</li>
+<li>
+<p><strong>Brief OQ escalation</strong> — Producer surfaces a Brief-OQ-back-to-operator ONLY if the asset's <code>default_channel</code> has NO mapping in <code>integrations.yaml#channel_defaults</code>. This means a genuinely new destination not anticipated in Brief — rare, but legitimate (e.g. a campaign that surfaces "print mailer for top-100 advisers" at Plan stage when the Brief tech_stack didn't anticipate print). Operator answers; integrations.yaml gains the new entry; Producer proceeds.</p>
+</li>
+</ol>
+<p><strong>Plumbing implication for CM/Producer:</strong>
+- ~30 lines of inheritance logic in CM's per-asset dispatch.
+- Producer's per-step brief gains an <code>inheritance_summary:</code> block CM pre-fills (so Producer sees what's inherited vs what it must author).
+- <code>build-gallery.py</code> warns when <code>deployment:</code> block is missing, with hint "Did Producer skip Step 4.6?"
+- Spec propagation noted in §13 below — <code>docs/specs/asset.md</code> + Producer <code>AGENT.md</code> get the matching schema-level + step-level updates in Phase 6 of the build sequence.</p>
+<p><strong>What this is NOT:</strong>
+- NOT Producer asking the operator destination questions every asset build (high friction, would compound across 8 assets × 52 weeks).
+- NOT a parallel capture that can drift from the Brief (single source of truth: Brief tech_stack + integrations.yaml are canonical; asset.yaml inherits).
+- NOT mandatory operator interaction at asset build time — Producer escalates only on genuine gaps.</p>
+<p>Producer fills this block at build time using:
+- Tenant defaults from <code>integrations.yaml#channel_defaults[&lt;asset_default_channel&gt;]</code> (inherited)
+- Asset-specific format requirements + verification that emerge during build (authored)
+- <code>deployment_notes</code> for anything the operator/deployer needs to see (authored, optional)</p>
+<hr>
+<h2 id="8-tenant-infrastructure-carried-forward-from-v1">8. Tenant infrastructure (carried forward from v1)</h2>
+<h3 id="81-tenantnameintegrationsyaml">8.1 <code>tenant/&lt;name&gt;/integrations.yaml</code></h3>
+<p>Schema unchanged from v1. See archived v1 spec §4.1 for the full schema reference. Key elements:
+- Per-platform <code>has_adapter</code> flag (true = coded adapter; false = cookbook-only)
+- Per-platform credentials (env-var references; never committed)
+- Per-platform defaults (send-time, audience IDs, hashtags, etc.)
+- <code>channel_defaults</code> mapping asset channels → platforms
+- <code>escalation</code> paths surfaced in Phase 5 rollout + Phase 6 runbook §2</p>
+<h3 id="82-tenant-onedrive-canonical-structure">8.2 Tenant OneDrive canonical structure</h3>
+<p>Schema unchanged from v1. See archived v1 spec §5. Two changes:
+- <code>&lt;campaign-slug&gt;/operations.md</code> from v1 is <strong>replaced</strong> by two artifacts: <code>phase-5-rollout.md</code> + <code>phase-6-cadence.md</code> (the latter only for cadenced campaigns).
+- <code>&lt;campaign-slug&gt;/plan.md</code> gets the new §N "Phase 5 + 6 readiness" section appended at end-of-Phase-3.</p>
+<hr>
+<h2 id="9-build-sequence-v2">9. Build sequence (v2)</h2>
+<p>Phase-gated. Each phase produces a real artifact.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Phase</th>
+<th>Output</th>
+<th>Depends on</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>This document v2</td>
+<td><code>docs/specs/rollout-architecture.md</code> v2 — operator review gate</td>
+<td>—</td>
+<td>done (~3 hrs)</td>
+</tr>
+<tr>
+<td>2a</td>
+<td><strong>Brief spec extension</strong></td>
+<td><code>docs/specs/brief.md</code> updated with tech_stack + human_roles + cadence_shape sections</td>
+<td>Phase 1 reviewed</td>
+<td>~2 hrs</td>
+</tr>
+<tr>
+<td>2b</td>
+<td><strong>Beta Corp Brief retrofit</strong></td>
+<td>Populate Beta Corp Brief with what we know; surface 3 gap questions to operator</td>
+<td>Phase 2a</td>
+<td>~1 hr + operator answers</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Plan spec extension</strong></td>
+<td><code>docs/specs/plan.md</code> updated with §N "Phase 5 + 6 readiness" template + end-of-Phase-3 gate</td>
+<td>Phase 2a</td>
+<td>~2 hrs</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong><code>asset.yaml</code> deployment block + Producer Step 4.6</strong></td>
+<td>asset.md spec update + Producer AGENT.md + build-gallery.py warning when block missing</td>
+<td>Phase 3</td>
+<td>~3 hrs</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>L3 integrations.yaml + first adapter</strong></td>
+<td>Schema + Mailchimp API adapter + cookbook-generator fallback</td>
+<td>Phase 6</td>
+<td>~6 hrs</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Phase 5 + 6 artifact specs</strong></td>
+<td><code>docs/specs/phase-5-rollout.md</code> + <code>docs/specs/phase-6-cadence.md</code> + render-html templates</td>
+<td>Phase 6</td>
+<td>~4 hrs</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>First Beta Corp Friday Note shipped through the v2 stack</strong></td>
+<td>Phase 6 cycle 1 — Boeing/Beef/Beans episode</td>
+<td>Phases 2-6</td>
+<td>~half day operator</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>docs/playbooks/onboard-tenant.md</code></td>
+<td>the operator's runbook for new tenant</td>
+<td>Phase 7</td>
+<td>~3 hrs</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>docs/playbooks/client-operator-onboarding.md</code></td>
+<td>the operator's runbook for Mode 2 v1 handoff</td>
+<td>Phase 8</td>
+<td>~3 hrs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: ~4 working days Claude time + half-day the operator time.</strong> (~1 day more than v1 estimate because Brief + Plan spec extensions + Phase 4/5 artifact specs are new.)</p>
+<p>Skills (<code>/onboard-tenant</code>, <code>/weekly-episode-pack</code>) extract after 2-3 hand-runs reveal the right shape (parked per operator's "playbook only - and we can build the skill overtime once I have done a few").</p>
+<hr>
+<h2 id="10-why-v1-was-superseded">10. Why v1 was superseded</h2>
+<p>v1 was written earlier today (~3 hrs ago in conversation time). Two structural errors caught by operator:</p>
+<p><strong>(A) v1 collapsed Phase 5 and Phase 6 into a single "operations.html" surface.</strong> Operator reframe: Phase 5 (one-time Day 1 setup + training + one-off asset deployment) and Phase 6 (ongoing recurring cadence) are different workflows with different artifacts, different acceptance criteria, different operators in many cases. v2 splits them into <code>phase-5-rollout.md</code> + <code>phase-6-cadence.md</code>.</p>
+<p><strong>(B) v1 had deployment knowledge surfacing at asset-build time (Producer captures in <code>asset.yaml</code>).</strong> Operator reframe: that's too late. By the time you discover Beta Corp uses Mailchimp, you might have built the email asset in a format Mailchimp can't cleanly import. The right place to capture tech + human + cadence is during Phases 1-3, with the Plan updated at end-of-Phase-3 with full deployment knowledge. v2 moves the primary capture to the Brief (tech_stack + human_roles + cadence_shape) and narrows the asset.yaml block's scope to per-asset format-requirements + verification.</p>
+<p>v1 archived to <code>_archive/deployment-architecture-v1-superseded.md</code> for reference. Most of v1's content (asset.yaml block schema, integrations.yaml schema, OneDrive structure, Mode 1/Mode 2 framing, hooks system reference) carried forward into v2 unchanged.</p>
+<hr>
+<h2 id="11-decision-log">11. Decision log</h2>
+<p>Cumulative from v1 + this v2 conversation.</p>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Chose</th>
+<th>Rejected</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Where deployment intent lives (PRIMARY)</td>
+<td>Brief tech_stack + human_roles + cadence_shape sections (Phase 1) is PRIMARY; asset.yaml deployment block is gap-fill via inheritance</td>
+<td>Per-asset (asset.yaml) at Producer-build time as parallel capture</td>
+<td>Asset-build time is too late as PRIMARY; Producer might author against wrong destination. Brief captures shape; asset.yaml block inherits from Brief + integrations.yaml channel_defaults and narrows to per-asset format/verification specifics. See §7.1 for the inheritance flow. <strong>Operator confirmed 2026-06-03: Pattern A (upfront-primary + Producer-gap-fills) over Pattern B (per-asset only) — runtime friction trumps marginal plumbing simplicity.</strong></td>
+</tr>
+<tr>
+<td>Phase 5 vs Phase 6</td>
+<td>Separate artifacts: <code>phase-5-rollout.md</code> + <code>phase-6-cadence.md</code></td>
+<td>Single <code>operations.md</code> surface</td>
+<td>They're different workflows with different operators, acceptance criteria, cadence. Single artifact obscured that.</td>
+</tr>
+<tr>
+<td>End-of-Phase-4 gate</td>
+<td>Plan §N "Phase 5 + 6 readiness" updated before Phase 5 fires</td>
+<td>No gate; Phase 6 starts fresh</td>
+<td>Without explicit deployment-readiness section, Phase 6 work is built against incomplete knowledge. Gate forces gaps to close.</td>
+</tr>
+<tr>
+<td>Operator persona model</td>
+<td>Hybrid: ownership_model field on Brief (operator-runs / tenant-self-runs / hybrid / outsourced)</td>
+<td>Binary Mode 1 vs Mode 2</td>
+<td>Operator named the actual shape; ownership_model captures it cleanly. Modes are now branches of Phase 6.</td>
+</tr>
+<tr>
+<td>Build order</td>
+<td>Generic L1-L3 first, then Beta Corp as first customer</td>
+<td>Beta Corp-first then generalise</td>
+<td>Refactoring under load is harder than designing up-front.</td>
+</tr>
+<tr>
+<td>Mode 2 v1 tool</td>
+<td>Claude Code + OneDrive on client machine</td>
+<td>Claude CoWork + Google Drive</td>
+<td>(a) zero skill-porting cost vs ~1-2 weeks rework; (b) professional-services clients live in OneDrive; (c) brand-context curation in OneDrive IS the value-add.</td>
+</tr>
+<tr>
+<td>Tenant onboarding</td>
+<td>Playbook only for v1; extract skill after 2-3 hand-runs</td>
+<td>Fully automated skill</td>
+<td>Don't pave the cowpath until there's a cowpath.</td>
+</tr>
+<tr>
+<td>Cron Layer 3 reconciler (state-drift hooks)</td>
+<td>Parked</td>
+<td>Build now</td>
+<td>Hooks Layer 1+2 installed 2026-06-03; build Layer 3 if drift slips through after 2-4 weeks.</td>
+</tr>
+<tr>
+<td>Block-on-prose-drift behavior (state-drift hooks)</td>
+<td>Stderr advisory only</td>
+<td>Force-block Stop hook</td>
+<td>Heavier control-loop intervention requires its own explicit auth; soft advisory may prove sufficient.</td>
+</tr>
+<tr>
+<td>Spec v1 → v2</td>
+<td>Rewrite cleanly with 5-phase backbone</td>
+<td>Amendment doc on top of v1</td>
+<td>Future readers shouldn't have to reconcile two docs; clean rewrite preserves coherence. v1 archived for reference.</td>
+</tr>
+<tr>
+<td>Beta Corp Brief retrofit</td>
+<td>Populate now (retroactive)</td>
+<td>Forward-only (next campaign onwards)</td>
+<td>We're about to do Phase 4+5 for Beta Corp. Without the new fields populated, Phase 6 planning is harder.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="12-open-questions-parked-items">12. Open questions / parked items</h2>
+<p>These don't block the build sequence. Capture for future sessions.</p>
+<ul>
+<li><strong>Q1 — Spotify timestamp URLs</strong>: per-cycle Producer input. Confirm during Phase 7 smoke test.</li>
+<li><strong>Q2 — Email demo re-theme</strong>: P2 cleanup. Fold into Phase 7.</li>
+<li><strong>Q3 — CAR No.</strong>: Beta Corp's Corporate Authorised Representative number remains unresolved. Non-blocking.</li>
+<li><strong>Q4 — YouTube Shorts MP4 generation</strong>: out-of-scope v1. Render PNG only; operator handles video step. Revisit in v2.</li>
+<li><strong>Q5 — Beta Corp Mailchimp API credentials</strong>: Phase 5 gate item.</li>
+<li><strong>Q6 — Beta Corp intranet platform</strong>: ✅ resolved 2026-06-03 — <strong>SharePoint</strong> (Microsoft 365 native; aligns with OneDrive file storage stack). Default spec assumption updated.</li>
+<li><strong>Q7 — Per-tenant cost model</strong>: $100-200/mo Code subscription per operator seat. Out of architecture scope; flagged for commercial planning.</li>
+<li><strong>Q8 (NEW) — Beta Corp ownership_model</strong>: pilot-period operator-runs vs immediate tenant-self-runs vs hybrid? Need to capture during Beta Corp Brief retrofit.</li>
+<li><strong>Q9 (NEW) — Beta Corp Marketing Manager identity</strong>: who at Beta Corp is the designated Phase 6 cadence operator? Need name + email + technical literacy assessment during Beta Corp Brief retrofit.</li>
+<li><strong>Q10 (NEW) — Tenant's compliance officer for adviser-pack reviews</strong>: BC §6 references compliance review; name + escalation path needed.</li>
+</ul>
+<hr>
+<h2 id="13-memory-rule-cross-references">13. Memory rule cross-references</h2>
+<p>This spec aligns with and extends:</p>
+<ul>
+<li><code>feedback_state_changes_enforced_by_hooks_not_prose.md</code> — the rollout system relies on the state-hooks installed 2026-06-03 to keep operator surfaces current across Phase 5 + 6.</li>
+<li><code>feedback_gallery_publish_aware_producer.md</code> — Producer ship-complete contract requires <code>asset.yaml</code>. v2 extends with the narrowed deployment block.</li>
+<li><code>feedback_cm_orchestrates_does_not_delegate_to_human.md</code> — CM fires adapters during Phase 5; surfaces only irreducible-manual cookbook steps to operator.</li>
+<li><code>reframe_cmo_force_multiplier.md</code> — the rollout system is part of the "ship-complete asset" contract: Phases 5 and 6 are part of the campaign, not a post-campaign operator task.</li>
+</ul>
+<p>This spec SHOULD propagate to (handled in Phase 2a-6 of the build sequence above):</p>
+<ul>
+<li><code>docs/specs/brief.md</code> — gain tech_stack + human_roles + cadence_shape sections</li>
+<li><code>docs/specs/plan.md</code> — gain §N "Phase 5 + 6 readiness" template + end-of-Phase-3 gate</li>
+<li><code>docs/specs/asset.md</code> — gain §N on the per-asset deployment block (narrowed scope)</li>
+<li><code>docs/specs/phase-5-rollout.md</code> (NEW) — full spec for the Day 1 rollout artifact</li>
+<li><code>docs/specs/phase-6-cadence.md</code> (NEW) — full spec for the ongoing cadence artifact</li>
+<li>Producer <code>AGENT.md</code> (wherever it lives) — Step 4.6 for deployment-block capture using campaign defaults</li>
+<li><code>docs/workflow.md</code> — extend the workflow narrative to include Phases 5 + 6 as explicit stages</li>
+<li><code>.claude/skills/campaign-manager/SKILL.md</code> — extend operator-quartet → operator-quintet (+ phase-5-rollout.html OR phase-6-cadence.html depending on campaign state)</li>
+</ul>
+<p>These propagations happen in Phases 2a-6. Not now.</p>
+    </article>
+  </main>
+
+  <footer class="page-footer">
+    <span>Source file: <code>docs\specs\rollout-architecture.md</code></span>
+  </footer>
+</body>
+</html>

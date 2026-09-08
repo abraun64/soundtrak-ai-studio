@@ -1,0 +1,4 @@
+# System Manager - BACKLOG (prioritised work on the system itself).
+# status: todo | in_progress | done | killed   priority: P1 | P2 | P3
+# Re-render: python .claude/skills/system-manager/build-dashboard.py
+items: []

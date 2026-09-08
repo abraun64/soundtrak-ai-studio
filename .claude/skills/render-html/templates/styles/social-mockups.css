@@ -1,0 +1,352 @@
+/* Marketing AI System — social/email in-situ mockup chrome.
+ * Renders collapsed (feed) + expanded (clicked-open) states per form.
+ * Loaded automatically alongside system.css for all templates.
+ * Form-specific tokens live under .mock-<form> scopes so they don't bleed.
+ */
+
+/* --- Mockup zone layout (sits above markdown narrative) --- */
+.mockups {
+  margin: 0 0 32px 0;
+}
+.mockups:empty { display: none; }
+
+.mock-variant {
+  margin: 0 0 40px 0;
+}
+.mock-variant__label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 12px 0;
+  padding: 0 4px;
+}
+
+.mock-states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .mock-states { grid-template-columns: 1fr; }
+}
+
+.mock-state {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mock-state__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin: 0 0 14px 0;
+  text-align: center;
+}
+
+/* --- LinkedIn post chrome --- */
+.mock-li {
+  --li-bg: #f3f2ef;
+  --li-card-bg: #ffffff;
+  --li-text: #000000e6;
+  --li-text-secondary: #00000099;
+  --li-text-tertiary: #00000066;
+  --li-border: #00000014;
+  --li-accent: #0a66c2;
+  --li-hover: #00000008;
+}
+.mock-li .mock-state { background: var(--li-bg); }
+.mock-li .li-card {
+  width: 100%;
+  max-width: 552px;
+  background: var(--li-card-bg);
+  border: 1px solid var(--li-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  color: var(--li-text);
+}
+.mock-li .li-header {
+  display: flex;
+  padding: 12px 16px 8px;
+  align-items: center;
+  gap: 8px;
+}
+.mock-li .li-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1a2a5e;
+  color: #f8f5ee;
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: "Caveat", "Segoe Script", cursive;
+}
+.mock-li .li-author { flex: 1; min-width: 0; }
+.mock-li .li-author-name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.mock-li .li-author-title { font-size: 12px; color: var(--li-text-secondary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-author-meta { font-size: 12px; color: var(--li-text-tertiary); line-height: 1.3; margin-top: 1px; }
+.mock-li .li-more { color: var(--li-text-secondary); font-size: 20px; padding: 4px 8px; }
+.mock-li .li-body {
+  padding: 0 16px 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--li-text);
+}
+.mock-li .li-body p { margin: 0 0 8px; }
+.mock-li .li-see-more {
+  color: var(--li-text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 16px 8px;
+  user-select: none;
+}
+.mock-li .li-image {
+  width: 100%;
+  display: block;
+  background: #f8f5ee;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+.mock-li .li-reactions {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--li-text-secondary);
+  border-bottom: 1px solid var(--li-border);
+}
+.mock-li .li-reaction-icons { display: inline-flex; vertical-align: middle; }
+.mock-li .li-reaction-icons span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: -3px;
+  border: 1.5px solid #fff;
+  font-size: 10px;
+  text-align: center;
+  line-height: 13px;
+  color: white;
+}
+.mock-li .li-r-like { background: #378fe9; }
+.mock-li .li-r-insight { background: #f5b800; color: #333 !important; }
+.mock-li .li-r-celebrate { background: #6dae4f; }
+.mock-li .li-reactions-left { display: flex; align-items: center; gap: 6px; }
+.mock-li .li-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 4px;
+}
+.mock-li .li-action {
+  text-align: center;
+  padding: 8px 4px;
+  color: var(--li-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.mock-li .li-comments {
+  border-top: 1px solid var(--li-border);
+  padding: 12px 16px;
+  background: #fafafa;
+}
+.mock-li .li-comment { display: flex; gap: 8px; margin-bottom: 12px; }
+.mock-li .li-comment:last-child { margin-bottom: 0; }
+.mock-li .li-c-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: #ddd;
+  color: #555; font-weight: 600; font-size: 13px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-li .li-c-body {
+  background: #f3f2ef; border-radius: 0 8px 8px 8px;
+  padding: 8px 12px; font-size: 13px; line-height: 1.4; flex: 1;
+}
+.mock-li .li-c-author { font-weight: 600; margin-bottom: 2px; }
+.mock-li .li-c-meta { font-size: 11px; color: var(--li-text-tertiary); margin-top: 4px; }
+
+/* --- Email chrome (inbox row + opened state) --- */
+.mock-email {
+  --em-bg: #f6f8fc;
+  --em-card-bg: #ffffff;
+  --em-text: #202124;
+  --em-text-secondary: #5f6368;
+  --em-border: #e5e7eb;
+  --em-accent: #1a73e8;
+  --em-unread: #f3f7fd;
+}
+.mock-email .mock-state { background: var(--em-bg); }
+.mock-email .em-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--em-card-bg);
+  border: 1px solid var(--em-border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Google Sans", Roboto, -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--em-text);
+  font-size: 14px;
+}
+.mock-email .em-inbox-toolbar {
+  background: var(--em-bg);
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--em-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-inbox-row {
+  display: grid;
+  grid-template-columns: 28px 180px 1fr 80px;
+  gap: 12px;
+  padding: 10px 16px;
+  align-items: center;
+  background: var(--em-unread);
+  font-weight: 600;
+}
+.mock-email .em-star { color: #d1d5db; font-size: 16px; }
+.mock-email .em-from { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mock-email .em-snippet { font-size: 14px; color: var(--em-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.mock-email .em-snippet b { font-weight: 600; }
+.mock-email .em-snippet .em-preview { color: var(--em-text-secondary); font-weight: 400; }
+.mock-email .em-date { text-align: right; font-size: 12px; color: var(--em-text-secondary); }
+
+/* Opened state */
+.mock-email .em-opened-header {
+  padding: 20px 24px 12px;
+  border-bottom: 1px solid var(--em-border);
+}
+.mock-email .em-subject { font-size: 20px; font-weight: 400; margin: 0 0 12px 0; color: var(--em-text); }
+.mock-email .em-meta-row { display: flex; gap: 12px; align-items: center; }
+.mock-email .em-sender-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--em-accent);
+  color: white; font-weight: 600; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-email .em-sender-name { font-size: 14px; font-weight: 600; }
+.mock-email .em-sender-email { font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-sent-meta { margin-left: auto; font-size: 12px; color: var(--em-text-secondary); }
+.mock-email .em-opened-body {
+  padding: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--em-text);
+}
+.mock-email .em-opened-body p { margin: 0 0 14px 0; }
+.mock-email .em-opened-body a { color: var(--em-accent); }
+.mock-email .em-opened-body h1, .mock-email .em-opened-body h2, .mock-email .em-opened-body h3 {
+  margin: 20px 0 10px 0;
+}
+
+/* --- Twitter / X (stub) --- */
+.mock-tw {
+  --tw-bg: #ffffff;
+  --tw-text: #0f1419;
+  --tw-text-secondary: #536471;
+  --tw-border: #eff3f4;
+  --tw-accent: #1d9bf0;
+}
+.mock-tw .mock-state { background: #f7f9fa; }
+.mock-tw .tw-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--tw-bg);
+  border: 1px solid var(--tw-border);
+  border-radius: 16px;
+  padding: 16px;
+  font-family: "Chirp", -apple-system, "Segoe UI", Arial, sans-serif;
+  color: var(--tw-text);
+}
+.mock-tw .tw-header { display: flex; gap: 10px; }
+.mock-tw .tw-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: #1a2a5e;
+  color: #f8f5ee; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.mock-tw .tw-name { font-weight: 700; font-size: 15px; }
+.mock-tw .tw-handle { color: var(--tw-text-secondary); font-size: 14px; }
+.mock-tw .tw-body { font-size: 15px; line-height: 1.4; margin: 10px 0; white-space: pre-wrap; }
+.mock-tw .tw-image { width: 100%; border-radius: 16px; border: 1px solid var(--tw-border); margin: 10px 0 0; display: block; }
+
+/* --- Instagram (stub) --- */
+.mock-ig {
+  --ig-bg: #ffffff;
+  --ig-text: #262626;
+  --ig-text-secondary: #8e8e8e;
+  --ig-border: #dbdbdb;
+}
+.mock-ig .mock-state { background: #fafafa; }
+.mock-ig .ig-card {
+  width: 100%;
+  max-width: 470px;
+  background: var(--ig-bg);
+  border: 1px solid var(--ig-border);
+  border-radius: 8px;
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--ig-text);
+  overflow: hidden;
+}
+.mock-ig .ig-header { display: flex; gap: 10px; align-items: center; padding: 12px; }
+.mock-ig .ig-avatar {
+  width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 12px;
+}
+.mock-ig .ig-handle { font-weight: 600; font-size: 14px; }
+.mock-ig .ig-image { width: 100%; display: block; border: none; border-radius: 0; margin: 0; aspect-ratio: 1 / 1; object-fit: cover; }
+.mock-ig .ig-caption { padding: 12px; font-size: 14px; line-height: 1.4; }
+.mock-ig .ig-caption b { font-weight: 600; margin-right: 6px; }
+
+/* --- Substack (stub) --- */
+.mock-sub {
+  --sub-bg: #ffffff;
+  --sub-text: #1a1a1a;
+  --sub-text-secondary: #6b6b6b;
+  --sub-border: #e5e5e5;
+  --sub-accent: #ff6719;
+}
+.mock-sub .mock-state { background: #f5f5f5; }
+.mock-sub .sub-card {
+  width: 100%;
+  max-width: 600px;
+  background: var(--sub-bg);
+  border: 1px solid var(--sub-border);
+  border-radius: 4px;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  color: var(--sub-text);
+}
+.mock-sub .sub-pub { font-size: 12px; color: var(--sub-text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+.mock-sub .sub-title { font-size: 24px; font-weight: 700; line-height: 1.2; margin: 0 0 8px 0; }
+.mock-sub .sub-subtitle { font-size: 16px; color: var(--sub-text-secondary); margin: 0 0 16px 0; }
+.mock-sub .sub-image { width: 100%; border: 1px solid var(--sub-border); margin: 0 0 16px 0; display: block; border-radius: 0; }
+.mock-sub .sub-body { font-size: 16px; line-height: 1.6; }
+
+/* --- Stub-form placeholder note --- */
+.mock-stub-note {
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-style: italic;
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  margin-top: 8px;
+  max-width: 600px;
+}
+
+/* --- Asset-preview page main container width --- */
+.page-main--asset-preview { max-width: var(--max-width-wide); }
+.content--narrative { /* inherits .content baseline */ }

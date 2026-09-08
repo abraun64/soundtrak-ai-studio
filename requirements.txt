@@ -1,0 +1,7 @@
+# Python dependencies for Soundtrak AI Studio.
+#   pip install -r requirements.txt
+# (or let the studio do it for you: run
+#   python .claude/skills/system-smoke-test/doctor.py --fix)
+markdown        # renders every HTML operator surface (required)
+pyyaml          # reads all campaign / tenant data files (required)
+playwright      # gallery thumbnails only; also run:  playwright install chromium

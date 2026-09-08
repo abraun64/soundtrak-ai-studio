@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""deploy-{{NAME}} adapter — STUB scaffolded {{DATE}}.
+
+Pushes an Approved asset to {{TARGET}}. Conforms to the deploy-adapter contract
+(.claude/skills/deploy-cookbook/ADAPTER-CONTRACT.md).
+
+Usage:
+    python adapter.py --asset <path-to-asset-dir-or-file> [--smoke-test]
+
+--smoke-test / --dry-run: plan + verify ONLY, no real external deploy. Prints an
+envelope with status "dry_run".
+"""
+import argparse
+import json
+import os
+import sys
+from pathlib import Path
+
+# Required credential env-vars for a REAL deploy. Smoke-test never needs them.
+REQUIRED_ENV = [
+    # TODO: e.g. "TENANT_{{NAME}}_API_KEY".upper()
+]
+
+
+def load_deployment_block(asset_path: Path) -> dict:
+    """Read the deployment: block from the sibling asset.yaml. TODO: real parse."""
+    # A YAML parser (pyyaml) or the project's yaml helper goes here. Stub returns a shape.
+    return {
+        "platform": "{{NAME}}",
+        "location": "<target location>",
+        "verification": [],
+        "deployment_notes": "",
+    }
+
+
+def build_envelope(status: str, target: str, verification: dict, notes: str,
+                   operator_action: str = "") -> dict:
+    return {
+        "status": status,
+        "platform": "{{NAME}}",
+        "target": target,
+        "verification": verification,
+        "operator_action": operator_action,
+        "notes": notes,
+    }
+
+
+def run_verification(dep: dict) -> dict:
+    automated, manual = [], []
+    for entry in dep.get("verification", []) or []:
+        check = entry.get("check", "")
+        if entry.get("automated"):
+            automated.append({"check": check, "passed": True})  # TODO: real check
+        else:
+            manual.append({"check": check, "operator_action": check})
+    return {"automated": automated, "manual": manual}
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--asset", required=True)
+    ap.add_argument("--smoke-test", "--dry-run", dest="dry", action="store_true")
+    args = ap.parse_args()
+
+    asset_path = Path(args.asset)
+    dep = load_deployment_block(asset_path)
+    verification = run_verification(dep)
+
+    if args.dry:
+        env = build_envelope(
+            status="dry_run",
+            target=f"[dry-run] {dep.get('location', '{{TARGET}}')}",
+            verification=verification,
+            notes=dep.get("deployment_notes", ""),
+            operator_action="",
+        )
+        print(json.dumps(env, indent=2))
+        return 0
+
+    # ---- REAL deploy path ----
+    missing = [v for v in REQUIRED_ENV if not os.environ.get(v)]
+    if missing:
+        print(f"ABORT: env-vars unset {missing}; fall back to deploy-cookbook", file=sys.stderr)
+        return 3
+
+    # TODO: perform the real push to {{TARGET}} here.
+    env = build_envelope(
+        status="deployed",
+        target=dep.get("location", "{{TARGET}}"),
+        verification=verification,
+        notes=dep.get("deployment_notes", ""),
+        operator_action="TODO: the one operator next-step",
+    )
+    print(json.dumps(env, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
