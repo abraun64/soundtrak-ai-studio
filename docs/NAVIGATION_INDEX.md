@@ -2,7 +2,7 @@
 
 **The system's own dashboard.** Everything in the system lives in one of the document classes below. If you're cold-starting and don't know where something is, start here.
 
-**Last updated**: 2026-09-08
+**Last updated**: 2026-09-10
 **Version**: v3
 
 > **Kept fresh by `nav-audit`** (`.claude/skills/nav-audit/nav_audit.py`) — diffs this index against the specs/skills/agents/playbooks on disk and flags anything missing, any dead link, a stale stamp, and the oldest-untouched docs. It runs as part of `system-smoke-test` (so any "run smoke test" catches index drift) and on demand ("run nav audit"). When you add a spec/skill/agent/playbook, add a row here — the audit will catch it if you forget.
@@ -110,6 +110,7 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **cost-ledger** | Per-dispatch AI cost ledger; dashboard AI-cost totals render from it (COST_TOTAL_AUTO). | Called by CM on each subagent return | `.claude/skills/cost-ledger/` |
 | **agent-io** | Validates the agent I/O contract (SYS-004) — the structured `return:` envelope that rides alongside each agent's prose. CM runs `validate_envelope.py` on every return (dispatch_id pairing · status · per-agent required fields · ship-file existence) + appends the pair to the dispatch ledger. Additive / non-breaking. | Called by CM on each subagent return; "validate the envelope" | `.claude/skills/agent-io/` |
 | **content-subedit** | Sub-edits LinkedIn posts / Substack articles against the Soundtrak voice rules. | "sub-edit this", "check against the voice rules" | `.claude/skills/content-subedit/` |
+| **slop-lint** | Deterministic AI-texture check for ANY document or document set — counts repeated constructions, sentence-length uniformity, aphorism density, abstraction-as-actor and repeated openers. Front door to the one script, which lives in content-subedit. | `.claude/skills/slop-lint/SKILL.md` |
 | **deploy-mailchimp** | Pushes email assets to Mailchimp via API. | Called by CM at Phase 6 | `.claude/skills/deploy-mailchimp/` |
 | **deploy-cookbook** | Universal cookbook-based deployment fallback. | Called by CM at Phase 6 | `.claude/skills/deploy-cookbook/` |
 | **deploy-static-folder** | Static-folder deploy adapter — reference implementation of the deploy-adapter contract (copies an HTML deployment package to a local web-root + verifies). | Called by CM at Phase 5/6 (`platform: static-folder`) | `.claude/skills/deploy-static-folder/` |

@@ -127,6 +127,16 @@ APHORISMS = [
     ("the most/only/single biggest", r"\bthe (?:most|only|single (?:biggest|most))\b"),
 ]
 
+# Words ending in -ing that are NOT gerunds. The opener test matched /^\w+ing\s/, which reads
+# "Bring the trays in when the water goes cloudy." as an abstraction acting - it is an imperative
+# addressed to a person, the exact opposite of what the check is looking for. Found by running the
+# linter on a fresh document rather than on the corpus it was calibrated against.
+_NOT_GERUND = {
+    "bring", "sing", "ring", "king", "thing", "string", "spring", "swing", "cling", "fling",
+    "sting", "wing", "wring", "during", "nothing", "something", "anything", "everything",
+    "morning", "evening", "ceiling", "sibling", "being",
+}
+
 # Abstractions standing in for a person or a named thing as the actor. A curated list is
 # sufficient and far cheaper than POS tagging (the ticket's own call).
 ABSTRACT_SUBJECTS = {
@@ -204,8 +214,13 @@ def prose_lines(path: Path) -> list[tuple[int, str]]:
             if "</details>" in low:
                 in_details = False
             continue
-        if is_html:
-            s = _html.unescape(re.sub(r"<[^>]+>", " ", s))
+        # Markdown files carry raw HTML too - inline SVG diagrams, <div> wrappers, tables. Tags
+        # were only stripped for .html, so an SVG path element inside a .md file was counted as a
+        # sentence. Found by running this skill on a spec that embeds a diagram. Strip tags in
+        # BOTH, then drop what is left if it is markup rather than prose.
+        s = _html.unescape(re.sub(r"<[^>]+>", " ", s))
+        if len(re.findall(r"[A-Za-z]{2,}", s)) < 2:
+            continue
         s = re.sub(r"`[^`]*`", " ", s)                        # inline code
         s = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s)        # link text, not the URL
         s = re.sub(r"^[#>\-*+\d.\s|]+", "", s)                # heading/list/table furniture
@@ -305,12 +320,18 @@ def check_aphorisms(sentences, words, cfg) -> list[dict]:
 
 
 def check_abstract_subjects(sentences, cfg) -> list[dict]:
+    # A ratio is as meaningless on a short sample as a rate is: in a four-sentence document one
+    # hit is 25% and means nothing. The rate checks already had this floor; the ratio did not,
+    # which is how a clean four-sentence sample flagged.
+    if len(sentences) < cfg["min_sentences_for_stats"]:
+        return []
     hits = []
     for ln, s in sentences:
         low = s.lower().lstrip("\"'“‘ ")
         first_two = " ".join(low.split()[:2]).strip(",")
         first_three = " ".join(low.split()[:3]).strip(",")
-        gerund = re.match(r"^(\w+ing)\s+\w", low)
+        _g = re.match(r"^(\w+ing)\s+\w", low)
+        gerund = _g and _g.group(1) not in _NOT_GERUND
         if first_two in ABSTRACT_SUBJECTS or first_three in ABSTRACT_SUBJECTS or gerund:
             hits.append((ln, s))
     if not sentences:
