@@ -168,10 +168,27 @@ AI drafts fabricate plausible figures and attach credible attributions to them. 
 
 ---
 
+## RULE 8 — REGISTER SLANG / OFF-VOICE IDIOM (added 2026-09-14)
+
+the operator's register is **dry Australian plain-speak**: if you'd say it out loud to a CEO across a table, use it; if you wouldn't, cut it. Two off-register habits slip past Rules 1–7 because they are neither a banned AI word nor a statistical pattern, so only a register read catches them. Run this as a literal read, like Rule 2.
+
+**8a — Casual Americanisms / film / startup slang.** Flag and replace with plain English. Starter list (scan each; extend as new ones surface):
+took a beat, a beat (meaning "a moment"), dialled in / dialed in, no-brainer, crushing it / crush it, nail it, move the needle, circle back, double down, deep dive, level up, unpack (as a metaphor), lean in, table stakes, secret sauce, drink the Kool-Aid, game-changer, low-key, for sure, gonna, wanna.
+
+**8b — Metaphor-dressing where instruction belongs.** A plain statement dressed as a metaphor the reader has to decode first: "a content problem wearing a volume problem's clothes", "wearing the costume of a strategy problem", "a wolf in X's clothing". If a sentence's job is to say what is true or what to do, say it plainly. (This extends the §2 / Rule-2 example "a measurement problem wearing the costume of a strategy problem".)
+
+**Test:** read the sentence aloud in the operator's voice. If it sounds like a US podcast host or a movie voiceover, it is off-register. For 8b: does the metaphor have to be decoded before it can be used? If yes, replace it with the plain statement.
+
+**Fix:** replace with the plain, in-voice phrasing. ("It took a beat" → "It took me a moment / longer than it should have"; "wearing a volume problem's clothes" → "a content problem, and cutting the frequency will not touch it".)
+
+**Limit: zero.** Ed 24 shipped *"It took a beat to see it the other way around"* (film slang) and *"a content problem wearing a volume problem's clothes"* (metaphor-dressing, already banned by the §2 example) past both the linter and the banned-word scan; the operator caught them on read. This rule names them so the pass does — the linter counts, the banned list enumerates known words, and register slang falls in the gap between the two.
+
+---
+
 ## HOW TO RUN THE SUB-EDIT
 
 1. Read the full content of the file.
-2. Work through Rules 1–7 in order. For each rule, list every violation found.
+2. Work through Rules 1–8 in order. For each rule, list every violation found.
 3. If violations exist, fix them in the content.
 4. Check that fixes haven't introduced new violations.
 5. Report: number of violations found per rule, what was changed, and the corrected text.
