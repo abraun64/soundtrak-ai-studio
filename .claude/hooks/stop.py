@@ -229,6 +229,25 @@ def freshness_guarantee():
               f"{', '.join(still)}. Investigate (SYS-112).", file=sys.stderr)
 
 
+def record_operator_version():
+    """Note which version THIS operator is on, in the shared data repo.
+
+    One file per operator, so two people ending a session at once cannot conflict. Inert for a
+    single-operator install: there is nobody to differ from. Best-effort and silent — this is
+    bookkeeping, and a failure here must never be mistaken for a problem with the work."""
+    try:
+        import deployment_profile as dp
+        if not dp.multi_operator():
+            return
+    except Exception:  # noqa: BLE001
+        return
+    try:
+        import operator_versions
+        operator_versions.record(PROJECT_ROOT)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def auto_publish():
     """Publish the operator surfaces to the read-only SharePoint copy, at session end.
 
@@ -741,6 +760,7 @@ def main():
     # The read-only copy the rest of the organisation reads. Publishes BEFORE the backup so
     # a slow git push never delays it, and only here — on the clean path — so surfaces that
     # failed to rebuild are never handed to an audience that cannot check them.
+    record_operator_version()
     auto_publish()
 
     session_summary = ", ".join(rebuild_log) if rebuild_log else ""

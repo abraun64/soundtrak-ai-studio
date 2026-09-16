@@ -166,6 +166,14 @@ if _CMD_GUARD.exists():
 # Who gets offered an update. The case that was wrong is the one everybody starts in: a clone
 # that is not on a release tag was told it was up to date, permanently, so the FIRST upgrade at
 # any organisation could never be offered — hidden behind the answer people expect.
+# A version split between operators is invisible by design — separate code checkouts. It matters
+# because every guard lives in that checkout, so a team's real protection is the MINIMUM version
+# anyone runs, and shared history is permanent.
+_OV_TEST = ROOT / ".claude" / "lib" / "test_operator_versions.py"
+if _OV_TEST.exists():
+    ok, err = _run_ok([str(_OV_TEST)])
+    check("L1", "operator version split is detected", ok, err if not ok else "")
+
 _SU_TEST = ROOT / ".claude" / "lib" / "test_system_update.py"
 if _SU_TEST.exists():
     ok, err = _run_ok([str(_SU_TEST)])

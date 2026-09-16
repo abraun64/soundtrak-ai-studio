@@ -15,9 +15,21 @@ the sync client do the upload. No Graph app registration, no tenant admin consen
 get approved before a pilot can run. The Graph route stays available later if this proves
 fragile — better auth and audit, at the cost of involving IT.
 
-ONE WRITER. This is the nominated publisher (one machine or a CI job), NOT every operator.
-That is the whole reason it is safe: the multi-writer problems that killed the shared-folder
-design (conflict copies, render races) need two writers, and there is exactly one.
+EVERY OPERATOR WRITES (revised 2026-09-16). This began as one nominated publisher, because
+multi-writer problems — conflict copies, render races — need two writers and there was exactly
+one. That reasoning held while publishing was optional. It does not hold once the published copy
+IS the interface the whole organisation reads: a single publisher makes the company's only view
+depend on one laptop being switched on, and it silently stops the week they are on leave.
+
+So everyone publishes, and the one genuinely damaging multi-writer failure is prevented
+directly: an operator whose DATA clone is behind would republish old pages over newer ones, and
+everybody would watch the dashboards go BACKWARDS with no error anywhere. Each published page
+carries its content date, and a page is only ever replaced by content at least as new as what is
+already there — so a stale publisher is a no-op rather than a regression.
+
+The remaining exposure is two machines writing the identical file in the same second, which the
+sync client may resolve as a conflict copy. That is cosmetic and self-correcting on the next
+publish, and a far smaller risk than an interface nobody is updating.
 
 STRICTLY ONE-WAY. Nothing here reads FROM SharePoint. Published output is a read-only view;
 the authoritative store is git. Reading it back is the design decision #1 rejected.
@@ -26,6 +38,7 @@ from __future__ import annotations
 import argparse
 import filecmp
 import os
+import re
 import shutil
 import sys
 from datetime import datetime
@@ -78,7 +91,8 @@ def _stamp(html: str, source_mtime: float) -> str:
     from datetime import datetime
     when = datetime.fromtimestamp(source_mtime).astimezone()
     banner = (
-        f'<div class="{BANNER_MARK}" style="font:13px/1.5 system-ui,sans-serif;'
+        f'<div class="{BANNER_MARK}" data-mas-updated="{when.isoformat(timespec="seconds")}" '
+        f'style="font:13px/1.5 system-ui,sans-serif;'
         f'background:#faf9f5;color:#55534e;border-top:1px solid #e5e3dd;'
         f'padding:10px 16px;margin-top:24px">'
         f'Read-only copy &middot; content last updated '
@@ -93,10 +107,22 @@ def _stamp(html: str, source_mtime: float) -> str:
     return (html[:i] + banner + html[i:]) if i != -1 else (html + banner)
 
 
+def published_date(html: str):
+    """The content date of a page already in the destination, or None if it has no stamp."""
+    from datetime import datetime
+    m = re.search(r'data-mas-updated="([^"]+)"', html)
+    if not m:
+        return None
+    try:
+        return datetime.fromisoformat(m.group(1))
+    except ValueError:
+        return None
+
+
 def publish(dest: Path, data: Path | None = None, dry_run: bool = False) -> dict:
     data = data or _data_root()
     files = collect(data)
-    copied = skipped = 0
+    copied = skipped = kept_newer = 0
     for src in files:
         rel = src.relative_to(data)
         out = dest / rel
@@ -120,11 +146,23 @@ def publish(dest: Path, data: Path | None = None, dry_run: bool = False) -> dict
         # every page would be rewritten on every run.
         if out.is_file():
             try:
-                if out.read_text(encoding="utf-8", errors="replace") == want:
-                    skipped += 1
-                    continue
+                existing = out.read_text(encoding="utf-8", errors="replace")
             except OSError:
-                pass
+                existing = None
+            if existing == want:
+                skipped += 1
+                continue
+            # MULTI-WRITER SAFETY. Every operator publishes, so the organisation's pages keep
+            # updating when any one person is away — but that means somebody whose DATA clone is
+            # behind would otherwise republish old pages over newer ones, and the whole company
+            # would watch the dashboards go backwards with no error anywhere. A page is only ever
+            # replaced by content at least as new as what is already there.
+            if existing is not None:
+                theirs = published_date(existing)
+                mine = datetime.fromtimestamp(src.stat().st_mtime).astimezone()
+                if theirs is not None and theirs > mine:
+                    kept_newer += 1
+                    continue
         if not dry_run:
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(want, encoding="utf-8")
@@ -135,7 +173,8 @@ def publish(dest: Path, data: Path | None = None, dry_run: bool = False) -> dict
                  f"DATA git repo; changes made here are not read back.\n")
         dest.mkdir(parents=True, exist_ok=True)
         (dest / "_PUBLISHED.txt").write_text(stamp, encoding="utf-8")
-    return {"total": len(files), "copied": copied, "skipped": skipped}
+    return {"total": len(files), "copied": copied, "skipped": skipped,
+            "kept_newer": kept_newer}
 
 
 def main() -> int:
@@ -166,8 +205,11 @@ def main() -> int:
         print(f"destination parent does not exist: {dest.parent}", file=sys.stderr)
         return 1
     res = publish(dest, data)
+    kept = res.get("kept_newer", 0)
     print(f"published {res['copied']} changed / {res['skipped']} unchanged "
           f"of {res['total']} surfaces -> {dest}")
+    if kept:
+        print(f"  {kept} page(s) left alone - a colleague had already published something newer")
     return 0
 
 

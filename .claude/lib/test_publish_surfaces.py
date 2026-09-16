@@ -66,6 +66,38 @@ def main() -> int:
         check("the stamp is not duplicated on republish", out3.count(ps.BANNER_MARK) == 1)
         check("the _PUBLISHED.txt sidecar is still written", (dest / "_PUBLISHED.txt").is_file())
 
+    # EVERY operator publishes, so the organisation's pages keep updating when any one person
+    # is away. The danger that creates is a colleague whose DATA clone is behind republishing old
+    # pages over newer ones — the whole company would watch the dashboards go backwards, with no
+    # error anywhere. Two writers, one folder, and the loser is whoever published last.
+    with tempfile.TemporaryDirectory() as td:
+        data, dest = Path(td) / "data", Path(td) / "pub"
+        (data / "campaigns" / "acme").mkdir(parents=True)
+        page = data / "campaigns" / "acme" / "dashboard.html"
+
+        # the up-to-date colleague publishes today's content
+        page.write_text("<html><body><h1>Acme, current</h1></body></html>", encoding="utf-8")
+        ps.publish(dest, data)
+        live = (dest / "campaigns" / "acme" / "dashboard.html").read_text(encoding="utf-8")
+        check("a current operator publishes normally", "Acme, current" in live)
+
+        # now a colleague whose clone is a week behind publishes the OLD version of the same page
+        page.write_text("<html><body><h1>Acme, a week old</h1></body></html>", encoding="utf-8")
+        old = time.time() - 7 * 86400
+        os.utime(page, (old, old))
+        r = ps.publish(dest, data)
+        live2 = (dest / "campaigns" / "acme" / "dashboard.html").read_text(encoding="utf-8")
+        check("a STALE operator cannot move a published page backwards",
+              "Acme, current" in live2 and "a week old" not in live2, live2[:120])
+        check("...and it is counted rather than silently dropped",
+              r.get("kept_newer") == 1, str(r))
+
+        # and genuinely newer content from anyone still gets through
+        page.write_text("<html><body><h1>Acme, newest</h1></body></html>", encoding="utf-8")
+        ps.publish(dest, data)
+        live3 = (dest / "campaigns" / "acme" / "dashboard.html").read_text(encoding="utf-8")
+        check("newer content from any operator still publishes", "Acme, newest" in live3)
+
     if _FAILED:
         print(f"\nFAILED ({len(_FAILED)}): " + ", ".join(_FAILED))
         return 1

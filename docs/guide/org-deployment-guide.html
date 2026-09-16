@@ -450,8 +450,14 @@ cd $HOME</code></pre>
   </div>
 
   <div class="step"><div class="sh">Step A5 - Set up the read-only pages (optional)</div>
-    <p>Colleagues without Claude Code still need to see dashboards and finished work. <b>Pick one machine
-    to be the publisher.</b> Not everyone: exactly one. It can be yours.</p>
+    <p>Colleagues without Claude Code still need to see dashboards and finished work.
+    <b>Everyone who uses the Studio publishes to the same SharePoint library</b>, so the pages stay
+    current whoever happens to be working, rather than going stale because one person is away.</p>
+    <div class="callout"><b>🔁 Publishing cannot go backwards.</b> The obvious worry with everybody
+      publishing is that someone whose copy is a few days behind republishes old pages over newer
+      ones, and the whole organisation watches the dashboards regress. That cannot happen. Every page
+      records the date of the content it was built from, and is only ever replaced by something at
+      least as new — a publish from someone out of date quietly does nothing instead.</div>
 
     <div class="callout"><b>❓ SharePoint and OneDrive are not the same thing, though one app syncs
       both.</b> This trips people up, because the OneDrive client syncs your personal OneDrive, your
@@ -473,11 +479,28 @@ cd $HOME</code></pre>
     <span class="muted">Nothing to create, nothing to sync: this step is the one people skip, and then
     go looking for a folder that was never made.</span></p>
 
-    <p><b>Then sync it to the publisher machine.</b> Open that library in a browser and click
-    <b>Sync</b>. It then appears in File Explorer under your organisation's
-    name, for example <code>C:\Users\jsmith\Contoso\Marketing Studio - Documents</code>. Copy that path.</p>
+    <p><b>Then put the library on each person's machine.</b> Open it in a browser and click the one
+    button in the toolbar that puts it on their computer. Depending on how new your tenant is that
+    button says either <b>Sync</b> or <b>Add shortcut to OneDrive</b> — both do the same job here.</p>
+    <p><span class="muted">SharePoint lives on the web and the Studio writes to folders on a
+    computer; this is what bridges the two. If neither button is there, syncing is switched off by
+    policy and IT has to turn it on.</span></p>
+    <p>The library then appears in File Explorer as an ordinary folder, named after itself. It is
+    usually under your organisation's name or your work OneDrive, but <b>it can be anywhere</b> —
+    people often move their OneDrive somewhere shorter like <code>C:\claude</code>, and the folder
+    follows.</p>
+    <div class="callout"><b>🔎 How to be sure a folder is really the synced one.</b> Do not judge by
+      where it is. In File Explorer, a synced folder shows a <b>status column with cloud or green-tick
+      icons</b> beside each file; an ordinary local folder shows none. The mistake worth avoiding is
+      <b>creating a folder yourself</b> and assuming it is connected: only the button on the library
+      page makes the link, and a folder you made by hand will accept everything the Studio writes and
+      show it to nobody.</div>
+    <p> Open it and <b>copy the address from the
+    bar at the top</b> — that is the path you need below. Publishing writes a <code>campaigns</code>
+    folder and an index page, so point it at a <b>subfolder</b> such as
+    <i>AI Studio dashboards</i> rather than the top of a library other people use.</p>
 
-    <p><b>Then, on that machine, tell the Studio where to publish.</b> In PowerShell, paste this once,
+    <p><b>Then each person tells the Studio where to publish.</b> In PowerShell, once per machine,
     replacing the path with the one you just copied:</p>
     <pre><code>[Environment]::SetEnvironmentVariable("MAS_PUBLISH_DIR", "C:\Users\jsmith\Contoso\Marketing Studio - Documents", "User")</code></pre>
     <p><b>Close PowerShell and open a new one</b>, or the change will not be visible yet. Then, from the
@@ -855,11 +878,20 @@ git push origin v1.2.0</code></pre>
       through. Between campaigns is the natural moment.</div>
   </div>
 
-  <div class="callout"><b>👥 Agree a version as a team.</b> Each person upgrades their own machine,
-    so it is possible to end up with people on different versions of the Studio while sharing one set
-    of campaigns. That mostly works, and occasionally produces a difference nobody can explain,
-    because two people are genuinely running different software. Treat a release as something the
-    team takes together, and say so when you announce it.</div>
+  <div class="callout"><b>👥 Agree a version as a team, and the Studio will tell you when you have
+    not.</b> Each person upgrades their own machine, so a team can drift onto different versions
+    while sharing one set of campaigns.
+    <br><br>
+    Most of it is harmless: pages are built on each person's own machine, and records keep
+    information a newer version added rather than discarding it. <b>The part that is not harmless is
+    invisible</b> — every safety check lives in each person's own copy, so the protection your shared
+    work actually has is that of the <b>oldest</b> version anyone is running. One person left behind
+    can commit something into shared history that everybody else's machine would have refused, and
+    shared history cannot be taken back.
+    <br><br>
+    The health check now reports this, so nobody has to notice it themselves: it names who is on what
+    and gives whoever is behind the one command to catch up. Run
+    <code>python .claude/lib/operator_versions.py</code> at any time to see the whole team.</div>
 
   <table>
     <thead><tr><th>If you see</th><th>What it means</th><th>What to do</th></tr></thead>

@@ -10,6 +10,44 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+## [1.11.0] — 2026-09-16
+
+> **The read-only copy your colleagues see is now everyone's job, not one person's.** If you set
+> up SharePoint publishing on 1.10.0, nothing you did needs changing — the machines that were not
+> publishing simply start doing so, and the safeguard below means that is safe.
+
+### Changed
+- **Everyone publishes to the shared SharePoint copy, rather than one nominated machine.** That
+  copy is the interface an entire organisation reads, and making it depend on one laptop being
+  switched on meant it silently stopped whenever that person was away. Every machine now keeps it
+  current.
+- **A publish can no longer move a page backwards.** The obvious risk of everyone publishing is
+  that a colleague whose copy is a few days behind republishes old pages over newer ones, and the
+  whole organisation watches the dashboards regress with nothing reporting it. Each page records
+  the date of the content it was built from and is only ever replaced by something at least as
+  new, so a publish from someone out of date quietly does nothing and says so.
+
+### Added
+- **The Studio now tells you when your team is on different versions.** Each person keeps their
+  own copy of the system, so a team can drift apart without noticing. Most of that is harmless —
+  pages are built on each person's own machine, and records keep information a newer version
+  added rather than discarding it. The part that is not harmless is invisible: **every safety
+  check lives in each person's own copy**, so shared work is only protected to the standard of
+  the oldest version anyone is running, and one person left behind can commit something the rest
+  of the team's machines would have refused. The health check now names who is on what, explains
+  why it matters, and gives whoever is behind the single command to catch up. Previous advice to
+  "agree a version as a team" was unenforceable, because nothing recorded or compared anything.
+
+### Fixed
+- **The publishing instructions assumed knowledge nobody has.** They named only one of the two
+  buttons Microsoft uses for putting a library on your computer, never explained why a library
+  that lives on the web needs a local folder at all, and implied such folders always sit in one
+  place — they can be anywhere. The guide now identifies a connected folder by the only reliable
+  test, its sync status, and warns about the trap that looks exactly like success: **a folder you
+  create yourself is not connected**, and will accept everything the Studio writes while showing
+  it to nobody.
+
+
 ## [1.10.0] — 2026-09-16
 
 > **This is the release that makes running the Studio across a team real.** 1.9.0 shipped the

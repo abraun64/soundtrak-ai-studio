@@ -138,6 +138,23 @@ def _team_rows() -> list[tuple[str, str, str]]:
 
     rows.append(("ok", "deployment profile: team", ""))
 
+    # A version split is invisible by design: everyone has their own code checkout. It matters
+    # because every guard lives in that checkout, so the team's real protection is the MINIMUM
+    # version anyone runs — one person left behind can commit what everyone else would block.
+    try:
+        import operator_versions
+        st = operator_versions.status(ROOT)
+        if st["level"] == "behind":
+            rows.append(("warn", f"version: {operator_versions.describe(st)}",
+                         f"python .claude/lib/system_update.py --apply --to {st['newest']}"))
+        elif st["level"] == "split":
+            rows.append(("warn", f"version: {operator_versions.describe(st)}",
+                         "agree one version as a team; whoever is behind updates"))
+        else:
+            rows.append(("ok", f"version: {st['mine']} (matches your colleagues)", ""))
+    except Exception:  # noqa: BLE001
+        pass
+
     # §14.1 — the largest blast radius. The sync (§6) and freshness (§10) architecture both
     # run on PostToolUse/Stop hooks. If a managed-settings policy overrides .claude/settings.json
     # the hooks never fire, and every operator surface silently stops updating. We cannot read
