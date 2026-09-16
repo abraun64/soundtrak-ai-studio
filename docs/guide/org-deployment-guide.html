@@ -848,7 +848,15 @@ and my data address is &lt;data address&gt;.</code></pre>
   </table>
 
   <div class="step"><div class="sh">For the administrator - publish a new version</div>
-    <p>Same download as Step A2, then from inside your <code>code</code> folder, one line at a time.
+    <p><b>One command, from your own <code>code</code> folder.</b> Replace the version with the one
+    you are publishing, and the address with your organisation's code repository:</p>
+    <pre><code>python .claude/lib/publish_release.py --to &lt;your code repo address&gt; --tag v1.2.0</code></pre>
+    <p>It fetches that release, checks it is going into the right repository, shows you what will
+    change, and stops <b>before</b> publishing. Add <code>--push</code> when you are happy. It
+    refuses outright if you point it at the data repository by mistake, or if the repository comes
+    down empty because its default branch is wrong.</p>
+    <details><summary>Doing it by hand instead</summary>
+    <p>Same download as Step A2, then from inside the folder, one line at a time.
     Replace <code>v1.2.0</code> with the version number you are publishing:</p>
     <pre><code>git add -A
 git commit -m "Update to v1.2.0"
@@ -861,6 +869,7 @@ git push origin v1.2.0</code></pre>
       <br><br>
       <span class="muted">Tag names come from whoever produced the release. Use theirs, so your
       version numbers still mean something when you compare notes.</span></div>
+    </details>
     <p>Then tell your team it is available. Nothing notifies them automatically, by design: an
     upgrade that arrives unannounced is an upgrade that arrives mid-campaign.</p>
   </div>

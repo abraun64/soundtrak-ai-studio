@@ -2328,6 +2328,12 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <td><code>.claude/skills/integration-scaffolder/</code></td>
 </tr>
 <tr>
+<td><strong>publish_release.py</strong></td>
+<td>Stage one of the two-stage upgrade: puts a Studio release into an organisation's OWN code repo. Validates the tag shape, refuses the DATA repo and an empty clone, stops before pushing.</td>
+<td>Administrator, once per release</td>
+<td><code>.claude/lib/publish_release.py</code></td>
+</tr>
+<tr>
 <td><strong>insights-library-add</strong></td>
 <td>Adds a research source (market data, behavioural science, government/consultancy report) to the shared Insights Library at <code>tenant/research-library/</code>, with the faceted schema the insight scan reads. Public research only — the library is shared across tenants.</td>
 <td>"add this to my Insights Library", "lodge this paper"</td>
@@ -2663,7 +2669,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 
   <footer class="page-footer">
     <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../docs/legal/LICENSE.html">Licence</a> · <a href="../docs/legal/NOTICE.html">Notice</a></span>
-    <span>Source file: <code>solo\docs\NAVIGATION_INDEX.md</code></span>
+    <span>Source file: <code>seed/docs/NAVIGATION_INDEX.md</code></span>
   </footer>
 </body>
 </html>
