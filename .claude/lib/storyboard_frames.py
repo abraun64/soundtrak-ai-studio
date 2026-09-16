@@ -134,7 +134,8 @@ def render_keyframe(src: Path, out: Path, width: int = 1920, height: int = 1080)
     except Exception as e:  # noqa: BLE001
         raise BeatError(
             f"Playwright is required to render keyframe {src.name} but is not importable "
-            f"({e}). Install it (pip install playwright && playwright install chromium)."
+            f"({e}). Install it: python -m pip install playwright   THEN   "
+            "python -m playwright install chromium."
         ) from e
 
     out.parent.mkdir(parents=True, exist_ok=True)

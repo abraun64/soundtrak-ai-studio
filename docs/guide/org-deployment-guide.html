@@ -76,10 +76,15 @@ td{padding:9px 11px;border-bottom:1px solid var(--slate200);vertical-align:top;c
   Organisation deployment guide: the TEAM install runbook, sibling to deployment-guide.html
   (which is the single-person version). Hand-authored HTML on purpose; see docs/guide/README.md
   for the editing rule.
-  TWO PARTS, deliberately: Part A is done ONCE by whoever sets it up for the organisation;
-  Part B is done ONCE PER PERSON. Conflating the two is why multi-user install docs fail - an
-  operator who reads repo-creation steps concludes the product is for engineers and stops.
-  Part B is deep-linkable (#for-each-person) so the administrator can send just that.
+  THREE PARTS, deliberately: Part A is done ONCE by whoever sets it up for the organisation;
+  Part B is done ONCE PER PERSON; Part C is the BRAND foundation, once for everyone. Conflating
+  A and B is why multi-user install docs fail - an operator who reads repo-creation steps concludes
+  the product is for engineers and stops. Part B is deep-linkable (#for-each-person) so the
+  administrator can send just that.
+  PART C IS NOT PART OF A, even though it is organisation-level, because you set the brand up by
+  TALKING to the Studio - so it needs a working install and must follow the first Part B. Missing
+  it entirely was the UAT finding on 2026-09-16: an org could complete A and B and then be blocked
+  at the first campaign by phase0_gate with "no tenant baseline", which reads like a fault.
   Everything here is built and unit-verified (docs/specs/team-deployment.md, all 12 phases);
   what has NOT happened is a two-person pilot or a fresh-person UAT - see SYS-147. Do not add
   claims to this page that nobody has performed.
@@ -108,10 +113,35 @@ td{padding:9px 11px;border-bottom:1px solid var(--slate200);vertical-align:top;c
     nothing on this page applies to you.</span>
   </div>
 
-  <p class="lede"><b>Two jobs, not one.</b> Someone sets the organisation up <b>once</b> (Part A, about
-  30 minutes, and it needs permission to create two private code repositories). Then <b>each person</b>
-  joins in about 10 minutes (Part B). They are genuinely different jobs, so they are separate below.
-  <b>If you are just here to start using it, skip straight to <a href="#for-each-person">Part B</a>.</b></p>
+  <p class="lede"><b>Three jobs, not one</b>, usually done by different people. Jump to yours:</p>
+
+  <table>
+    <thead><tr><th>Part</th><th>Who does it</th><th>How long</th></tr></thead>
+    <tbody>
+      <tr><td><b><a href="#for-the-administrator">Part A &mdash; Set up the organisation</a></b></td>
+          <td>Once, by whoever can create private repositories and push apps to staff machines</td>
+          <td>~30 min</td></tr>
+      <tr><td><b><a href="#for-each-person">Part B &mdash; Join, for each person</a></b></td>
+          <td>Every person who will use the Studio. No technical knowledge needed</td>
+          <td>~5 min each</td></tr>
+      <tr><td><b><a href="#set-up-your-brands">Part C &mdash; Set up your brands</a></b></td>
+          <td>Once for the whole organisation, by someone who knows the brand &mdash; <b>not</b>
+              necessarily whoever did Part A</td>
+          <td>~30 min</td></tr>
+      <tr><td><a href="#upgrading">Keeping it up to date</a></td>
+          <td>New versions, the Studio's own backlog, your brands, and your libraries &mdash; four
+              jobs with four owners</td>
+          <td>&mdash;</td></tr>
+      <tr><td><a href="#if-something-looks-wrong">If something looks wrong</a></td>
+          <td>Every message you might see, and what to do about it</td>
+          <td>&mdash;</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>⚠️ Part C is not optional, and it is the one people miss.</b> Until your
+    brands exist, nobody can start a campaign: the Studio stops with
+    <code>BLOCKED - Phase 0 incomplete</code>. It happens <b>once for everyone</b>, so pick the person
+    who knows the brand rather than the most technical person.</div>
 
   <h2 style="margin-top:34px">What everyone ends up with</h2>
   <p>Each person who uses the Studio has <b>two folders on their own computer</b>. Everyone's work
@@ -423,8 +453,28 @@ cd $HOME</code></pre>
     <p>Colleagues without Claude Code still need to see dashboards and finished work. <b>Pick one machine
     to be the publisher.</b> Not everyone: exactly one. It can be yours.</p>
 
-    <p><b>First, make sure that machine syncs the SharePoint library.</b> Open the SharePoint document
-    library in a browser and click <b>Sync</b>. It then appears in File Explorer under your organisation's
+    <div class="callout"><b>❓ SharePoint and OneDrive are not the same thing, though one app syncs
+      both.</b> This trips people up, because the OneDrive client syncs your personal OneDrive, your
+      work OneDrive <i>and</i> any SharePoint library, all through the same tray icon. "OneDrive is
+      syncing" does not mean SharePoint is.
+      <table style="margin:.6em 0 0">
+        <thead><tr><th>In File Explorer</th><th>What it is</th><th>Who can read it</th></tr></thead>
+        <tbody>
+          <tr><td>Blue cloud, <code>OneDrive</code> or <code>OneDrive - YourOrg</code></td><td>Your own storage</td><td><b>Only you</b></td></tr>
+          <tr><td>Building icon, named after your organisation</td><td>A SharePoint library</td><td>Everyone with access to that site</td></tr>
+        </tbody>
+      </table>
+      <span class="muted">Publishing must go to the <b>second</b> one. Pointing it at your own
+      OneDrive means colleagues cannot read any of it, which is the entire purpose.</span></div>
+
+    <p><b>First, create the library if you do not already have one.</b> In SharePoint, go to the team
+    site your marketing people can reach, choose <b>New → Document library</b>, and name it something
+    obvious such as <i>Marketing Studio</i>. If a suitable library already exists, use that instead.
+    <span class="muted">Nothing to create, nothing to sync: this step is the one people skip, and then
+    go looking for a folder that was never made.</span></p>
+
+    <p><b>Then sync it to the publisher machine.</b> Open that library in a browser and click
+    <b>Sync</b>. It then appears in File Explorer under your organisation's
     name, for example <code>C:\Users\jsmith\Contoso\Marketing Studio - Documents</code>. Copy that path.</p>
 
     <p><b>Then, on that machine, tell the Studio where to publish.</b> In PowerShell, paste this once,
@@ -433,8 +483,19 @@ cd $HOME</code></pre>
     <p><b>Close PowerShell and open a new one</b>, or the change will not be visible yet. Then, from the
     <code>code</code> folder:</p>
     <pre><code>python .claude/lib/publish_surfaces.py</code></pre>
-    <p>It prints how many pages it copied. Run it again whenever you want the published copy refreshed;
-    unchanged pages are skipped, so it is quick and quiet.</p>
+    <p>It prints how many pages it copied.</p>
+    <div class="callout"><b>♻️ After that first run it looks after itself.</b> On this machine only,
+      the Studio republishes at the end of every session, so the pages your colleagues read stay
+      current without anyone remembering to do anything. Unchanged pages are skipped, so it is quick
+      and quiet.
+      <br><br>
+      <b>Every published page carries its own "content last updated" line</b>, so a reader can always
+      see how current it is. If this machine is off for a week, colleagues see a week-old date rather
+      than being quietly misled.
+      <br><br>
+      <span class="muted">If the SharePoint library is ever un-synced or the folder renamed, the
+      publisher machine says so loudly at the end of the session. Nobody downstream can detect that
+      themselves, which is why it is reported here.</span></div>
     <p>The normal OneDrive sync does the upload. <b>No app registration and no admin consent needed.</b>
     It only ever writes outward, so nothing anyone does in SharePoint can affect the real work.</p>
   </div>
@@ -449,13 +510,50 @@ cd $HOME</code></pre>
       trade-off if people know about it upfront, and an annoying surprise if they do not.</div>
   </div>
 
-  <div class="step"><div class="sh">Step A7 - Hand it to your first person</div>
+  <div class="step"><div class="sh">Step A7 - Push the five apps to everyone's machine</div>
+    <p>Deploy these through <b>Intune</b>, Company Portal, or however you normally distribute
+    software. Every one is in the public winget repository, so no packaging work is needed.</p>
+    <table>
+      <thead><tr><th>App</th><th>winget ID</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Code</td><td><code>Anthropic.ClaudeCode</code></td><td>The only interface your people use</td></tr>
+        <tr><td>Python 3.12</td><td><code>Python.Python.3.12</code></td><td>Runs the Studio. <b>Must be on PATH</b>, which a managed deployment gets right and a hand install often does not</td></tr>
+        <tr><td>Git</td><td><code>Git.Git</code></td><td>How work reaches colleagues</td></tr>
+        <tr><td>Git LFS</td><td><code>GitHub.GitLFS</code></td><td>Images and video. Without it, media arrives as small text files</td></tr>
+        <tr><td>FFmpeg</td><td><code>Gyan.FFmpeg</code></td><td>Video quality. <b>Ship it even though it is optional</b>, see below</td></tr>
+      </tbody>
+    </table>
+    <p>A ready-made configuration file is in the code repository at
+    <code>deploy/studio-prerequisites.winget.yaml</code>. To try it on one machine first:</p>
+    <pre><code>winget configure .\deploy\studio-prerequisites.winget.yaml</code></pre>
+
+    <div class="callout"><b>📦 Ship the optional ones anyway.</b> FFmpeg is marked optional because a
+      single person working alone can live without it. That logic does not survive contact with an
+      organisation: you are building the package once for everybody, and leaving it out only means a
+      marketer hits a missing-dependency error mid-campaign, on the day they first ship video. It
+      cannot be installed by the Studio either, because it is system software rather than a Python
+      package. If you skip it here, nobody gets it.
+      <br><br>
+      <span class="muted">Playwright and its browser are deliberately <b>not</b> on this list. They
+      are Python components, and the Studio installs them into each person's own Python during setup,
+      which is where they belong.</span></div>
+
+    <div class="callout"><b>🛡️ Do not send anyone a setup script.</b> It is tempting to put a
+      double-clickable installer on SharePoint so nobody has to think. Resist it. An unsigned script
+      that installs software and clones repositories is indistinguishable from the attack it
+      imitates, most Defender ASR rules block exactly that shape, and it teaches your staff to
+      double-click executables from a shared drive. There is no need for one: Claude Code is already
+      approved, installed and audited, and it runs the setup itself.</div>
+  </div>
+
+  <div class="step"><div class="sh">Step A8 - Hand it to your first person</div>
     <p>Part A is done. Everything after this is per-person, and you send them the same three things
     every time. Here is the whole message:</p>
     <div class="callout" style="background:var(--paper)">
       <p style="margin:0 0 10px"><b>Subject:</b> Setting up the AI Marketing Studio</p>
-      <p style="margin:0 0 10px">Follow <b>Part B</b> of the organisation deployment guide, which
-      takes about ten minutes:<br>
+      <p style="margin:0 0 10px">The apps you need are already on your machine. Follow <b>Part B</b>
+      of the organisation deployment guide, which takes about five minutes and needs no technical
+      knowledge:<br>
       <a href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide#for-each-person">https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide#for-each-person</a></p>
       <p style="margin:0 0 10px">When it asks for the two addresses, use these:</p>
       <p style="margin:0 0 10px"><b>code:</b> <span class="muted">[the AI-marketing-studio-code clone
@@ -464,6 +562,10 @@ cd $HOME</code></pre>
       <p style="margin:0">You already have access. If the health check at the end says anything other
       than READY, send me what it printed.</p>
     </div>
+    <div class="callout"><b>📌 The FIRST person you send this to has one extra job.</b> Once they are
+      through Part B, they set up your brands in <a href="#set-up-your-brands">Part C</a>. Until that
+      is done nobody can start a campaign, so pick someone who knows the brand rather than whoever is
+      most technical. Everyone after them does Part B only.</div>
     <p><b>Before you send it</b>, confirm that person has <b>write access to
     <code>AI-marketing-studio-data</code></b> and <b>read access to
     <code>AI-marketing-studio-code</code></b>. Everything else in Part B is self-service.</p>
@@ -473,97 +575,372 @@ cd $HOME</code></pre>
   </div>
 
   <h2 id="for-each-person">Part B - Joining, for each person</h2>
-  <p class="muted">About 10 minutes, once. You will not need to understand code, and you will never type
-  a command in day-to-day use.</p>
+  <p class="muted">About 5 minutes, once. You will not open a terminal, type a command, or install
+  anything: you ask Claude, in a normal sentence, and it does the work.</p>
 
   <div class="callout"><b>📋 Ask whoever set this up for two things</b> before you start:
     <ul style="margin:.5em 0 0">
       <li>the <b>code</b> clone address (it ends in <code>AI-marketing-studio-code.git</code>)</li>
       <li>the <b>data</b> clone address (it ends in <code>AI-marketing-studio-data.git</code>)</li>
     </ul>
-    <span class="muted">Commands below are Windows PowerShell, and work unchanged on macOS and Linux.
-    Run them one line at a time.</span></div>
+    <b>And confirm they have granted you access</b>, with the account you sign in to work with. Nothing
+    below works until they have.</div>
 
-  <div class="step"><div class="sh">Step B1 - Install Python, Claude Code and Git</div>
-    <p>Three installs, all one-time. Skip any you already have.</p>
+  <div class="callout"><b>🔑 What access you need, and what you do not.</b> Two different levels, and
+    <b>Admin is not one of them</b>:
+    <table style="margin:.6em 0 0">
+      <thead><tr><th>Repository</th><th>You need</th><th>Because</th></tr></thead>
+      <tbody>
+        <tr><td><code>AI-marketing-studio-data</code></td><td><b>Write</b><br><span class="muted">Azure DevOps: Contribute</span></td><td>Your campaigns and brand work save here and reach your colleagues</td></tr>
+        <tr><td><code>AI-marketing-studio-code</code></td><td><b>Read</b><br><span class="muted">Azure DevOps: Read</span></td><td>You only ever take new versions. Nothing you do is ever written back to it</td></tr>
+      </tbody>
+    </table>
+    <span class="muted"><b>Do not ask for Admin.</b> Admin lets you delete the repository, rewrite its
+    history and change who else has access, and the Studio never needs any of that. Granting it to
+    every person is a risk with no upside.</span>
+    <br><br>
+    <span class="muted"><b>You will not open a terminal, and you will not run any commands.</b> You
+    type ordinary sentences to Claude and it does the work.</span></div>
 
-    <p><b>1. Python</b> runs the Studio's behind-the-scenes scripts.</p>
+  <div class="step"><div class="sh">Step B1 - Check you have the four apps</div>
+    <p>Your IT team installs these for you. Open <b>Company Portal</b> from the Start menu and
+    check for them, or just ask IT whether they have been pushed to your machine.</p>
+    <table>
+      <thead><tr><th>App</th><th>What it is for</th></tr></thead>
+      <tbody>
+        <tr><td><b>Claude Code</b></td><td>The only thing you actually use. You type what you want, in plain English</td></tr>
+        <tr><td><b>Python</b></td><td>Runs the Studio behind the scenes. You will never open it</td></tr>
+        <tr><td><b>Git</b> and <b>Git LFS</b></td><td>How your work reaches your colleagues, including images and video</td></tr>
+        <tr><td><b>FFmpeg</b></td><td>Video quality. Only matters if you produce video</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>🛡️ If any are missing, ask IT.</b> Do not download and install them
+      yourself, and be wary of anyone who sends you a file or a script that offers to do it for you.
+      On a managed work computer, software comes from Company Portal.</div>
+    <p>Then open Claude Code once, sign in when it opens your browser, type <code>/model</code> and
+    choose <b>Opus</b>. Use the <b>desktop app</b>, not the browser version: the browser one runs in
+    the cloud and cannot open folders on your computer.</p>
+  </div>
+
+  <div class="step"><div class="sh">Step B2 - Ask Claude to set you up</div>
+    <p>Make an empty folder for the Studio. <code>C:\Studio</code> is a good choice, and it must
+    <b>not</b> be inside OneDrive.</p>
+    <p>Now open that folder in Claude Code:</p>
     <ol>
-      <li>Go to <a href="https://www.python.org/downloads/">python.org/downloads</a> and click the big
-        yellow <b>Download Python</b> button.</li>
-      <li>Open the file you just downloaded.</li>
-      <li><b>IMPORTANT</b>: on the first screen, tick <b>"Add Python to PATH"</b> (bottom of the
-        window) before clicking <b>Install Now</b>. This one tick prevents the most common setup
-        problem.</li>
+      <li>Open <b>Claude</b> (the desktop app) and click the <b>Code</b> tab at the top.</li>
+      <li>Choose <b>Local</b>, which means "run on my own computer", then click <b>Select folder</b>.</li>
+      <li>Find your <code>Studio</code> folder, <b>click it once to highlight it</b>, then click
+        <b>Open</b>. That picks the folder itself; you do not need to go inside it first.</li>
+      <li>If it asks whether to <b>trust the files in this folder</b>, say <b>yes</b>. It is an empty
+        folder you just made yourself.</li>
     </ol>
+    <p>Then type this, pasting in the two addresses you were given:</p>
+    <pre><code>Set up my studio. My code address is &lt;code address&gt;
+and my data address is &lt;data address&gt;.</code></pre>
+    <p><b>That is the whole of your setup.</b> It is an ordinary sentence, not a command, and you
+    cannot break anything by wording it differently. Claude does the rest and narrates as it goes:</p>
+    <ul>
+      <li>fetches the Studio and your organisation's work;</li>
+      <li>shows you the <b>licence</b> once and asks you to reply <b>I AGREE</b>;</li>
+      <li>installs the pieces it needs, including the extras for image and video work;</li>
+      <li>records <b>who you are</b>, so your approvals carry your name;</li>
+      <li>runs a <b>health check</b> and explains the result.</li>
+    </ul>
+    <div class="callout"><b>ℹ️ About the prompts you will see.</b> Your copy is pre-configured so Claude
+      does not stop to ask permission for its own routine work. The one prompt you are sure to meet is
+      the <b>licence</b>. <span class="muted">Prefer to approve each step yourself? Press
+      <b>Shift+Tab</b> to toggle that on and off.</span></div>
 
-    <p><b>2. Claude Code</b> is what you actually use every day: the AI you type your requests to.</p>
-    <ol>
-      <li>You need a Claude account with Claude Code access. In most organisations this is a
-        <b>Team or Enterprise seat</b> your IT or admin provides; a personal <b>Pro</b> or <b>Max</b>
-        plan also works. Ask whoever set this up which you have.</li>
-      <li>Install Claude Code using Anthropic's guide:
-        <a href="https://code.claude.com/docs/en/setup">code.claude.com/docs/en/setup</a>.</li>
-      <li>The first time you open it, it opens your browser to sign in. You only do this once.</li>
-      <li><b>Pick your model.</b> Type <code>/model</code> and choose <b>Opus</b>. It is the most
-        capable, and the Studio leans on it for quality.</li>
-    </ol>
+    <div class="callout"><b>🔐 You will be asked to sign in, once.</b> Claude will warn you just
+      before it happens. A window opens asking for <b>GitHub</b> or <b>Azure DevOps</b>: use the
+      <b>work account your access was granted to</b>, never a personal one. Windows remembers it
+      afterwards.
+      <br><br>
+      <span class="muted">If a sign-in window ever appears that you were <b>not</b> expecting, close
+      it and ask IT. That is good practice generally, not just here.</span></div>
 
-    <p><b>3. Git</b> is how your work reaches your colleagues. The single-person version does not need
-    it; a team deployment does. Install it from
-    <a href="https://git-scm.com/downloads">git-scm.com/downloads</a>, accepting every default, then
-    open a <b>new</b> PowerShell and run these two lines so your work carries your name:</p>
-    <pre><code>git config --global user.name "Your Name"
-git config --global user.email "you@yourcompany.com"</code></pre>
-    <p>Then turn on large-file support, once:</p>
-    <pre><code>git lfs install</code></pre>
-    <div class="callout"><b>⚠️ The desktop app, not the browser version.</b> This is the thing that trips
-      people up. The browser version of Claude runs in the cloud and <b>cannot</b> open folders on your
-      computer, so it will not work for this.</div>
+    <div class="callout"><b>⚠️ <code>Repository not found</code> almost always means the wrong
+      account.</b> It does <b>not</b> mean the repository is missing. The message is deliberately
+      vague, so that nobody can discover private repositories they are not allowed to see, and it
+      covers three different situations: wrong account signed in (usually a personal GitHub already
+      saved on the machine), access not granted yet, or a mistyped address.
+      <br><br>
+      Tell Claude you are seeing it and it will clear the saved account and try again.</div>
   </div>
 
-  <div class="step"><div class="sh">Step B2 - Get your two folders</div>
-    <p>Decide where to keep them. Anywhere you like, as long as it is <b>not</b> inside OneDrive: the
-    two do not need syncing, and OneDrive would only slow things down and cause conflicts.
-    <code>C:\Studio</code> is a good choice.</p>
-    <p>Create that folder, open PowerShell there (click once in File Explorer's address bar, type
-    <code>powershell</code>, press Enter), then run these two lines, replacing each address with the one
-    you were given:</p>
-    <pre><code>git clone &lt;code clone address&gt; code
-git clone &lt;data clone address&gt; data</code></pre>
-    <p>You will be asked to sign in the first time. When it finishes you have two folders side by side,
-    <code>code</code> and <code>data</code>. <b>This is the only time you type anything like this.</b></p>
+  <div class="step"><div class="sh">Step B3 - Check what it tells you</div>
+    <p>Claude finishes by running a health check and explaining the result in plain English. You are
+    looking for <b>READY</b>.</p>
+    <p>If anything is wrong it will say what, and whether it can fix it. Two things it cannot fix on
+    your behalf, because they are not yours to fix:</p>
+    <ul>
+      <li>a <b>missing app</b> from Step B1, which IT installs;</li>
+      <li><b>access not granted yet</b> on one of the two addresses, which is whoever set up the
+        organisation.</li>
+    </ul>
+    <p>You can re-run it whenever you like by saying <b>"run the health check"</b>.</p>
+    <p class="muted">Every message the check can print, blocker or not, is listed in
+    <a href="#if-something-looks-wrong">If something looks wrong</a> at the end of this page.</p>
   </div>
 
-  <div class="step"><div class="sh">Step B3 - Connect them together</div>
-    <p>Move into the <b>code</b> folder and run one command:</p>
-    <pre><code>cd code
-python .claude/lib/provision.py --data ../data</code></pre>
-    <div class="callout"><b>⚙️ What that one command does.</b>
-      <ul style="margin:.5em 0 0">
-        <li>points the Studio at your data folder, so it knows where your work lives;</li>
-        <li>records <b>who you are</b>, from your email address, so your approvals carry your name;</li>
-        <li>runs a <b>health check</b> and prints the exact fix for anything missing.</li>
-      </ul>
-      <span class="muted">Safe to run again any time. It is also how you re-point things if you move the folders.</span>
-    </div>
-    <p>It shows you the <b>licence</b> once and asks you to reply <b>I AGREE</b>.</p>
+  <div class="step"><div class="sh">Step B4 - Move into your Studio folder</div>
+    <p>Setup created two folders inside the one you chose: <code>code</code> and <code>data</code>.
+    <b>From now on you always work in <code>code</code></b>, and this is a one-time switch.</p>
+    <p>Click <b>+ New</b> to start a fresh chat, then <b>Local</b> → <b>Select folder</b> again, and
+    this time choose <code>Studio\code</code>. Say <b>yes</b> if it asks about trusting the folder.</p>
+    <div class="callout"><b>⚠️ This step is not optional, and it is easy to miss.</b> Claude Code works
+      inside <i>one</i> folder at a time. Everything that makes this the Studio rather than an ordinary
+      chat, the campaign know-how, your dashboards, the automatic saving, only loads when
+      <code>code</code> is the folder you have open. In the folder above it, nothing will happen and
+      nothing will tell you why.
+      <br><br>
+      <span class="muted">Your work still lives in <code>data</code>. You never open that folder
+      yourself; the Studio writes to it for you.</span></div>
   </div>
 
-  <div class="step"><div class="sh">Step B4 - Read the health check</div>
-    <p><b><code>READY.</code> means you are done.</b> A red <code>[FAIL]</code> is a real blocker and prints
-    its own fix on the same line. A yellow <code>[WARN]</code> is a heads-up you can usually ignore.</p>
-    <p>The two you are most likely to see are in the table at the bottom of this page.</p>
-  </div>
-
-  <div class="step"><div class="sh">Step B5 - Start working</div>
-    <p>Open the <b>code</b> folder in Claude Code (<b>Code</b> tab, then <b>Local</b>, then
-    <b>Select folder</b>), and just say what you want:</p>
+  <div class="step"><div class="sh">Step B5 - Bookmark your Studio home, and start</div>
+    <p>Ask for your home page:</p>
+    <pre><code>open my studio home</code></pre>
+    <p>It is one page linking to your campaign dashboard, your system dashboard and the guides.
+    <b>Bookmark it.</b> That single bookmark is your way back into everything, and the pages behind it
+    update themselves as you work, so you only ever refresh.</p>
+    <p>Then say what you want:</p>
     <pre><code>what's awaiting me</code></pre>
-    <p>Your work saves to the data folder and reaches your colleagues automatically at the end of each
-    session. <b>The Operator guide takes it from here:</b>
+    <p>Your work saves and reaches your colleagues automatically at the end of every session, with no
+    action from you.</p>
+    <div class="callout"><b>✅ You do not set up the brand.</b> If you have seen the single-person
+      guide, it ends by having you onboard your business. <b>Skip that.</b> In an organisation it is
+      done <a href="#set-up-your-brands">once for everyone</a>, not once per person, and re-running it
+      would overwrite work your colleagues depend on. If a campaign ever stops with
+      <code>BLOCKED - Phase 0 incomplete</code>, that is the signal nobody has done it yet: say so to
+      whoever set this up.</div>
+    <p><b>The Operator guide takes it from here:</b>
     <a href="https://soundtrakconsulting.com/ai-studio/guide/operator-guide">how a campaign actually runs, stage by stage</a>.</p>
   </div>
+
+  <h2 id="set-up-your-brands">Part C - Set up your brands</h2>
+  <p class="muted">Once for the organisation, not once per person. Done by whoever knows the brand,
+  which is usually a marketer rather than whoever did Part A.</p>
+
+  <div class="callout"><b>⚠️ Until this is done, campaigns will not start.</b> Ask the Studio to begin
+  one and it stops with a message like this:
+    <pre style="margin:.5em 0"><code>[phase0-gate] acme: BLOCKED - Phase 0 incomplete
+  x no tenant baseline - tenant-brand/acme.yaml missing. Run Phase 0 first.</code></pre>
+    That is not a fault. Every campaign is built on your brand foundation, so the foundation has to
+    exist before there is anything to build on.</div>
+
+  <div class="callout"><b>ℹ️ Why this is not part of Part A.</b> You set the brand up by talking to the
+    Studio, so it needs a working install: it happens <b>after the first person finishes Part B</b>.
+    But it is still an organisation-level job. One person does it once, it saves into the shared
+    folder, and everyone who joins later inherits it without repeating anything.</div>
+
+  <div class="step"><div class="sh">Step C1 - Gather what you have</div>
+    <p>All optional. The more you bring, the sharper it starts, but <b>nothing here blocks you</b> and
+    you can add the rest later.</p>
+    <ul>
+      <li><b>Your website address</b>: the single most useful source. The Studio reads it while it
+        interviews you.</li>
+      <li><b>Brand style guide</b>, or just your logo, colours and fonts.</li>
+      <li><b>Tone of voice</b>: how you sound, words you use and words you avoid.</li>
+      <li><b>Positioning and segments</b>: what you stand for, and who you sell to.</li>
+      <li><b>Rules you must follow</b>: only if you are regulated (finance, health, government).
+        Disclaimers, and things you cannot claim.</li>
+      <li><b>Where you publish, and your martech</b>: key channels plus tools (CRM, email, analytics).
+        If any needs a password or key, the Studio shows you where to put it safely.
+        <b>Never type one into a file in the shared folder.</b></li>
+      <li><b>Best-practice examples</b>: a few campaigns or pieces you admire, for it to learn from.</li>
+    </ul>
+  </div>
+
+  <div class="step"><div class="sh">Step C2 - Onboard your first brand</div>
+    <p>In Claude Code, press <b>+ New</b> for a fresh chat, point it at your <code>code</code> folder,
+    and <b>name the chat "Brand setup"</b>. You will come back to it.</p>
+    <p>Then type:</p>
+    <pre><code>Onboard &lt;your business name&gt;</code></pre>
+    <p>The Studio interviews you a few questions at a time and builds the foundation. Point it at your
+    website and any public material and it uses them as source while it asks. Anything missing is
+    marked <b>to fill in later</b> rather than blocking you.</p>
+    <div class="callout"><b>🔁 Come back any time.</b> Return to that <b>Brand setup</b> chat and say
+      <b>"update my brand"</b>. It asks only about what changed, never the whole thing again. The
+      foundation is saved to your <i>files</i>, not to the chat, so even if the chat is lost your brand
+      is safe and your colleagues already have it.</div>
+  </div>
+
+  <div class="step"><div class="sh">Step C3 - Add your other brands, if you have them</div>
+    <p>If the organisation runs more than one brand, repeat Step C2 for each:</p>
+    <pre><code>Onboard &lt;sister brand name&gt;</code></pre>
+    <p>Each brand is <b>independent</b>: its own voice, segments, and compliance rules. A campaign
+    belongs to exactly one of them, so work never bleeds between brands by accident.</p>
+    <div class="callout"><b>💡 Anything genuinely shared</b> between a parent and its sister brands, like
+      a group tone-of-voice floor or common compliance wording, is better kept <b>once</b> in the
+      central library and cited by each brand, rather than pasted into each one. Copies drift; a single
+      cited source does not.</div>
+  </div>
+
+  <div class="step"><div class="sh">Step C4 - Now anyone can start a campaign</div>
+    <p>The foundation reaches your colleagues the same way everything else does, at the end of the
+    session. From then on, any of them can open Claude Code and say:</p>
+    <pre><code>start a campaign: &lt;what it is for&gt;</code></pre>
+    <p class="muted">People who join later never repeat Part C. They clone, provision, and the brand is
+    already there.</p>
+  </div>
+
+  <h2 id="upgrading">Keeping it up to date</h2>
+  <p>Four different things go stale, on four different rhythms, and they are not the same job.
+  Decide who owns each one <b>now</b>, while you are setting up, rather than discovering in six
+  months that nobody did.</p>
+
+  <table>
+    <thead><tr><th>What</th><th>Who</th><th>How often</th></tr></thead>
+    <tbody>
+      <tr><td><a href="#up-code"><b>1. New versions of the Studio</b></a></td><td>Administrator publishes, each person takes it</td><td>When a release appears</td></tr>
+      <tr><td><a href="#up-system"><b>2. The Studio's own improvements</b></a></td><td>Anyone can raise; <b>one</b> nominated owner decides</td><td>Continuous, reviewed monthly</td></tr>
+      <tr><td><a href="#up-brand"><b>3. Your brands</b></a></td><td>Whoever owns that brand</td><td>When something real changes</td></tr>
+      <tr><td><a href="#up-library"><b>4. Your libraries</b></a></td><td>Everyone, all the time</td><td>Whenever you see something good</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="up-code">1. New versions of the Studio</h3>
+  <p>Nobody is ever upgraded without deciding to be. Each person's Studio sits on a <b>pinned
+  version</b>, never a moving one, so the system cannot change underneath someone in the middle of a
+  campaign. Taking a new version is always a deliberate act, and it can be undone.</p>
+
+  <div class="callout"><b>🔒 Your work is never involved.</b> Upgrading replaces the Studio's
+    <b>code</b> only. Your campaigns, brands and library live in the separate <code>data</code>
+    repository and are not touched, read or rewritten by an upgrade.</div>
+
+  <p><b>It happens in two stages, and the first one is easy to forget.</b> Your organisation has its
+  own copy of the Studio, so a new release does not appear for your people until an administrator
+  puts it there.</p>
+
+  <table>
+    <thead><tr><th>Stage</th><th>Who</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td><b>1. Bring the version in</b></td><td>Administrator, once per release</td>
+          <td>Download the new version, replace the code files, and publish it as a numbered release
+              in your <code>AI-marketing-studio-code</code> repository</td></tr>
+      <tr><td><b>2. Take the version</b></td><td>Each person, when they choose</td>
+          <td>Ask Claude to update. Takes under a minute</td></tr>
+    </tbody>
+  </table>
+
+  <div class="step"><div class="sh">For the administrator - publish a new version</div>
+    <p>Same download as Step A2, then from inside your <code>code</code> folder, one line at a time.
+    Replace <code>v1.2.0</code> with the version number you are publishing:</p>
+    <pre><code>git add -A
+git commit -m "Update to v1.2.0"
+git tag -a v1.2.0 -m "v1.2.0"
+git push
+git push origin v1.2.0</code></pre>
+    <div class="callout"><b>⚠️ The version number must look exactly like <code>v1.2.0</code>.</b>
+      Three numbers, with a leading <code>v</code>. Anything else is ignored entirely, and your people
+      will simply never be offered the update, with no error to tell you why.
+      <br><br>
+      <span class="muted">Tag names come from whoever produced the release. Use theirs, so your
+      version numbers still mean something when you compare notes.</span></div>
+    <p>Then tell your team it is available. Nothing notifies them automatically, by design: an
+    upgrade that arrives unannounced is an upgrade that arrives mid-campaign.</p>
+  </div>
+
+  <div class="step"><div class="sh">For each person - take a new version</div>
+    <p>In your <code>code</code> folder, say:</p>
+    <pre><code>check for studio updates</code></pre>
+    <p>You will be told which version you are on, whether a newer one exists, and <b>what changed in
+    it</b>. Then, when you are ready:</p>
+    <pre><code>update the studio</code></pre>
+    <p>If you change your mind, say <b>"roll back the studio"</b> and you are returned to the version
+    you were on before. That is the whole of it.</p>
+    <div class="callout"><b>⏳ Finish what you are doing first.</b> There is no technical need to wait,
+      but a campaign is easier to reason about when the system underneath it did not change halfway
+      through. Between campaigns is the natural moment.</div>
+  </div>
+
+  <div class="callout"><b>👥 Agree a version as a team.</b> Each person upgrades their own machine,
+    so it is possible to end up with people on different versions of the Studio while sharing one set
+    of campaigns. That mostly works, and occasionally produces a difference nobody can explain,
+    because two people are genuinely running different software. Treat a release as something the
+    team takes together, and say so when you announce it.</div>
+
+  <table>
+    <thead><tr><th>If you see</th><th>What it means</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td>"refusing to update: working tree has N uncommitted change(s)"</td>
+          <td>Something in the <b>code</b> folder was edited. The Studio will not quietly discard it</td>
+          <td>Tell whoever set this up. Your own work is never in this folder, so this is unexpected
+              and worth understanding rather than overriding</td></tr>
+      <tr><td>"no release tags found"</td><td>Stage 1 has not been done</td>
+          <td>Your administrator has not published a version yet</td></tr>
+      <tr><td>"already on <i>version</i>"</td><td>Nothing to do</td><td>You are current</td></tr>
+      <tr><td>Nothing appears, though a release exists</td>
+          <td>The version number was not in the <code>v1.2.0</code> form, so it is invisible</td>
+          <td>Administrator: re-publish it with a correctly formed number</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="up-system">2. Improving the Studio itself</h3>
+  <p>Separate from taking new versions, the Studio keeps its <b>own</b> to-do list: things your team
+  wants it to do better. Anyone can add to it, in a sentence, the moment they notice something:</p>
+  <pre><code>system idea: the weekly digest should show last week's numbers too</code></pre>
+  <p>That files a proper record with the reasoning, so it is still useful in three months when
+  whoever wrote it has forgotten. Ideas sit in an inbox until someone decides what to do with them.</p>
+
+  <div class="callout"><b>👤 Nominate one owner for this, and only one.</b> The backlog is shared, so
+    everybody's ideas land in the same place, which is the point. But <b>deciding</b> what gets done
+    is a judgment call that goes wrong when several people do it independently: the same idea gets
+    filed twice, two people build opposite things, and priority stops meaning anything. Capture is
+    for everyone; triage is for one person.
+    <br><br>
+    <span class="muted">Pick whoever cares most about how the team works, not the most technical
+    person. It is a prioritisation job, not an engineering one.</span></div>
+
+  <p>The owner works through it by saying:</p>
+  <pre><code>triage the inbox</code></pre>
+  <pre><code>what's on the system backlog</code></pre>
+  <p>Once a quarter, or after anything goes noticeably wrong, they can also run a review of how the
+  system itself is performing:</p>
+  <pre><code>run a system retro</code></pre>
+  <p>It produces actions, not just observations, and files them where they will actually be seen.</p>
+
+  <h3 id="up-brand">3. Keeping your brands current</h3>
+  <p>The brand foundation from <a href="#set-up-your-brands">Part C</a> is not a one-off. Positioning
+  shifts, segments change, a new proof point lands, someone finally writes down the tone of voice.
+  Whoever owns that brand says:</p>
+  <pre><code>update my brand</code></pre>
+  <p><b>It only asks about what has changed.</b> It checks what is already recorded and interviews you
+  on the gaps, so it is safe to run any time and never makes you re-explain the whole business. It is
+  the same workflow that set the brand up in the first place, which is why re-running it is normal
+  rather than a repair.</p>
+  <div class="callout"><b>⚠️ This one is shared, and it is not locked.</b> Campaigns can be claimed so
+    two people cannot work on one at the same time. Brands cannot. An update changes what
+    <b>every</b> future campaign inherits, so agree who owns each brand and say when you are about to
+    change it. Two people refreshing the same brand in the same week will not corrupt anything, but
+    they will quietly overwrite each other's judgment.</div>
+  <p class="muted">Worth doing after anything that changes the story: a repositioning, a new segment,
+  a pricing change, an acquisition, a rebrand.</p>
+
+  <h3 id="up-library">4. Growing your libraries</h3>
+  <p>Two libraries, both shared by the whole team, both of which get more valuable the more people
+  feed them. <b>There is no approval step and nothing to coordinate</b> — adding is additive, so just
+  add.</p>
+  <table>
+    <thead><tr><th>Library</th><th>What belongs in it</th><th>Say</th></tr></thead>
+    <tbody>
+      <tr><td><b>Best-Practice Library</b></td>
+          <td>Work worth learning from: a campaign that landed, an award winner, a competitor's
+              execution, anything you would want to show someone</td>
+          <td><code>add this to my best-practice library</code></td></tr>
+      <tr><td><b>Insights Library</b></td>
+          <td>Evidence rather than craft: market data, behavioural science, a research paper, a
+              category study</td>
+          <td><code>add this to my Insights Library</code></td></tr>
+    </tbody>
+  </table>
+  <p>Paste a link, or point at a file, with either phrase. The Studio reads the source, writes it up
+  properly, and files it so it can be found later by what it is about rather than by who saved it.</p>
+  <div class="callout"><b>💡 This is the cheapest habit with the biggest return.</b> Both libraries
+    feed directly into the work: the Best-Practice Library informs creative, the Insights Library
+    informs strategy. A team of six adding one thing a week each builds something no individual could
+    in a year. <b>Say so when you onboard people</b>, or it quietly becomes one person's hobby.</div>
 
   <h2>Working alongside other people</h2>
   <p>Three things are different from working alone. None of them need a command in normal use.</p>
@@ -595,15 +972,24 @@ python .claude/lib/provision.py --data ../data</code></pre>
   refreshed by one nominated machine (Part A, Step A5). It is read-only: editing anything there changes
   nothing, and the real version is always the one you work on.</p>
 
-  <h2>If something looks wrong</h2>
+  <h2 id="if-something-looks-wrong">If something looks wrong</h2>
   <table>
     <thead><tr><th>What you see</th><th>What it means</th><th>Fix</th></tr></thead>
     <tbody>
+      <tr><td><code>[FAIL] python module: ... MISSING</code></td><td><b>Blocker.</b> A library the Studio needs did not install during setup</td><td>Say <b>"fix my setup"</b>. Claude installs them for you</td></tr>
+      <tr><td><code>[WARN] playwright missing (optional)</code></td><td><b>Ignorable.</b> Only affects the small preview images on the gallery page</td><td>Leave it, or say <b>"fix my setup"</b></td></tr>
+      <tr><td><code>[WARN] playwright: chromium not installed</code></td><td><b>Ignorable.</b> Different from the row above: the tool is installed but its browser is not, usually a download that was interrupted</td><td>Say <b>"fix my setup"</b>, or <code>python -m playwright install chromium</code> (~150 MB, once)</td></tr>
+      <tr><td><code>[WARN] publish target unset</code></td><td><b>Ignorable unless you publish to SharePoint.</b> The read-only pages for colleagues without the Studio are switched off</td><td>Optional. Administrator sets <code>MAS_PUBLISH_DIR</code> per <a href="#for-the-administrator">Step A5</a>, then you open a new terminal</td></tr>
+      <tr><td><code>[WARN] ffmpeg (recommended)</code></td><td><b>Ignorable unless you ship video.</b> Video still exports, slightly lower quality, via the built-in fallback</td><td><b>Ask IT</b> to push FFmpeg from Company Portal (<a href="#for-the-administrator">Step A7</a>). Installing it yourself needs admin rights: <code>winget install --id Gyan.FFmpeg -e</code>, then open a new terminal</td></tr>
+      <tr><td>"python is not recognised"</td><td>Python is missing, or was installed without <b>"Add Python to PATH"</b></td><td><b>Ask IT</b> to deploy it from Company Portal, which sets this correctly</td></tr>
       <tr><td><code>[FAIL] operator identity: UNSET</code></td><td>Your name would not appear against your approvals</td><td><code>git config --global user.email you@work.com</code></td></tr>
       <tr><td><code>[FAIL] hooks not declared</code></td><td>Company policy may be blocking the automatic page updates</td><td>Tell whoever set this up. The Studio still works; pages need a manual refresh</td></tr>
       <tr><td><code>[FAIL] DATA repo has NO remote</code></td><td>Setup was not finished, so nothing would reach your colleagues</td><td>Administrator: finish Step A2</td></tr>
+      <tr><td><code>BLOCKED - Phase 0 incomplete</code> when starting a campaign</td><td>The brand foundation does not exist yet. Not a fault</td><td>Someone completes <a href="#set-up-your-brands">Part C</a>, once for the organisation</td></tr>
       <tr><td>Pages look out of date</td><td>A refresh was missed</td><td><code>python .claude/lib/surface_freshness.py --heal</code></td></tr>
-      <tr><td>You cannot see any campaigns</td><td>Pointed at the wrong folder</td><td><code>python .claude/lib/provision.py --status</code> to check, then re-run Step B3</td></tr>
+      <tr><td>Windows Security: <i>"your administrator is not allowing you to access content from &hellip;AppData&hellip;"</i></td><td>Git was installed <b>per person</b> instead of for the whole machine. Your company blocks programs running from personal folders, which is correct</td><td><b>Do not click Unblock</b> &mdash; it is per file, and Git has hundreds. Ask IT to reinstall Git machine-wide (<a href="#for-the-administrator">Step A7</a>)</td></tr>
+      <tr><td>The Studio says it has <b>not been set up</b>, or offers to run <b>Setup Studio</b></td><td>Your two folders were never connected. <b>Not</b> a fresh install, whatever it says</td><td><b>Do not accept Setup Studio.</b> Say <b>"finish my setup"</b>, or re-run <a href="#for-each-person">Step B2</a></td></tr>
+      <tr><td>You cannot see any campaigns</td><td>Pointed at the wrong folder</td><td>Say <b>"my studio is pointed at the wrong folder"</b></td></tr>
       <tr><td>Your two folders cloned but are <b>empty</b></td><td>The repository's default branch is not <code>main</code></td><td>Administrator: fix it on the repository page (Part A, Step A3), then clone again</td></tr>
       <tr><td>Images arrive as small text files</td><td>Large-file storage not switched on for you</td><td>Run <code>git lfs install</code>, then get the data folder again</td></tr>
       <tr><td>"Who has this campaign?"</td><td>-</td><td><code>python .claude/lib/campaign_claim.py --list</code></td></tr>

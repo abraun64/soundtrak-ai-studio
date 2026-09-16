@@ -1951,7 +1951,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
     <article class="content">
       <h1 id="ai-marketing-system-navigation-index">AI Marketing System — Navigation Index</h1>
 <p><strong>The system's own dashboard.</strong> Everything in the system lives in one of the document classes below. If you're cold-starting and don't know where something is, start here.</p>
-<p><strong>Last updated</strong>: 2026-09-10
+<p><strong>Last updated</strong>: 2026-09-16
 <strong>Version</strong>: v3</p>
 <blockquote>
 <p><strong>Kept fresh by <code>nav-audit</code></strong> (<code>.claude/skills/nav-audit/nav_audit.py</code>) — diffs this index against the specs/skills/agents/playbooks on disk and flags anything missing, any dead link, a stale stamp, and the oldest-untouched docs. It runs as part of <code>system-smoke-test</code> (so any "run smoke test" catches index drift) and on demand ("run nav audit"). When you add a spec/skill/agent/playbook, add a row here — the audit will catch it if you forget.</p>
@@ -2328,6 +2328,18 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 <td><code>.claude/skills/integration-scaffolder/</code></td>
 </tr>
 <tr>
+<td><strong>insights-library-add</strong></td>
+<td>Adds a research source (market data, behavioural science, government/consultancy report) to the shared Insights Library at <code>tenant/research-library/</code>, with the faceted schema the insight scan reads. Public research only — the library is shared across tenants.</td>
+<td>"add this to my Insights Library", "lodge this paper"</td>
+<td><code>.claude/skills/insights-library-add/</code></td>
+</tr>
+<tr>
+<td><strong>join-studio</strong></td>
+<td>Sets a machine up to work in a team Studio without the operator ever opening a terminal: prerequisites check, both clones, provisioning, health check read back in plain English. Explicitly forbids the double-clickable setup script.</td>
+<td>"set up my studio", "join the studio", "my studio is broken"</td>
+<td><code>.claude/skills/join-studio/</code></td>
+</tr>
+<tr>
 <td><strong>system-smoke-test</strong></td>
 <td>Health check: render pipeline + operator-quartet (all campaigns) + hooks + git + nav-index. Returns red/amber/green.</td>
 <td>"run system smoke test", "check system health"</td>
@@ -2651,7 +2663,7 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 
   <footer class="page-footer">
     <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../docs/legal/LICENSE.html">Licence</a> · <a href="../docs/legal/NOTICE.html">Notice</a></span>
-    <span>Source file: <code>seed/docs/NAVIGATION_INDEX.md</code></span>
+    <span>Source file: <code>solo\docs\NAVIGATION_INDEX.md</code></span>
   </footer>
 </body>
 </html>

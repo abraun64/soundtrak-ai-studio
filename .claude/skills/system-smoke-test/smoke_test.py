@@ -149,6 +149,38 @@ if _DP_TEST.exists():
 # The ORGANISATION guide carries style.css INLINE (it is the page sent to a prospective customer,
 # before they have a repo, where a linked stylesheet would arrive unstyled). That is a duplicate,
 # and a duplicate nobody checks is drift waiting to happen - so check it.
+# A remediation line an operator cannot TYPE is worse than none: it sends them hunting for a
+# fault in their own keyboard. Windows PowerShell 5.1 rejects `&&`, and we shipped it in six
+# printed strings including the install doctor's own — hit three times in one UAT (2026-09-16).
+_CMD_GUARD = ROOT / ".claude" / "lib" / "test_operator_commands.py"
+if _CMD_GUARD.exists():
+    ok, err = _run_ok([str(_CMD_GUARD)])
+    check("L1", "printed operator commands run on PowerShell", ok, err if not ok else "")
+
+# Published surfaces are the ONLY view non-Studio colleagues get, and they cannot run any check
+# themselves. Two properties pull against each other: every page must say how current it is, and
+# unchanged pages must still be skipped. Regress either and the other silently breaks.
+# auto_publish() runs inside the Stop hook on EVERY session end. It must be provably inert on
+# every machine that is not the nominated publisher, and loud on the one that is — a silent
+# publish failure strands an audience that cannot check anything themselves.
+# Who gets offered an update. The case that was wrong is the one everybody starts in: a clone
+# that is not on a release tag was told it was up to date, permanently, so the FIRST upgrade at
+# any organisation could never be offered — hidden behind the answer people expect.
+_SU_TEST = ROOT / ".claude" / "lib" / "test_system_update.py"
+if _SU_TEST.exists():
+    ok, err = _run_ok([str(_SU_TEST)])
+    check("L1", "update offers reach an unpinned clone", ok, err if not ok else "")
+
+_AUTOPUB_TEST = ROOT / ".claude" / "lib" / "test_auto_publish.py"
+if _AUTOPUB_TEST.exists():
+    ok, err = _run_ok([str(_AUTOPUB_TEST)])
+    check("L1", "auto-publish gates (inert unless publisher)", ok, err if not ok else "")
+
+_PUB_TEST = ROOT / ".claude" / "lib" / "test_publish_surfaces.py"
+if _PUB_TEST.exists():
+    ok, err = _run_ok([str(_PUB_TEST)])
+    check("L1", "published surfaces carry freshness + skip unchanged", ok, err if not ok else "")
+
 _CSS_SYNC = ROOT / ".claude" / "lib" / "inline_guide_css.py"
 if _CSS_SYNC.exists():
     ok, err = _run_ok([str(_CSS_SYNC), "--check"])

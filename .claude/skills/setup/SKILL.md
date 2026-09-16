@@ -3,6 +3,36 @@ name: setup
 description: First-run setup for a fresh AI Studio instance. Triggers on "Setup Studio" (the canonical phrase) and any close variant or misspelling ("setup studio", "set up studio", "studio setup", "set up the studio"), as well as the older aliases "set yourself up", "set up the system", "first run", "get me started", or when an operator opens a freshly-downloaded instance and asks how to begin. Fire even if the operator's spelling or spacing is slightly off. Installs missing prerequisites, verifies the install, builds the operator surfaces + Studio home, and turns on backup. Do NOT trigger for campaign work or once setup is already complete (a tenant baseline exists).
 ---
 
+## STOP — check the install shape first
+
+Before doing anything else, run:
+
+```
+python .claude/lib/install_state.py
+```
+
+If it reports **`unprovisioned-team`**, do **not** continue with this skill, and do not offer
+to. This is a team code clone whose data repo has never been connected. Everything below
+writes into the checkout, so on a team clone it writes campaign data into the **pull-only code
+repo** — which makes the working tree dirty (blocking every future update via
+`system_update.py`), and leaves a stray `campaigns/` folder that makes the clone look like a
+single-person install from then on. The damage conceals its own cause.
+
+Say so plainly and run provisioning instead:
+
+```
+python .claude/lib/provision.py --data ../data --full
+```
+
+Then hand over to the `join-studio` skill, which owns team setup.
+
+A missing `campaigns/` directory is NOT evidence of a fresh install. In a single-person Seed
+that directory always exists (empty); in a team code clone it never does, because it lives in
+the data repo. Absence is the signal that this is a team clone, not that setup is needed.
+(Observed live 2026-09-16: standup reported "no campaigns/ directory" and offered Setup Studio
+on a machine that simply had not been provisioned.)
+
+
 # First-run setup
 
 You are setting up a fresh instance for a (possibly non-technical) operator. Be plain-spoken

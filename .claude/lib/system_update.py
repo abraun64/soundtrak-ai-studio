@@ -75,7 +75,17 @@ def check(cwd: Path = ROOT, fetch: bool = True) -> dict:
     behind = []
     if cur and latest and _key(cur) < _key(latest):
         behind = [t for t in all_tags if _key(t) > _key(cur)]
-    return {"current": cur, "latest": latest, "available": behind, "tags": all_tags}
+    elif not cur and latest:
+        # NOT on a release tag. This is not an edge case: it is how every operator starts.
+        # An organisation creates its code repo by uploading the downloaded Studio (one
+        # untagged commit) and everyone clones the default BRANCH, so `git describe
+        # --exact-match` finds nothing. Treating that as "nothing available" told every
+        # operator at every organisation that they were current, forever, and the FIRST
+        # upgrade could never be offered — the failure hidden precisely where nobody would
+        # look for it, since being up to date is the answer people expect.
+        behind = [latest]
+    return {"current": cur, "latest": latest, "available": behind, "tags": all_tags,
+            "pinned": cur is not None}
 
 
 def _changelog_for(tags_wanted: list[str], cwd: Path = ROOT) -> str:
@@ -140,6 +150,13 @@ def rollback(cwd: Path = ROOT) -> tuple[bool, str]:
     return apply(older[-1], cwd)
 
 
+def describe_current(info: dict) -> str:
+    """What to call this checkout in front of an operator. "None" is not an answer."""
+    if info.get("pinned"):
+        return info["current"]
+    return "not on a release yet (as supplied by your organisation)"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -160,7 +177,7 @@ def main() -> int:
         return 0 if ok else 1
 
     info = check(fetch=not a.no_fetch)
-    print(f"current release : {info['current'] or '(not on a release tag)'}")
+    print(f"current release : {describe_current(info)}")
     print(f"latest release  : {info['latest'] or '(none found)'}")
     if info["available"]:
         print(f"\nUPDATE AVAILABLE — {len(info['available'])} release(s) newer than yours:")

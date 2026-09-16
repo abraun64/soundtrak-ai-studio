@@ -17,7 +17,8 @@ Usage: python build-gallery.py --campaign <slug>
 Optional per-campaign override: campaigns/<slug>/gallery-config.yaml with channel
 summaries customised for the tenant. Falls back to system defaults below.
 
-Dependencies: playwright (sync). Install: pip install playwright && playwright install chromium
+Dependencies: playwright (sync). Install: python -m pip install playwright
+              THEN: python -m playwright install chromium
 """
 from __future__ import annotations
 import argparse

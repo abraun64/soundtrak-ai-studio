@@ -68,7 +68,7 @@ def run() -> list[tuple[str, str, str]]:
                          f"playwright install chromium  ({str(e)[:70]})"))
     else:
         rows.append(("warn", "playwright missing (optional - only for gallery thumbnails)",
-                     "pip install playwright && playwright install chromium"))
+                     "python -m pip install playwright   THEN   python -m playwright install chromium"))
 
     # git — recommended for local version history + the auto-backup safety net, but the studio
     # runs without it (a ZIP download has no git), so a miss is a WARNING, not a blocker.
@@ -97,6 +97,17 @@ def run() -> list[tuple[str, str, str]]:
                      "set before publishing: " + ", ".join(unset)))
     else:
         rows.append(("ok", f"credential env vars ({len(refs)} all set)", ""))
+
+    # An unprovisioned team clone reads as a fresh single-person install to every other check
+    # here, and the remedies are opposite. Say which one this is before anything acts on it.
+    try:
+        sys.path.insert(0, str(ROOT / ".claude" / "lib"))
+        import install_state
+        st = install_state.classify(ROOT)
+        if st["state"] == install_state.UNPROVISIONED_TEAM:
+            rows.append(("fail", f"install not provisioned - {st['why']}", st["fix"]))
+    except Exception:  # noqa: BLE001 - a classifier failure must never brick the doctor
+        pass
 
     rows.extend(_team_rows())
     return rows
@@ -144,7 +155,8 @@ def _team_rows() -> list[tuple[str, str, str]]:
     if declared and missing:
         rows.append(("fail", f"hooks not declared: {', '.join(missing)}",
                      "a managed-settings policy may be overriding .claude/settings.json — "
-                     "confirm with IT. Fallback: operators run /sync by hand (§6)."))
+                     "confirm with IT. Until then the Studio still works, but pages update only when "
+                     "you ask Claude to refresh them."))
     elif declared:
         bad = [s for s in (ROOT / ".claude" / "hooks" / n
                            for n in ("post_tool_use.py", "stop.py")) if not s.is_file()]
@@ -192,14 +204,16 @@ def _team_rows() -> list[tuple[str, str, str]]:
                          capture_output=True, text=True).stdout.strip()
     rows.append(("ok" if who else "fail", f"operator identity: {who or 'UNSET'}",
                  "" if who else "git config --global user.email you@example.com — "
-                                "attribution is required under profile: team (§4)"))
+                                "in a team deployment every approval records who made it, and "
+                                "yours would record nobody"))
 
     # §14.3 — publishing is optional; the system runs locally without it.
     if dp.publish_to_sharepoint():
         target = os.environ.get("MAS_PUBLISH_DIR", "").strip()
         if not target:
             rows.append(("warn", "publish target unset (SharePoint publishing off)",
-                         "set MAS_PUBLISH_DIR to a synced SharePoint library folder (§11)"))
+                         "optional. Publishing stays off until a SharePoint library is "
+                         "synced to this PC and MAS_PUBLISH_DIR points at that folder"))
         else:
             p = Path(target)
             rows.append(("ok" if p.is_dir() else "warn",

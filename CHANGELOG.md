@@ -10,6 +10,67 @@ System Manager; see "Cutting a release" at the foot of this file.
 
 ## [Unreleased]
 
+## [1.10.0] — 2026-09-16
+
+> **This is the release that makes running the Studio across a team real.** 1.9.0 shipped the
+> groundwork inert and unproven; this one adds the deployment guide, the setup path, and the
+> fixes found by actually deploying it to a second machine. A single-operator install is
+> unaffected: everything here stays switched off unless the team shape is turned on.
+
+### Added
+- **A deployment guide for organisations, written for the three different people involved.**
+  Setting the organisation up, joining as one of the team, and establishing the brands are
+  genuinely different jobs, usually done by different people, and are now separate parts with
+  their own owners and their own timings — rather than one long list that only makes sense to
+  whoever did all three.
+- **Joining a team no longer requires a command line.** Once IT has deployed the apps, a new
+  person opens the Studio, types one ordinary sentence containing the two addresses they were
+  given, and setup runs itself — the clone, the connection, the prerequisites, the health check,
+  read back to them in plain language. There is deliberately **no downloadable setup script**:
+  an unsigned script that installs software and is passed around on a shared drive is
+  indistinguishable from the attack it imitates, and teaches staff to double-click executables
+  from SharePoint.
+- **A ready-made prerequisites file for IT**, listing the five applications with their standard
+  package identifiers, deployable through the tools an organisation already uses. It pins
+  machine-wide installation, because a per-user install lands in a folder managed devices block
+  from running — which presents later as an unrelated-looking security warning about an obscure
+  file, long after anyone would connect it to the install.
+- **Instructions for keeping everything current**, covering the four things that go stale on
+  four different rhythms: new versions, the Studio's own improvement backlog, your brands, and
+  your libraries — each with a named owner, because the failure mode is everyone assuming
+  someone else does it.
+- **You can now add a research source to the Insights Library by asking.** The library had
+  invited that for months and nothing implemented it.
+
+### Changed
+- **The dashboards colleagues read now publish themselves.** Where a nominated machine publishes
+  a read-only copy for people without the Studio, that copy refreshes at the end of every
+  session instead of when someone remembers. **Every published page also carries the date its
+  content was last updated**, so a reader can see how current it is — previously the only
+  freshness signal was a file nobody opens, which left an audience that cannot run any check of
+  their own looking at a plausible page with no way to tell.
+- **Setting up now installs what it needs**, rather than reporting what is missing and leaving
+  the operator to install it.
+
+### Fixed
+- **Commands the system told you to type could not be typed.** Six printed instructions used a
+  separator Windows PowerShell rejects — including the one printed by the setup check itself,
+  whose entire job is to give a working fix. A check now prevents it returning.
+- **Nobody would ever have been offered their first upgrade.** An organisation creates its copy
+  by uploading the downloaded Studio, and everyone works from that — a state the update check
+  treated as "already current". Every operator would have been told they were up to date,
+  permanently, while the upgrade mechanism appeared healthy.
+- **A team installation that had not finished setup was offered the single-person setup**, which
+  would have written campaign data into the read-only code copy, blocked every future upgrade,
+  and disguised its own cause. The two states are now told apart before anything acts on them.
+- **Messages pointed at documents you do not have.** Three warnings ended in a reference to a
+  section of an internal specification instead of saying what to do.
+- **Guide corrections found by deploying it**: the level of repository access each person needs
+  (and that nobody needs the administrator level people assume), when sign-in happens and what
+  the resulting error really means, which folder to work in afterwards, how to reach any part of
+  a long page, and the step that creates the SharePoint library rather than assuming it exists.
+
+
 ## [1.9.0] — 2026-09-08
 
 > **Also in this release, and not yet ready to use:** the groundwork for running the Studio across

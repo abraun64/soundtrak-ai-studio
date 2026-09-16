@@ -112,11 +112,56 @@ td{padding:9px 11px;border-bottom:1px solid var(--slate200);vertical-align:top;c
     <p class="muted">This is a genuinely different setup from the single-person version, with its own
     guide. It is not a setting you flip on an existing install.</p>
 
+    <h3>Who sets up our brand, and when?</h3>
+    <p><b>One person, once for the whole organisation</b>, and it should be someone who knows the
+    brand rather than whoever is most technical. They tell the Studio about your look, your voice, who
+    you sell to and any rules you must follow, and every campaign inherits it from then on. Nobody
+    repeats it.</p>
+    <p>It happens <b>after the first person has the Studio running</b>, because you do it by talking to
+    it. Until it is done, campaigns will not start: the Studio says the brand foundation is missing,
+    which is deliberate rather than a fault. See <a href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide#set-up-your-brands">Part C</a>.</p>
+    <p class="muted">More than one brand? Repeat it per brand. Each stays independent, so work never
+    bleeds between them.</p>
+
     <h3>What does our IT team need to provide?</h3>
-    <p><b>Two private code repositories.</b> That is the whole list. <b>Azure DevOps</b> and
-    <b>GitHub</b> both work, so whichever you already use is fine.</p>
+    <p><b>Two things.</b> First, <b>two private repositories</b>, one for the code and one for your
+    work. <b>Azure DevOps</b> and <b>GitHub</b> both work, so whichever you already use is fine.</p>
+    <p>Second, <b>five apps pushed to each person's machine</b> through Intune or Company Portal. All
+    five are in the public winget repository, so there is no packaging work:</p>
+    <ul>
+      <li><code>Anthropic.ClaudeCode</code> &mdash; the only interface your people use</li>
+      <li><code>Python.Python.3.12</code> &mdash; runs the Studio. A managed deployment also gets
+        <i>Add to PATH</i> right, which a hand install often does not</li>
+      <li><code>Git.Git</code> and <code>GitHub.GitLFS</code> &mdash; how work, including images and
+        video, reaches colleagues</li>
+      <li><code>Gyan.FFmpeg</code> &mdash; video quality</li>
+    </ul>
+    <p>A ready-made configuration file ships in the code repository at
+    <code>deploy/studio-prerequisites.winget.yaml</code>.</p>
     <p>Optionally, a SharePoint library if you want colleagues without the Studio to read finished work.
     That can be added later and nothing depends on it.</p>
+
+    <h3>Will our people have to use a command line?</h3>
+    <p><b>No.</b> Once the five apps are deployed, each person opens Claude Code, types one ordinary
+    sentence containing the two repository addresses, and setup runs itself. They never open a
+    terminal, type a command, or install anything, on that day or any day after.</p>
+
+    <h3>Can you give us a setup script our people can double-click?</h3>
+    <p><b>No, and you should not want one.</b> An unsigned script that installs software and clones
+    repositories, handed round on SharePoint, is indistinguishable from the attack it imitates. Most
+    Defender ASR rules block exactly that shape, it triggers credential prompts your staff cannot tell
+    apart from phishing, and it teaches them to double-click executables from a shared drive.</p>
+    <p>It is also unnecessary. Claude Code is already an approved, installed, audited application on
+    the machine, and it performs the setup itself under the person's own account.</p>
+
+    <h3>What access does each person need on those repositories?</h3>
+    <p><b>Write</b> on the data repository, because their campaign work saves there and reaches
+    everyone else. <b>Read</b> on the code repository, because they only ever take new versions and
+    nothing they do is written back to it.</p>
+    <p><b>Nobody needs Admin.</b> Admin allows deleting the repository, rewriting its history and
+    changing who else has access, and the Studio uses none of that. Granting it to every person is a
+    risk with no upside.</p>
+    <p class="muted">Azure DevOps calls these Contribute and Read.</p>
 
     <h3>Do we have to know Git?</h3>
     <p><b>No.</b> Nobody types a git command in normal use. Claude Code handles it in the background,
@@ -148,6 +193,20 @@ td{padding:9px 11px;border-bottom:1px solid var(--slate200);vertical-align:top;c
     <p>Each person is fixed to a <b>specific version</b>, so nothing changes underneath them in the
     middle of a campaign. When a newer one exists they are told, can read what changed, and choose
     their own moment to take it. If an update causes trouble, they can go back to the previous version.</p>
+    <p><b>A new version does not appear on its own.</b> Your organisation has its own copy of the
+    Studio, so an administrator publishes the release into it first; only then are your people
+    offered it. <a href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide#upgrading">How
+    upgrading works, both halves</a>.</p>
+
+    <h3>Can people without Claude see the dashboards?</h3>
+    <p><b>Yes, and for most organisations that is the point.</b> The dashboards are the interface the
+    whole organisation reads, whether or not they have Claude Code. One nominated machine publishes a
+    <b>read-only copy</b> into a SharePoint document library at the end of every session, and everyone
+    else simply opens it in SharePoint like any other document.</p>
+    <p>Every published page shows <b>when its content was last updated</b>, so a reader can see how
+    current it is rather than having to trust it. Nothing published can be edited back into the
+    Studio: it only ever travels outward.</p>
+    <p>Set it up once, in <a href="https://soundtrakconsulting.com/ai-studio/guide/org-deployment-guide#for-the-administrator">Step A5</a>.</p>
 
     <h3>Where does our data live? Is anything sent out?</h3>
     <p>Your work lives in <b>your organisation's own private repository</b>, in your own Microsoft or

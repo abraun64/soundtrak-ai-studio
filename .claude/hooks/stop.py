@@ -18,6 +18,7 @@ Never crashes the agent.
 """
 from __future__ import annotations  # so `list[str] | None` annotations don't crash import on Python 3.9
 import json
+import os
 import re
 import subprocess
 import sys
@@ -226,6 +227,53 @@ def freshness_guarantee():
     if still:
         print(f"[state-hook] 🔴 SURFACE STILL STALE after rebuild — do NOT trust: "
               f"{', '.join(still)}. Investigate (SYS-112).", file=sys.stderr)
+
+
+def auto_publish():
+    """Publish the operator surfaces to the read-only SharePoint copy, at session end.
+
+    For an organisation that reads its dashboards WITHOUT Claude Code, this copy is not a
+    convenience — it is the interface. Leaving it to someone remembering to run a script means
+    it is current until the first day the nominated publisher is on leave, and everybody
+    downstream keeps reading, believing what they see.
+
+    INERT unless this machine is the publisher: gated on MAS_PUBLISH_DIR, which is one
+    deliberate act on one machine. Every other operator, and every single-operator install,
+    does nothing here.
+
+    Runs AFTER freshness_guarantee and only on the clean path, so surfaces that failed to
+    rebuild are never pushed to the whole organisation — better a visibly older copy (every
+    page carries its own last-updated stamp) than a confidently wrong one.
+
+    Non-fatal, but LOUD on failure. A silent publish failure is the same class of defect as a
+    stale surface, with a wider blast radius and an audience that cannot check.
+    """
+    target = os.environ.get("MAS_PUBLISH_DIR", "").strip()
+    if not target:
+        return                                  # not the publisher machine
+    try:
+        import deployment_profile as dp
+        if not dp.publish_to_sharepoint():
+            return                              # publishing switched off for this profile
+    except Exception:
+        pass                                    # profile unreadable: the env var is explicit enough
+
+    dest = Path(target).expanduser()
+    if not dest.is_dir():
+        print(f"[state-hook] 🔴 PUBLISH TARGET MISSING: {dest} — the organisation's dashboards "
+              f"are NOT being updated. Check the SharePoint library is still synced.",
+              file=sys.stderr)
+        return
+    try:
+        import publish_surfaces
+        res = publish_surfaces.publish(dest)
+    except Exception as e:
+        print(f"[state-hook] 🔴 PUBLISH FAILED (non-fatal): {e} — colleagues are reading an "
+              f"older copy than you are.", file=sys.stderr)
+        return
+    if res.get("copied"):
+        print(f"[state-hook] ✓ published {res['copied']} surface(s) to the read-only copy "
+              f"({res['skipped']} unchanged)", file=sys.stderr)
 
 
 def newest_mtime_in_campaign(slug):
@@ -491,7 +539,7 @@ def report_autorebuild_health():
           "surfaces will NOT auto-refresh this turn; the gallery/dashboard may show STALE data or a "
           "FALSE status. You are likely in a stale/frozen worktree — do this work from the MAIN "
           "checkout, or rebuild by hand:  python .claude/skills/asset-gallery/build-gallery.py "
-          f"--campaign <slug>  &&  python .claude/lib/surface_freshness.py --heal  (reason: {_DEGRADE_REASON})",
+          f"--campaign <slug>  THEN  python .claude/lib/surface_freshness.py --heal  (reason: {_DEGRADE_REASON})",
           file=sys.stderr)
 
 
@@ -690,6 +738,11 @@ def main():
     # Auto-backup to GitHub — commit + push both repos at session end.
     # Commit is synchronous; push is background (non-blocking).
     # Commit message uses rebuild_log so history is meaningful, not just timestamps.
+    # The read-only copy the rest of the organisation reads. Publishes BEFORE the backup so
+    # a slow git push never delays it, and only here — on the clean path — so surfaces that
+    # failed to rebuild are never handed to an audience that cannot check them.
+    auto_publish()
+
     session_summary = ", ".join(rebuild_log) if rebuild_log else ""
     auto_backup(session_summary)
 

@@ -8,7 +8,8 @@ the one command an operator runs after cloning, so the sequence is identical eve
   1. locate (or clone) the DATA repo
   2. write .claude/local/config.json so data_root() resolves to it
   3. register operator identity from git config (§4)
-  4. run the install doctor and report READY / not
+  4. install the python libraries the Studio cannot run without
+  5. run the install doctor and report READY / not
 
   python .claude/lib/provision.py --data <path to the data clone>
   python .claude/lib/provision.py --data-url <git url>          # clones it for you
@@ -22,6 +23,7 @@ that pins data_root to the checkout it already resolves to.
 """
 from __future__ import annotations
 import argparse
+import importlib.util
 import json
 import subprocess
 import sys
@@ -89,6 +91,68 @@ def clone_data(url: str, dest: Path) -> tuple[bool, str]:
     return (ok2, "cloned (full — this host rejected --filter)" if ok2 else f"{out}\n{out2}")
 
 
+REQUIRED_MODULES = (("markdown", "markdown"), ("yaml", "pyyaml"))
+# Optional at the single-operator scale, NOT optional in an organisation. When IT builds the
+# package once for everyone, "install it later if you need it" just means every marketer meets
+# a missing-dependency error on the first day they try to ship a storyboard or a gallery. The
+# ~150 MB chromium is a rounding error on a managed device and a real interruption mid-campaign,
+# so a team install takes it up front (--full). A single-operator install still does not.
+FULL_MODULES = (("playwright", "playwright"),)
+
+
+def ensure_python_deps(install: bool = True, full: bool = False) -> int:
+    """Install the two libraries the Studio cannot run without.
+
+    The doctor has always REPORTED these as [FAIL] alongside the correct pip line, and that
+    was enough while the only reader was the person who built the system. It is not enough
+    here. A fresh machine has neither library, so EVERY team install met two red lines on
+    its first run, and Part B of the deployment guide had no step that prevented them
+    (found in live UAT, 2026-09-16). A command whose whole promise is "one command" must
+    not answer with a shell command for the operator to run instead.
+
+    Blocking modules only. Deliberately NOT playwright: the doctor's own --fix drags a
+    ~150 MB chromium along with it, far too much to do unannounced for gallery thumbnails,
+    which are optional by design.
+    """
+    wanted = REQUIRED_MODULES + (FULL_MODULES if full else ())
+    missing = [pkg for mod, pkg in wanted if not importlib.util.find_spec(mod)]
+    hint = f"{Path(sys.executable).name} -m pip install " + " ".join(missing or ["markdown", "pyyaml"])
+    if not missing:
+        print("      present: markdown, pyyaml")
+        return 0
+    if not install:
+        print(f"      MISSING: {', '.join(missing)}", file=sys.stderr)
+        print(f"      run: {hint}", file=sys.stderr)
+        return 1
+    print(f"      installing: {', '.join(missing)}")
+    sys.stdout.flush()
+    rc = subprocess.run([sys.executable, "-m", "pip", "install", *missing]).returncode
+    if rc != 0:
+        print("      pip failed - the doctor below will report these as [FAIL].",
+              file=sys.stderr)
+        print(f"      Install them by hand, then re-run this command: {hint}",
+              file=sys.stderr)
+    if rc == 0 and full:
+        rc = ensure_chromium()
+    return rc
+
+
+def ensure_chromium() -> int:
+    """Playwright's pip package does NOT include a browser; build-gallery fails without one."""
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            exe = pw.chromium.executable_path
+        if exe and Path(exe).exists():
+            print("      present: chromium")
+            return 0
+    except Exception:  # noqa: BLE001 — not installed, or installed and unusable; same remedy
+        pass
+    print("      installing: chromium (~150 MB, once)")
+    sys.stdout.flush()
+    return subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"]).returncode
+
+
 def run_doctor(code_root: Path = ROOT) -> int:
     doctor = code_root / ".claude" / "skills" / "system-smoke-test" / "doctor.py"
     if not doctor.is_file():
@@ -134,6 +198,11 @@ def main() -> int:
     ap.add_argument("--data-url", help="git URL of the DATA repo — clones it to --data")
     ap.add_argument("--status", action="store_true", help="report what this machine is set to")
     ap.add_argument("--skip-doctor", action="store_true", help="do not run the install doctor")
+    ap.add_argument("--full", action="store_true",
+                    help="also install the optional extras an organisation should ship "
+                         "to everyone (playwright + chromium for gallery thumbnails)")
+    ap.add_argument("--no-install", action="store_true",
+                    help="do not pip install missing python libraries — only report them")
     a = ap.parse_args()
 
     if a.status or not (a.data or a.data_url):
@@ -143,7 +212,7 @@ def main() -> int:
 
     if a.data_url:
         dest = Path(a.data).resolve() if a.data else (ROOT.parent / "data")
-        print(f"[1/4] cloning DATA from {a.data_url}\n      -> {dest}")
+        print(f"[1/5] cloning DATA from {a.data_url}\n      -> {dest}")
         ok, msg = clone_data(a.data_url, dest)
         if not ok:
             print(f"      FAILED: {msg}", file=sys.stderr)
@@ -152,7 +221,7 @@ def main() -> int:
         data = dest
     else:
         data = Path(a.data).expanduser().resolve()
-        print(f"[1/4] using DATA at {data}")
+        print(f"[1/5] using DATA at {data}")
 
     if not data.is_dir():
         print(f"      FAILED: {data} is not a directory", file=sys.stderr)
@@ -172,10 +241,10 @@ def main() -> int:
               "single-repo (small-business) install needs no provisioning.", file=sys.stderr)
         return 1
 
-    print(f"\n[2/4] writing {CONFIG_REL}")
+    print(f"\n[2/5] writing {CONFIG_REL}")
     print(f"      {write_config(data)}")
 
-    print("\n[3/4] operator identity (attribution, §4)")
+    print("\n[3/5] operator identity (so approvals carry your name)")
     who = operator_identity()
     if who:
         print(f"      {who}")
@@ -184,10 +253,13 @@ def main() -> int:
               "      Attribution is required under `profile: team`; audit entries would "
               "otherwise say nothing about who acted.", file=sys.stderr)
 
+    print("\n[4/5] python libraries the Studio needs")
+    ensure_python_deps(install=not a.no_install, full=a.full)
+
     if a.skip_doctor:
-        print("\n[4/4] doctor skipped (--skip-doctor)")
+        print("\n[5/5] doctor skipped (--skip-doctor)")
         return 0
-    print("\n[4/4] install doctor")
+    print("\n[5/5] install doctor")
     print("      On a fresh install this asks you to accept the licence before it will run.\n")
     rc = run_doctor()
     print("\nprovisioning complete." if rc == 0 else

@@ -59,6 +59,40 @@ def collect(data: Path | None = None) -> list[Path]:
     return seen
 
 
+BANNER_MARK = "mas-published-stamp"
+
+
+def _stamp(html: str, source_mtime: float) -> str:
+    """Put the freshness ON the page the stakeholder opens.
+
+    _PUBLISHED.txt records the publish, but it is a sidecar nobody opens. A colleague reading
+    a dashboard has no repo, no health check and no way to tell a live page from one whose
+    publisher laptop has been shut since Tuesday. Where an operator gets a loud failure, a
+    stakeholder gets a plausible-looking page — which is worse, because it is believed.
+
+    The stamp carries the SOURCE's last-changed time, not the publish time. That is both more
+    honest (it answers "how current is this?", not "when did a script run?") and necessary:
+    a publish-time stamp would change every byte of every page on every run, so nothing could
+    ever be skipped and the sync client would be handed the whole tree each time.
+    """
+    from datetime import datetime
+    when = datetime.fromtimestamp(source_mtime).astimezone()
+    banner = (
+        f'<div class="{BANNER_MARK}" style="font:13px/1.5 system-ui,sans-serif;'
+        f'background:#faf9f5;color:#55534e;border-top:1px solid #e5e3dd;'
+        f'padding:10px 16px;margin-top:24px">'
+        f'Read-only copy &middot; content last updated '
+        f'<b>{when.strftime("%-d %b %Y, %H:%M") if os.name != "nt" else when.strftime("%#d %b %Y, %H:%M")}</b>'
+        f' &middot; published from the Studio. Changes made here are not saved back.'
+        f'</div>'
+    )
+    if BANNER_MARK in html:
+        return html
+    lower = html.lower()
+    i = lower.rfind("</body>")
+    return (html[:i] + banner + html[i:]) if i != -1 else (html + banner)
+
+
 def publish(dest: Path, data: Path | None = None, dry_run: bool = False) -> dict:
     data = data or _data_root()
     files = collect(data)
@@ -68,12 +102,32 @@ def publish(dest: Path, data: Path | None = None, dry_run: bool = False) -> dict
         out = dest / rel
         # Unchanged files are skipped so the sync client is not handed thousands of identical
         # writes on every publish — that is what turns a sync folder into a storm.
-        if out.is_file() and filecmp.cmp(src, out, shallow=False):
-            skipped += 1
+        try:
+            want = _stamp(src.read_text(encoding="utf-8", errors="replace"), src.stat().st_mtime)
+        except OSError:
+            want = None
+        if want is None:                      # unreadable: fall back to a plain copy
+            if out.is_file() and filecmp.cmp(src, out, shallow=False):
+                skipped += 1
+                continue
+            if not dry_run:
+                out.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, out)
+            copied += 1
             continue
+        # Compare against what we would WRITE, not against the source — the published copy
+        # carries a banner the source does not, so a source-to-dest compare never matches and
+        # every page would be rewritten on every run.
+        if out.is_file():
+            try:
+                if out.read_text(encoding="utf-8", errors="replace") == want:
+                    skipped += 1
+                    continue
+            except OSError:
+                pass
         if not dry_run:
             out.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, out)
+            out.write_text(want, encoding="utf-8")
         copied += 1
     if not dry_run and files:
         stamp = (f"Published {datetime.now().astimezone().isoformat(timespec='seconds')} — "

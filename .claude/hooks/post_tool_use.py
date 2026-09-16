@@ -52,7 +52,7 @@ _AUTOREBUILD_MSG = (
     "operator surfaces will NOT auto-refresh, so the gallery/dashboard may show STALE data or a "
     "FALSE status with no other signal. You are likely in a stale/frozen worktree. Fix: run from "
     "the MAIN checkout, or rebuild by hand:  python .claude/skills/asset-gallery/build-gallery.py "
-    "--campaign <slug>  &&  python .claude/lib/surface_freshness.py --heal"
+    "--campaign <slug>  THEN  python .claude/lib/surface_freshness.py --heal"
 )
 
 

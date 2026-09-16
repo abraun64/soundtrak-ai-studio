@@ -1,0 +1,108 @@
+# AI Marketing Studio — prerequisites for one operator's device.
+#
+# FOR IT. This is deployed through your managed channel (Intune / Company Portal / a winget
+# configuration run by your endpoint tooling). It is DELIBERATELY not something a marketer
+# downloads and runs: a script that installs software and is handed round on SharePoint is
+# indistinguishable from the attack it imitates, would be unsigned, carries Mark-of-the-Web,
+# and trains staff to double-click executables from a shared drive. Deploy it the way you
+# deploy any other line-of-business app, and the operator never runs anything at all.
+#
+# Apply manually on a single device to test:   winget configure .\studio-prerequisites.winget.yaml
+# Package IDs verified against the winget community repository on 2026-09-16.
+#
+# After this lands, the operator's ONLY step is to open Claude Code and ask it to set up the
+# Studio in plain English. No terminal, no scripts, nothing to copy.
+
+# yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.2
+properties:
+  configurationVersion: 0.2.0
+  assertions:
+    - resource: Microsoft.Windows.Developer/OsVersion
+      directives:
+        description: >-
+          Windows 10 1809 or later (winget requirement)
+        allowPrerelease: false
+      settings:
+        MinVersion: '10.0.17763'
+
+  resources:
+    # ── Required: the Studio cannot run without these ──────────────────────────────────
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: python
+      directives:
+        description: >-
+          Python 3.12 — runs the Studio's scripts. MUST be on PATH; the Studio's
+          automation hooks invoke the literal `python` and silently never fire without it.
+      settings:
+        id: Python.Python.3.12
+        source: winget
+        scope: machine
+        ensure: Present
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: git
+      directives:
+        description: >-
+          Git — how each operator's work reaches their colleagues.
+      settings:
+        id: Git.Git
+        source: winget
+        scope: machine
+        ensure: Present
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: gitlfs
+      dependsOn:
+        - git
+      directives:
+        description: >-
+          Git LFS — required wherever campaigns carry images or video. Without it,
+          media arrives on colleagues' machines as small text files, not pictures.
+      settings:
+        id: GitHub.GitLFS
+        source: winget
+        scope: machine
+        ensure: Present
+
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: claudecode
+      directives:
+        description: >-
+          Claude Code — what the operator actually uses. This is the ONLY interface
+          they need; it runs every command on their behalf, so they never open a terminal.
+      settings:
+        id: Anthropic.ClaudeCode
+        source: winget
+        ensure: Present
+
+    # ── Ship these too ─────────────────────────────────────────────────────────────────
+    # "Optional" is the single-operator answer, and it is the wrong default for an organisation.
+    # You are building the package once for everybody; leaving these out only means a marketer
+    # meets a missing-dependency error mid-campaign, on the day they first ship video.
+    - resource: Microsoft.WinGet.DSC/WinGetPackage
+      id: ffmpeg
+      directives:
+        description: >-
+          FFmpeg — proper H.264 video delivery. The Studio falls back to OpenCV without
+          it, at lower quality. Cannot be installed by the Studio itself: it is a system
+          binary, not a Python package, so if you skip it here nobody gets it.
+      settings:
+        id: Gyan.FFmpeg
+        source: winget
+        scope: machine
+        ensure: Present
+
+# WHY `scope: machine` ON EVERY PACKAGE ABOVE:
+#   Without it winget may install per-user under %LOCALAPPDATA%\Programs. That path is
+#   writable without admin rights, which is exactly why managed devices block execution
+#   from it. The install then SUCCEEDS and the tool is blocked at RUN time, with Windows
+#   Security naming an obscure bundled binary rather than the product. Observed live
+#   2026-09-16: a per-user Git, blocked on Git\usr\bin\sort.exe. Git alone ships ~200 such
+#   binaries, so clicking "Unblock" is not a remedy. Machine scope puts them in
+#   Program Files, an allowed location.
+#   Claude Code is left at its own default: it installs per-user by design.
+#
+# NOT LISTED, deliberately:
+#   playwright + chromium — a Python package and its browser, not system software. The Studio
+#   installs both itself during setup (`provision.py --full`), inside the operator's own Python
+#   environment, where they belong. Deploying them from here would put them in the wrong place.

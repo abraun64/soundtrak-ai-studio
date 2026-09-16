@@ -73,7 +73,8 @@ def export_blocks(source_html: Path, out_dir: Path, blocks: list[dict],
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
-        return 0, ["playwright not installed (pip install playwright && playwright install chromium)"]
+        return 0, ["playwright not installed — run: python -m pip install playwright   THEN   "
+                  "python -m playwright install chromium"]
     if not source_html.exists():
         return 0, [f"source_html not found: {source_html}"]
     out_dir.mkdir(parents=True, exist_ok=True)
