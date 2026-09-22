@@ -1,6 +1,6 @@
 # Soundtrak Voice — Sub-Edit Rules
 
-These are the five rules applied on every sub-edit pass. Run them in order.
+These are the rules applied on every sub-edit pass. Run them in order.
 Flag every violation. Fix every violation before saving the file.
 
 ---
@@ -185,10 +185,30 @@ took a beat, a beat (meaning "a moment"), dialled in / dialed in, no-brainer, cr
 
 ---
 
+## RULE 9 — SELF-AWARE EDITORIAL TICS & STAGED PUSHBACK (added 2026-09-22)
+
+A cluster of essayistic tics that make copy sound like an AI performing "smart writing" rather than the operator making a point. None is a banned AI word or a statistic, so they slip past Rules 1–8. Run this as a literal read, like Rules 2 and 8. All four sub-types share one fault: they add editorial *texture* in place of a thought.
+
+**9a — Staged pushback / imagined interlocutor.** A sentence that invents a reader or a "smart" objector so the writer can look even-handed, then flatters them. the operator's flag: *"A sharp operator will push back here."* Also: "You might be thinking…", "Here's where a sceptic pushes back", "The obvious objection is…", "A good marketer will already be asking…". (Distinct from a genuine **§ 'the fair objection'** section, which states the real counter-argument plainly and answers it — this tic is the *glib gesture* at one, usually flattering "the sharp / smart" reader.)
+
+**9b — Told emotion / editorial aside.** Tacking on how the reader is supposed to feel, or how hard/uncomfortable the point is, instead of letting the point do it. the operator's flag: *"and it is uncomfortable."* Also: "and that's the hard part", "which is harder than it sounds", "and that stings". Say the thing; do not narrate its emotional weight.
+
+**9c — Tired approval idioms.** Stock phrases that gesture at value without naming it. the operator's flag: *"that earns its keep."* Also: "punches above its weight", "does the heavy lifting", "pulls its weight", "worth its salt".
+
+**9d — Vague self-congratulatory verbs / comparatives.** A verb or comparative that claims an effect without a concrete one. the operator's flags: *"has sharpened it"*, *"a louder"* (as in "a louder version of the same problem"). Also: "has only sharpened", "throws it into sharp relief", "a quieter / bigger / louder version of". Name what actually changed, or cut it.
+
+**Test:** does the sentence add an idea, or only editorial colour (a staged objector, a told feeling, a stock idiom, a vague comparative)? If only colour, cut it or replace it with the plain point.
+
+**Fix:** delete the tic and state the point directly. *"A sharp operator will push back here, and it is uncomfortable"* → the actual objection, stated plainly, then answered. *"content that earns its keep"* → "content a competitor could not rebuild in a week". *"AI has sharpened it"* → what specifically changed.
+
+**Limit: zero.** These read as polish and are pure texture; the strongest version of the point never needs them.
+
+---
+
 ## HOW TO RUN THE SUB-EDIT
 
 1. Read the full content of the file.
-2. Work through Rules 1–8 in order. For each rule, list every violation found.
+2. Work through Rules 1–9 in order. For each rule, list every violation found.
 3. If violations exist, fix them in the content.
 4. Check that fixes haven't introduced new violations.
 5. Report: number of violations found per rule, what was changed, and the corrected text.
@@ -209,3 +229,5 @@ took a beat, a beat (meaning "a moment"), dialled in / dialed in, no-brainer, cr
 | Recap closing | Not permitted | Not permitted |
 | Hollow contrast (many-say-few-do + kicker) | Zero | Zero |
 | Unverified / mis-attributed statistic | Zero (flag every one) | Zero (flag every one) |
+| Register slang / off-voice idiom (Rule 8) | Zero | Zero |
+| Editorial tics / staged pushback (Rule 9) | Zero | Zero |
