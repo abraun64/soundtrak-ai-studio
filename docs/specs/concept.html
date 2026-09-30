@@ -945,22 +945,30 @@ body.template-brief .content blockquote p:last-child { margin-bottom: 0; }
 }
 
 /* ============================================================================
- * Concept pages — dense strategy docs (added 2026-06-12, HTML-surface retro).
- * It's a reading document; the win is lifting the load-bearing lines (Big Idea,
- * Key Message, radio script) out of the prose and giving sections clear rhythm.
+ * Reading-document chrome — dense strategy / rollout docs (concept-trio added
+ * 2026-06-12, HTML-surface retro; launch (Phase-5 rollout + Phase-6 cadence)
+ * added 2026-07 SYS-131). These are reading documents; the win is lifting the
+ * load-bearing lines (Big Idea, Key Message, launch finish-line, cadence
+ * rhythm) out of the prose and giving sections clear rhythm. The `launch`
+ * surface reuses this exact chrome so a Phase-5/6 page reads as a campaign
+ * artifact, not the plain template-base fallthrough.
  * ========================================================================== */
 
-/* Clear section rhythm so a long concept scans */
-body.template-concept-trio .content h2 {
+/* Clear section rhythm so a long concept / rollout scans */
+body.template-concept-trio .content h2,
+body.template-launch .content h2 {
   margin-top: 40px;
   padding-bottom: 8px;
   border-bottom: 2px solid var(--border);
 }
-body.template-concept-trio .content h2:first-of-type { margin-top: 8px; }
-body.template-concept-trio .content h3 { margin-top: 26px; color: var(--text); }
+body.template-concept-trio .content h2:first-of-type,
+body.template-launch .content h2:first-of-type { margin-top: 8px; }
+body.template-concept-trio .content h3,
+body.template-launch .content h3 { margin-top: 26px; color: var(--text); }
 
-/* The Big Idea — first section's lead line — is the page's hero callout */
-body.template-concept-trio .content > h2:first-of-type + p {
+/* The Big Idea / launch lead line — first section's lead line — is the hero callout */
+body.template-concept-trio .content > h2:first-of-type + p,
+body.template-launch .content > h2:first-of-type + p {
   background: var(--accent-soft);
   border-left: 4px solid var(--accent);
   border-radius: 0 var(--radius) var(--radius) 0;
@@ -970,8 +978,9 @@ body.template-concept-trio .content > h2:first-of-type + p {
   color: var(--text);
 }
 
-/* Key message + 15-second radio script (blockquotes) become accent callouts */
-body.template-concept-trio .content blockquote {
+/* Key message / launch callouts (blockquotes) become accent callouts */
+body.template-concept-trio .content blockquote,
+body.template-launch .content blockquote {
   background: var(--accent-soft);
   border-left: 4px solid var(--accent);
   border-radius: 0 var(--radius) var(--radius) 0;
@@ -981,7 +990,8 @@ body.template-concept-trio .content blockquote {
   font-style: normal;
   font-size: 15.5px;
 }
-body.template-concept-trio .content blockquote p:last-child { margin-bottom: 0; }
+body.template-concept-trio .content blockquote p:last-child,
+body.template-launch .content blockquote p:last-child { margin-bottom: 0; }
 
 /* Revision-history / freshness-check tables read as quiet audit, not headline */
 body.template-concept-trio .content h2:last-of-type ~ table { font-size: 13px; }
@@ -1675,7 +1685,8 @@ body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weigh
 body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
 body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
 body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
-body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+/* SYS-099 — the asset number reads at a glance (was a faint grey suffix, easy to miss). */
+body.template-plan .pv3 .c-item .rid { color: var(--accent); font-weight: 700; }
 body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
 body.template-plan .pv3 .row-more { margin-top: 5px; }
 body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
@@ -2048,8 +2059,33 @@ Purpose: prose is harder to compare than a diagram. Operator needs to *see* the 
 ## 5. Narrative architecture
 The beats / movements the campaign progresses through. 3–6 beats. Each beat names: when, where (channel surface), what (the move).
 
-## 6. Channel rollout (high-level)
-Which surfaces the concept lives on, with a one-line narrative hook per surface. Detailed tactic list lives in the Plan, not here. **Draw on the Insight Brief §2 routes to market** (the budget- and time-filtered, evidenced map of how each segment is reachable — media + community + **partnership/co-GTM + intermediary [VCs/incubators/associations] + advocacy**) the CM injected: prefer routes the audience actually trusts over generic surfaces, and — especially on a low budget — consider whether the concept can be **built around a partnership/co-GTM play** (a route the §2 surfaced) rather than bought reach. The §2 routes are *intelligence that informs* this rollout — you still own the creative call (lean in, stretch, or deliberately depart, with reasoning); they are not a fixed media plan, and a route flagged slow-build won't serve a short-deadline campaign.
+## 6. Rollout — the phased strategic plan (high-level)
+
+**The rollout is a strategic design, and it belongs here, not in the Plan.** Which surfaces the
+concept lives on, with a one-line narrative hook per surface — *and the phasing*: what opens first,
+what follows it, and **why that order**. The Plan turns this into dated waves with rows; it should
+not be inventing the sequence, because sequencing is a creative and strategic call that depends on
+the idea (operator direction 2026-10-01).
+
+What a rollout needs:
+
+- **Phases with a logic.** Two to five, each with what it is for and why it comes where it does. &quot;We
+  earn the right to ask by publishing first&quot; is a logic. A list of channels is not.
+- **What opens when, and what has to be true first.** A surface that only works once another has
+  built an audience says so.
+- **A test phase where — and only where — the strategy wants one.** Some rollouts genuinely test
+  before committing spend; many don't, and a concept that commits from the start is a legitimate
+  concept. Where there is one, say what is being learned and what result would change the next
+  phase. **Do not manufacture a test phase to fill a slot.**
+- **Whether this is a campaign or an engine.** A recurring format is designed differently from a
+  one-time push — see the publication rule: a publication is not a campaign, and it needs a rhythm
+  rather than a big idea. CM injects the Brief's cadence shape so this is known before you start.
+
+**What the rollout is NOT**: the operational detail. No &quot;create the mailing list&quot;, no &quot;drop the
+analytics tag&quot;, no account setup, no dated targets. Those are Plan rows, and the Plan's own
+setup-completeness rule catches them. Stay at the altitude of *what happens in what order, and why*.
+
+Detailed tactic list lives in the Plan, not here. **Draw on the Insight Brief §2 routes to market** (the budget- and time-filtered, evidenced map of how each segment is reachable — media + community + **partnership/co-GTM + intermediary [VCs/incubators/associations] + advocacy**) the CM injected: prefer routes the audience actually trusts over generic surfaces, and — especially on a low budget — consider whether the concept can be **built around a partnership/co-GTM play** (a route the §2 surfaced) rather than bought reach. The §2 routes are *intelligence that informs* this rollout — you still own the creative call (lean in, stretch, or deliberately depart, with reasoning); they are not a fixed media plan, and a route flagged slow-build won't serve a short-deadline campaign.
 
 ## 7. Pitch rationale (Recommended option only)
 Why this concept earns the Recommended mark — tying the creative call to the Brief's KPI in 4–6 bullets.
@@ -2078,6 +2114,30 @@ The honest list. What this concept makes harder, what it sacrifices, what could 
 <li><strong>Visuals are required, not optional — and §4 is a VISUAL BOARD, not text</strong>: every concept ships with a §4 Pinterest-style board (hero/cover mockup tiles + AI preview tile + palette chips + type specimen + §4c mechanic SVG + reference cards), authored as inline HTML so the operator <em>sees</em> the look. Operator-set 2026-05-28 (<em>"I want visuals in every concept design."</em>) + 2026-06-23 (<em>"the moodboard should be more visual, like a Pinterest board"</em>). CD must not surface a concept with a text-only moodboard. CM (authoring integrated/Selected concepts) must not strip the board — tiles carry forward, and any new integrated hero is added as a tile inline.</li>
 <li><strong>Divergent→convergent is EXPOSED (2026-06-23)</strong>: §10's kill register renders as a visible <em>"Considered &amp; dismissed — and why"</em> block at the bottom of the operator surface (concept page + trio) — not buried, not a <code>&lt;details&gt;</code>, not a pointer to another file. The operator sees the road not taken.</li>
 </ul>
+<h2 id="trio-surface-top-summary-required-2026-07-27-sys-129">Trio surface — top Summary (REQUIRED — 2026-07-27 · SYS-129)</h2>
+<p>The trio operator surface <strong>opens with a Summary</strong>, locked at the very top — after the H1 +
+<code>&lt;!-- CAMPAIGN_DNA_AUTO --&gt;</code> + the "<strong>This trio:</strong> …" status line, and BEFORE the first concept —
+so the operator gets the whole decision at a glance before reading any detail (decision-first surface):</p>
+<ol>
+<li><strong>One-line pitch for each Concept</strong> — a <code>&gt;</code> callout headed <em>"One-line pitch for each Concept
+   (operator-facing summary, before the detail)"</em> with one bullet per concept (Safe / Smart / Wild),
+   each a single operator-facing sentence naming its organising idea; the Recommended one marked
+   <strong>⭐ Recommended</strong>.</li>
+<li><strong>Recommended line</strong> — one short paragraph naming the recommended pick + the one-line why (its fit to
+   the Brief's real KPI hierarchy / strategic edge), pointing to its §7 rationale.</li>
+<li><strong>Side-by-side at a glance</strong> <em>(recommended, include where the axes are meaningful)</em> — a
+   <code>## Side-by-side at a glance</code> table comparing the three across the decision axes (organising idea ·
+   hero asset · where it optimises · key audience · evidence strength · KPI fit · biggest risk ·
+   distinctness), ideally with the AI-preview-tile + mechanic-diagram rows.</li>
+</ol>
+<p>Exemplar: <code>campaigns/beta-corp-podcast-engine-2026q2/concepts/concept-trio.html</code>. The CD authors the
+Summary as part of the trio output (see creative-director AGENT.md).</p>
+<p><strong>Trio surface ONLY.</strong> This Summary lives on <code>concepts/concept-trio.md</code>/<code>.html</code> — it <em>compares the three</em>
+to support the operator's pick, so it does <strong>NOT</strong> go on the Selected concept surface (<code>selected.md</code>),
+which is a single integrated concept, nor on the individual <code>safe/smart/wild.md</code> pages. When the operator
+selects and CM integrates the Selected concept, the trio's Summary stays on the trio surface — CM must not
+strip it, and must not copy it onto <code>selected.md</code>. Order on the trio surface: pitch box → at-a-glance →
+per-concept detail → §10 "Considered &amp; dismissed" at the bottom. Standard for <strong>all</strong> future trios.</p>
 <h2 id="revision-discipline-no-prose-drift-required-every-concept-revision-added-2026-06-12">Revision discipline — no prose drift (REQUIRED — every concept revision, added 2026-06-12)</h2>
 <p>Concepts that are revised in place accumulate <strong>sediment</strong> — the document slowly becomes an edit-trail instead of a concept. A full review of all campaigns to date (2026-06-12) found five recurring drift forms; a revision MUST eliminate all five. <strong>A revision RE-AUTHORS the concept clean to the §1–§8 structure; it does not annotate the previous version.</strong></p>
 <table>
@@ -2149,6 +2209,7 @@ The honest list. What this concept makes harder, what it sacrifices, what could 
   </main>
 
   <footer class="page-footer">
+    <span><strong>Soundtrak AI Studio</strong> · © 2026 Soundtrak Consulting · <a href="../../docs/legal/LICENSE.html">Licence</a> · <a href="../../docs/legal/NOTICE.html">Notice</a></span>
     <span>Source file: <code>docs\specs\concept.md</code></span>
   </footer>
 </body>

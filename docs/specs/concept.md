@@ -118,8 +118,33 @@ Purpose: prose is harder to compare than a diagram. Operator needs to *see* the 
 ## 5. Narrative architecture
 The beats / movements the campaign progresses through. 3–6 beats. Each beat names: when, where (channel surface), what (the move).
 
-## 6. Channel rollout (high-level)
-Which surfaces the concept lives on, with a one-line narrative hook per surface. Detailed tactic list lives in the Plan, not here. **Draw on the Insight Brief §2 routes to market** (the budget- and time-filtered, evidenced map of how each segment is reachable — media + community + **partnership/co-GTM + intermediary [VCs/incubators/associations] + advocacy**) the CM injected: prefer routes the audience actually trusts over generic surfaces, and — especially on a low budget — consider whether the concept can be **built around a partnership/co-GTM play** (a route the §2 surfaced) rather than bought reach. The §2 routes are *intelligence that informs* this rollout — you still own the creative call (lean in, stretch, or deliberately depart, with reasoning); they are not a fixed media plan, and a route flagged slow-build won't serve a short-deadline campaign.
+## 6. Rollout — the phased strategic plan (high-level)
+
+**The rollout is a strategic design, and it belongs here, not in the Plan.** Which surfaces the
+concept lives on, with a one-line narrative hook per surface — *and the phasing*: what opens first,
+what follows it, and **why that order**. The Plan turns this into dated waves with rows; it should
+not be inventing the sequence, because sequencing is a creative and strategic call that depends on
+the idea (operator direction 2026-10-01).
+
+What a rollout needs:
+
+- **Phases with a logic.** Two to five, each with what it is for and why it comes where it does. "We
+  earn the right to ask by publishing first" is a logic. A list of channels is not.
+- **What opens when, and what has to be true first.** A surface that only works once another has
+  built an audience says so.
+- **A test phase where — and only where — the strategy wants one.** Some rollouts genuinely test
+  before committing spend; many don't, and a concept that commits from the start is a legitimate
+  concept. Where there is one, say what is being learned and what result would change the next
+  phase. **Do not manufacture a test phase to fill a slot.**
+- **Whether this is a campaign or an engine.** A recurring format is designed differently from a
+  one-time push — see the publication rule: a publication is not a campaign, and it needs a rhythm
+  rather than a big idea. CM injects the Brief's cadence shape so this is known before you start.
+
+**What the rollout is NOT**: the operational detail. No "create the mailing list", no "drop the
+analytics tag", no account setup, no dated targets. Those are Plan rows, and the Plan's own
+setup-completeness rule catches them. Stay at the altitude of *what happens in what order, and why*.
+
+Detailed tactic list lives in the Plan, not here. **Draw on the Insight Brief §2 routes to market** (the budget- and time-filtered, evidenced map of how each segment is reachable — media + community + **partnership/co-GTM + intermediary [VCs/incubators/associations] + advocacy**) the CM injected: prefer routes the audience actually trusts over generic surfaces, and — especially on a low budget — consider whether the concept can be **built around a partnership/co-GTM play** (a route the §2 surfaced) rather than bought reach. The §2 routes are *intelligence that informs* this rollout — you still own the creative call (lean in, stretch, or deliberately depart, with reasoning); they are not a fixed media plan, and a route flagged slow-build won't serve a short-deadline campaign.
 
 ## 7. Pitch rationale (Recommended option only)
 Why this concept earns the Recommended mark — tying the creative call to the Brief's KPI in 4–6 bullets.

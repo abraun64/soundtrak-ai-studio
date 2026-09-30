@@ -2,7 +2,7 @@
 
 **The system's own dashboard.** Everything in the system lives in one of the document classes below. If you're cold-starting and don't know where something is, start here.
 
-**Last updated**: 2026-09-16
+**Last updated**: 2026-10-01
 **Version**: v3
 
 > **Kept fresh by `nav-audit`** (`.claude/skills/nav-audit/nav_audit.py`) — diffs this index against the specs/skills/agents/playbooks on disk and flags anything missing, any dead link, a stale stamp, and the oldest-untouched docs. It runs as part of `system-smoke-test` (so any "run smoke test" catches index drift) and on demand ("run nav audit"). When you add a spec/skill/agent/playbook, add a row here — the audit will catch it if you forget.
@@ -123,6 +123,7 @@ Each section answers: *what kind of thing is this, when do you read it, and wher
 | **cm-audit** | Surface-currency audit — every operator surface (dashboard/gallery/tasks/index/tenant-home) re-rendered after its data source changed. | "run cm audit", "are the surfaces current?" | `.claude/skills/cm-audit/` |
 | **nav-audit** | Keeps this index honest — diffs `NAVIGATION_INDEX.md` against specs/skills/agents/playbooks on disk; flags missing entries, dead links, stale stamp + oldest docs. | "run nav audit", "is the navigation index fresh?" | `.claude/skills/nav-audit/` |
 | **brief-lint** | The STRUCTURE gate on a campaign Brief (SYS-085) — checks it against the locked canonical section template: missing mandatory sections, non-canonical headings, out-of-order sections, missing Approval-record. Sibling to review-ready. | "lint this brief", "is this brief canonical?" | `.claude/skills/brief-lint/` |
+| **plan-lint** | Deterministic structure check on a campaign Plan — declared Launch/Ongoing setting, wave windows in order, dates inside their wave, permanent row ids, a runnable Check on every setup row, channels matching the gallery. | `.claude/skills/plan-lint/SKILL.md` |
 | **review-ready** | The READABILITY gate (SYS-087) CM runs on every operator surface before surfacing it — deterministic jargon lint + LLM cold-reader pass; checks it reads for a marketer who didn't write it. Sibling to content-subedit (published copy). | "is this review-ready?", "run the readability gate" | `.claude/skills/review-ready/` |
 | **docs-audit** | The CONTENT/STRUCTURE layer over nav-audit — reads INSIDE the docs: stale agent-count prose (five/six after the 7th agent), class tables that lost a column, `docs/public/` behind the roster/specs, and §9/§10/§11 coverage vs disk (SYS-018/SYS-026 drift class). | "run docs audit", "are the docs consistent?", "is the agent count right everywhere?" | `.claude/skills/docs-audit/` |
 | **cadences** | Four proactive scheduled sweeps — competitor/library scan · tenant brand-drift · stale-asset/surface · per-tenant shipped/blocked rollup. Surface-only (file deduped inbox ideas, never auto-ship). | Scheduled (weekly/monthly) via Windows tasks | `.claude/skills/cadences/` |

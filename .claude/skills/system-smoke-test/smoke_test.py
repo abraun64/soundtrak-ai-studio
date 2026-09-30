@@ -237,6 +237,14 @@ if _BL_TEST.exists():
 # SEPARATE a known-bad body of text from a known-good one; regress that separation and the gate
 # either fires on good prose (and gets ignored) or stops seeing machine texture entirely, which
 # is the state that let a library ship reading "very AI" past two green gates.
+# Plan spec v4 finding J — four checks that were being done by eye, two of which were caught only
+# by accident (a date outside its wave, a duplicate S17). A regression here puts them back on the
+# operator's eyes without anyone noticing the guard stopped looking.
+_PLAN_TEST = ROOT / ".claude" / "skills" / "plan-lint" / "test_plan_lint.py"
+if _PLAN_TEST.exists():
+    ok, err = _run_ok([str(_PLAN_TEST)])
+    check("L1", "plan-lint structure tests", ok, err if not ok else "")
+
 _SLOP_TEST = ROOT / ".claude" / "skills" / "content-subedit" / "test_slop_lint.py"
 if _SLOP_TEST.exists():
     ok, err = _run_ok([str(_SLOP_TEST)])

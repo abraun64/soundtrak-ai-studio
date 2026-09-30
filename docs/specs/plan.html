@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plan — Phase 3 Schema (v3) — Marketing AI System</title>
+  <title>Plan — Phase 3 Schema (v4) — Marketing AI System</title>
   <style>/* Marketing AI System — social/email in-situ mockup chrome.
  * Renders collapsed (feed) + expanded (clicked-open) states per form.
  * Loaded automatically alongside system.css for all templates.
@@ -945,22 +945,30 @@ body.template-brief .content blockquote p:last-child { margin-bottom: 0; }
 }
 
 /* ============================================================================
- * Concept pages — dense strategy docs (added 2026-06-12, HTML-surface retro).
- * It's a reading document; the win is lifting the load-bearing lines (Big Idea,
- * Key Message, radio script) out of the prose and giving sections clear rhythm.
+ * Reading-document chrome — dense strategy / rollout docs (concept-trio added
+ * 2026-06-12, HTML-surface retro; launch (Phase-5 rollout + Phase-6 cadence)
+ * added 2026-07 SYS-131). These are reading documents; the win is lifting the
+ * load-bearing lines (Big Idea, Key Message, launch finish-line, cadence
+ * rhythm) out of the prose and giving sections clear rhythm. The `launch`
+ * surface reuses this exact chrome so a Phase-5/6 page reads as a campaign
+ * artifact, not the plain template-base fallthrough.
  * ========================================================================== */
 
-/* Clear section rhythm so a long concept scans */
-body.template-concept-trio .content h2 {
+/* Clear section rhythm so a long concept / rollout scans */
+body.template-concept-trio .content h2,
+body.template-launch .content h2 {
   margin-top: 40px;
   padding-bottom: 8px;
   border-bottom: 2px solid var(--border);
 }
-body.template-concept-trio .content h2:first-of-type { margin-top: 8px; }
-body.template-concept-trio .content h3 { margin-top: 26px; color: var(--text); }
+body.template-concept-trio .content h2:first-of-type,
+body.template-launch .content h2:first-of-type { margin-top: 8px; }
+body.template-concept-trio .content h3,
+body.template-launch .content h3 { margin-top: 26px; color: var(--text); }
 
-/* The Big Idea — first section's lead line — is the page's hero callout */
-body.template-concept-trio .content > h2:first-of-type + p {
+/* The Big Idea / launch lead line — first section's lead line — is the hero callout */
+body.template-concept-trio .content > h2:first-of-type + p,
+body.template-launch .content > h2:first-of-type + p {
   background: var(--accent-soft);
   border-left: 4px solid var(--accent);
   border-radius: 0 var(--radius) var(--radius) 0;
@@ -970,8 +978,9 @@ body.template-concept-trio .content > h2:first-of-type + p {
   color: var(--text);
 }
 
-/* Key message + 15-second radio script (blockquotes) become accent callouts */
-body.template-concept-trio .content blockquote {
+/* Key message / launch callouts (blockquotes) become accent callouts */
+body.template-concept-trio .content blockquote,
+body.template-launch .content blockquote {
   background: var(--accent-soft);
   border-left: 4px solid var(--accent);
   border-radius: 0 var(--radius) var(--radius) 0;
@@ -981,7 +990,8 @@ body.template-concept-trio .content blockquote {
   font-style: normal;
   font-size: 15.5px;
 }
-body.template-concept-trio .content blockquote p:last-child { margin-bottom: 0; }
+body.template-concept-trio .content blockquote p:last-child,
+body.template-launch .content blockquote p:last-child { margin-bottom: 0; }
 
 /* Revision-history / freshness-check tables read as quiet audit, not headline */
 body.template-concept-trio .content h2:last-of-type ~ table { font-size: 13px; }
@@ -1675,7 +1685,8 @@ body.template-plan .tpill { display: inline-block; font-size: 10.5px; font-weigh
 body.template-plan .tpill--asset { background: #ede9fe; color: #6d28d9; }
 body.template-plan .tpill--setup { background: var(--warning-soft); color: #b45309; }
 body.template-plan .pv3 .c-item .rnm { font-weight: 600; }
-body.template-plan .pv3 .c-item .rid { color: var(--text-subtle); font-weight: 400; }
+/* SYS-099 — the asset number reads at a glance (was a faint grey suffix, easy to miss). */
+body.template-plan .pv3 .c-item .rid { color: var(--accent); font-weight: 700; }
 body.template-plan .pv3 .c-item .rds { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.45; max-width: 48ch; }
 body.template-plan .pv3 .row-more { margin-top: 5px; }
 body.template-plan .pv3 .row-more summary { font-size: 11px; color: var(--accent); cursor: pointer; font-weight: 600; list-style: none; }
@@ -1938,292 +1949,594 @@ body.template-index a.camp-card__tenant:hover { text-decoration: underline; }
 
   <main class="page-main">
     <article class="content">
-      <h1 id="plan-phase-3-schema-v3">Plan — Phase 3 Schema (v3)</h1>
-<p><strong>Spec version</strong>: v3 · 2026-07 — the asset list gains <strong>Type</strong> (marketing asset vs setup/deploy task), <strong>Channel</strong>, and <strong>Description</strong> columns, and renders as <strong>one table with a channel ⇄ wave group-by toggle</strong>, split Launch / Ongoing. Waves are <em>derived</em> from the Depends column (no hand-authored tiers). Legacy v2 plans (no Type column) keep rendering as the phase-grouped cards until migrated. · v2 · 2026-06-03 added §N "Phase 5 + 6 readiness" end-of-Phase-4 gate per Rollout Architecture v2 (<code>docs/specs/rollout-architecture.md</code> §4).</p>
-<p>The <strong>Plan</strong> is the operational map for the campaign. CM authors it after the operator picks a Concept. It's the asset list + agent assignments + sequencing the operator approves before Phase 4 fires. <strong>v2 extension</strong>: at end of Phase 4 (asset production), CM updates the Plan with a new §N "Phase 5 + 6 readiness" section that summarises what setup + training + cadence-runbook the campaign needs based on what was actually built. This is the end-of-Phase-3 gate before Phase 6 (Day 1 Rollout) work fires.</p>
-<p><strong>Length target: 1-2 pages</strong> (table-led for asset list; §N adds ~half page for ongoing campaigns, less for one-offs).</p>
+      <h1 id="plan-phase-3-schema-v4">Plan — Phase 3 Schema (v4)</h1>
+<p><strong>Spec version</strong>: v4 · 2026-09-30 — a reader-first rebuild from fourteen operator findings on a
+long programme. <strong>Decision first</strong>: "Plan at a glance" opens the document and the column guide,
+glossary and attribution key move to a collapsed block at the foot. <strong>One strategy table</strong> replaces
+the prose Phasing paragraph. <strong>Waves carry the programme's rollout</strong> — a full-programme Waves table
+with date windows, staggered channel starts and test-and-learn in the table, with dependency build
+order kept <em>inside</em> each wave. <strong>Launch / Ongoing is declared, never guessed.</strong> Channels say where
+work lives (Measurement means measurement). A <strong>setup completeness rule</strong> — anything that sends,
+collects, publishes, pays or measures needs its enabling rows, each with a <code>Check:</code> test. Phase 6
+and Search are in the first draft, not bolted on. Plus four new automatic checks, badges from real
+status only, and plain language with a mandatory cold read.
+· v3 · 2026-07 — Type / Channel / Description columns; one table with a channel ⇄ wave toggle.
+· v2 · 2026-06-03 — §N Phase 5 + 6 readiness gate per <code>docs/specs/rollout-architecture.md</code> §4.</p>
+<p>The <strong>Plan</strong> is the operational map for the campaign. CM authors it after the operator picks a
+Concept: the asset list, the agent assignments and the sequencing the operator approves before
+Phase 4 fires.</p>
+<p><strong>Length target: 2–3 pages</strong> for a campaign, more for a multi-month programme. Table-led.</p>
 <p><strong>Stored</strong>: <code>campaigns/&lt;slug&gt;/plan.md</code> (markdown authoritative) + rendered <code>plan.html</code>.</p>
-<p><strong>Locked</strong>: at end of Phase 3 operator approval for the strategic core (Phasing / Asset list / Roster / Budget / Fast-lane rules). The §N "Phase 5 + 6 readiness" section is appended/updated at <strong>end of Phase 4</strong> (after asset development completes); operator approves §N as the Phase 5 → Phase 6 gate.</p>
-<p>Material scope changes (asset added / removed / major sequence change / §N readiness changes ownership_model or platform) require vN+1 + re-approval. Minor tweaks (date shift, dependency reshuffle, §N detail updates) don't.</p>
+<p><strong>Locked</strong>: at end-of-Phase-3 operator approval. Material scope changes (asset added or removed,
+major sequence change, a change of ownership or platform) need vN+1 and re-approval. Minor tweaks
+(a date shift, a dependency reshuffle, filling a TBD) don't.</p>
+<hr>
+<h2 id="reading-order-is-part-of-the-spec-v4-finding-a">Reading order is part of the spec (v4 · finding A)</h2>
+<p>The old spec opened with "How to read this plan" — a column guide, a glossary and an attribution
+key, before the reader reached a single decision. That is reference material standing where the
+answer should be.</p>
+<p><strong>The order is now fixed:</strong></p>
+<ol>
+<li><strong>Plan at a glance</strong> — the decision surface. What this is, what it promises, what ships, when,
+   what it costs, what the operator has to do, and the one decision being asked.</li>
+<li><strong>Setting</strong> — Launch, Ongoing, or Launch-then-ongoing.</li>
+<li><strong>Strategy</strong> — one table.</li>
+<li><strong>Waves</strong> — the rollout.</li>
+<li><strong>Asset list</strong> — the work.</li>
+<li>Roster · Budget · What ships without asking · Open questions.</li>
+<li><strong>Getting it live, and keeping it running</strong> (the former "§N").</li>
+<li><strong>Change log.</strong></li>
+<li><strong>How to read this plan</strong> — column guide, glossary, attribution key. <strong>Collapsed, at the foot.</strong></li>
+</ol>
+<p>A reader who stops after section 1 should still know what they are approving.</p>
 <hr>
 <h2 id="schema">Schema</h2>
 <pre><code class="language-markdown"># &lt;Campaign Name&gt; — Plan v&lt;N&gt;
 
-**Concept selected**: &lt;link to chosen Concept&gt;     **Approved**: &lt;date&gt;     **Status**: Draft / Approved / Locked
+**Concept selected**: &lt;link&gt;  ·  **Approved**: &lt;date&gt;  ·  **Status**: Draft / Approved / Locked
+&gt; *(Column guide, glossary and change history are at the foot of this plan.)*
 
-## Phasing
-Brief paragraph naming the campaign's phases (pre-launch / launch / sustain / wrap or equivalent). Each phase has a goal one-liner and a date range.
+## Plan at a glance
+
+| | |
+|---|---|
+| **What this is** | One sentence a stranger understands. |
+| **What it promises** | The single outcome, and the one number that says it worked. |
+| **Setting** | Launch · Ongoing · Launch-then-ongoing *(declared — see below)* |
+| **Runs** | &lt;start&gt; → &lt;end&gt;, in &lt;N&gt; waves |
+| **What ships** | &lt;N&gt; marketing items across &lt;M&gt; channels, plus &lt;K&gt; setup jobs |
+| **What it costs** | $&lt;n&gt; total — $&lt;n&gt; paid media, $&lt;n&gt; production, $&lt;n&gt; held back |
+| **What you have to do** | &lt;the operator's own jobs, counted: e.g. &quot;4 approvals, 2 accounts to create, 1 payment to set up&quot;&gt; |
+| **Decision now** | Approve this plan so production can start — or tell me what to change. |
+
+## Setting
+
+**Setting: &lt;Launch | Ongoing | Launch-then-ongoing&gt;** — declared, not inferred.
+
+One line on why. *Launch* = a one-time stand-up with an end. *Ongoing* = a recurring engine with no
+end date. *Launch-then-ongoing* = a stand-up that becomes an engine, and the handover point is
+named here.
+
+## Strategy
+
+One table. Each row is a part of the strategy; the last column points at the work that delivers it.
+
+| Part | What it is | What it promises | When | Rows |
+|---|---|---|---|---|
+| &lt;name&gt; | &lt;plain description&gt; | &lt;the outcome this part is responsible for&gt; | &lt;wave or window&gt; | &lt;asset-list row numbers&gt; |
+
+## Waves
+
+| Wave | Window | What it is for | Channels starting | Test and learn | Rows |
+|---|---|---|---|---|---|
+| 1 | &lt;start → end&gt; | &lt;the goal of this wave&gt; | &lt;channels that begin here&gt; | &lt;only if the rollout tests here&gt; | &lt;rows&gt; |
 
 ## Asset list
 
-The asset list is **one table** — every marketing asset AND every setup/deploy task, as rows. It renders as a single grouped table with a **Group by: Channel | Wave** toggle (see &quot;The two views&quot; below), split Launch / Ongoing. Keep `# | Asset` as the first two columns — the gallery + `check-state` contract keys on them.
-
-| # | Asset | Description | Type | Channel | Review format | Form | Ships | Copy file | Owner agent | Phase | Target date | Depends on | Notes |
+| # | Asset | Description | Type | Channel | Wave | Review format | Form | Ships | Copy file | Owner | Target date | Depends on | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | Visual identity kit | The masthead + templates every other asset is built from | asset | Brand foundation | `output` | Brand mini-guide (HTML) + masthead + templates | Masthead (SVG) + tile template + edition template | `none` | Producer | Pre-launch | YYYY-MM-DD | — | The dependency for every visual below |
-| S1 | Create the Substack + lock handle | Stand up the publication so every asset can link to it | setup | Substack | — | Operator action (account) | — | `none` | Operator | Pre-launch | YYYY-MM-DD | — | CM can't create accounts |
-| 2 | Publication setup | The about page + welcome email a new subscriber first meets | asset | Substack | `output` | Substack config + about + welcome (Mode C) | About-page copy + welcome-email copy | `md` | Producer | Launch | YYYY-MM-DD | #1, S1 | — |
-| S2 | Deploy site placements | Push the placements live — the HTML itself going public | setup | Website | — | Publish → Netlify | — | `none` | Operator | Launch | YYYY-MM-DD | #7 | Operator's Netlify push |
-| ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
-
-**Type values (v3):**
-- `asset` — a **marketing deliverable** (web page, post, tile, video, email). Gets an asset folder, a per-asset gate, and a gallery tile — everything the old asset list held.
-- `setup` — a **setup / deploy / config task** (create the Substack, deploy the HTML, drop GA4 tags, compliance fills). **Plan-only**: `Ships` is `—`, and it gets NO asset folder and NO gallery tile. It sits beside the assets it belongs to so a channel reads as a complete unit (&quot;here's the page AND what it takes to get it live&quot;). Give it an `S&lt;n&gt;` id in the `#` column so other rows can depend on it.
-
-**Channel values (v3):** the surface the work lives on — `Brand foundation` · `Substack` · `Website` · `LinkedIn + social` · `Email — &lt;list&gt;` · `Video` · `Ads &amp; paid` · `Measurement` · etc. Drives the default grouping. If omitted, the renderer falls back to the keyword heuristic (`_plan_asset_type`).
-
-**Name + Description (v3) — write for a human with ZERO context.** Both the `Asset` name and the `Description` are the operator's decision surface: a smart operator who has never seen this campaign must read them and know *exactly* what the thing is and what it's for — **no interpretation**. This is a hard bar, not a nicety (operator directive 2026-07-06 — the first v3 draft failed it). Rules:
-
-- **No internal jargon.** Ban words like *tile · masthead · cadence · fast-lane · build-diary · flagship · cross-promo · unit · per-tenant · editorial backlog · lock the pattern*. Say the plain thing: *social share-image · logo · the weekly-issue tool · auto-approved · launch issue · promo block*.
-- **Spell out every acronym on first use** — *business number (ABN) · Google Analytics · tagged links (UTM) · the goal (KPI) · button (CTA)*. Never a bare acronym.
-- **No cross-references** — never `§3`, `A2`, `#1–#3`, a raw file path, or &quot;the X unit / kit / surface&quot;. Name the actual thing.
-- **No cryptic codes** — an issue's description says what it is *about* (&quot;how the AI system went from a dozen agents to seven&quot;), never &quot;learning A2&quot;.
-- **The test:** could someone *outside* marketing read the Name + Description and act with zero interpretation? If not, rewrite. The Description is the *purpose / what distinguishes it* — the deliverable format lives in `Form` / `Ships`.
-- **Plain language everywhere** — including the collapsed `Notes` and the change log, not just the name + description. `Notes` may carry finer production detail (status, file paths, gate state) but stays interpretable: no cryptic codes (say what an issue is *about*, never &quot;A2&quot;), acronyms spelled out. The bar relaxes on *depth* in Notes, never on *clarity*.
-
-**Review format values:**
-- `output` — the specific deliverable; operator approves it as-is
-- `template [+N exemplars]` — parametric template is the approval target; N populated exemplars show how it works but inherit approval from the template
-- `variant-comp [N variants × M sizes]` — one representative comp is the approval target; all production instances (other sizes, resizes, derivatives) inherit approval automatically — no individual review
-
-**Copy file values:**
-- `md` — editable Markdown companion alongside the visual (web pages, emails, articles, outreach, social copy)
-- `csv` — spreadsheet for multi-variant copy (banner ad matrices, subject-line batches, variant copy tables)
-- `pptx` — PowerPoint IS the deliverable; no separate copy file
-- `docx` — Word document IS the deliverable
-- `none` — no copy companion (pure visual, cookbooks, runbooks, trackers, or deliverable is already the copy)
-
-**Form values** (be specific — include production mode): HTML/CSS landing page (Mode C) · HTML email templates (Mode C) · LinkedIn post + 1:1 PNG tile · Substack long-form article + HTML · Print PDF/SVG (CMYK, 3mm bleed) · HTML/CSS display banners (Mode C) · Markdown pitch template + HTML render · 1:1 PNG tile (Mode B) · etc.
-
-**Ships values — the output manifest (added 2026-06-15; &quot;the plan dictates the assets&quot;):**
-The `Ships` column is the **authoritative contract for exactly what each asset produces** — one entry per *distinct output*. An **output** is any discrete artifact the operator reviews or receives, **intermediate OR final** — not just the last file. `Form` describes the asset in prose; `Ships` enumerates the concrete outputs. They are different jobs:
-- A sales deck whose `Form` is &quot;Slide deck + presenter notes&quot; → `Ships` **two formats**: `HTML deck (index.html) + PowerPoint (deck.pptx)`.
-- A video whose `Form` is &quot;Remotion silent videos&quot; → `Ships` **two gated outputs**: `4 storyboards (HTML) + 8 × MP4`. The storyboard is a real output (it gets its own approval gate before expensive rendering), so it is named in `Ships` and it tiles.
-
-The operator's framing: *&quot;the plan dictates the assets, so the plan needs to be explicit — sales deck &gt;&gt; output = HTML, PPT; video &gt;&gt; output = storyboard, MP4.&quot;* If the plan is vague about outputs, that is the root cause of any downstream what-do-I-ship confusion — fix the plan, not the symptom.
-
-This column is **load-bearing**, not documentation:
-- **Gallery tiles = Ships, 1:1.** Every entry in `Ships` becomes exactly one gallery tile; nothing else does. A non-web-renderable output (`.pptx`/`.pdf`/`.docx`/`.xlsx`) still ships and still tiles — the gallery renders it as a format-card with a download action.
-- **asset.yaml `ship: true` = Ships, 1:1.** The Producer sets `ship: true` on exactly the files named in `Ships` and `ship: false` (or omits/declares as Foundation) on everything else — render-pipeline sources (`slide.html`, `build-pptx.py`), embedded component images (`images/*`), deployment wrappers (`modal-embed.html`), and the asset record (`asset.html`) are **never** ships.
-- **`check-state` validates the chain** Plan `Ships` ↔ asset.yaml `ship:true` ↔ gallery tiles; a mismatch is drift.
-
-Write `Ships` concretely and tersely: name the format + the file kind, e.g. `Case study (HTML) + deck slide (PNG)` · `3-touch email sequence (HTML + copy)` · `8 × MP4 (4 videos × 4:5 + 9:16)` · `Landing page (HTML)`. If an asset ships nothing reviewable (a process checkpoint, a CUT row), use `—`. **If you can't fill `Ships` cleanly, the asset isn't specified yet — that is the signal to tighten the Form/scope before production, not to let the Producer improvise it.**
-
-### The two views (rendered, v3) — channel ⇄ wave
-
-One list, two group-bys. The operator flips a **Group by: Channel | Wave** toggle:
-- **By channel** (default) — rows grouped by the surface they live on; the `Wave` column shows, per channel, what fires when.
-- **By wave** — rows grouped by production wave; the `Channel` column shows, per wave, which surfaces are in play.
-
-Both are the SAME rows with both columns present — no second table, nothing hand-synced. Above both sits the **Launch / Ongoing** split (classified from the Phase column): Launch = one-time stand-up; Ongoing = the recurring engine (cadence, weekly editions, paid boost, KPI monitoring). Every per-row detail is preserved — the key columns sit inline; Form / Review format / Copy file / Target / Notes fold into a per-row **details** expander so nothing is dropped.
-
-### Waves — derived, never authored (v3)
-
-A **Wave** is a row's dependency tier, computed from the `Depends on` column:
-- **Wave 1** = every row with no unmet dependency → the agents produce these **at once, in parallel**.
-- **Wave N** = rows whose dependencies all sit in earlier waves.
-
-The wave count auto-sizes to the graph: everything-needs-only-the-identity-kit → 2 waves; a chain (kit → Substack → edition → cadence) → more; nothing depends on anything → 1 wave (build it all at once). Waves are the ordering *within* Launch/Ongoing — a different axis from that lifecycle split. **Never hand-author a tier column** — it would drift from the dependencies; the renderer derives it. A dependency cycle is broken defensively (the offending node is treated as a root); a cycle means the Plan is malformed — fix the deps.
-
-### CM dispatch — fire each wave as a parallel batch (v3)
-
-The wave structure is executable, not decorative. In Phase 4, **CM dispatches all of a wave's `asset` rows as one parallel Producer batch** — multiple concurrent Producer dispatches (one Producer role, many simultaneous jobs; NOT different agent types, which would conflate *who does the work* with *when it can start*). The operator gate is at the **wave boundary**: approve Wave 1, and Wave 2's assets fire together the moment it clears — not asset-by-asset within a wave, except where a specific asset is flagged NOT fast-lane. `setup` rows the operator owns (create the account, provision keys, deploy) are the roots that gate the first asset wave — surface them as operator actions up front.
-
-### The plan is the living source of truth — the gallery mirrors it (v3)
-
-The Phase-4 asset gallery **derives** its channels, names, descriptions, dependency waves, and Launch/Ongoing split from THIS plan (via the shared `plan_model`) — the gallery is a *view* of the plan, never a separate list. Two consequences:
-
-- **Any change to the asset set, in ANY phase, updates this plan first — in the same turn.** A new asset surfaced during Phase-4 review, an asset dropped, or one re-scoped: CM adds/edits its row here (plain-language name + description, `Type`, `Channel`, `Depends on`) *before/as* it produces it, then re-renders `plan.html` and rebuilds the gallery. A material scope change bumps the plan version + re-approval; a like-for-like swap or dependency reshuffle doesn't.
-- **Waves re-derive automatically.** Because `Wave` comes from `Depends on` and is recomputed on every render, adding or removing a row re-waves BOTH surfaces at once — no manual wave bookkeeping, and the two can't disagree.
-
-`check-state` enforces the floor: any asset folder on disk with no plan row is flagged as drift (Layer E), and the gallery shows an unmatched tile in a visible &quot;not in the plan yet&quot; group rather than hiding it — so an unreconciled addition surfaces immediately instead of rotting the plan.
-
-### Asset list discipline — cadence-skill rule (v2 addition)
-
-**For campaigns where `cadence_shape.type` is `ongoing` or `hybrid`**, the Asset list MUST include a per-tenant cadence skill scaffold as a Phase 4 (Asset Production) deliverable:
-
-| # | Asset | Form | Owner agent | Phase | Target date | Depends on | Notes |
-|---|---|---|---|---|---|---|---|
-| N | Per-tenant cadence skill — `.claude/skills/&lt;tenant-slug&gt;-&lt;cadence-name&gt;-assets/SKILL.md` | Skill definition (SKILL.md + trigger block + required inputs + AI-derived outputs + output folder structure + reference materials + execution flow) | CM + Producer | Phase 4 | Before end of asset-dev wave | Wave 0 templates | This is the operator's Phase 6 entry point. Without it, phase-6-cadence.md references a skill that doesn't exist. Per `feedback_cadence_skill_is_phase3_deliverable.md`. |
-
-The cadence skill scaffold is **intentionally thin** at Phase 4 time (~250 lines of SKILL.md prose) — orchestration only, no novel logic. Producer + CM + Brand Manager + adapters do the heavy lifting. The scaffold is versioned after 2-3 real cycles per the deferred-extraction principle.
-
-**Naming convention**: `.claude/skills/&lt;tenant-slug&gt;-&lt;cadence-name&gt;-assets/` — e.g.:
-- `sb-podcast-weekly-assets/` (Beta Corp Talks weekly)
-- `sb-news-monthly-assets/` (Beta Corp News monthly)
-- `soundtrak-techpulse-weekly/` (Soundtrak TechPulse cadence)
-
-Per `feedback_cadence_skill_is_phase3_deliverable.md` + `feedback_captured_rules_require_explicit_propagation.md`.
-
-### Asset list discipline — foundation-shaped campaigns (v3 addition, 2026-06-12)
-
-**For foundation-shaped campaigns (the Brief's objective is strategy development)**, the asset list comprises **strategy artifacts**, not market-facing assets. Standard set (prune/extend per scope):
-
-| Asset | What it is |
-|---|---|
-| Segment map | Tenant-layer targeting evidence base — segments · pains · triggers · landmines · per-segment fit status. Home: `tenant-brand/&lt;tenant&gt;-segments.md` at graduation |
-| Competitive claim map | Wallpaper / contested / open-territory buckets + nearest named threat (per playbook §0 schema) |
-| Value proposition one-pager | The approved route from the trio, with gate-survived lines + only-we lines |
-| Brand platform | Brand Context authored/overhauled (voice · visual · positioning) |
-| Fit evidence base | Per-segment PMF status with FINDING/HYPOTHESIS-tagged evidence |
-
-Each is a normal asset (generic `asset.md` contract, `output` review shape, gallery tile, per-asset operator gate). **At wrap, these graduate to the tenant layer — the wrap graduation gate IS the foundation approval.** The frozen campaign folder remains the audit trail of how the strategy was made.
+| 1 | Visual identity kit | The logo, colours and templates every other item is built from | asset | Brand foundation | 1 | `output` | Brand mini-guide (HTML) + logo + templates | Logo (SVG) + social-image template + article template | `none` | Producer | YYYY-MM-DD | — | Everything visual depends on this |
+| S1 | Create the publishing account | Stand up the account so every item can link to it | setup | Publishing platform | 1 | — | Operator action (account) | — | `none` | Operator | YYYY-MM-DD | — | Check: the account exists and the address resolves |
 
 ## Roster
-Specialists in scope for this campaign:
-- **Producer** — all production assets
-- **Brand Manager** — every asset gate, automatic
-- **Campaign Manager** — orchestration throughout
-- **Creative Director** — on retainer for creative-integrity callbacks; primary work done in Phases 1–3
-- **Operator (you)** — bylines + personal sign-offs + final approvals + publish actions where needed
-
-(Wave 3+ agents added only if Producer escalates a specific asset beyond AI-tooling ceiling.)
-
-## Budget allocation
-
-| Line | Amount | Purpose |
-|---|---|---|
-| &lt;paid line 1&gt; | $&lt;n&gt; | &lt;what&gt; |
-| Production tooling | $&lt;n&gt; | Replicate / AI gen costs |
-| Contingency | $&lt;n&gt; | 5–15% reserve |
-| **Total** | $&lt;n&gt; | (matches Brief budget total) |
-
-## Fast-lane rules
-What ships without per-asset operator approval (still subject to Brand verdict):
-- &lt;e.g. weekly recurring companion posts after first 3 establish pattern&gt;
-- &lt;e.g. email signature drop-ins&gt;
-
-NOT fast-lane:
-- &lt;e.g. anchor posts, paid creative, any deviated tile, any net-new format&gt;
-
+## Budget
+## What ships without asking
 ## Open questions
-Anything CM resolved or surfaced during planning that downstream production needs to know about. Includes pending dependencies (legal review windows, founder time blocks, etc.).
+## Getting it live, and keeping it running
+## Change log (vX → vY)
 
----
-
-## §N — Phase 5 + 6 readiness *(v2 — populated at end of Phase 4)*
-
-&gt; **Authored**: &lt;date&gt; (end of asset development)
-&gt; **Status**: Draft / ✅ Approved (= Phase 5 → Phase 6 gate passed) / 🟥 Blocked
-&gt; **Approves**: operator
-
-### N.1 Phase 6 — Day-1 Rollout requirements
-
-**Source-of-truth references** (read these to fully populate this section):
-- Brief §Tech Setup (`tech_stack`) — destination platforms per channel
-- Brief §Human Roles (`human_roles`) — who runs what
-- Brief §Cadence Shape (`cadence_shape`) — `ownership_model` + `phase_6_emphasis`
-- Asset list above — what one-offs need to be deployed
-- `tenant/&lt;tenant&gt;/integrations.yaml` (built in Phase 6 itself, but the **plan** for what goes in it is captured here)
-
-**One-off assets to deploy at Day 1:**
-
-| # | Asset (from Asset list above) | Destination (from Brief tech_stack) | Method (api / cookbook / hybrid) | Owner | Acceptance criterion |
-|---|---|---|---|---|---|
-| &lt;#&gt; | &lt;asset name&gt; | &lt;platform&gt; | &lt;method&gt; | &lt;the operator / Tenant operator&gt; | &lt;how we know it landed&gt; |
-| ... | | | | | |
-
-**Setup tasks** (Phase 5 work CM + the operator need to complete before Phase 5 can fire):
-- Provision &lt;platform&gt; API key access (tenant-side action)
-- Configure `tenant/&lt;tenant&gt;/integrations.yaml` with credentials + per-platform defaults + channel_defaults
-- Install Claude Code on designated operator machine (if ownership_model = tenant-self-runs or operator-runs-then-tenant)
-- Scaffold tenant OneDrive folder structure per Rollout Architecture §8.2
-- &lt;other tenant-specific provisioning&gt;
-
-**Training plan** (only if ownership_model != operator-runs):
-- Pre-session materials: phase-6-cadence.html · operator-onboarding.html · Brand Context · tenant integrations.yaml walkthrough
-- Day 1 live session: ~1-2 hrs (depth per ownership_model — tenant-self-runs needs heavier than handoff-period)
-- First-N-weeks support: &lt;the operator on Slack/email; N = duration; intensity = check-in frequency&gt;
-
-### N.2 Phase 6 — Ongoing Cadence requirements *(only if `cadence_shape.type` != &quot;one-off&quot;)*
-
-**Per-cycle runbook ownership**: &lt;role + name OR &quot;tenant-managed internally&quot;&gt;
-**Per-cycle estimated time**: &lt;minutes operator + minutes adapter-handled&gt;
-
-**Cycle steps** (skeleton — full version becomes `campaigns/&lt;slug&gt;/phase-6-cadence.md`, authored at the end of Phase 4):
-1. &lt;trigger event — e.g. new podcast episode airs Wednesday&gt;
-2. &lt;operator opens Claude Code on cadence day&gt;
-3. &lt;runs slash command — e.g. /weekly-episode-pack&gt;
-4. &lt;answers N structured questions&gt;
-5. &lt;reviews approved assets in gallery&gt;
-6. &lt;adapter-handled steps fire&gt;
-7. &lt;operator manual steps — Send button, social posts, etc.&gt;
-
-**Escalation paths** (one-liner per category; full version in phase-6-cadence.md):
-- &lt;category 1&gt;: &lt;what to do&gt; → &lt;escalation contact&gt;
-- &lt;category 2&gt;: ...
-
-### N.3 Retro milestones *(v2 — added 2026-06-04)*
-
-Per `docs/specs/retro.md`, this campaign's planned retro touchpoints:
-
-| Trigger | Scope | Timing | Output target |
-|---|---|---|---|
-| End of Phase 1 (Brief approval) | phase-1-boundary | ~10 min | `campaigns/&lt;slug&gt;/retros/&lt;date&gt;-phase-1-boundary.md` |
-| End of Phase 2 (Concept selection) | phase-2-boundary | ~10 min | `campaigns/&lt;slug&gt;/retros/&lt;date&gt;-phase-2-boundary.md` |
-| End of Phase 3 / each wave close | wave-N OR phase-3-boundary | ~30 min | `campaigns/&lt;slug&gt;/retros/&lt;date&gt;-wave-N.md` |
-| End of Phase 4 (Plan §N approval) | phase-4-boundary | ~10 min | `campaigns/&lt;slug&gt;/retros/&lt;date&gt;-phase-4-boundary.md` |
-| End of Phase 5 (Day-1 Rollout closure) | phase-5-boundary | ~15 min | `campaigns/&lt;slug&gt;/retros/&lt;date&gt;-phase-5-boundary.md` |
-| Phase 6 cycle 4 close (= &quot;is steady-state?&quot;) | wave-N or quarterly | ~30 min | `campaigns/&lt;slug&gt;/retros/&lt;date&gt;-phase-6-cycle-4.md` |
-| Campaign-end (one-off) OR quarterly (ongoing) | campaign-end OR quarterly | ~45-60 min | `campaigns/&lt;slug&gt;/retros/&lt;date&gt;-quarterly-NN.md` |
-
-**Skip rule**: light phase-boundary retros may be skipped if operator confirms &quot;no friction this phase, nothing to capture&quot; within a minute. Heavier retros (wave / campaign-end / quarterly) are MANDATORY — no skip.
-
-### N.4 Phase 5 → Phase 6 gate criteria
-
-Before §N is marked ✅ Approved and Phase 6 work fires, all of these must be true:
-
-- [ ] Brief §Tech Setup fully resolved (no `TBD` in tech_stack)
-- [ ] Brief §Human Roles fully resolved (no `TBD` in ai_trigger_person / approval_chain / manual_publisher / escalation_contact)
-- [ ] Brief §Cadence Shape fully resolved (`ownership_model` confirmed; `phase_6_emphasis` set)
-- [ ] All assets in Asset list above have `asset.yaml` with `deployment:` block populated (or marked explicit-TBD with reason)
-- [ ] No outstanding Brand Manager verdicts (all assets ✅ Approved or kill-decision documented)
-- [ ] Operator confirms credentials-side commitments (API key provisioning timeline, training availability, etc.)
-
-If any criterion is unmet, §N status stays 🟥 Blocked + Phase 6 does NOT fire.
+&lt;details markdown=&quot;1&quot;&gt;
+&lt;summary&gt;&lt;strong&gt;How to read this plan&lt;/strong&gt; — column guide, glossary, attribution key&lt;/summary&gt;
+...
+&lt;/details&gt;
 </code></pre>
+<hr>
+<h2 id="setting-declared-never-guessed-v4-finding-d">Setting — declared, never guessed (v4 · finding D)</h2>
+<p>The renderer used to classify each row Launch or Ongoing by reading words in a Phase column. On a
+long programme that misfiled work: builds scheduled for January, part of the ongoing engine, sat by
+themselves in a group of their own because nothing in their wording said "ongoing".</p>
+<ul>
+<li><strong>The Plan declares <code>Setting:</code> once</strong>, at the top, from the list above.</li>
+<li><strong>The renderer reads the declaration.</strong> It may only fall back to the keyword heuristic for a
+  legacy plan that has no <code>Setting:</code> line, and when it does it says so on the surface.</li>
+<li><strong>A row may override</strong> with an explicit <code>ongoing</code> or <code>launch</code> value in <code>Notes</code> — spelled out, not
+  implied by vocabulary.</li>
+</ul>
+<p><code>plan_lint</code> fails a v4 plan with no <code>Setting:</code> line.</p>
+<hr>
+<h2 id="strategy-one-table-v4-finding-b">Strategy — one table (v4 · finding B)</h2>
+<p>The strategy used to be a prose paragraph plus a scattering of per-part sections, which meant the
+same information in several shapes and no way to see it at once. <strong>One table</strong>: part · what it is ·
+what it promises · when · rows.</p>
+<ul>
+<li><strong>"What it promises" is an outcome, not an activity.</strong> "Builds a list of candidates we can email"
+  — not "runs social posts".</li>
+<li><strong>"Rows" is the join to the work.</strong> Every strategy part names the asset-list rows that deliver it,
+  and every asset-list row belongs to at least one strategy part. A part with no rows is a wish; a
+  row belonging to no part is unexplained work. Both are findings.</li>
+<li>Keep it to the parts a reader must hold in their head. If the table runs past about eight rows,
+  the strategy is a list of tactics.</li>
+</ul>
+<hr>
+<h2 id="waves-the-programmes-rollout-v4-finding-c">Waves — the programme's rollout (v4 · finding C)</h2>
+<p>On a ten-wave programme the old model broke down. Waves were derived purely from the dependency
+graph, so they described <em>build order</em> while the operator needed <em>rollout</em> — when each channel
+starts, what each stage is for, and what is being tested before the next stage commits.</p>
+<p><strong>Both exist, and they are different axes. Say which you mean.</strong></p>
+<ul>
+<li><strong>A wave is a stage of the rollout</strong>, with a <strong>date window</strong>, a purpose, the channels that start
+  in it, and its test-and-learn. This is <strong>authored</strong> from the strategy, because only the strategy
+  knows when a channel should open.</li>
+<li><strong>Build order lives inside a wave</strong>, and is still <strong>derived</strong> from <code>Depends on</code>. Within one wave,
+  a row whose dependencies are all met can be produced immediately and in parallel with its
+  siblings. Never hand-author a build-order column — it drifts from the dependencies.</li>
+</ul>
+<p>So: the Waves table replaces the old Phasing paragraph, the asset list carries a <code>Wave</code> column, and
+the dependency graph orders work <em>within</em> each wave.</p>
+<p><strong>Rules:</strong></p>
+<ul>
+<li><strong>Channel starts are staggered on purpose.</strong> Two channels starting in the same wave should be
+  there because the strategy wants them together, not because everything defaulted to wave 1. If
+  every channel starts at once, say why.</li>
+<li><strong>The waves come from the Concept's rollout, not from here.</strong> The Concept owns the phasing and
+  its logic (concept spec §6); the Plan dates it, puts rows against it and checks it. If the Plan
+  finds itself inventing the sequence, the Concept is underspecified — go back rather than guess.</li>
+<li><strong>Test-and-learn is a column, not a quota.</strong> Where the rollout has a test phase, the entry names
+  what is being learned and what result would change the next wave. Where it doesn't, the cell is
+  blank — <strong>a plan that commits from the start is a legitimate plan</strong>, and manufacturing a test to
+  fill every row is worse than an empty cell (operator correction 2026-10-01).</li>
+<li><strong>Every wave has at least one row that starts it</strong> (see the setup rule below). A wave with no
+  opening row cannot begin.</li>
+<li><strong>Windows must not overlap incoherently.</strong> Wave N's window starts on or after wave N−1's starts;
+  a deliberate overlap is fine and is stated. <code>plan_lint</code> checks the ordering.</li>
+</ul>
+<hr>
+<h2 id="channels-say-where-the-work-lives-v4-finding-e">Channels say where the work lives (v4 · finding E)</h2>
+<p>A channel is <strong>the surface the work lives on</strong>. It is not a category of effort, and it is not a
+bucket for things that don't fit.</p>
+<p>The failure: setup rows for lists, forms and publishing were filed under <strong>Measurement</strong> because
+they were "plumbing". Measurement then read as a large workstream when almost none of it measured
+anything.</p>
+<ul>
+<li><strong><code>Measurement</code> is only for true measurement</strong> — analytics, tracking, reporting, the numbers that
+  tell you whether it worked. Standing up a mailing list is not measurement; it is the mailing
+  channel's setup.</li>
+<li><strong>Standard channels</strong>: <code>Brand foundation</code> · <code>Website</code> · <code>Email — &lt;list name&gt;</code> · <code>LinkedIn + social</code>
+  · <code>Video</code> · <code>Ads &amp; paid</code> · <code>Publishing platform</code> · <strong><code>Candidate database</code></strong> <em>(new in v4)</em> ·
+  <strong><code>Search: Google and AI answers</code></strong> <em>(new in v4)</em> · <code>Measurement</code> · <code>Partnerships</code> · <code>Events</code>.</li>
+<li><strong>Extend the list when a real new surface appears</strong>, and add it here in the same turn. Don't
+  overload an existing channel because the list is short.</li>
+<li><strong>The Plan's channels and the gallery's channels must match.</strong> The gallery derives its channels
+  from the Plan through the shared <code>plan_model</code>, and <code>gallery-config.yaml</code> declares the taxonomy. A
+  channel in one and not the other is drift, and <code>plan_lint</code> fails on it.</li>
+</ul>
+<hr>
+<h2 id="setup-completeness-v4-finding-f">Setup completeness (v4 · finding F)</h2>
+<p>The programme shipped with no mailing lists created, no form routing, no publishing path for
+leadership content and no way to pay a referral. Each was invisible because the <em>marketing</em> item
+existed and looked complete.</p>
+<p><strong>The rule — anything that sends, collects, publishes, pays or measures needs its enabling setup
+rows.</strong> Walk those five verbs against every channel before the Plan is done:</p>
+<table>
+<thead>
+<tr>
+<th>If the plan…</th>
+<th>it needs setup rows for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>sends</strong></td>
+<td>the list or audience, the sending account, the from-address, consent and unsubscribe</td>
+</tr>
+<tr>
+<td><strong>collects</strong></td>
+<td>the form, where submissions go, who is notified, where the data lands</td>
+</tr>
+<tr>
+<td><strong>publishes</strong></td>
+<td>the account, the access for whoever posts, the approval route, the publish action itself</td>
+</tr>
+<tr>
+<td><strong>pays</strong></td>
+<td>the payment method, who authorises it, the terms whoever is paid has agreed</td>
+</tr>
+<tr>
+<td><strong>measures</strong></td>
+<td>the tracking, the tagged links, the report and who reads it</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every setup row carries a <code>Check:</code> line in <code>Notes</code></strong> — a test a person can run to see it is done.
+Not "configured correctly" but <em>"Check: send a test to yourself and it arrives with the right
+from-name"</em>. A setup row with no check cannot be verified and will be marked done on hope.</p>
+<p><strong>Every wave has a row that starts it.</strong> For each wave, at least one row must be producible on day
+one of its window — otherwise the wave opens blocked.</p>
+<p><code>plan_lint</code> flags a setup row with no <code>Check:</code>, and a wave with no opening row.</p>
+<hr>
+<h2 id="the-asset-list">The asset list</h2>
+<p>One table — every marketing item AND every setup job, as rows. Keep <code># | Asset</code> as the first two
+columns: the gallery and <code>check-state</code> contract keys on them.</p>
+<p><strong>Type values</strong>
+- <code>asset</code> — a <strong>marketing deliverable</strong> (page, post, image, video, email). Gets an asset folder, a
+  per-item gate and a gallery tile.
+- <code>setup</code> — a <strong>setup, deploy or configuration job</strong>. Plan-only: <code>Ships</code> is <code>—</code>, no asset folder, no
+  gallery tile. It sits beside the work it enables so a channel reads as a complete unit. Give it an
+  <code>S&lt;n&gt;</code> id so other rows can depend on it.</p>
+<p><strong>Row numbers never change</strong> (v4 · finding J). A row's <code>#</code> is its permanent identity: dependencies,
+the gallery, <code>check-state</code> and the operator's own notes all point at it. When a row is removed, its
+number is <strong>retired, not reused</strong> — leave the gap. When a row is added, take the next free number
+even if it sorts oddly. Renumbering a plan silently repoints every dependency and every reference
+made outside the document. <code>plan_lint</code> fails on a duplicate <code>#</code>, and on an <code>S&lt;n&gt;</code> clashing with an
+existing id.</p>
+<h3 id="name-and-description-written-for-a-stranger">Name and description — written for a stranger</h3>
+<p>Both are the operator's decision surface: someone who has never seen this campaign must read them
+and know exactly what the thing is and what it is for, with <strong>no interpretation</strong>.</p>
+<ul>
+<li><strong>No internal jargon.</strong> Say the plain thing — <em>social share-image</em>, not <em>tile</em>; <em>the weekly-issue
+  tool</em>, not <em>the cadence engine</em>; <em>auto-approved</em>, not <em>fast-lane</em>.</li>
+<li><strong>Spell out every acronym on first use</strong> — <em>business number (ABN)</em>, <em>tagged links (UTM)</em>, <em>the
+  goal (KPI)</em>. Never a bare acronym.</li>
+<li><strong>No cross-references</strong> — no <code>§3</code>, no <code>A2</code>, no raw file path, no "the X unit".</li>
+<li><strong>No cryptic codes.</strong> An issue's description says what it is <em>about</em>, never "learning A2".</li>
+<li><strong>The test</strong>: could someone outside marketing read it and act with zero interpretation?</li>
+<li>The description is the <em>purpose</em> — the format lives in <code>Form</code> and <code>Ships</code>.</li>
+</ul>
+<h3 id="review-format">Review format</h3>
+<ul>
+<li><code>output</code> — the specific deliverable; the operator approves it as-is.</li>
+<li><code>template [+N exemplars]</code> — the template is the approval target; populated examples inherit it.</li>
+<li><code>variant-comp [N × M]</code> — one representative comp is the approval target; resizes inherit it.</li>
+</ul>
+<h3 id="copy-file">Copy file</h3>
+<p><code>md</code> (editable Markdown companion) · <code>csv</code> (multi-variant copy) · <code>pptx</code> / <code>docx</code> (the document <em>is</em>
+the deliverable) · <code>none</code>.</p>
+<h3 id="ships-the-output-manifest">Ships — the output manifest</h3>
+<p>The <strong>authoritative contract for exactly what each row produces</strong> — one entry per <em>distinct output</em>,
+intermediate or final. <code>Form</code> describes the item in prose; <code>Ships</code> enumerates the concrete outputs.</p>
+<ul>
+<li>A deck whose <code>Form</code> is "slide deck + presenter notes" ships <strong>two formats</strong>: <code>HTML deck + PowerPoint</code>.</li>
+<li>A video whose <code>Form</code> is "silent social videos" ships <strong>two gated outputs</strong>: `4 storyboards (HTML)</li>
+<li>8 × MP4` — the storyboard has its own approval gate before expensive rendering, so it is named.</li>
+</ul>
+<p>This column is load-bearing, not documentation:</p>
+<ul>
+<li><strong>Gallery tiles = Ships, 1:1.</strong> Every entry becomes exactly one tile; nothing else does. A
+  non-web-renderable output still ships and tiles as a format-card with a download.</li>
+<li><strong>asset.yaml <code>ship: true</code> = Ships, 1:1.</strong> Render sources, embedded component images, deployment
+  wrappers and the asset record are never ships. A prose file that is merely the <code>copy_file</code> behind
+  a visual tile stays <code>ship: false</code> — it is an input to a shown deliverable, not a second one.</li>
+<li><strong><code>check-state</code> validates the chain</strong> Plan <code>Ships</code> ↔ <code>ship: true</code> ↔ tiles. A mismatch is drift.</li>
+<li><strong>The gallery reconciliation is the closing guard on the count.</strong> <code>build-gallery</code> counts the
+  <code>ship: true</code> files in <code>asset.yaml</code> and flags a deviation from the <code>Ships</code> count, so a mix change
+  that reached <code>asset.yaml</code> but not the Plan is caught even when it renders no visual tile.</li>
+</ul>
+<p><strong>If you can't fill <code>Ships</code> cleanly, the row isn't specified yet</strong> — tighten the scope before
+production rather than letting the Producer improvise.</p>
+<h3 id="search-is-in-the-first-draft-v4-finding-l">Search is in the first draft (v4 · finding L)</h3>
+<p>Search arrived late on the programme, as rows added after the plan was approved — which meant the
+pages it needed to influence were already written.</p>
+<p><strong>Every plan with a website or a publishing channel carries search in its first draft</strong>, as rows,
+in the wave where the pages are actually built:</p>
+<ul>
+<li>the questions real buyers type, and the answers the site owes them;</li>
+<li>which existing or planned pages answer them, and what is missing;</li>
+<li>how the pages are found by both a search engine and an AI answer engine — the channel is
+  <code>Search: Google and AI answers</code>, because a page that only satisfies one of them is half-built;</li>
+<li>the measurement rows that tell you whether any of it worked.</li>
+</ul>
+<p>If the campaign genuinely has no search surface, say so in one line under Open questions. Silence
+reads as an omission.</p>
+<h3 id="phase-6-is-in-the-plan-from-the-start-v4-finding-k">Phase 6 is in the plan from the start (v4 · finding K)</h3>
+<p>For a long programme, the running rhythm is not an appendix. The old spec appended the Phase-5/6
+readiness section at the <em>end of Phase 4</em>, which is far too late for a programme whose later waves
+<em>are</em> the ongoing engine: the rows that keep it running were being discovered after the plan was
+approved.</p>
+<ul>
+<li><strong>Setting <code>Ongoing</code> or <code>Launch-then-ongoing</code> → the plan carries its recurring work as rows from
+  the first draft</strong>, in the waves where it begins: the repeating items, who runs each cycle, how
+  long a cycle takes, and the per-tenant cadence skill that is the operator's entry point.</li>
+<li>The readiness section ("Getting it live, and keeping it running") still gets its own operator gate
+  at the end of Phase 4 — but it is <em>confirming</em> work already planned, not inventing it.</li>
+<li>Setting <code>Launch</code> keeps the old behaviour: the readiness section is appended at end of Phase 4.</li>
+</ul>
+<h3 id="cadence-skill-scaffold">Cadence skill scaffold</h3>
+<p>For <code>Ongoing</code> or <code>Launch-then-ongoing</code>, the asset list must include a per-tenant cadence skill as a
+Phase-4 deliverable — <code>.claude/skills/&lt;tenant-slug&gt;-&lt;cadence-name&gt;-assets/</code>. Intentionally thin at
+this stage (orchestration prose only, no novel logic); versioned after two or three real cycles.
+Without it, the running-rhythm document points at a skill that doesn't exist.</p>
+<h3 id="foundation-shaped-campaigns">Foundation-shaped campaigns</h3>
+<p>Where the Brief's objective is strategy development, the asset list is <strong>strategy artifacts</strong> rather
+than market-facing items: segment map · competitive claim map · value-proposition one-pager · brand
+platform · fit evidence base. Each is a normal row with a gate and a tile. At wrap they graduate to
+the tenant layer, and that graduation gate <em>is</em> the foundation approval.</p>
+<hr>
+<h2 id="waves-are-executable-cm-dispatch">Waves are executable — CM dispatch</h2>
+<p>The wave structure drives production. In Phase 4, CM dispatches a wave's <code>asset</code> rows whose
+dependencies are met as <strong>one parallel Producer batch</strong> — one Producer role, many concurrent jobs.
+The operator gate is at the <strong>wave boundary</strong>: approve wave 1 and wave 2 fires together, except
+where a specific row is flagged as needing its own approval. <code>setup</code> rows the operator owns are the
+roots that gate the first asset wave — surface them up front.</p>
+<hr>
+<h2 id="the-plan-is-the-living-source-of-truth">The plan is the living source of truth</h2>
+<p>The Phase-4 gallery <strong>derives</strong> its channels, names, descriptions, waves and Launch/Ongoing split
+from this plan through the shared <code>plan_model</code>. The gallery is a <em>view</em>, never a second list.</p>
+<ul>
+<li><strong>Any change to the asset set, in any phase, updates this plan first — in the same turn.</strong> A row
+  added during Phase-4 review, dropped, or re-scoped: edit it here, then re-render <code>plan.html</code> and
+  rebuild the gallery. Material change → version bump and re-approval; a like-for-like swap doesn't.</li>
+<li><strong><code>check-state</code> enforces the floor</strong>: an asset folder on disk with no plan row is flagged as
+  drift, and the gallery shows an unmatched tile in a visible "not in the plan yet" group rather
+  than hiding it.</li>
+</ul>
+<h3 id="badges-come-from-real-status-only-v4-finding-i">Badges come from real status only (v4 · finding I)</h3>
+<p>Rows showed a green <strong>Live</strong> badge that nothing had earned — the badge was inferred from wording.</p>
+<p><strong>A status badge may only render from an explicit machine-readable status field</strong>, never from prose.
+This is the rule SYS-127 established for the gallery (<code>review_status</code>, trusted first, with prose
+inference as a fragile fallback); it applies to every Plan surface too. If no status field is set,
+render no badge. <strong>An absent badge is correct; a wrong one is a lie the operator acts on.</strong></p>
+<hr>
+<details class="plan-collapsed"><summary>Roster</summary>
+<p>Specialists in scope. Producer for production; Brand Manager on every gate; CM orchestrating;
+Creative Director on call for creative-integrity callbacks; the operator for bylines, sign-offs and
+publish actions. Additional agents only where the Producer escalates beyond the AI-tooling ceiling.</p>
+</details><h2 id="budget">Budget</h2>
+<table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Amount</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><paid line></td>
+<td>$<n></td>
+<td><what></td>
+</tr>
+<tr>
+<td>Production tooling</td>
+<td>$<n></td>
+<td>AI generation costs</td>
+</tr>
+<tr>
+<td>Held back</td>
+<td>$<n></td>
+<td>5–15% reserve</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td>$<n></td>
+<td>matches the Brief's total</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-ships-without-asking-v4-finding-g">What ships without asking (v4 · finding G)</h2>
+<p>Formerly "Fast-lane rules". Two changes, both from the same finding: <strong>give people information and
+short rules rather than locking in a process.</strong></p>
+<ul>
+<li><strong>State the rule, not the workflow.</strong> "Weekly companion posts go out without approval once the
+  first three have set the pattern" is a rule. A six-step routing diagram is a process that will be
+  wrong by the second week.</li>
+<li><strong>Say what the rule is for</strong>, so someone can apply judgement at an edge the rule didn't
+  anticipate. A rule whose purpose is unstated gets followed off a cliff or ignored entirely.</li>
+<li>Keep the list short and specific. "All social posts" is too broad.</li>
+<li>Name what is <strong>not</strong> included: anchor posts, paid creative, anything with a new format.</li>
+</ul>
+<div class="plan-oq"><h2>Open questions</h2>
+<p>Genuine pending items only, each with who resolves it and by when. Includes dependencies outside
+the campaign's control — legal review windows, someone's availability, a decision not yet made.</p>
+</div><hr>
+<h2 id="getting-it-live-and-keeping-it-running">Getting it live, and keeping it running</h2>
+<p><em>(Formerly "§N — Phase 5 + 6 readiness". Renamed per finding H: internal section numbers are not
+names. For <code>Ongoing</code> settings this is populated from the first draft per finding K; for <code>Launch</code> it
+is appended at the end of Phase 4.)</em></p>
+<blockquote>
+<p><strong>Authored</strong>: <date> · <strong>Status</strong>: Draft / ✅ Approved / 🟥 Blocked · <strong>Approves</strong>: operator</p>
+</blockquote>
+<h3 id="going-live">Going live</h3>
+<p><strong>Read these to populate it</strong>: the Brief's technology setup (destination per channel), its roles
+(who runs what), its cadence shape, the asset list above, and the tenant's integration file.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Item</th>
+<th>Where it goes</th>
+<th>How</th>
+<th>Owner</th>
+<th>How we know it landed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Setup to complete first</strong> — accounts, keys, the integration file, the operator's machine, the
+folder structure. Each with its <code>Check:</code>.</p>
+<p><strong>Training</strong> <em>(only where the tenant runs it themselves)</em> — materials to read beforehand, a live
+session on day one, and how long support runs afterwards.</p>
+<h3 id="keeping-it-running-any-setting-except-launch">Keeping it running <em>(any setting except Launch)</em></h3>
+<p><strong>Who owns each cycle</strong> and <strong>how long a cycle takes</strong>, then the cycle steps: what triggers it, what
+the operator does, what fires automatically, what they must do by hand. <strong>Escalation</strong>: one line per
+category naming what to do and who to contact.</p>
+<h3 id="retro-milestones">Retro milestones</h3>
+<p>Per <code>docs/specs/retro.md</code>: a light retro at each phase boundary (~10 min, skippable if the operator
+confirms there was no friction), and a mandatory heavier one at each wave close, at campaign end or
+quarterly, and at the fourth cycle of a running rhythm.</p>
+<h3 id="before-this-section-is-approved">Before this section is approved</h3>
+<ul>
+<li>[ ] The Brief's technology setup, roles and cadence shape are resolved — no TBDs.</li>
+<li>[ ] Every row has its destination recorded, or an explicit TBD with a reason.</li>
+<li>[ ] No outstanding Brand verdicts.</li>
+<li>[ ] The operator has confirmed anything they must provide: access, keys, availability.</li>
+</ul>
+<p>Any unmet criterion keeps the status 🟥 Blocked, and the next phase does not fire.</p>
+<hr>
+<h2 id="numbers-must-agree-with-each-other-v4-finding-m">Numbers must agree with each other (v4 · finding M)</h2>
+<p>A plan is read by someone checking whether it adds up. Three specific consistency rules, each from a
+real inconsistency:</p>
+<ul>
+<li><strong>The budget split matches its total</strong>, and the total matches the Brief. If a line changes, the
+  total and the Brief reference change in the same edit.</li>
+<li><strong>A test's length is stated once and used everywhere.</strong> A paid test described as "about seven
+  weeks" in one place and "a month" in another is two different plans. State the window with dates
+  in the Waves table and refer to it, never restate it.</li>
+<li><strong>Cited evidence keeps its source.</strong> A number carried in from research names who published it and
+  when, and the figure must be present in that source. A statistic whose source doesn't contain it
+  is worse than no statistic — flag it for verification rather than passing it through.</li>
+</ul>
+<hr>
+<h2 id="plain-language-and-the-cold-read-v4-finding-h">Plain language, and the cold read (v4 · finding H)</h2>
+<ul>
+<li><strong>Plain language everywhere</strong> — the name, the description, the notes, the change log. Notes may
+  carry finer production detail but stay interpretable. The bar relaxes on <em>depth</em>, never <em>clarity</em>.</li>
+<li><strong>Internal headings get real names.</strong> "§N" is a cross-reference, not a title. Name the section
+  after what the reader gets from it.</li>
+<li><strong>A cold read is mandatory before the plan is surfaced.</strong> Run the <code>review-ready</code> gate: the jargon
+  lint plus a read as someone who did not write it. Fix what it finds; surface the judgement calls.</li>
+<li><strong>Every defined term is checked against its source.</strong> A term borrowed from a framework, a
+  platform or a client's own language must mean here what it means there. The failure this comes
+  from: "paid read" was used for something that was not a paid read, and the error propagated
+  because nobody checked the definition against the source. <strong>Where a term is load-bearing, quote
+  the source line.</strong></li>
+<li><strong>A shared glossary lives in the collapsed block at the foot</strong> — one definition per term, used
+  consistently, so the same thing is not called three things across a long document.</li>
+<li><strong>Use the plan-safe edit path.</strong> Editing a plan by hand risks renumbering rows, breaking the
+  <code># | Asset</code> contract, or reordering sections the renderer classifies. Make structural edits
+  through the tooling that preserves row identity and section order, and run <code>plan_lint</code> afterwards.
+  If you must hand-edit, re-run <code>plan_lint</code> before surfacing — <strong>an edit after a check re-opens that
+  check</strong> for the surface it touched.</li>
+</ul>
+<hr>
+<h2 id="automatic-checks-plan_lintpy-v4-finding-j">Automatic checks — <code>plan_lint.py</code> (v4 · finding J)</h2>
+<p>Four things were being checked by eye on the long programme, and two were caught only by accident:
+dates out of order, waves whose windows didn't line up, gallery channels that had diverged from the
+Plan's, and a duplicate row id (<code>S17</code> used twice). A guard only covers what it enumerates, so these
+are enumerated:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Fails when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dates in order</strong></td>
+<td>a row's target date falls outside its wave's window, or a wave's window starts before the previous wave's</td>
+</tr>
+<tr>
+<td><strong>Wave windows</strong></td>
+<td>a wave has no window, windows are incoherent, or a wave has no row that can start it</td>
+</tr>
+<tr>
+<td><strong>Gallery channels match</strong></td>
+<td>a channel appears in the Plan but not <code>gallery-config.yaml</code>, or the reverse</td>
+</tr>
+<tr>
+<td><strong>Row numbers stable</strong></td>
+<td>a duplicate <code>#</code>, or an <code>S&lt;n&gt;</code> clashing with an existing id</td>
+</tr>
+</tbody>
+</table>
+<p>Plus the structural floor: a v4 plan must declare <code>Setting:</code>, and every <code>setup</code> row must carry a
+<code>Check:</code>.</p>
+<pre><code class="language-bash">python .claude/skills/plan-lint/plan_lint.py campaigns/&lt;slug&gt;/plan.md
+</code></pre>
+<p>Run it before surfacing a Plan, alongside <code>review-ready</code>. It is wired into the system smoke test, so
+a regression in the checks themselves goes red before it reaches a campaign.</p>
 <hr>
 <h2 id="drafting-discipline">Drafting discipline</h2>
 <ul>
-<li>Asset list is the headline — table-led, scannable.</li>
-<li>Effort Tier from Brief sets expected asset count: XS=1–3 / S=3–6 / M=6–12 / L=12–25 / XL=25+. Above range = justify per asset; below = justify the restraint.</li>
-<li>Owner agent must match the agent roster. Only Producer + Brand + CM in default; escalations named explicitly.</li>
-<li>Fast-lane list is small and specific. "All social posts" is too broad. "Weekly Tuesday companion post after Brand confirms pattern on first 3" is right.</li>
-<li>Open questions limited to genuine pending items, not "what about everything else?"</li>
-<li><strong>v2 §N drafting</strong>: §N is NOT in the initial Plan draft at Phase 3 approval — it's appended at end of Phase 4 (after asset development completes) and approved as a separate gate. The initial Plan locks the strategic core; §N locks the rollout-readiness.</li>
-<li><strong>v2 §N for one-off campaigns</strong>: §N.2 (Phase 6) is omitted entirely. §N.1 + §N.3 only.</li>
-<li><strong>v2 §N for ongoing campaigns</strong>: all three subsections required. §N.2 skeleton is intentionally brief — the full cycle runbook lives in <code>campaigns/&lt;slug&gt;/phase-6-cadence.md</code> (built in Phase 6 of the Rollout Architecture build sequence).</li>
-<li><strong>Revision discipline — change history goes to the FOOT, never the header (operator directive 2026-06-15).</strong> A revised plan re-reads as a clean whole from the top; version-change prose ("v2.1 change", "Major v2 shifts from v1", etc.) does NOT sit between the header and the first section. Put a one-line pointer under the header — <code>&gt; *(Full change history at the foot of this plan.)*</code> — and a single <strong><code>## Change log (vX → vY)</code></strong> section at the bottom. The render policy auto-moves history-classified <code>##</code> sections to the "📜 History &amp; audit trail" tail (keywords: change log / changelog / version history / what changed / revision / freshness), but it CANNOT move header prose — so never author change history as header prose. Mirrors the concept-spec revision rule (<code>feedback_concept_revision_drift_taxonomy</code>).</li>
-<li><strong>"What's happening" (Channel workstreams) is never truncated (operator directive 2026-06-15).</strong> The plan template's auto-generated channel summary shows every asset name at full length — more description, not less. (Enforced in <code>render.py _ws_desc</code>; the <code>.ws-row__desc</code> cell wraps and grows.)</li>
+<li>The asset list is the headline — table-led and scannable.</li>
+<li>The Brief's effort tier sets the expected count: XS 1–3 · S 3–6 · M 6–12 · L 12–25 · XL 25+. Above
+  the range, justify per row; below it, justify the restraint.</li>
+<li>Owner must match the agent roster.</li>
+<li><strong>Change history goes to the foot, never the header.</strong> A revised plan re-reads as a clean whole
+  from the top. Put a one-line pointer under the header and a single <code>## Change log (vX → vY)</code>
+  section at the bottom. The renderer auto-moves history-classified sections to the tail but cannot
+  move header prose — so never author change history as header prose.</li>
+<li><strong>The channel summary is never truncated</strong> — it shows every row name at full length.</li>
+<li><strong>Check the rendered plan at phone width</strong> before surfacing (v4 · finding N). Tables are the whole
+  document here; a table that scrolls off a phone is unreadable to an operator approving on one. The
+  wide tables fold to stacked rows at narrow widths — confirm it on the rendered HTML, not the
+  markdown.</li>
 </ul>
 <hr>
 <h2 id="what-this-plan-does-not-contain">What this Plan does NOT contain</h2>
 <ul>
-<li>Per-asset detail (lives in each Per-Step Brief, written by CM at dispatch time)</li>
-<li>Brand context (lives in Brand Context record; CM injects slices into each Per-Step Brief)</li>
-<li>Concept narrative (lives in the chosen Concept)</li>
-<li>Full Phase 5 rollout runbook (lives in <code>campaigns/&lt;slug&gt;/phase-5-rollout.md</code>, authored from §N.1 by CM <strong>at the end of Phase 4</strong>, together with the Phase 6 doc)</li>
-<li>Full Phase 6 cycle runbook (lives in <code>campaigns/&lt;slug&gt;/phase-6-cadence.md</code>, authored from §N.2 + Brief <strong>at the end of Phase 4</strong>, alongside the Phase 5 doc; cadenced campaigns only)</li>
-<li>Tenant credentials (live in <code>tenant/&lt;tenant&gt;/integrations.yaml</code>, never in Plan)</li>
+<li>Per-row detail — lives in each Per-Step Brief, written at dispatch time.</li>
+<li>Brand context — lives in the Brand Context record; CM injects slices.</li>
+<li>Concept narrative — lives in the chosen Concept.</li>
+<li>The full going-live runbook — <code>campaigns/&lt;slug&gt;/phase-5-rollout.md</code>.</li>
+<li>The full cycle runbook — <code>campaigns/&lt;slug&gt;/phase-6-cadence.md</code>.</li>
+<li>Tenant credentials — <code>tenant/&lt;tenant&gt;/integrations.yaml</code>, never here.</li>
 </ul>
 <hr>
-<h2 id="v2-retrofit-pattern-when-applied-to-in-flight-campaigns">v2 retrofit pattern (when applied to in-flight campaigns)</h2>
-<p>When a v1-era Plan needs v2 retrofit because the campaign is approaching Phase 6 (as Beta Corp will need 2026-06-03):</p>
+<h2 id="how-to-read-this-plan-authoring-note-this-block-renders-collapsed-at-the-foot">How to read this plan <em>(authoring note: this block renders collapsed, at the foot)</em></h2>
+<p>The Plan's own reference material — the column guide, the glossary and the attribution key — is
+authored inside a <code>&lt;details markdown="1"&gt;</code> block as the <strong>last</strong> section before the change log.</p>
+<ul>
+<li><strong>Column guide</strong>: one line per column of the asset list.</li>
+<li><strong>Glossary</strong>: every load-bearing term, one definition each, matching its source.</li>
+<li><strong>Attribution key</strong>: how each line was sourced — <code>[operator]</code> stated, <code>[interview]</code> captured,
+  <code>[AI synthesis]</code> composed from inputs.</li>
+</ul>
+<p>The <code>markdown="1"</code> attribute is required for tables and lists inside <code>&lt;details&gt;</code>.</p>
+<hr>
+<h2 id="migrating-a-v3-plan">Migrating a v3 plan</h2>
+<p>A v3 plan keeps rendering. To bring one to v4:</p>
 <ol>
-<li>CM appends §N "Phase 5 + 6 readiness" to the Plan markdown at end of Phase 4.</li>
-<li>CM pre-populates §N.1 + §N.2 from Brief v2 sections + completed asset list (the assets' <code>deployment:</code> blocks once filled provide the destinations).</li>
-<li>Anything genuinely unknown becomes a Plan OQ batch — blocks Phase 6 firing.</li>
-<li>Plan version bumps to vN+1 (or v2.x for the retrofit batch); operator approves §N as a discrete gate.</li>
-<li>Dashboard reflects: 🔵 "§N Phase 5 + 6 readiness in flight" → 🟡 "§N pending operator gate" → ✅ "§N approved · Phase 5 firing".</li>
+<li>Add <code>Setting:</code> and the "Plan at a glance" table at the top.</li>
+<li>Replace the Phasing paragraph with the Strategy table, then the Waves table with windows.</li>
+<li>Re-file any setup row sitting under <code>Measurement</code> to the channel it actually enables.</li>
+<li>Walk the five verbs — sends, collects, publishes, pays, measures — and add the missing setup
+   rows, each with a <code>Check:</code>.</li>
+<li>Add search rows if there is a website or publishing channel.</li>
+<li>Move the column guide and glossary into the collapsed block at the foot.</li>
+<li>Rename <code>§N</code> to "Getting it live, and keeping it running".</li>
+<li>Run <code>plan_lint</code> and <code>review-ready</code>; check it at phone width.</li>
+<li>Bump the version and re-approve — this is a material change.</li>
 </ol>
 <hr>
 <h2 id="cross-references">Cross-references</h2>
 <ul>
-<li><strong>Rollout Architecture v2 spec</strong>: <code>docs/specs/rollout-architecture.md</code> — §4 defines the §N gate; §5 defines Phase 5 artifact (phase-5-rollout.md) that §N.1 expands into; §6 defines Phase 6 artifact (phase-6-cadence.md) that §N.2 expands into.</li>
-<li><strong>Brief spec v2</strong>: <code>docs/specs/brief.md</code> — §Tech Setup + §Human Roles + §Cadence Shape are the upstream source of §N data.</li>
-<li><strong>Asset spec</strong> (extended in Rollout Architecture build sequence Phase 4): asset.yaml <code>deployment:</code> block per-asset destinations feed §N.1's deployment matrix.</li>
-<li><strong>Phase 5 artifact spec</strong>: <code>docs/specs/phase-5-rollout.md</code> (built in Rollout Architecture build sequence Phase 6) — §N.1 is the seed; phase-5-rollout.md is the expanded runbook.</li>
-<li><strong>Phase 6 artifact spec</strong>: <code>docs/specs/phase-6-cadence.md</code> (built in Rollout Architecture build sequence Phase 6) — §N.2 is the seed; phase-6-cadence.md is the expanded per-cycle runbook.</li>
+<li><strong>Rollout Architecture</strong>: <code>docs/specs/rollout-architecture.md</code> — defines the readiness gate and
+  the phase-5 / phase-6 artifacts this section seeds.</li>
+<li><strong>Brief spec</strong>: <code>docs/specs/brief.md</code> — technology setup, roles and cadence shape are the upstream
+  source for going live. The Brief's exhaustive intake is where the strategy's evidence comes from.</li>
+<li><strong>Asset spec</strong>: <code>asset.yaml</code>'s <code>deployment:</code> block feeds the going-live matrix.</li>
+<li><strong>Gallery QA</strong>: <code>docs/specs/gallery-qa.md</code> — the <code>Ships</code> ↔ <code>ship: true</code> ↔ tile reconciliation.</li>
+<li><strong>Review-ready</strong>: the mandatory cold read before any surface reaches the operator.</li>
 </ul>
     </article>
   </main>
