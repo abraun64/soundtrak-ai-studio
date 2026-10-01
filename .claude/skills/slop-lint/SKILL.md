@@ -73,6 +73,7 @@ Exit 0 = within thresholds, 1 = at least one check over.
 | **Aphorism density** | The "X is the win / the whole thing / the hard part" frame, and "the most/only/single biggest". |
 | **Abstraction as the actor** | Sentences opening on an abstraction or a gerund instead of a person or a named thing — "The noise goes up, the bodies come down". |
 | **Opener repetition** | Consecutive sentences starting the same way. |
+| **Off-register phrase** | The literal content-subedit Rule 8 and Rule 9 lists: "took a beat", "move the needle", "wearing a volume problem's clothes", "a sharp operator will push back", "earns its keep". **Zero tolerance: one hit flags.** This is the one check here that finds a phrase instead of counting a pattern. It skips mentions (ban lists, quoted examples). (SYS-156) |
 
 ## Reading the output
 
@@ -102,6 +103,9 @@ thresholds:
   phrase_rate_per_1k: 2.5      # a punchy consumer voice legitimately repeats more
 exempt_phrases:
   - "rather than"              # named device, deliberate
+  - "deep dive"                # an off-register label, exempted by name
+register_phrases:              # extra zero-tolerance phrases for this voice
+  - "sidewalk"
 ```
 
 Different voices have different legitimate profiles. A plain instructional voice and a punchy

@@ -61,7 +61,8 @@ return:
   self_qa:                                # producer + any authoring agent
     copy:    { ran: true, layers: 3, pass: true, report: <ref> }
     visual:  { ran: true, layers: 3, pass: true, report: <ref> }
-    content_subedit: { ran: true, violations: 0, report: <ref> }   # every copy asset
+    content_subedit: { ran: true, violations: 0, report: <ref>,   # every copy asset
+                       rule10_trace: { rows: <n>, untraced_kept: 0, ref: <record> } }   # SYS-173
   gate:                                   # GATE agents only (governance / brand)
     verdict: clear | clear-with-disclaimers | hold | block        # governance
              | pass | pass-with-notes | send-back | kill          # brand

@@ -114,19 +114,24 @@ def _decode(raw: bytes) -> str:
     return raw.decode("utf-8", errors="replace")
 
 
-def run_diag(label: str, script: Path, args: list | None = None) -> tuple[str, bool, str]:
+def run_diag(label: str, script: Path, args: list | None = None,
+             timeout: int = 180) -> tuple[str, bool, str]:
     if not script.exists():
         return label, True, "(not present — skipped)"
     try:
         # BYTES, decoded by _decode above — see why there.
         r = subprocess.run([sys.executable, str(script), *(args or [])], cwd=str(ROOT),
-                           capture_output=True, timeout=180)
+                           capture_output=True, timeout=timeout)
         tail = ""
         for line in reversed(_decode(r.stdout or r.stderr or b"").splitlines()):
             if line.strip():
                 tail = line.strip()
                 break
         return label, r.returncode == 0, tail
+    except subprocess.TimeoutExpired:
+        # Say it plainly. str(e) opens with the full command line, so the [:120] cut below
+        # hid "timed out" and the 2026-09-25 digest filed a timeout as an unexplained failure.
+        return label, False, f"TIMED OUT after {timeout}s (not a test failure; re-run to check)"
     except Exception as e:  # noqa: BLE001
         return label, False, str(e)[:120]
 
@@ -337,7 +342,11 @@ def main() -> int:
     # backlog nobody is clearing.
     drift_new, drift_sample, drift_ratcheted = drift_delta(
         SKILLS / "check-state" / "gate.py")
-    results = [run_diag(label, script, args) for label, script, args in diagnostics]
+    # The smoke test runs every layer incl. behavioural evals; 17s interactively, but it ran
+    # past 180s at 07:05 on 2026-09-25 alongside the other cadences. 600s matches verify.py.
+    timeouts = {"smoke-test": 600}
+    results = [run_diag(label, script, args, timeouts.get(label, 180))
+               for label, script, args in diagnostics]
 
     backlog = load_items(SYSTEM_DIR / "backlog.yaml", "items")
     ideas = load_items(SYSTEM_DIR / "ideas.yaml", "items")

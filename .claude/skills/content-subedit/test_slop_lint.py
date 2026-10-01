@@ -156,6 +156,56 @@ def test_prose_zones_only() -> None:
         check("details blocks are excluded", not any("rather than rather" in s for s in lines))
 
 
+def test_register_phrases_are_zero_tolerance() -> None:
+    """SYS-156. Ed 24 shipped both of these past the counting checks and the banned-word list; the
+    operator caught them on read. A phrase is wrong once, so one hit must flag, in clean prose."""
+    for line in ("It took a beat to see it the other way around.",
+                 "This is a content problem wearing a volume problem's clothes.",
+                 "A sharp operator will push back here, and it is uncomfortable.",
+                 "That is the line that earns its keep.",
+                 "We should circle back on the numbers."):
+        f = _lint(KNOWN_GOOD + "\n\n" + line)
+        check(f"register: flags {line[:40]!r}", any(x["check"] == "off-register phrase" for x in f),
+              f"got {[x['check'] for x in f]}")
+    f = _lint(KNOWN_GOOD + "\n\nThe director took a beat’s pause, then said it was the A-team’s call.")
+    check("register: curly apostrophes do not hide a hit",
+          any(x["check"] == "off-register phrase" for x in f))
+
+
+def test_register_ignores_literal_use_and_mentions() -> None:
+    """Every case here was a real hit in the 2026-10-02 sweep over all shipped asset files. A
+    zero-tolerance check that fires on literal use or on a ban list gets routed around."""
+    for line in ("No dressing children in somebody else's clothing as a costume.",
+                 "It goes wrong when the youngest room is treated as a smaller version of the oldest.",
+                 "The favicons resolve one level up, as on the existing page.",
+                 "Banned: synergy, leverage, game-changing, deep dive, circle back.",
+                 "Never the machine-written register: seamless, cutting-edge, game-changing.",
+                 'Avoid the stock follow-ups ("circling back", "just bumping this").',
+                 'She said "honestly, it was a no-brainer" and laughed.'):
+        f = _lint(KNOWN_GOOD + "\n\n" + line)
+        check(f"register: ignores {line[:40]!r}",
+              not any(x["check"] == "off-register phrase" for x in f),
+              f"flagged: {[x['detail'] for x in f if x['check'] == 'off-register phrase']}")
+
+
+def test_register_is_tenant_extensible_and_exemptable() -> None:
+    """Defaults are the operator's register; another voice adds its own phrases or exempts one."""
+    cfg = dict(_sl.DEFAULTS)
+    cfg["register_extra"] = ["sidewalk"]
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "sample.md"
+        p.write_text(KNOWN_GOOD + "\n\nMeet us on the sidewalk outside.\n\nWe will circle back.",
+                     encoding="utf-8")
+        f = _sl.analyse([p], cfg, [])["per_file"][p]["findings"]
+        reg = [x for x in f if x["check"] == "off-register phrase"]
+        check("register: a tenant phrase flags", bool(reg) and "sidewalk" in reg[0]["detail"],
+              f"{[x['detail'] for x in reg]}")
+        f = _sl.analyse([p], cfg, ["circle back", "sidewalk"])["per_file"][p]["findings"]
+        check("register: exempt labels stop flagging",
+              not any(x["check"] == "off-register phrase" for x in f),
+              f"{[x['detail'] for x in f]}")
+
+
 def main() -> int:
     print("slop-lint regression tests")
     test_known_bad_is_flagged()
@@ -164,6 +214,9 @@ def main() -> int:
     test_exemption_silences_a_named_brand_device()
     test_it_never_reports_ok_having_read_nothing()
     test_prose_zones_only()
+    test_register_phrases_are_zero_tolerance()
+    test_register_ignores_literal_use_and_mentions()
+    test_register_is_tenant_extensible_and_exemptable()
     if _FAILED:
         print(f"\nFAILED ({len(_FAILED)}): " + ", ".join(_FAILED))
         return 1

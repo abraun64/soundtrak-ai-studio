@@ -250,6 +250,14 @@ if _SLOP_TEST.exists():
     ok, err = _run_ok([str(_SLOP_TEST)])
     check("L1", "slop-lint texture tests", ok, err if not ok else "")
 
+# SYS-173 — Rule 10 (fabricated scene / feeling / role) cannot be linted; the catch is a read
+# against the source that must PRODUCE a trace table. This guards the must-record check: a
+# report saying "Rule 10: clear" with no table, or an untraced row left in the copy, must fail.
+_TRACE_TEST = ROOT / ".claude" / "skills" / "content-subedit" / "test_source_trace_check.py"
+if _TRACE_TEST.exists():
+    ok, err = _run_ok([str(_TRACE_TEST)])
+    check("L1", "Rule 10 source-trace tests", ok, err if not ok else "")
+
 # SYS-149 — the leak gate is the last check before master-derived content reaches a PUBLIC repo.
 # It has to stay correct in BOTH directions: no false alarm on a clean split tree (one that cries
 # wolf gets waved through, and that is how a real leak eventually ships), and no loosening that

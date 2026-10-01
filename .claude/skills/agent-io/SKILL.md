@@ -34,7 +34,7 @@ future gated Step 4 — not this skill.
 
    | Agent | Required on `delivered` |
    |---|---|
-   | **producer** | `artifacts` (≥1 `ship: true`) + `self_qa.copy` + `self_qa.visual` + `self_qa.content_subedit` |
+   | **producer** | `artifacts` (≥1 `ship: true`) + `self_qa.copy` + `self_qa.visual` + `self_qa.content_subedit` incl. `rule10_trace` {rows, untraced_kept: 0, ref} — the ref'd record must carry the Rule 10 source-trace table (SYS-173) |
    | **governance** | `gate.verdict` ∈ {clear, clear-with-disclaimers, hold, block} + `gate.audit_ref` |
    | **brand** | `gate.verdict` ∈ {pass, pass-with-notes, send-back, kill} + `gate.audit_ref` |
    | **creative-director / insights / forensic** | `artifacts` (≥1) |

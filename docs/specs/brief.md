@@ -1,6 +1,6 @@
 # Brief — Phase 1 Schema (v2)
 
-**Spec version**: v4 · 2026-09-06: the intake interview is now EXHAUSTIVE by default — the 4–8 minute target is removed (a time budget was capping depth), replaced by a COVERAGE BAR over a named topic bank, an evidence sweep that runs BEFORE the first question, a HOMEWORK mechanic for evidence the operator has to go and collect, and a coverage ledger the operator sees at approval. New section: **What we already know**. Operator ruling 2026-09-06: full grilling on every campaign, no exceptions; homework classified load-bearing (blocks) vs useful (proceeds on a stated assumption). Previously v3.3 · 2026-06-12: objective taxonomy REMOVED (operator ruling — constraints must earn their place). The objective is ONE plain-language sentence + ONE primary KPI; CM infers the campaign shape (market-facing vs foundation-shaped) from the grilling and confirms its read in plain words — the operator is never asked to classify against system definitions. Supersedes v3.2's class+menu design same-day. v3.1 · 2026-06-12: foundation campaigns (strategy development) + Audience reframed as targeting (select from the tenant segment map) + fit-maturity challenge. v3 · 2026-06-12 (Phase 2 redesign retro R1/R5): mandatory business-objective taxonomy + KPI-scale sanity gate + tenant playbook §0 cited as fixed input. Previously v2 · 2026-06-03: Tech Setup + Human Roles + Cadence Shape per Rollout Architecture v2 (`docs/specs/rollout-architecture.md` §2).
+**Spec version**: v4.1 · 2026-10-01: the evidence sweep gains a tenant-layer SEARCH BASELINE, produced with the AEO/SEO engine and cited rather than reimplemented; three named search topics (D6-D8) replace asking an operator what people type; demand research rides with the Insights Manager dispatch, after the segment is chosen. · v4 · 2026-09-06: the intake interview is now EXHAUSTIVE by default — the 4–8 minute target is removed (a time budget was capping depth), replaced by a COVERAGE BAR over a named topic bank, an evidence sweep that runs BEFORE the first question, a HOMEWORK mechanic for evidence the operator has to go and collect, and a coverage ledger the operator sees at approval. New section: **What we already know**. Operator ruling 2026-09-06: full grilling on every campaign, no exceptions; homework classified load-bearing (blocks) vs useful (proceeds on a stated assumption). Previously v3.3 · 2026-06-12: objective taxonomy REMOVED (operator ruling — constraints must earn their place). The objective is ONE plain-language sentence + ONE primary KPI; CM infers the campaign shape (market-facing vs foundation-shaped) from the grilling and confirms its read in plain words — the operator is never asked to classify against system definitions. Supersedes v3.2's class+menu design same-day. v3.1 · 2026-06-12: foundation campaigns (strategy development) + Audience reframed as targeting (select from the tenant segment map) + fit-maturity challenge. v3 · 2026-06-12 (Phase 2 redesign retro R1/R5): mandatory business-objective taxonomy + KPI-scale sanity gate + tenant playbook §0 cited as fixed input. Previously v2 · 2026-06-03: Tech Setup + Human Roles + Cadence Shape per Rollout Architecture v2 (`docs/specs/rollout-architecture.md` §2).
 
 The **Brief** is the operator-approved fact set for the campaign. CM authors it in Phase 1 from operator inputs (chat, transcripts, URLs, docs). It's strategic, not operational — what / why / who / how-measured / **what tech stack we ship into / who runs it / how often**. Operational asset-level detail lives in the Phase 3 Plan.
 
@@ -310,6 +310,8 @@ Do not open cold. Assemble **What we already know** first, from what the system 
 - prior campaigns for this tenant — `campaigns/*/campaign.yaml` (objective + KPI blocks), any
   `analysis/` folder, any campaign report;
 - the tenant playbook §0 (value prop · claim map · only-we lines) and **§0a disqualifiers**;
+- **`tenant-brand/<tenant>-search.md` — the search baseline** (see below). What people
+  actually type, what AI answers say about this business today, and who owns those answers.
 - `tenant-brand/<tenant>-audience-truths.md`, `tenant-brand/<tenant>-market.md`, the research
   library, the best-practice library.
 
@@ -317,6 +319,46 @@ Then **open with the read, not a question**: *"Here is what I already know about
 what your last campaigns in this channel actually did — correct me where I'm wrong."* Grilling
 someone on facts the system could have looked up is what turns an interview into an interrogation,
 and it produces worse answers than reacting to something concrete.
+
+### The search baseline — swept, not asked (v4.1 · operator direction 2026-10-01)
+
+Search evidence is the one part of the sweep the system cannot read off its own disk, and it is the
+part an operator is least able to answer from memory. "What do people type?" is not a question to
+ask a marketer; it is a question to go and measure.
+
+**It lives at the tenant layer**, beside the market view and the audience truths, because a
+company's search position does not change per campaign:
+
+```
+tenant-brand/<tenant>-search.md
+```
+
+It holds the baseline the Brief needs: whether AI crawlers can reach the site at all, what
+structured data is there, **what AI answers currently say about this business and whether that is
+accurate**, the organic and AI-referral starting numbers, and **whose pages own the answers we
+want**.
+
+**CM produces it with the AEO/SEO engine, not by hand.** The engine is a separate plugin with its
+own methodology and its own versioning; this system **cites** it rather than reimplementing it —
+the same graduate-then-cite discipline the tenant layer already uses, and for the same reason two
+copies of one contract drift apart.
+
+| When | What CM does |
+|---|---|
+| the baseline is present and fresh | read it; answer D6–D8 from it; do not ask |
+| it is missing or stale, and the engine is installed | run the engine's baseline and source-mapping phases for this tenant, write the result, then read it |
+| it is missing and the engine is NOT installed | **say so plainly**, make D6–D8 a named homework item with a stated default, and carry on. The Brief is not blocked on a tool that is not there |
+
+**Demand research and qualification come later, and deliberately.** Which questions are worth
+chasing depends on the objective and the chosen segment — which this interview is in the middle of
+establishing. So the Demand Map and the qualify/kill verdicts ride with the **Insights Manager
+dispatch**, which already fires once the objective, segment, budget and deadline are set. **Search
+demand is a route to market**, and belongs with the other routes rather than in a section of its
+own.
+
+Running demand research before the segment is chosen produces a list of opportunities for a
+business, not for this campaign — which is how search rows end up arriving late and attached to
+nothing.
 
 ### What earns a question
 
@@ -363,6 +405,9 @@ Every topic gets a status in the ledger. Ids are stable so the ledger can refere
 | D3 | Where it lives, and can we have it | Prime homework candidate |
 | D4 | What we believe about them that we have never tested | Marked as belief, not fact |
 | D5 | Who is explicitly NOT the audience | |
+| **D6** | **The questions real buyers type**, in their words | From the search baseline — never guessed |
+| **D7** | **What an AI answer says about this business today**, and whether it is accurate | A wrong AI answer is a live problem, not a campaign idea |
+| **D8** | **Who owns the answers we want** — whose pages get cited, and are we on them | Competitor evidence the category view misses |
 | **E — The offer** | | |
 | E1 | What exactly is being offered | |
 | E2 | Why would they act now | Urgency + reason to believe |

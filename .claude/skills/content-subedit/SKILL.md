@@ -52,7 +52,11 @@ had scored tone 5/5 across twelve assets. Both were wrong, and neither was carel
 clustering — several inside a handful of consecutive sentences, which reads far worse than the
 raw rate) · sentence-length variance · aphorism density ("X is the win / the whole thing") ·
 sentences opening on an abstraction or a gerund instead of a person or a named thing · repeated
-sentence openers.
+sentence openers · **off-register phrases** (SYS-156): the literal Rule 8 and Rule 9 lists (register
+slang, metaphor-dressing, staged pushback, told emotion, tired approval idioms, vague comparatives).
+That last one is a find-check, not a statistic: **one hit flags**. It skips a phrase that is only
+being *named* (a ban list, a "Never: ..." line, a quoted example). Rule 8's US spellings and Rule 9e's
+praise-adjectives stay with your own read, because they are judgement calls rather than phrases.
 
 **When it flags, fix the text — do not raise the threshold.** The thresholds are calibrated to
 separate a known-bad body from a known-good one, so moving them to get green destroys the only
@@ -64,6 +68,9 @@ thresholds:
   phrase_rate_per_1k: 2.5      # a punchy consumer voice legitimately repeats more
 exempt_phrases:
   - "rather than"              # named device, deliberate
+  - "deep dive"                # an off-register label, exempted by name
+register_phrases:              # extra zero-tolerance phrases for this voice
+  - "sidewalk"
 ```
 
 
@@ -107,6 +114,8 @@ auto-fix.** Record every such call in the report (see Step 5) as "tenant-permitt
 
 ## Step 2 — Get the content
 
+**Also get the operator source** (SYS-173). Rule 10 is checked by tracing every scene, feeling, role claim and author result back to what the operator actually supplied: the brief, their notes, a transcript, quotes they gave. Producer-inline, that is the Per-Step Brief and the files it names; on demand, ask for it if it is not obvious. Without it Rule 10 cannot run, and the report must say so (Step 5) rather than pass it.
+
 **Producer-inline (the mandatory case):** the content is the draft the Producer just wrote
 (and ran its own L1/L2/L3 self-edit on). Work with the text directly. Do not re-draft — sub-edit.
 
@@ -125,7 +134,7 @@ Work from the extracted text.
 
 ## Step 3 — Run all rules
 
-Work through each rule in order (Rules 1–7 in `references/voice-rules.md`). For every candidate hit:
+Work through each rule in order (Rules 1–10 in `references/voice-rules.md`). Rule 10 is different in kind: it is a read against the source, not a scan, and it is not done until its trace table exists (Step 5). For every candidate hit:
 1. **Tenant-precedence check first** — is this an explicitly permitted / named device or carve-out in the tenant §2 (per Step 1 precedence)? If yes → **not a violation.** Leave it; log it as "tenant-permitted — left as-is."
 2. Otherwise it's a violation: quote the offending text, state the fix applied.
 
@@ -158,10 +167,24 @@ RULE 4 — RESTATEMENTS: [N] violations fixed
 RULE 5 — RECAP CLOSING: [fixed / no violation]
 RULE 6 — HOLLOW CONTRAST (many-say-few-do + significance kicker): [N] violations fixed
 RULE 7 — UNVERIFIED / MIS-ATTRIBUTED STATISTIC: [N] flagged — [list each number + its missing/unverified source]
+RULE 8 — REGISTER SLANG / METAPHOR-DRESSING: [N] violations fixed
+RULE 9 — EDITORIAL TICS / STAGED PUSHBACK: [N] violations fixed
+RULE 10 — SOURCE TRACE: [N] items · [U] untraced or overstated (cut/rewritten) · 0 kept
+| # | Draft line | Type | Source | Outcome |
+|---|---|---|---|---|
+| 1 | "[short quote]" | scene / feeling / role / result | [file: the words it rests on, or none] | TRACED / ARCHETYPE / UNTRACED → CUT / OVERSTATED → REWRITTEN |
 TENANT-PERMITTED (left as-is): [N] — [list each named device / carve-out respected, e.g. "four-word declarative (§2 #9)"]
 
 [Corrected content]
 ```
+
+**The Rule 10 table is the record, not a formality.** One row per scene, stated feeling or realisation, claim about the author's role/seniority/employer/ownership, and result or anecdote attributed to them. With none, write `RULE 10 — SOURCE TRACE: 0 items`. With no source supplied, write `RULE 10 — SOURCE TRACE: NOT RUN — no operator source` (this fails the check, on purpose). Then run the must-record check on the report and quote its line:
+
+```bash
+python .claude/skills/content-subedit/source_trace_check.py <report or asset record>
+```
+
+It cannot tell whether a trace is true, only that it was done and nothing untraced survived. Held out on Ed 28 (drafted before Rule 10 existed), two independent trace passes each caught all seven invented or overstated author claims, and both found an eighth the calibrator missed (SYS-173). `ARCHETYPE` is for a scene that is plainly not the author (second or third person, "Picture a review where..."): the checker rejects it on any line written in the first person, so it cannot be used to wave an invented memory through.
 
 **Producer-inline (the mandatory case):** return the corrected copy + the per-rule report to the
 Producer. The Producer writes the cleaned copy into the asset and records this report block in the

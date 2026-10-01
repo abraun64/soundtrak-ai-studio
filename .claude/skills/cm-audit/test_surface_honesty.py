@@ -143,6 +143,34 @@ with tempfile.TemporaryDirectory() as td4:
            f"pending Brief: Insight Brief ✅ must be FLAGGED, got {[v.offending for v in pv]}")
 
 
+# ── Plain-language title: the Insight Brief is identified by its link target ──
+# Surfaces now call it "Audience research"; "research" alone is an ungated input, so the
+# guard must recognise insight-brief.html and apply the SYS-067 condition (2026-10-02).
+with tempfile.TemporaryDirectory() as td5:
+    for status, want in (('"✅ Approved"', 0), ('"🟡 Draft"', 1)):
+        rp = Path(td5) / f"r{want}"
+        cr = rp / "campaigns" / "renamed-camp"
+        (cr / "assets").mkdir(parents=True)
+        (cr / "campaign.yaml").write_text(
+            f'phases:\n  - id: 1\n    status: {status}\n    artifacts:\n'
+            '      - { title: "Audience research ✅", href: "insight-brief.html" }\n',
+            encoding="utf-8",
+        )
+        rv = sh.scan(rp)
+        expect(len(rv) == want,
+               f"'Audience research' -> insight-brief.html with Brief {status}: expected {want} "
+               f"violation(s), got {[v.offending for v in rv]}")
+    # A research input that is NOT the Insight Brief is still an ungated input.
+    op = Path(td5) / "other"
+    co = op / "campaigns" / "other-camp"
+    (co / "assets").mkdir(parents=True)
+    (co / "campaign.yaml").write_text(
+        'phases:\n  - id: 1\n    status: "✅ Approved"\n    artifacts:\n'
+        '      - { title: "Audience research ✅", href: "research/raw-voice.html" }\n',
+        encoding="utf-8",
+    )
+    expect(len(sh.scan(op)) == 1, "research input that is not the Insight Brief must stay FLAGGED")
+
 if failures:
     print(f"FAIL — {len(failures)} assertion(s):")
     for f in failures:

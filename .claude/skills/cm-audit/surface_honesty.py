@@ -132,6 +132,15 @@ def classify(name: str) -> str:
 # the Phase-1 Brief is approved, and a violation only BEFORE that (a pre-approval / fabricated
 # tick — the exact 2026-07-08 retro bug). Handled here, not in the flat deny list.
 _INSIGHT_BRIEF_RE = re.compile(r"insight\s*brief", re.IGNORECASE)
+# Matched by LINK TARGET as well as name: operator surfaces now title it in plain language
+# ("Audience research"), which the flat deny list reads as an ungated research input. The
+# file it points at is the stable identity; the title is not (2026-10-02, IDEA-002).
+_INSIGHT_BRIEF_HREF_RE = re.compile(r"(^|/)insight-brief\.(html|md)$", re.IGNORECASE)
+
+
+def _is_insight_brief(name: str, href: str = "") -> bool:
+    return bool(_INSIGHT_BRIEF_RE.search(name)
+                or _INSIGHT_BRIEF_HREF_RE.search(href.split("#")[0].strip()))
 
 
 def _brief_approved(campaign_dir: Path) -> bool:
@@ -182,14 +191,14 @@ def scan_dashboard_md(md: Path, slug: str, rel: str, campaign_dir: Path) -> list
         for m in _MD_LINK_WITH_CHECK.finditer(line):
             visible = m.group(1)
             name = _clean_link_text(visible)
-            if classify(name) == "ungated":
-                out.append(Violation(slug, rel, f"line {i}", f"{CHECK} {name}".strip()))
-            elif _INSIGHT_BRIEF_RE.search(name):
+            if _is_insight_brief(name, m.group(2)):
                 if brief_ok is None:
                     brief_ok = _brief_approved(campaign_dir)
                 if not brief_ok:
                     out.append(Violation(slug, rel, f"line {i}",
                                          f"{CHECK} {name} (Brief not yet approved)".strip()))
+            elif classify(name) == "ungated":
+                out.append(Violation(slug, rel, f"line {i}", f"{CHECK} {name}".strip()))
     return out
 
 
@@ -213,14 +222,15 @@ def scan_campaign_yaml(cy: Path, slug: str, rel: str, campaign_dir: Path) -> lis
             if CHECK not in title:
                 continue
             name = _clean_link_text(title)
-            if classify(name) == "ungated":
-                out.append(Violation(slug, rel, f"phase {pid} · artifact title", title.strip()))
-            elif _INSIGHT_BRIEF_RE.search(name):
+            href = str(art.get("href") or "") if isinstance(art, dict) else ""
+            if _is_insight_brief(name, href):
                 if brief_ok is None:
                     brief_ok = _brief_approved(campaign_dir)
                 if not brief_ok:
                     out.append(Violation(slug, rel, f"phase {pid} · artifact title",
                                          f"{title.strip()} (Brief not yet approved)"))
+            elif classify(name) == "ungated":
+                out.append(Violation(slug, rel, f"phase {pid} · artifact title", title.strip()))
     return out
 
 

@@ -127,6 +127,95 @@ APHORISMS = [
     ("the most/only/single biggest", r"\bthe (?:most|only|single (?:biggest|most))\b"),
 ]
 
+# ---------------------------------------------------------------------------------------------
+# SYS-156 — OFF-REGISTER PHRASES. A find-check, not a statistic: zero tolerance, one hit flags.
+# The counting checks above cannot see a single phrase, and the content-subedit banned-word list
+# only enumerates AI vocabulary, so register slang fell in the gap between the two. Ed 24 shipped
+# "It took a beat to see it the other way around" and "a content problem wearing a volume
+# problem's clothes" past both; the operator caught them on read. These are the literal lists from
+# content-subedit Rules 8, 9 and the literal markers of Rule 10 (references/voice-rules.md), kept in
+# step with them. Rule 10's staging/role JUDGEMENT stays a human read-pass; only its signature
+# phrases are here. US WORDS (soccer, vacation...) were added 2026-10-02; -ize/-our SPELLINGS and
+# Rule 9e evaluative adjectives remain judgement calls left to the human read.
+#
+# Patterns are deliberately NARROW. A zero-tolerance check that fires on "unpack the boxes" or
+# "lean in" (a stage direction as often as the idiom) teaches everyone to ignore it, so "lean in"
+# is left to the human read, and "level up" / "X's clothing" / "a smaller version of" are narrowed
+# to their idiomatic forms - each found as a literal use in shipped copy (2026-10-02 sweep). Rule 9e (evaluative adjectives) and the US
+# spellings in Rule 8 are judgement calls, not phrases, so they stay with the human read.
+# A tenant adds its own with `register_phrases:` and silences one with `exempt_phrases:` (by label).
+# ---------------------------------------------------------------------------------------------
+REGISTER = [
+    # Rule 8a — casual Americanisms / film / startup slang
+    ("took a beat", "8a", r"\b(?:take|takes|took|taking) a beat\b"),
+    ("dialled in", "8a", r"\bdiall?ed in\b"),
+    ("no-brainer", "8a", r"\bno[- ]brainer\b"),
+    ("crushing it", "8a", r"\bcrush(?:es|ed|ing)? it\b"),
+    ("nail it", "8a", r"\bnail(?:s|ed|ing)? it\b"),
+    ("move the needle", "8a", r"\b(?:move|moves|moved|moving) the needle\b"),
+    ("circle back", "8a", r"\bcircl(?:e|es|ed|ing) back\b"),
+    ("double down", "8a", r"\bdoubl(?:e|es|ed|ing) down\b"),
+    ("deep dive", "8a", r"\bdeep[- ]dives?\b"),
+    ("level up", "8a", r"(?<!one )(?<!two )(?<!a )\blevel(?:s|led|ed|ling|ing)? up\b"),
+    ("unpack (metaphor)", "8a", r"\bunpack(?:s|ed|ing)? (?:this|that|what|why|how|the (?:idea|concept|"
+                                r"question|argument|claim|data|numbers|problem))\b"),
+    ("table stakes", "8a", r"\btable stakes\b"),
+    ("secret sauce", "8a", r"\bsecret sauce\b"),
+    ("drink the Kool-Aid", "8a", r"\b(?:drink|drank|drinking) the kool-?aid\b"),
+    ("game-changer", "8a", r"\bgame[- ]chang(?:er|ers|ing)\b"),
+    ("low-key", "8a", r"\blow[- ]key\b"),
+    ("for sure", "8a", r"\bfor sure\b"),
+    ("gonna / wanna", "8a", r"\b(?:gonna|wanna)\b"),
+    # Rule 8a (US) — American words where the Australian term belongs (added 2026-10-02, ed 20
+    # "soccer field" -> "footy field"). Discrete WORDS only, not -ize/-our spelling variants: a
+    # spelling check fires on legitimate -ise/-ize variation and would bury the signal. High-signal
+    # terms that almost never appear in the operator's AU B2B prose.
+    ("soccer", "8a-US", r"\bsoccer\b"),
+    ("vacation", "8a-US", r"\bvacation(?:s|ed|ing)?\b"),
+    ("sidewalk", "8a-US", r"\bsidewalks?\b"),
+    ("gotten", "8a-US", r"\bgotten\b"),
+    ("parking lot", "8a-US", r"\bparking lots?\b"),
+    ("cell phone", "8a-US", r"\bcell ?phones?\b"),
+    ("math (not maths)", "8a-US", r"\bmath\b"),
+    # Rule 8b — metaphor-dressing where a plain statement belongs
+    ("wearing X's clothes", "8b", r"\bwearing (?:a|an|the) [\w' -]{1,40}?"
+                                  r"(?:clothes|clothing|costume|disguise|mask)\b"),
+    ("in X's clothing", "8b", r"\b(?:a|an) \w+ in [\w' -]{1,30}?'s clothing\b"),
+    ("a problem in disguise", "8b", r"\bproblem in disguise\b"),
+    # Rule 9a — staged pushback / imagined interlocutor
+    ("a sharp operator will push back", "9a",
+     r"\ba (?:sharp|smart|savvy|good|seasoned|thoughtful|careful) (?:operator|marketer|reader|cmo|"
+     r"founder|leader|sceptic|skeptic|executive)s? (?:will|would|might|may|is going to) "
+     r"(?:push back|object|ask|already be asking|say|point out)"),
+    ("you might be thinking", "9a", r"\byou (?:might|may|could) be thinking\b"),
+    ("here's where a sceptic pushes back", "9a", r"\bhere's where (?:a|the) (?:sceptic|skeptic|critic|cynic)\b"),
+    ("the obvious objection is", "9a", r"\bthe obvious objection (?:is|here)\b"),
+    # Rule 9b — told emotion / editorial aside
+    ("and it is uncomfortable", "9b", r"\band (?:it|that|this)(?:'s| is) uncomfortable\b"),
+    ("and that's the hard part", "9b", r"\band (?:that|this)(?:'s| is) the hard part\b"),
+    ("harder than it sounds", "9b", r"\bwhich is harder than it sounds\b"),
+    ("and that stings", "9b", r"\band (?:that|it) stings\b"),
+    # Rule 9c — tired approval idioms
+    ("earns its keep", "9c", r"\bearn(?:s|ed|ing)? (?:its|their|your|my|our) keep\b"),
+    ("punches above its weight", "9c", r"\bpunch(?:es|ed|ing)? above (?:its|their|your|our) weight\b"),
+    ("does the heavy lifting", "9c", r"\b(?:do|does|did|doing) (?:the|all the|most of the) heavy lifting\b"),
+    ("pulls its weight", "9c", r"\bpull(?:s|ed|ing)? (?:its|their|your|our) weight\b"),
+    ("worth its salt", "9c", r"\bworth (?:its|their|his|her) salt\b"),
+    # Rule 9d — vague self-congratulatory verbs / comparatives
+    ("has sharpened it", "9d", r"\bha(?:s|ve) (?:only )?sharpened (?:it|this|that)\b"),
+    ("into sharp relief", "9d", r"\binto sharp(?:er)? relief\b"),
+    ("a louder version of", "9d", r"\ba (?:louder|quieter) version of\b"),
+    # Rule 10 — fabricated scene / interiority / callback. The RULE is judgement (did the source
+    # supply the scene?), but a few literal MARKERS are high-precision AI tells that almost never
+    # appear in the operator's own drafts, so they are worth flagging for the human to confirm. Added
+    # 2026-10-02 from the eds 20-26 sweep. NOT the whole rule — the staging/role judgement stays a
+    # read-pass; these just catch the signature phrases.
+    ("the version of me that (callback)", "10/5b", r"\bthe version (?:of (?:me|us|you)|that) (?:who |that )?(?:walked|came|sat|started|finished)"),
+    ("nodded along (staged reaction)", "10a", r"\b(?:the room|everyone|they all|heads) nodded(?: along)?\b"),
+    ("my first reaction was (epiphany setup)", "10b", r"\bmy first (?:reaction|instinct|thought) was\b"),
+]
+
+
 # Words ending in -ing that are NOT gerunds. The opener test matched /^\w+ing\s/, which reads
 # "Bring the trays in when the water goes cloudy." as an abstraction acting - it is an imperative
 # addressed to a person, the exact opposite of what the check is looking for. Found by running the
@@ -157,6 +246,8 @@ def load_config(tenant: str | None) -> tuple[dict, list[str]]:
           phrase_rate_per_1k: 2.0
         exempt_phrases:
           - "rather than"        # a named brand device, deliberately repeated
+        register_phrases:        # SYS-156: extra zero-tolerance phrases for this voice
+          - "sidewalk"
 
     Absent file = defaults. A malformed one is reported, never silently ignored — a config that
     quietly fails open would make the gate report green while checking nothing.
@@ -179,6 +270,9 @@ def load_config(tenant: str | None) -> tuple[dict, list[str]]:
         if k in cfg:
             cfg[k] = v
     exempt = [str(x).strip().lower() for x in (data.get("exempt_phrases") or [])]
+    # SYS-156: a tenant's own off-register phrases, matched literally (whole words, any case).
+    cfg["register_extra"] = [str(x).strip() for x in (data.get("register_phrases") or [])
+                             if str(x).strip()]
     return cfg, exempt
 
 
@@ -381,6 +475,51 @@ def check_openers(sentences, cfg) -> list[dict]:
     return out
 
 
+# MENTION, NOT USE. A ban list, a voice rule or a QA note NAMES the phrase ("Banned: game-changing,
+# synergy ..."); the 2026-10-02 sweep over every asset file found that was two-thirds of all hits.
+# Skip a sentence that is plainly listing banned/avoided words, and a hit inside quotation marks
+# (a quoted example, or a source's own words, is not the writer's register).
+_MENTION_CONTEXT = re.compile(
+    r"\b(?:banned|ban list|avoid(?:ed)?|words?[- ]we[- ]avoid|never these words|never say|"
+    r"blocklist|prohibited|rejected|scan(?:ned)?)\b|\bnever\b[^:.]{0,40}:", re.I)
+_QUOTES = "\"“”"
+
+
+def _is_quoted(text: str, start: int, end: int) -> bool:
+    before = text[:start]
+    return sum(before.count(q) for q in _QUOTES) % 2 == 1 and any(q in text[end:] for q in _QUOTES)
+
+
+def check_register(sentences, cfg, exempt) -> list[dict]:
+    """SYS-156 — zero-tolerance find-check for the Rule 8/9 phrases. Per file only: a phrase is
+    wrong wherever it appears, so a corpus total would just repeat the per-file findings."""
+    rules = [(label, rule, re.compile(pat, re.I)) for label, rule, pat in REGISTER
+             if label.lower() not in exempt]
+    rules += [(x, "tenant", re.compile(r"\b" + re.escape(x) + r"\b", re.I))
+              for x in cfg.get("register_extra") or [] if x.lower() not in exempt]
+    counts: dict[str, int] = {}
+    hits = []
+    for ln, s in sentences:
+        norm = s.replace("’", "'").replace("‘", "'")
+        if _MENTION_CONTEXT.search(norm):
+            continue
+        for label, rule, rx in rules:
+            m = rx.search(norm)
+            if m and not _is_quoted(norm, m.start(), m.end()):
+                key = f'"{label}" ({rule})'
+                counts[key] = counts.get(key, 0) + 1
+                hits.append((ln, s))
+    if not hits:
+        return []
+    return [{
+        "check": "off-register phrase",
+        "detail": " · ".join(f"{k} x{n}" if n > 1 else k for k, n in counts.items())
+                  + " — content-subedit Rules 8–10; say it plainly",
+        "over": "limit 0",
+        "worst": hits[:6],
+    }]
+
+
 def analyse(paths: list[Path], cfg, exempt) -> dict:
     per_file = {}
     corpus_sent: list[tuple[str, int, str]] = []
@@ -394,7 +533,8 @@ def analyse(paths: list[Path], cfg, exempt) -> dict:
                     + check_sentence_variance(sents, cfg)
                     + check_aphorisms(sents, words, cfg)
                     + check_abstract_subjects(sents, cfg)
-                    + check_openers(sents, cfg))
+                    + check_openers(sents, cfg)
+                    + check_register(sents, cfg, exempt))
         per_file[p] = {"words": words, "sentences": len(sents), "findings": findings}
         corpus_sent += [(p.name, ln, s) for ln, s in sents]
 

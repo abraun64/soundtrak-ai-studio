@@ -124,6 +124,10 @@ If yes, it is a recap and must be cut or rewritten.
 - Use "In conclusion...", "To summarise...", or any variant
 - Repeat the article's structure as a final beat ("strategy for direction, sprints for momentum")
 
+**5a — The lyrical-image closer (added 2026-10-02, calibrated from eds 20/22/26).** A poetic image standing in for the point rather than the point itself: *"a busy quarter with good lighting"*, *"die halfway up the hill"*, *"Attention has become cheap. Belief has become the scarce thing."* It feels like a strong ending; it is decoration. Flag it. The author prefers a plain closing statement, or a single explicitly-quoted aphorism in his own voice (wrapped in quotation marks).
+
+**5b — The "two-versions-of-me" callback close (added 2026-10-02, from ed 24).** The ending loops back to the opening scene via a before/after of the narrator: *"The version of me that walked into the room saw… the version that walked out saw…"*, *"the version of me that started… the version that finished…"*. A dramatised recap. Flag and cut to the plain point. (See also Rule 10.)
+
 ---
 
 ## RULE 6 — THE HOLLOW CONTRAST (added 2026-06-30)
@@ -174,6 +178,7 @@ the operator's register is **dry Australian plain-speak**: if you'd say it out l
 
 **8a — Casual Americanisms / film / startup slang.** Flag and replace with plain English. Starter list (scan each; extend as new ones surface):
 took a beat, a beat (meaning "a moment"), dialled in / dialed in, no-brainer, crushing it / crush it, nail it, move the needle, circle back, double down, deep dive, level up, unpack (as a metaphor), lean in, table stakes, secret sauce, drink the Kool-Aid, game-changer, low-key, for sure, gonna, wanna.
+US terms and spelling — use the Australian word: soccer → footy (ed 20, "soccer field" → "footy field"), sidewalk → footpath, vacation → holiday, "math" → "maths", -ize → -ise, color → colour. The author writes to an Australian ear; a US term is off-register even when it is not slang.
 
 **8b — Metaphor-dressing where instruction belongs.** A plain statement dressed as a metaphor the reader has to decode first: "a content problem wearing a volume problem's clothes", "wearing the costume of a strategy problem", "a wolf in X's clothing". If a sentence's job is to say what is true or what to do, say it plainly. (This extends the §2 / Rule-2 example "a measurement problem wearing the costume of a strategy problem".)
 
@@ -181,7 +186,8 @@ took a beat, a beat (meaning "a moment"), dialled in / dialed in, no-brainer, cr
 
 **Fix:** replace with the plain, in-voice phrasing. ("It took a beat" → "It took me a moment / longer than it should have"; "wearing a volume problem's clothes" → "a content problem, and cutting the frequency will not touch it".)
 
-**Limit: zero.** Ed 24 shipped *"It took a beat to see it the other way around"* (film slang) and *"a content problem wearing a volume problem's clothes"* (metaphor-dressing, already banned by the §2 example) past both the linter and the banned-word scan; the operator caught them on read. This rule names them so the pass does — the linter counts, the banned list enumerates known words, and register slang falls in the gap between the two.
+**Limit: zero.** Ed 24 shipped *"It took a beat to see it the other way around"* (film slang) and *"a content problem wearing a volume problem's clothes"* (metaphor-dressing, already banned by the §2 example) past both the linter and the banned-word scan; the operator caught them on read. This rule names them so the pass does — the linter counts, the banned list enumerates known words, and register slang falls in the gap between the two. **Since 2026-10-02 `slop_lint.py` checks the 8a and 8b phrases
+automatically (SYS-156).** The US spellings above are still a manual read, and the list there grows when this one does.
 
 ---
 
@@ -197,18 +203,48 @@ A cluster of essayistic tics that make copy sound like an AI performing "smart w
 
 **9d — Vague self-congratulatory verbs / comparatives.** A verb or comparative that claims an effect without a concrete one. the operator's flags: *"has sharpened it"*, *"a louder"* (as in "a louder version of the same problem"). Also: "has only sharpened", "throws it into sharp relief", "a quieter / bigger / louder version of". Name what actually changed, or cut it.
 
-**Test:** does the sentence add an idea, or only editorial colour (a staged objector, a told feeling, a stock idiom, a vague comparative)? If only colour, cut it or replace it with the plain point.
+**9e — Evaluative-adjective inflation (added 2026-10-02).** Praise-adjectives and intensifiers bolted onto a plain noun to make it feel bigger: *"the update was beautiful"*, *"the slides were sharp"*, *"genuinely credible"* → *"credible"*, *"a comfortable habit"*. The author strips the modifier and lets the noun stand. Flag an evaluative adjective/adverb that adds colour, not information. (Overlaps Rule 2's "genuinely", which still slips in — scan for it literally.)
+
+**Test:** does the sentence add an idea, or only editorial colour (a staged objector, a told feeling, a stock idiom, a vague comparative, a praise-adjective)? If only colour, cut it or replace it with the plain point.
 
 **Fix:** delete the tic and state the point directly. *"A sharp operator will push back here, and it is uncomfortable"* → the actual objection, stated plainly, then answered. *"content that earns its keep"* → "content a competitor could not rebuild in a week". *"AI has sharpened it"* → what specifically changed.
 
 **Limit: zero.** These read as polish and are pure texture; the strongest version of the point never needs them.
+`slop_lint.py` checks the 9a-9d phrases automatically (SYS-156). 9e is a judgement call and stays a manual read.
+
+---
+
+## RULE 10 — FABRICATED SCENE, INTERIORITY & ROLE (added 2026-10-02)
+
+The single most frequent thing the operator strips when he edits a draft (eds 20, 21, 22, 24, 26). AI manufactures a *story* around the point — a scene, a feeling, an inflated role — that the source material never supplied. It is not a word tic; it is invented fact and invented drama. Flag any of three sub-types and cut to the plain account.
+
+**10a — Dramatised scene / staging.** A scene the author never described, complete with setting and reaction shots: *"I have sat in a lot of quarterly reviews where the marketing update was beautiful. The slides were sharp… The room nodded along. Then I asked the question that tends to change the temperature in a meeting"* (ed 22); *"I sat in a marketing review looking at a chart I did not like"* (ed 24). Fix: state what actually happened, plainly, with only the facts the author gave.
+
+**10b — False interiority / realisation arc.** The draft narrates the author's inner journey — a first reaction, a turn, a confession: *"My first reaction was that we had a problem… it took a beat to see it the other way around"* (ed 24); *"For a long time I read that as a volume problem… I was wrong"* (ed 26). The author does not perform his own epiphany. Fix: cut the arc; keep the conclusion.
+
+**10c — Overstated role / invented case study.** The draft inflates the author's seniority, scope or ownership, or invents a case study starring him: *"…all reported into one P&L. **Mine.** I owned the whole arc"* → *"I influenced a big chunk of the journey"* (ed 21); a fabricated Netwealth "familiarity went 12% → 56%" chasm story dropped into ed 26 and cut wholesale. Downgrade claims of authority to what the author actually says ("I ran…", "I influenced…", "I had visibility over…"), and never invent an anecdote, a result or a number on his behalf. (Where the invention is a *statistic*, Rule 7 also applies.)
+
+**Test:** for every scene, feeling, or claim of the author's role — did the source material actually supply it? If the draft added the staging, the epiphany, or the seniority, it is fabrication. Would the author recognise this as something he told you, or something you wrote for him?
+
+**Fix:** replace with the plain factual account in the author's own frame. Keep the point; delete the theatre.
+
+**Limit: zero invented scene, interiority or role.** This is a truth rule, not a taste rule — like Rule 7, the cost of a miss is the author's credibility, not just his voice.
+
+**Why this one can't be linted (read this before trusting a green run).** Rule 10 is **semantic, not lexical.** A new draft never reuses the old wording — it invents a *fresh* scene ("I remember standing at the whiteboard when the CFO leaned over…"), a fresh epiphany, a fresh inflated title. So a regex catches only the exact phrases we have already seen, and a counting check sees nothing (it isn't a statistical property). `slop_lint.py` carries a few known-phrase tripwires ("my first reaction was", "the version of me that", "nodded along") as cheap belt-and-braces, but **they are a sliver of the rule, not the rule.** Do not read a clean `slop_lint` run as Rule 10 being clear.
+
+**Verification protocol — PRODUCE this, don't just assert it (the forcing function).** Because the read-pass is exactly the step that let these through before, Rule 10 is not satisfied by "I read it and it's fine." The pass must output a **source-trace**: enumerate every one of these in the draft and, for each, cite where it came from or cut it —
+1. each **scene** (a meeting, a room, a place, a moment with any setting or reaction);
+2. each **stated feeling or realisation** ("my first reaction…", "I was wrong", "it felt…");
+3. each **claim about the author's role, seniority, scope or ownership**;
+4. each **result, number or named anecdote attributed to the author**.
+For each: *source = the operator's brief / an operator-supplied doc / a quote the operator gave* → keep. *source = the model wrote it* → **UNTRACED, cut or rewrite to the plain fact.** If the trace table is empty of untraced items, the rule is clear; if you did not build the table, the rule was not run. The table format is in `SKILL.md` Step 5, and `source_trace_check.py` fails a report that lacks it or keeps an untraced row (SYS-173). The other half of the fix is upstream: drafters follow `references/author-facts.md` so the fabrication is not written in the first place.
 
 ---
 
 ## HOW TO RUN THE SUB-EDIT
 
 1. Read the full content of the file.
-2. Work through Rules 1–9 in order. For each rule, list every violation found.
+2. Work through Rules 1–10 in order. For each rule, list every violation found.
 3. If violations exist, fix them in the content.
 4. Check that fixes haven't introduced new violations.
 5. Report: number of violations found per rule, what was changed, and the corrected text.
@@ -231,3 +267,4 @@ A cluster of essayistic tics that make copy sound like an AI performing "smart w
 | Unverified / mis-attributed statistic | Zero (flag every one) | Zero (flag every one) |
 | Register slang / off-voice idiom (Rule 8) | Zero | Zero |
 | Editorial tics / staged pushback (Rule 9) | Zero | Zero |
+| Fabricated scene / interiority / role (Rule 10) | Zero (truth rule) | Zero (truth rule) |

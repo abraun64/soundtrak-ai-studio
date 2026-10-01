@@ -109,6 +109,8 @@ Author the copy. Produce the visual. Author the structural elements:
 
 Write to `campaigns/<slug>/assets/<asset-slug>/<asset-slug>.md` per `docs/specs/asset.md`. Visual binary alongside.
 
+**Author facts come from the source (Rule 10 at generation, SYS-173, mandatory).** Before drafting, follow `.claude/skills/content-subedit/references/author-facts.md`: build the Author Facts list from the operator source, put no scene, feeling, role/employer claim or author result in the draft that is not on it (generalise, use a clearly archetypal second-person scene, or leave an `[ASK: ...]` for the operator instead), and append the Provenance Ledger to your working notes. "Never fabricate autobiography" existed as an instruction from 2026-07-30 and drafts kept doing it (eds 22-28); the list is what stops it. For a brand or company voice the same holds for the company: no customer story, result, award or number the Per-Step Brief and its sources did not supply.
+
 ### Step 4 — Self-QA, two pipelines in parallel
 
 **Copy 3-layer (STRICT — refuse-to-surface after 3 cycles)**:
@@ -133,8 +135,8 @@ Write to `campaigns/<slug>/assets/<asset-slug>/<asset-slug>.md` per `docs/specs/
 After the copy 3-layer self-QA above, you **must** run the **`content-subedit` skill** as a distinct, authoritative copy-clean pass on **every** piece of copy you write — LinkedIn post, Substack article, email, web page, ad, microcopy, script. This is non-negotiable and runs on every copy asset, no exceptions, no fast-lane skip.
 
 - **Why it's separate from your own L1–L3**: your self-QA grades copy you just wrote, and a self-scan can rationalise past its own rules (a real failure has occurred — an asset passed its own L1 with 11 em-dashes). The `content-subedit` skill is **deterministic** (Rule 1 = literal `—`/U+2014 search; Rule 2 = fixed banned-list scan) and is run as a fresh, labelled pass — it catches what the self-QA talked itself out of.
-- **How**: invoke the `content-subedit` skill on the drafted copy, naming the active tenant (so it loads `tenant-brand/<tenant>.md` §2 Voice as the source of truth on top of its universal baseline). It returns cleaned copy + a per-rule report (Rules 1–5: em-dashes · banned words · punchy-fragment patterns · restatements · recap-closing).
-- **Write the result**: replace the asset's copy with the cleaned version and record the skill's per-rule report block verbatim into the asset's **§7 Sub-edit report** (Brand Manager reads it at gate review).
+- **How**: invoke the `content-subedit` skill on the drafted copy, naming the active tenant (so it loads `tenant-brand/<tenant>.md` §2 Voice as the source of truth on top of its universal baseline). **Hand it the operator source too** (the Per-Step Brief plus the source files it names) — Rule 10's source trace cannot run without it. It returns cleaned copy + a per-rule report (Rules 1–10), ending in the **Rule 10 source-trace table**.
+- **Write the result**: replace the asset's copy with the cleaned version and record the skill's per-rule report block verbatim into the asset's **§7 Sub-edit report** (Brand Manager reads it at gate review). Run `python .claude/skills/content-subedit/source_trace_check.py <asset record>` on it; report its row count and `untraced_kept` (must be 0) in the return envelope as `self_qa.content_subedit.rule10_trace`, with `ref` pointing at the record. The CM's envelope validator re-runs the check on that file and returns RED without it (SYS-173).
 - **Refuse-to-surface**: if the skill cannot reach clean in 3 cycles, do NOT surface the asset — return to CM `status: blocked` with the unreachable violations, exactly as the 3-strike rule above.
 
 For multi-deliverable assets (e.g. a LinkedIn post + its Substack article), run the gate **once per copy deliverable**.
@@ -539,7 +541,8 @@ return:
   self_qa:
     copy:    { ran: true, layers: 3, pass: true, report: "§7 / asset record" }
     visual:  { ran: true, layers: 3, pass: true, report: "§Self-QA" }    # or pass:false / n/a where no visual
-    content_subedit: { ran: true, violations: 0, report: "§7 Sub-edit report" }   # every copy asset
+    content_subedit: { ran: true, violations: 0, report: "§7 Sub-edit report",   # every copy asset
+                       rule10_trace: { rows: <n>, untraced_kept: 0, ref: <asset record path> } }   # SYS-173
   flags:                                  # optional; CM routes these
     - { to: operator, kind: open-question, text: <one line> }
   cost: { tokens_in: <n>, tokens_out: <n> }    # optional; feeds the cost-ledger

@@ -173,6 +173,8 @@ def validate(ret: dict, dispatch: dict | None, asset_dir: Path | None,
                 fails.append("producer: self_qa.visual missing")
             if _get(ret, "self_qa", "content_subedit") is None:
                 fails.append("producer: self_qa.content_subedit missing (mandatory on every copy asset)")
+            else:
+                fails += _rule10_fails(ret, asset_dir or base_dir)
 
     # --- 4. ship:true artifacts must exist on disk ------------------------
     if isinstance(artifacts, list):
@@ -191,6 +193,39 @@ def validate(ret: dict, dispatch: dict | None, asset_dir: Path | None,
                     f"(resolved under {resolve_dir})")
 
     return fails
+
+
+def _rule10_fails(ret: dict, resolve_dir: Path | None) -> list[str]:
+    """SYS-173 — Rule 10 (invented scene / feeling / role / author result) is semantic and cannot
+    be linted, so the sub-edit must RECORD a source trace. Must-record: the trace has to exist,
+    and nothing untraced may survive. When the envelope points at the recorded report, the table
+    itself is checked, not just the numbers the Producer typed."""
+    t = _get(ret, "self_qa", "content_subedit", "rule10_trace")
+    if not isinstance(t, dict):
+        return ["producer: self_qa.content_subedit.rule10_trace missing (Rule 10 source trace "
+                "must be recorded on every copy asset: {rows, untraced_kept, ref})"]
+    out = []
+    if not isinstance(t.get("rows"), int):
+        out.append("producer: rule10_trace.rows missing (0 is valid: no scene, feeling, role or result)")
+    if t.get("untraced_kept", 0) != 0:
+        out.append(f"producer: rule10_trace.untraced_kept = {t.get('untraced_kept')} "
+                   "(invented author material still in the copy; Rule 10 limit is zero)")
+    ref = str(t.get("ref") or "").split("#")[0].strip()
+    if ref and resolve_dir is not None and (resolve_dir / ref).exists():
+        try:
+            import importlib.util as _ilu
+            _p = Path(__file__).resolve().parents[1] / "content-subedit" / "source_trace_check.py"
+            _s = _ilu.spec_from_file_location("_stc", _p)
+            _m = _ilu.module_from_spec(_s)
+            _s.loader.exec_module(_m)
+            ok, msg, _ = _m.check_text((resolve_dir / ref).read_text(encoding="utf-8", errors="replace"))
+            if not ok:
+                out.append(f"producer: rule10_trace.ref '{ref}': {msg.splitlines()[0]}")
+        except Exception as e:  # noqa: BLE001 - a broken checker must not read as a pass
+            out.append(f"producer: could not check rule10_trace.ref '{ref}' ({e})")
+    elif ref and resolve_dir is not None:
+        out.append(f"producer: rule10_trace.ref '{ref}' does not exist (resolved under {resolve_dir})")
+    return out
 
 
 def report(label: str, fails: list[str]) -> int:
@@ -216,6 +251,12 @@ def _selftest() -> int:
         (base / "wk0-anchor-post.md").write_text("# asset", encoding="utf-8")
         (base / "wk0-anchor-post.png").write_bytes(b"\x89PNG")
         (base / "audit.md").write_text("# audit", encoding="utf-8")
+        (base / "subedit.md").write_text(
+            "RULE 10 — SOURCE TRACE: 1 item\n| # | Draft line | Type | Source | Outcome |\n"
+            "|---|---|---|---|---|\n| 1 | \"I ran the rollout\" | role | brief: \"I ran it\" | TRACED |\n",
+            encoding="utf-8")
+        (base / "subedit-bad.md").write_text("RULE 10 — FABRICATED SCENE: no violations\n",
+                                             encoding="utf-8")
 
         good_dispatch = {"id": "soundtrak-c1/wk0-anchor-post/producer/1", "agent": "producer"}
 
@@ -231,7 +272,9 @@ def _selftest() -> int:
                 "self_qa": {
                     "copy": {"ran": True, "pass": True},
                     "visual": {"ran": True, "pass": True},
-                    "content_subedit": {"ran": True, "violations": 0},
+                    "content_subedit": {"ran": True, "violations": 0,
+                                        "rule10_trace": {"rows": 1, "untraced_kept": 0,
+                                                         "ref": "subedit.md"}},
                 },
             }, good_dispatch, True),
 
@@ -274,6 +317,26 @@ def _selftest() -> int:
                 "dispatch_id": "x/2", "agent": "producer", "status": "delivered",
                 "artifacts": [{"path": "wk0-anchor-post.md", "ship": True}],
                 "self_qa": {"copy": {}, "visual": {}},
+            }, None, False),
+
+            ("BAD producer content_subedit without a Rule 10 trace (SYS-173)", {
+                "dispatch_id": "x/2b", "agent": "producer", "status": "delivered",
+                "artifacts": [{"path": "wk0-anchor-post.md", "ship": True}],
+                "self_qa": {"copy": {}, "visual": {}, "content_subedit": {"ran": True}},
+            }, None, False),
+
+            ("BAD producer Rule 10 trace with untraced material kept", {
+                "dispatch_id": "x/2c", "agent": "producer", "status": "delivered",
+                "artifacts": [{"path": "wk0-anchor-post.md", "ship": True}],
+                "self_qa": {"copy": {}, "visual": {}, "content_subedit": {
+                    "rule10_trace": {"rows": 4, "untraced_kept": 1}}},
+            }, None, False),
+
+            ("BAD producer trace numbers fine but the recorded report has no table", {
+                "dispatch_id": "x/2d", "agent": "producer", "status": "delivered",
+                "artifacts": [{"path": "wk0-anchor-post.md", "ship": True}],
+                "self_qa": {"copy": {}, "visual": {}, "content_subedit": {
+                    "rule10_trace": {"rows": 0, "untraced_kept": 0, "ref": "subedit-bad.md"}}},
             }, None, False),
 
             ("BAD producer ship:true file does not exist", {
