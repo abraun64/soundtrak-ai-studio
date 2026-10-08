@@ -213,6 +213,17 @@ REGISTER = [
     ("the version of me that (callback)", "10/5b", r"\bthe version (?:of (?:me|us|you)|that) (?:who |that )?(?:walked|came|sat|started|finished)"),
     ("nodded along (staged reaction)", "10a", r"\b(?:the room|everyone|they all|heads) nodded(?: along)?\b"),
     ("my first reaction was (epiphany setup)", "10b", r"\bmy first (?:reaction|instinct|thought) was\b"),
+    # Generation tells — confession-arc openings, signposted reveals, placeholder nouns. High-signal
+    # AI shapes the read-pass (Rule 10/11) names; these literal forms are worth an automatic flag.
+    # Added 2026-10-03 (operator-raised: the Ed 28 "For years I believed…" opener read as AI and
+    # passed every other check). Deliberately NARROW — a flag for the human, not an auto-verdict.
+    ("for years I believed (confession opener)", "10b", r"\bfor (?:years|a long time),? I (?:believed|thought|told myself|assumed)\b"),
+    ("I used to think (confession opener)", "10b", r"\bI used to (?:think|believe|assume)\b"),
+    ("has taught me otherwise", "10b", r"\bha(?:s|ve) (?:since )?taught me otherwise\b"),
+    ("what actually X is (signposted reveal)", "9/11", r"\bwhat actually (?:moves|matters|works|changes|drives|counts|happens|sells)\b"),
+    ("here's the thing (signposted reveal)", "9/11", r"\bhere'?s the thing\b"),
+    ("the real question is (signposted reveal)", "9/11", r"\bthe real question (?:is|here)\b"),
+    ("do the thing (placeholder)", "11", r"\b(?:do|doing|did) the thing\b"),
 ]
 
 
@@ -280,13 +291,46 @@ def load_config(tenant: str | None) -> tuple[dict, list[str]]:
 # Text extraction — same zone rules as jargon_lint: prose only. Code, fenced blocks, <details>
 # and front-matter are not prose and must not skew the statistics.
 # ---------------------------------------------------------------------------------------------
+# Markup that already means "this is the safety-bearing part of the page": the mandatory
+# age and supervision strip, the gold card (which the build standard defines as the edge of
+# the page's own authority - escalation, deferral, refusal), the limits card, and an explicit
+# data-verbatim opt-out for anything else that must not be touched.
+# Two class vocabularies in play: the resource pages (strip / card note / card limit / card ask)
+# and the carry sheets (cs-band / ages / super / cs-note). Both name the same thing.
+_SAFETY_OPEN = re.compile(
+    r'<(\w+)[^>]*(?:class="[^"]*\b(?:strip|cs-band|ages|super|card\s+note|cs-note|'
+    r'card\s+limit|card\s+ask)\b[^"]*"|data-verbatim)',
+    re.I)
+
+# DOCUMENT-LEVEL opt-out, for the rare resource whose whole subject is safety. On the safe-food
+# resource every risk line, every preparation rule and every age band is choking guidance: there
+# is no non-safety body left to measure, and a texture cap on it can only be satisfied by
+# rewording guidance. Marked deliberately, one file at a time, never by pattern:
+#     <meta name="verbatim" content="safety">   (html)
+#     verbatim: safety                          (markdown front matter)
+_SAFETY_DOC = re.compile(r'<meta[^>]+name="verbatim"[^>]+content="safety"|^verbatim:\s*safety\s*$',
+                         re.I | re.M)
+
+
 def prose_lines(path: Path) -> list[tuple[int, str]]:
     raw = path.read_text(encoding="utf-8", errors="replace")
+    if _SAFETY_DOC.search(raw):
+        return []                      # whole document is verbatim safety wording
     is_html = path.suffix.lower() == ".html"
     if is_html:
         raw = re.sub(r"<style.*?</style>|<script.*?</script>", " ", raw, flags=re.S)
     out: list[tuple[int, str]] = []
     in_fence = in_details = in_front = False
+    # SAFETY EXEMPTION (operator, 2026-10-02). Wording that carries a safety, factual or
+    # compliance meaning is exempt from the texture checks. It is verbatim by design: a
+    # supervision note, an escalation card, a deferral to somebody else's policy and a
+    # "what this page is not" block are repeated on purpose and must never be reworded to
+    # clear a count. Two producers hit this independently on the same day - the safe-food
+    # resource breaches the construction cap eleven times and every one is choking or
+    # preparation wording. The rule was being broken routinely because the rule was wrong,
+    # not because the pages were. Keyed off markup that already means "this is the
+    # safety-bearing part", so there is no word list to maintain.
+    safety_close = None
     for i, line in enumerate(raw.splitlines(), 1):
         s = line.strip()
         if i == 1 and s == "---":
@@ -302,6 +346,16 @@ def prose_lines(path: Path) -> list[tuple[int, str]]:
         if in_fence:
             continue
         low = s.lower()
+        if safety_close:
+            if safety_close in low:
+                safety_close = None
+            continue
+        m = _SAFETY_OPEN.search(s)
+        if m:
+            safety_close = "</" + m.group(1).lower()
+            if safety_close in low:          # opened and closed on the same line
+                safety_close = None
+            continue
         if "<details" in low:
             in_details = True
         if in_details:
@@ -514,7 +568,7 @@ def check_register(sentences, cfg, exempt) -> list[dict]:
     return [{
         "check": "off-register phrase",
         "detail": " · ".join(f"{k} x{n}" if n > 1 else k for k, n in counts.items())
-                  + " — content-subedit Rules 8–10; say it plainly",
+                  + " — content-subedit Rules 8–11; say it plainly",
         "over": "limit 0",
         "worst": hits[:6],
     }]

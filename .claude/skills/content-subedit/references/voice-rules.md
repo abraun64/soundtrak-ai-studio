@@ -3,6 +3,8 @@
 These are the rules applied on every sub-edit pass. Run them in order.
 Flag every violation. Fix every violation before saving the file.
 
+**How to read, before any rule.** This is not a grammar police pass — do not stamp tidy-but-human writing with a red "AI!". Judge **each sentence individually** against three statistical signals, the way a human ear does: (1) **predictability of wording** — could a model have produced this exact phrasing by default? (2) **regularity of rhythm** — are the sentences falling into matched, symmetrical shapes? (3) **AI-typical phrasings** — the enumerated tells in the rules below. A sentence that is plain, specific and a little irregular is good writing, not a defect, even if it breaks a "pattern". A sentence that is smooth, balanced and could have been generated about any topic is the thing to catch. Rules 1–11 are that judgement made explicit; `slop_lint.py` is its countable half.
+
 ---
 
 ## RULE 1 — EM-DASHES (near-zero)
@@ -241,10 +243,24 @@ For each: *source = the operator's brief / an operator-supplied doc / a quote th
 
 ---
 
+## RULE 11 — NO RIDDLES, NO NEAT REVERSALS (added 2026-10-03)
+
+Operator-raised. A sentence must say its whole thought. Two related habits make the reader stop and decode, and both read as "written" rather than "said".
+
+**11a — The riddle / elliptical construction.** A clause that drops its own verb or object so the reader has to fill the gap: *"the environment does most of the work, and the memo almost none"* (the reader must supply "does almost none of it"); *"some reach for data, others for a story"*. Clever on the page, friction in the ear. **Fix:** complete the sentence. "The environment does most of the work. The memo does very little."
+
+**11b — The neat reversal / antithesis.** A balanced flip, usually with an abstraction cast as the actor who decides: *"Nobody decided to eat more or less; the room decided for them"*, *"You don't choose the default; the default chooses you"*. The symmetry is the tell — real observation is rarely this tidy, and "the room" / "the default" does not decide anything. **Fix:** say plainly who did what and why. "People did not eat fewer biscuits by choice; they just would not cross the office for one."
+
+**Test:** read the sentence once, at speaking pace. Did you have to go back and work anything out? Did it land as a matched pair that is a little too neat? If yes, unpack it into plain, complete statements.
+
+**Limit: zero.** Plainness is not the lesser option here — the sentence the reader understands the first time is the stronger one. (The partner rule at generation time is **concrete-first openings**: open on a specific thing, never a "for years I believed… / I used to think…" thesis-reversal. See `references/author-facts.md`.)
+
+---
+
 ## HOW TO RUN THE SUB-EDIT
 
 1. Read the full content of the file.
-2. Work through Rules 1–10 in order. For each rule, list every violation found.
+2. Work through Rules 1–11 in order. For each rule, list every violation found.
 3. If violations exist, fix them in the content.
 4. Check that fixes haven't introduced new violations.
 5. Report: number of violations found per rule, what was changed, and the corrected text.
@@ -268,3 +284,4 @@ For each: *source = the operator's brief / an operator-supplied doc / a quote th
 | Register slang / off-voice idiom (Rule 8) | Zero | Zero |
 | Editorial tics / staged pushback (Rule 9) | Zero | Zero |
 | Fabricated scene / interiority / role (Rule 10) | Zero (truth rule) | Zero (truth rule) |
+| Riddles / neat reversals (Rule 11) | Zero | Zero |
